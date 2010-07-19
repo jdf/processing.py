@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Fri Jul 16 22:34:37 EDT 2010
+onejar.license.required=true
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=python-hack.jar
+manifest.mergeall=true
+manifest.mainclass=jycessing.Runner
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=
+includes=
