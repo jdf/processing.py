@@ -8,12 +8,17 @@ import java.io.Reader;
 
 import org.python.core.Py;
 import org.python.core.PyException;
+import org.python.core.PyFloat;
+import org.python.core.PyInteger;
+import org.python.core.PyJavaType;
 import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PyStringMap;
+import org.python.core.PyType;
 import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 
 public class Runner {
 	private static String wrap(final Reader r) throws IOException {
@@ -91,6 +96,29 @@ public class Runner {
 				return Py.None;
 			}
 		});
+		locals.__setitem__("background", new PyObject() {
+			@Override
+			public PyObject __call__(final PyObject arg0) {
+				final PyType t = arg0.getType();
+				if (t == PyInteger.TYPE) {
+					applet.background(arg0.asInt());
+				} else if (t == PyFloat.TYPE) {
+					applet.background((float)arg0.asDouble());
+				} else if (t == PyJavaType.TYPE) {
+					applet.background((PImage)arg0.__tojava__(PImage.class));
+				}
+				return Py.None;
+			}
+
+			@Override
+			public PyObject __call__(final PyObject arg0, final PyObject arg1,
+					final PyObject arg2) {
+				applet.background((float)arg0.asDouble(), (float)arg1.asDouble(), (float)arg2
+						.asDouble());
+				return Py.None;
+			}
+		});
+
 		PApplet.runSketch(new String[] { "Test" }, applet);
 	}
 }
