@@ -30,7 +30,7 @@ public class Runner {
 	}
 
 	public static void main(final String[] args) throws Exception {
-		final String pathname = "kinetictype.py";
+		final String pathname = args[0];
 		final String text = wrap(new FileReader(pathname));
 
 		Py.initPython();
