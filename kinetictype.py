@@ -16,14 +16,9 @@ def setup():
     size(640, 360, P3D)
     textFont(loadFont("Univers-66.vlw"), 1.0)
     fill(255)
-    frameRate(1000)
 
 def draw():
-    if millis() % 100 == 0:
-        print frameRate
     pass
-
-"""
     background(0)
     pushMatrix()
     translate(-200, -50, -450)
@@ -48,4 +43,3 @@ def draw():
     popMatrix()
     scale(20)
     text("%d fps"%int(frameRate), .5, 1)
-"""
