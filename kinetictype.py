@@ -19,6 +19,7 @@ def setup():
 
 def draw():
     background(0)
+    pushMatrix()
     translate(-200, -50, -450)
     rotateY(0.3)
     
@@ -38,3 +39,6 @@ def draw():
             text(line[j], 0.0, 0.0)
             popMatrix()
         popMatrix()
+    popMatrix()
+    scale(20)
+    text("%d fps"%int(frameRate), .5, 1)
