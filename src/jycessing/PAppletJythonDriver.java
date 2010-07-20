@@ -127,6 +127,18 @@ public class PAppletJythonDriver extends PApplet {
 				return new PyInteger(millis());
 			}
 		});
+
+		locals.__setitem__("frameCount", new PyObject() {
+			@Override
+			public PyObject __int__() {
+				return new PyInteger(frameCount);
+			}
+
+			@Override
+			public PyString __repr__() {
+				return new PyString(String.valueOf(frameCount));
+			}
+		});
 		locals.__setitem__("frameRate", new PyObject() {
 			@Override
 			public PyFloat __float__() {
@@ -141,6 +153,11 @@ public class PAppletJythonDriver extends PApplet {
 			@Override
 			public PyObject __int__() {
 				return new PyInteger((int)frameRate);
+			}
+
+			@Override
+			public PyString __repr__() {
+				return new PyString(String.valueOf(frameRate));
 			}
 		});
 
