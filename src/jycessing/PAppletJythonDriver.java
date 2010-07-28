@@ -13,6 +13,7 @@ import org.python.core.PyType;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PImage;
+import processing.core.PMatrix;
 
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
@@ -32,6 +33,7 @@ public class PAppletJythonDriver extends PApplet {
 				return Py.None;
 			}
 		});
+
 		locals.__setitem__("fill", new PyObject() {
 			public PyObject __call__(final PyObject arg) {
 				final PyType t = arg.getType();
@@ -215,7 +217,19 @@ public class PAppletJythonDriver extends PApplet {
 		});
 		locals.__setitem__("loadFont", new PyObject() {
 			public PyObject __call__(final PyObject filename) {
+				System.err.println("loadFont type: " + filename.getType().getProxyType());
 				return Py.java2py(loadFont(filename.asString()));
+			}
+		});
+		locals.__setitem__("getMatrix", new PyObject() {
+			public PyObject __call__() {
+				return Py.java2py(getMatrix());
+			}
+		});
+		locals.__setitem__("applyMatrix", new PyObject() {
+			public PyObject __call__(final PyObject m) {
+				applyMatrix((PMatrix)m.__tojava__(PMatrix.class));
+				return Py.None;
 			}
 		});
 	}
