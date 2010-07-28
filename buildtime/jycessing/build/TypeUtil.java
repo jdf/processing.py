@@ -13,6 +13,8 @@ public class TypeUtil {
 			sb.append(name).append(".asString().charAt(0)");
 		} else if (javaType == long.class) {
 			sb.append(name).append(".asLong()");
+		} else if (javaType == byte.class) {
+			sb.append("(byte)").append(name).append(".asInt()");
 		} else if (javaType == boolean.class) {
 			sb.append(name).append(".__nonzero__()");
 		} else if (javaType.isPrimitive()) {

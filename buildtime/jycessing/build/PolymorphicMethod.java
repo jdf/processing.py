@@ -1,13 +1,14 @@
 package jycessing.build;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import processing.core.PApplet;
+import processing.core.PGraphics;
 
 public class PolymorphicMethod {
 	private final String name;
@@ -94,7 +95,10 @@ public class PolymorphicMethod {
 	public static void main(final String[] args) {
 		Map<String, ArrayList<PolymorphicMethod>> methods = new HashMap<String, ArrayList<PolymorphicMethod>>();
 
-		for (final Method m : PApplet.class.getDeclaredMethods()) {
+		for (final Method m : PGraphics.class.getDeclaredMethods()) {
+			if (!Modifier.isPublic(m.getModifiers())) {
+				continue;
+			}
 			final String name = m.getName();
 			if (!methods.containsKey(name)) {
 				methods.put(name, new ArrayList<PolymorphicMethod>());

@@ -21,7 +21,7 @@ public class Signature {
 		final Class<?> k = argTypes.get(i);
 		if (k == float.class) {
 			return String.format("%s == PyFloat.TYPE", name);
-		} else if (k == int.class) {
+		} else if (k == int.class || k == byte.class) {
 			return String.format("%s == PyInteger.TYPE", name);
 		} else if (k == boolean.class) {
 			return String.format("%s == PyBoolean.TYPE", name);
