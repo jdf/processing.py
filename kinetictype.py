@@ -16,9 +16,9 @@ def setup():
     size(640, 360, P3D)
     textFont(loadFont("Univers-66.vlw"), 1.0)
     fill(255)
+    frameRate(1000)
 
 def draw():
-    pass
     background(0)
     pushMatrix()
     translate(-200, -50, -450)
