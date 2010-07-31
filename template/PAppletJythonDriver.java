@@ -25,6 +25,7 @@ public class PAppletJythonDriver extends PApplet {
 		draw = locals.__finditem__("draw");
 
 		// BEGIN GENERATED CODE
+		%GENERATED%
 		// END GENERATED CODE
 	}
 

@@ -2,6 +2,7 @@ package jycessing.build;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PolymorphicMethod {
@@ -39,24 +40,29 @@ public class PolymorphicMethod {
 
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(String.format("\t\t\tcase %d: \n\t", arity));
+		sb.append(String.format("\t\t\tcase %d: {\n", arity));
 		if (signatures.size() == 1) {
-			sb.append("\t\t\t");
+			sb.append("\t\t\t\t");
 			append(signatures.get(0), sb);
 		} else {
+			for (int i = 0; i < arity; i++) {
+				final String typeTemp = "\t\t\t\tfinal PyType t%d = args[%d].getType();\n";
+				sb.append(String.format(typeTemp, i, i));
+			}
+			Collections.sort(signatures);
 			for (int i = 0; i < signatures.size(); i++) {
 				final Signature sig = signatures.get(i);
 				if (i > 0) {
 					sb.append(" else ");
 				} else {
-					sb.append("\t\t\t");
+					sb.append("\t\t\t\t");
 				}
 				sb.append("if (");
 				for (int j = 0; j < arity; j++) {
 					if (j > 0) {
 						sb.append(" && ");
 					}
-					final String typeExpr = String.format("args[%d].getType()", j);
+					final String typeExpr = String.format("t%d", j);
 					sb.append(sig.getTypecheckExpression(j, typeExpr));
 				}
 				sb.append(") {\n\t\t\t\t\t");
@@ -68,6 +74,7 @@ public class PolymorphicMethod {
 			sb.append(name);
 			sb.append("\\\" to call.\"); }\n");
 		}
+		sb.append("\t\t\t}\n");
 		return sb.toString();
 	}
 
