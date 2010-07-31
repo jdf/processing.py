@@ -42,4 +42,4 @@ def draw():
         popMatrix()
     popMatrix()
     scale(20)
-    text("%d fps"%int(frameRate), .5, 1)
+    text("%d fps"%int(frameRate), .5, 1.)

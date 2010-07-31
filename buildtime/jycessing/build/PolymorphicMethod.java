@@ -14,10 +14,25 @@ public class PolymorphicMethod {
 		this.arity = arity;
 	}
 
+	public static boolean shouldAdd(final Method method) {
+		final Class<?>[] types = method.getParameterTypes();
+		for (final Class<?> k : types) {
+			if (k == char.class || k == char[].class) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void add(final Method method) {
-		if (method.getParameterTypes().length != arity) {
+		final Class<?>[] types = method.getParameterTypes();
+		if (types.length != arity) {
 			throw new IllegalArgumentException("I expect methods with " + arity
 					+ " args, but got " + method);
+		}
+		if (!shouldAdd(method)) {
+			throw new IllegalArgumentException("I can't cope with " + method
+					+ " because it's evil.");
 		}
 		signatures.add(new Signature(method));
 	}
@@ -46,7 +61,7 @@ public class PolymorphicMethod {
 				}
 				sb.append(") {\n\t\t\t\t\t");
 				append(sig, sb);
-				sb.append("\n\t\t\t\t}");
+				sb.append("\t\t\t\t}");
 			}
 			sb
 					.append(" else { throw new IllegalArgumentException(\"Couldn't figure out which \\\"");
@@ -71,10 +86,11 @@ public class PolymorphicMethod {
 		sb.append(')');
 		if (signature.isVoid()) {
 			sb.append(";\n");
-			sb.append("\t\t\t\treturn Py.None;\n");
+			sb.append("\t\t\t\treturn Py.None;");
 		} else {
 			sb.append(");");
 		}
+		sb.append('\n');
 	}
 
 }

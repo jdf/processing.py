@@ -25,7 +25,7 @@ public class Signature {
 			return String.format("%s == PyInteger.TYPE", name);
 		} else if (k == boolean.class) {
 			return String.format("%s == PyBoolean.TYPE", name);
-		} else if (k == String.class || k == char.class) {
+		} else if (k == String.class) {
 			return String.format("%s == PyString.TYPE", name);
 		} else if (k.isPrimitive()) {
 			throw new RuntimeException("You need a converter for " + k);
