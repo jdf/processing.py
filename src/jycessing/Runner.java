@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.io.Reader;
 
 import org.python.core.Py;
+import org.python.core.PyObject;
 import org.python.core.PyString;
-import org.python.core.PyStringMap;
 import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
@@ -29,25 +29,40 @@ public class Runner {
 		}
 	}
 
+	public static class K {
+		public void boom() {
+			System.err.println("Kaboom!");
+		}
+	}
+
 	public static void main(final String[] args) throws Exception {
 		final String pathname = args[0];
 		final String text = wrap(new FileReader(pathname));
 
 		Py.initPython();
+		final ProcessingLocals locals = new ProcessingLocals();
 		final InteractiveConsole interp = new InteractiveConsole();
-		final PyStringMap locals = (PyStringMap)interp.getLocals();
+		interp.setLocals(locals);
 		final String path = new File(pathname).getCanonicalFile().getParent();
 		Py.getSystemState().path.insert(0, new PyString(path));
 		try {
 			locals.__setitem__(new PyString("__file__"), new PyString(pathname));
+			final PApplet applet = new PAppletJythonDriver(interp);
+
+			final K k = new K();
+			interp.set("b", new JavaWrapper(k) {
+				@Override
+				public PyObject __call__(final PyObject[] args, final String[] keywords) {
+					System.err.println("Ow!");
+					return Py.None;
+				}
+			});
 			interp.exec(text);
+			PApplet.runSketch(new String[] { "Test" }, applet);
 		} catch (Throwable t) {
 			Py.printException(t);
 			interp.cleanup();
 			System.exit(-1);
 		}
-
-		final PApplet applet = new PAppletJythonDriver(locals);
-		PApplet.runSketch(new String[] { "Test" }, applet);
 	}
 }

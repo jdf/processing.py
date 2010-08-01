@@ -4,31 +4,31 @@ import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyObject;
 import org.python.core.PyString;
-import org.python.core.PyStringMap;
+import org.python.util.PythonInterpreter;
 
 import processing.core.PApplet;
 
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
 
-	final PyObject setup;
-	final PyObject draw;
+	private static final PyObject NODRAW = new PyObject();
+	final PythonInterpreter interp;
+	PyObject draw;
 
-	public PAppletJythonDriver(final PyStringMap locals) {
-		setup = locals.__finditem__("setup");
-		draw = locals.__finditem__("draw");
-
-		initializeStatics(locals);
+	public PAppletJythonDriver(final PythonInterpreter interp) {
+		this.interp = interp;
+		initializeStatics(interp);
 
 	}
 
-	public static void initializeStatics(final PyStringMap locals) {
-		locals.__setitem__("P3D", new PyString(PApplet.P3D));
-		locals.__setitem__("TWO_PI", new PyFloat(PApplet.TWO_PI));
+	public static void initializeStatics(final PythonInterpreter interp) {
+		interp.set("P3D", new PyString(PApplet.P3D));
+		interp.set("TWO_PI", new PyFloat(PApplet.TWO_PI));
 	}
 
 	@Override
 	public void setup() {
+		final PyObject setup = interp.get("setup");
 		if (setup != null) {
 			try {
 				setup.__call__();
@@ -45,10 +45,15 @@ public class PAppletJythonDriver extends PApplet {
 	@Override
 	public void draw() {
 		if (draw == null) {
+			draw = interp.get("draw");
+			if (draw == null) {
+				draw = NODRAW;
+			}
+		}
+		if (draw == NODRAW) {
 			super.draw();
 		} else {
 			draw.__call__();
 		}
 	}
-
 }

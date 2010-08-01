@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import processing.core.PApplet;
-import processing.core.PGraphics;
-import processing.core.PImage;
 
 @SuppressWarnings("serial")
 public class DriverGenerator {
@@ -44,15 +42,17 @@ public class DriverGenerator {
 
 	private Binding findOrCreateBinding(final String name) {
 		if (!bindings.containsKey(name)) {
-			bindings.put(name, new Binding("locals", name));
+			bindings.put(name, new Binding("interp", name));
 		}
 		return bindings.get(name);
 	}
 
 	private void maybeAdd(final Method m) {
 		final String name = m.getName();
-		if (!Modifier.isPublic(m.getModifiers()) || !PolymorphicMethod.shouldAdd(m)
-				|| BAD_METHODS.contains(name) || !ALL_APPLET_METHODS.contains(name)) {
+		final int mods = m.getModifiers();
+		if (!Modifier.isPublic(mods) || Modifier.isStatic(mods)
+				|| !PolymorphicMethod.shouldAdd(m) || BAD_METHODS.contains(name)
+				|| !ALL_APPLET_METHODS.contains(name)) {
 			return;
 		}
 		findOrCreateBinding(name).add(m);
@@ -60,25 +60,16 @@ public class DriverGenerator {
 
 	private void maybeAdd(final Field f) {
 		final String name = f.getName();
-		if (!Modifier.isPublic(f.getModifiers()) || BAD_FIELDS.contains(name)) {
+		final int mods = f.getModifiers();
+		if (!Modifier.isPublic(mods) || Modifier.isStatic(mods) || BAD_FIELDS.contains(name)) {
 			return;
 		}
 		findOrCreateBinding(name).add(f);
 	}
 
 	public void generateDriver() {
-		for (final Method m : PGraphics.class.getDeclaredMethods()) {
+		for (final Method m : PApplet.class.getDeclaredMethods()) {
 			maybeAdd(m);
-		}
-		for (final Method m : PImage.class.getDeclaredMethods()) {
-			maybeAdd(m);
-		}
-		for (final String mn : APPLET_OWNED_METHODS) {
-			for (final Method m : PApplet.class.getDeclaredMethods()) {
-				if (m.getName().equals(mn)) {
-					maybeAdd(m);
-				}
-			}
 		}
 		for (final Field f : PApplet.class.getDeclaredFields()) {
 			maybeAdd(f);

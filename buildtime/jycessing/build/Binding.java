@@ -5,20 +5,20 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class Binding {
-	private final String localsName;
+	private final String interpreterName;
 	private final String name;
 	private final ArrayList<PolymorphicMethod> methods = new ArrayList<PolymorphicMethod>();
 	private Global global = null;
 
-	public Binding(final String localsName, final String name) {
+	public Binding(final String interpreterName, final String name) {
 		this.name = name;
-		this.localsName = localsName;
+		this.interpreterName = interpreterName;
 	}
 
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(localsName).append(".__setitem__(\"").append(name).append("\", ");
-		sb.append("new PyObject() {\n");
+		sb.append(interpreterName).append(".set(\"").append(name).append("\", ");
+		sb.append(global == null ? "new PyObject() {" : global.getInitializerPrefix());
 		if (methods.size() > 0) {
 			sb
 					.append("\tpublic PyObject __call__(final PyObject[] args, final String[] kws) {\n");
@@ -36,7 +36,7 @@ public class Binding {
 			sb.append("\t\t}\n\t}\n");
 		}
 		if (global != null) {
-			sb.append(global.toString());
+			sb.append(global.getBody());
 		}
 		sb.append("}");
 		sb.append(");\n");
