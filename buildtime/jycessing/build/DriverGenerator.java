@@ -1,12 +1,19 @@
 package jycessing.build;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,14 +21,10 @@ import processing.core.PApplet;
 
 @SuppressWarnings("serial")
 public class DriverGenerator {
-	private static final String[] APPLET_OWNED_METHODS = new String[] { "loadFont", "size",
-			"frameRate", "sin", "cos", "tan", "sqrt", "millis" };
+	final String BAD_METHOD = "^(init|handleDraw|draw|parse[A-Z].*)$";
 
-	private static final Set<String> BAD_METHODS = new HashSet<String>(Arrays
-			.asList("init"));
-
-	private static final Set<String> BAD_FIELDS = new HashSet<String>(Arrays
-			.asList("screen"));
+	private static final Set<String> BAD_FIELDS = new HashSet<String>(Arrays.asList(
+			"screen", "args", "recorder"));
 
 	private static final Set<String> ALL_APPLET_METHODS = Collections
 			.unmodifiableSet(new HashSet<String>() {
@@ -36,6 +39,7 @@ public class DriverGenerator {
 			});
 
 	final Map<String, Binding> bindings = new HashMap<String, Binding>();
+	final List<Field> nonPrimitives = new ArrayList<Field>();
 
 	public DriverGenerator() {
 	}
@@ -50,9 +54,8 @@ public class DriverGenerator {
 	private void maybeAdd(final Method m) {
 		final String name = m.getName();
 		final int mods = m.getModifiers();
-		if (!Modifier.isPublic(mods) || Modifier.isStatic(mods)
-				|| !PolymorphicMethod.shouldAdd(m) || BAD_METHODS.contains(name)
-				|| !ALL_APPLET_METHODS.contains(name)) {
+		if (!Modifier.isPublic(mods) || !PolymorphicMethod.shouldAdd(m)
+				|| name.matches(BAD_METHOD) || !ALL_APPLET_METHODS.contains(name)) {
 			return;
 		}
 		findOrCreateBinding(name).add(m);
@@ -64,23 +67,50 @@ public class DriverGenerator {
 		if (!Modifier.isPublic(mods) || Modifier.isStatic(mods) || BAD_FIELDS.contains(name)) {
 			return;
 		}
-		findOrCreateBinding(name).add(f);
+		if (f.getType() == char.class || !f.getType().isPrimitive()) {
+			nonPrimitives.add(f);
+		} else {
+			findOrCreateBinding(name).add(f);
+		}
 	}
 
-	public void generateDriver() {
+	public String getBindings() {
 		for (final Method m : PApplet.class.getDeclaredMethods()) {
 			maybeAdd(m);
 		}
 		for (final Field f : PApplet.class.getDeclaredFields()) {
 			maybeAdd(f);
 		}
+		final StringBuilder sb = new StringBuilder();
 		for (final Binding b : bindings.values()) {
-			System.out.println(b);
+			sb.append(b.toString());
 		}
-
+		return sb.toString();
 	}
 
-	public static void main(final String[] args) {
-		new DriverGenerator().generateDriver();
+	public static String getText(final Reader r) throws IOException {
+		final BufferedReader reader = new BufferedReader(r);
+		final StringBuilder sb = new StringBuilder();
+		String line;
+		try {
+			while ((line = reader.readLine()) != null) {
+				sb.append(line).append("\n");
+			}
+			return sb.toString();
+		} finally {
+			reader.close();
+		}
+	}
+
+	public static void main(final String[] args) throws Exception {
+		final DriverGenerator gen = new DriverGenerator();
+
+		final String template = getText(new FileReader("template/DriverImpl.java"));
+		final String bindings = gen.getBindings();
+		final String withBindings = template.replace("%BINDINGS%", bindings);
+
+		final FileWriter out = new FileWriter("generated/jycessing/DriverImpl.java");
+		out.write(withBindings);
+		out.close();
 	}
 }

@@ -6,4 +6,5 @@ kinetic-type/
 jython.jar
 jython_processing_demo
 examples.pde
-
+generated/**
+*.py.class

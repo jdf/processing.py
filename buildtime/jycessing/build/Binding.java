@@ -5,19 +5,17 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class Binding {
-	private final String interpreterName;
 	private final String name;
 	private final ArrayList<PolymorphicMethod> methods = new ArrayList<PolymorphicMethod>();
 	private Global global = null;
 
 	public Binding(final String interpreterName, final String name) {
 		this.name = name;
-		this.interpreterName = interpreterName;
 	}
 
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(interpreterName).append(".set(\"").append(name).append("\", ");
+		sb.append("builtins.__setitem__(\"").append(name).append("\", ");
 		sb.append(global == null ? "new PyObject() {" : global.getInitializerPrefix());
 		if (methods.size() > 0) {
 			sb

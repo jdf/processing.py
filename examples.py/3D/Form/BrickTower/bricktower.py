@@ -1,25 +1,21 @@
 """
-/**
  * Brick Tower
  * by Ira Greenberg. 
  * 
  * 3D castle tower constructed out of individual bricks.
  * Uses the PVector and Cube classes. 
- */
 """
 from cube import Cube
 bricksPerLayer = 16.0
 brickLayers = 18.0
-brick = None
 brickWidth = 60
 brickHeight = 25
 brickDepth = 25
 radius = 175.0
-angle = 0
+brick = Cube(brickWidth, brickHeight, brickDepth)
 
 def setup():
-    size(640, 360, P3D)
-    brick = Cube(brickWidth, brickHeight, brickDepth)
+    size(640, 360, OPENGL)
 
 def draw():
     background(0)

@@ -44,7 +44,7 @@ class Cube:
 
     def create(self):
         for i in range(6):
-            beginShape(QUADS);
+            beginShape(QUADS)
             for j in range(4):
-                vertex(vertices[j+4*i][0], vertices[j+4*i][1], vertices[j+4*i][2])
+                vertex(self.vertices[j+4*i][0], self.vertices[j+4*i][1], self.vertices[j+4*i][2])
             endShape()

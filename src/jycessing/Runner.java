@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.Reader;
 
 import org.python.core.Py;
-import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.util.InteractiveConsole;
 
@@ -40,23 +39,12 @@ public class Runner {
 		final String text = wrap(new FileReader(pathname));
 
 		Py.initPython();
-		final ProcessingLocals locals = new ProcessingLocals();
 		final InteractiveConsole interp = new InteractiveConsole();
-		interp.setLocals(locals);
 		final String path = new File(pathname).getCanonicalFile().getParent();
 		Py.getSystemState().path.insert(0, new PyString(path));
 		try {
-			locals.__setitem__(new PyString("__file__"), new PyString(pathname));
-			final PApplet applet = new PAppletJythonDriver(interp);
-
-			final K k = new K();
-			interp.set("b", new JavaWrapper(k) {
-				@Override
-				public PyObject __call__(final PyObject[] args, final String[] keywords) {
-					System.err.println("Ow!");
-					return Py.None;
-				}
-			});
+			interp.getLocals().__setitem__(new PyString("__file__"), new PyString(pathname));
+			final PApplet applet = new DriverImpl(interp);
 			interp.exec(text);
 			PApplet.runSketch(new String[] { "Test" }, applet);
 		} catch (Throwable t) {
