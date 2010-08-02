@@ -14,13 +14,12 @@ public class DriverImpl extends PAppletJythonDriver {
 
 	@Override
 	protected void populateBuiltins() {
-		%BINDINGS%
+		%METHOD_BINDINGS%
 	}
 
 	@Override
-	protected void setNonPrimitives() {
-		interp.set("key", key);
-		interp.set("keyEvent", keyEvent);
+	protected void setFields() {
+		%FIELD_BINDINGS%
 	}
 
 }

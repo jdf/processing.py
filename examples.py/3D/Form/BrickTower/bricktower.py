@@ -15,7 +15,7 @@ radius = 175.0
 brick = Cube(brickWidth, brickHeight, brickDepth)
 
 def setup():
-    size(640, 360, OPENGL)
+    size(640, 360, P3D)
 
 def draw():
     background(0)

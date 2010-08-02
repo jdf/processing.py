@@ -21,16 +21,9 @@ public class Runner {
 			while ((line = reader.readLine()) != null) {
 				sb.append(line).append("\n");
 			}
-			//			sb.append("Test().runSketch()");
 			return sb.toString();
 		} finally {
 			reader.close();
-		}
-	}
-
-	public static class K {
-		public void boom() {
-			System.err.println("Kaboom!");
 		}
 	}
 
@@ -44,8 +37,9 @@ public class Runner {
 		Py.getSystemState().path.insert(0, new PyString(path));
 		try {
 			interp.getLocals().__setitem__(new PyString("__file__"), new PyString(pathname));
-			final PApplet applet = new DriverImpl(interp);
+			final DriverImpl applet = new DriverImpl(interp);
 			interp.exec(text);
+			applet.findAppletMethods();
 			PApplet.runSketch(new String[] { "Test" }, applet);
 		} catch (Throwable t) {
 			Py.printException(t);

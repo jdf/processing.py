@@ -3,48 +3,26 @@ class Cube:
         self.w = w
         self.h = h
         self.d = d
+        (w,h,d) = (w/2, h/2, d/2)
         self.vertices = [
             # Cube composed of 6 quads
             # Front
-            (-w/2, -h/2, d/2),
-            (w/2, -h/2, d/2),
-            (w/2, h/2, d/2),
-            (-w/2, h/2, d/2),
-        
+            (-w, -h, d), (w, -h, d), (w, h, d), (-w, h, d),
             # Left
-            (-w/2, -h/2, d/2),
-            (-w/2, -h/2, -d/2),
-            (-w/2, h/2, -d/2),
-            (-w/2, h/2, d/2),
-        
+            (-w, -h, d), (-w, -h, -d), (-w, h, -d), (-w, h, d),
             # Right
-            (w/2, -h/2, d/2),
-            (w/2, -h/2, -d/2),
-            (w/2, h/2, -d/2),
-            (w/2, h/2, d/2),
-        
+            (w, -h, d), (w, -h, -d), (w, h, -d), (w, h, d),
             # Back
-            (-w/2, -h/2, -d/2),  
-            (w/2, -h/2, -d/2),
-            (w/2, h/2, -d/2),
-            (-w/2, h/2, -d/2),
-        
+            (-w, -h, -d), (w, -h, -d), (w, h, -d), (-w, h, -d),
             # Top
-            (-w/2, -h/2, d/2),
-            (-w/2, -h/2, -d/2),
-            (w/2, -h/2, -d/2),
-            (w/2, -h/2, d/2),
-        
+            (-w, -h, d), (-w, -h, -d), (w, -h, -d), (w, -h, d),
             # Bottom
-            (-w/2, h/2, d/2),
-            (-w/2, h/2, -d/2),
-            (w/2, h/2, -d/2),
-            (w/2, h/2, d/2)
+            (-w, h, d), (-w, h, -d), (w, h, -d), (w, h, d)
         ]
 
     def create(self):
         for i in range(6):
             beginShape(QUADS)
-            for j in range(4):
-                vertex(self.vertices[j+4*i][0], self.vertices[j+4*i][1], self.vertices[j+4*i][2])
+            for v in [self.vertices[x+4*i] for x in range(4)]:
+                vertex(v[0], v[1], v[2])
             endShape()

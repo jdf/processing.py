@@ -17,12 +17,13 @@ abstract public class PAppletJythonDriver extends PApplet {
 
 	abstract protected void populateBuiltins();
 
-	abstract protected void setNonPrimitives();
+	abstract protected void setFields();
 
-	private static final PyObject NODRAW = new PyObject();
+	private static final PyObject NOMETH = new PyObject();
 	protected final PyStringMap builtins;
 	protected final PythonInterpreter interp;
-	PyObject draw;
+	private PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
+			mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth;
 
 	public PAppletJythonDriver(final PythonInterpreter interp) {
 		interp.getSystemState();
@@ -30,6 +31,27 @@ abstract public class PAppletJythonDriver extends PApplet {
 		this.interp = interp;
 		initializeStatics(builtins);
 		populateBuiltins();
+		setFields();
+	}
+
+	/**
+	 * Call this after populating the interpreter's locals by executing the script
+	 */
+	public void findAppletMethods() {
+		drawMeth = getMethod("draw");
+		setupMeth = getMethod("setup");
+		mousePressedMeth = getMethod("mousePressed");
+		mouseClickedMeth = getMethod("mouseClicked");
+		mouseReleasedMeth = getMethod("mouseReleased");
+		mouseDraggedMeth = getMethod("mouseDragged");
+		keyPressedMeth = getMethod("keyPressed");
+		keyReleasedMeth = getMethod("keyReleased");
+		keyTypedMeth = getMethod("keyTyped");
+	}
+
+	private PyObject getMethod(final String key) {
+		final PyObject val = interp.get(key);
+		return val == null ? NOMETH : val;
 	}
 
 	public static void initializeStatics(final PyStringMap builtins) {
@@ -47,10 +69,12 @@ abstract public class PAppletJythonDriver extends PApplet {
 
 	@Override
 	public void setup() {
-		final PyObject setup = interp.get("setup");
-		if (setup != null) {
+		if (setupMeth == NOMETH) {
+			super.setup();
+		} else {
 			try {
-				setup.__call__();
+				setFields();
+				setupMeth.__call__();
 			} catch (PyException e) {
 				if (e.getCause() instanceof RendererChangeException) {
 					throw (RendererChangeException)e.getCause();
@@ -63,17 +87,74 @@ abstract public class PAppletJythonDriver extends PApplet {
 
 	@Override
 	public void draw() {
-		if (draw == null) {
-			draw = interp.get("draw");
-			if (draw == null) {
-				draw = NODRAW;
-			}
-		}
-		if (draw == NODRAW) {
-			setNonPrimitives();
+		setFields();
+		if (drawMeth == NOMETH) {
 			super.draw();
 		} else {
-			draw.__call__();
+			drawMeth.__call__();
+		}
+	}
+
+	@Override
+	public void mouseClicked() {
+		if (mouseClickedMeth == NOMETH) {
+			super.mouseClicked();
+		} else {
+			mouseClickedMeth.__call__();
+		}
+	}
+
+	@Override
+	public void mousePressed() {
+		if (mousePressedMeth == NOMETH) {
+			super.mousePressed();
+		} else {
+			mousePressedMeth.__call__();
+		}
+	}
+
+	@Override
+	public void mouseReleased() {
+		if (mouseReleasedMeth == NOMETH) {
+			super.mouseReleased();
+		} else {
+			mouseReleasedMeth.__call__();
+		}
+	}
+
+	@Override
+	public void mouseDragged() {
+		if (mouseDraggedMeth == NOMETH) {
+			super.mouseDragged();
+		} else {
+			mouseDraggedMeth.__call__();
+		}
+	}
+
+	@Override
+	public void keyPressed() {
+		if (keyPressedMeth == NOMETH) {
+			super.keyPressed();
+		} else {
+			keyPressedMeth.__call__();
+		}
+	}
+
+	@Override
+	public void keyReleased() {
+		if (keyReleasedMeth == NOMETH) {
+			super.keyReleased();
+		} else {
+			keyReleasedMeth.__call__();
+		}
+	}
+
+	@Override
+	public void keyTyped() {
+		if (keyTypedMeth == NOMETH) {
+			super.keyTyped();
+		} else {
+			keyTypedMeth.__call__();
 		}
 	}
 }

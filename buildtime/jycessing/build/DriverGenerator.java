@@ -8,12 +8,10 @@ import java.io.Reader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +22,9 @@ public class DriverGenerator {
 	final String BAD_METHOD = "^(init|handleDraw|draw|parse[A-Z].*)$";
 
 	private static final Set<String> BAD_FIELDS = new HashSet<String>(Arrays.asList(
-			"screen", "args", "recorder"));
+			"screen", "args", "recorder", "frame", "g", "selectedFile", "keyEvent",
+			"mouseEvent", "sketchPath", "screenWidth", "screenHeight", "defaultSize",
+			"firstMouse", "finished", "requestImageMax"));
 
 	private static final Set<String> ALL_APPLET_METHODS = Collections
 			.unmodifiableSet(new HashSet<String>() {
@@ -39,9 +39,14 @@ public class DriverGenerator {
 			});
 
 	final Map<String, Binding> bindings = new HashMap<String, Binding>();
-	final List<Field> nonPrimitives = new ArrayList<Field>();
 
 	public DriverGenerator() {
+		for (final Method m : PApplet.class.getDeclaredMethods()) {
+			maybeAdd(m);
+		}
+		for (final Field f : PApplet.class.getDeclaredFields()) {
+			maybeAdd(f);
+		}
 	}
 
 	private Binding findOrCreateBinding(final String name) {
@@ -67,23 +72,25 @@ public class DriverGenerator {
 		if (!Modifier.isPublic(mods) || Modifier.isStatic(mods) || BAD_FIELDS.contains(name)) {
 			return;
 		}
-		if (f.getType() == char.class || !f.getType().isPrimitive()) {
-			nonPrimitives.add(f);
-		} else {
-			findOrCreateBinding(name).add(f);
-		}
+		findOrCreateBinding(name).setField(f);
 	}
 
-	public String getBindings() {
-		for (final Method m : PApplet.class.getDeclaredMethods()) {
-			maybeAdd(m);
-		}
-		for (final Field f : PApplet.class.getDeclaredFields()) {
-			maybeAdd(f);
-		}
+	public String getMethodBindings() {
 		final StringBuilder sb = new StringBuilder();
 		for (final Binding b : bindings.values()) {
-			sb.append(b.toString());
+			if (!b.hasGlobal()) {
+				sb.append(b.toString());
+			}
+		}
+		return sb.toString();
+	}
+
+	public String getFieldBindings() {
+		final StringBuilder sb = new StringBuilder();
+		for (final Binding b : bindings.values()) {
+			if (b.hasGlobal()) {
+				sb.append(b.toString());
+			}
 		}
 		return sb.toString();
 	}
@@ -106,11 +113,13 @@ public class DriverGenerator {
 		final DriverGenerator gen = new DriverGenerator();
 
 		final String template = getText(new FileReader("template/DriverImpl.java"));
-		final String bindings = gen.getBindings();
-		final String withBindings = template.replace("%BINDINGS%", bindings);
+		final String withMethodBindings = template.replace("%METHOD_BINDINGS%", gen
+				.getMethodBindings());
+		final String withFieldBindings = withMethodBindings.replace("%FIELD_BINDINGS%", gen
+				.getFieldBindings());
 
 		final FileWriter out = new FileWriter("generated/jycessing/DriverImpl.java");
-		out.write(withBindings);
+		out.write(withFieldBindings);
 		out.close();
 	}
 }

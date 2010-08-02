@@ -80,13 +80,8 @@ public class PolymorphicMethod {
 
 	private void append(final Signature signature, final StringBuilder sb) {
 		if (!signature.isVoid()) {
-			try {
-				final String prefix = TypeUtil.pyConversionPrefix(signature.getReturnType());
-				sb.append("return ").append(prefix);
-			} catch (RuntimeException e) {
-				System.err.println(name);
-				throw e;
-			}
+			final String prefix = TypeUtil.pyConversionPrefix(signature.getReturnType());
+			sb.append("return ").append(prefix);
 		}
 		sb.append(name).append('(');
 		for (int i = 0; i < arity; i++) {

@@ -28,17 +28,19 @@ public class TypeUtil {
 		return sb.toString();
 	}
 
-	public static String pyConversionPrefix(final Class<?> javaType) {
-		if (javaType == float.class) {
+	public static String pyConversionPrefix(final Class<?> k) {
+		if (k == float.class) {
 			return "new PyFloat(";
-		} else if (javaType == int.class) {
+		} else if (k == int.class) {
 			return "new PyInteger(";
-		} else if (javaType == String.class) {
+		} else if (k == long.class) {
+			return "new PyLong(";
+		} else if (k == String.class || k == char.class) {
 			return "new PyString(";
-		} else if (javaType == boolean.class) {
+		} else if (k == boolean.class) {
 			return "new PyBoolean(";
-		} else if (javaType.isPrimitive()) {
-			throw new RuntimeException("You need a converter for " + javaType);
+		} else if (k.isPrimitive()) {
+			throw new RuntimeException("You need a converter for " + k);
 		} else {
 			return "Py.java2py(";
 		}
