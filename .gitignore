@@ -8,3 +8,5 @@ jython_processing_demo
 examples.pde
 generated/**
 *.py.class
+*$py.class
+
