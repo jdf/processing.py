@@ -13,7 +13,7 @@ import org.python.util.InteractiveConsole;
 import processing.core.PApplet;
 
 public class Runner {
-	private static String wrap(final Reader r) throws IOException {
+	private static String read(final Reader r) throws IOException {
 		final BufferedReader reader = new BufferedReader(r);
 		final StringBuilder sb = new StringBuilder(1024);
 		String line;
@@ -29,7 +29,7 @@ public class Runner {
 
 	public static void main(final String[] args) throws Exception {
 		final String pathname = args[0];
-		final String text = wrap(new FileReader(pathname));
+		final String text = read(new FileReader(pathname));
 
 		Py.initPython();
 		final InteractiveConsole interp = new InteractiveConsole();
@@ -37,9 +37,7 @@ public class Runner {
 		Py.getSystemState().path.insert(0, new PyString(path));
 		try {
 			interp.getLocals().__setitem__(new PyString("__file__"), new PyString(pathname));
-			final DriverImpl applet = new DriverImpl(interp);
-			interp.exec(text);
-			applet.findAppletMethods();
+			final PAppletJythonDriver applet = new DriverImpl(interp, text);
 			PApplet.runSketch(new String[] { "Test" }, applet);
 		} catch (Throwable t) {
 			Py.printException(t);

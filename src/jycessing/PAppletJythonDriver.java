@@ -2,12 +2,13 @@ package jycessing;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.regex.Pattern;
 
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyObject;
 import org.python.core.PyStringMap;
-import org.python.util.PythonInterpreter;
+import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -21,17 +22,33 @@ abstract public class PAppletJythonDriver extends PApplet {
 
 	private static final PyObject NOMETH = new PyObject();
 	protected final PyStringMap builtins;
-	protected final PythonInterpreter interp;
+	protected final InteractiveConsole interp;
+	private final String programText;
+	private final boolean isStaticMode;
 	private PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
 			mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth;
 
-	public PAppletJythonDriver(final PythonInterpreter interp) {
-		interp.getSystemState();
+	private static final Pattern METHOD_DEF = Pattern.compile(
+			"^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
+
+	public PAppletJythonDriver(final InteractiveConsole interp) {
+		this(interp, null);
+	}
+
+	public PAppletJythonDriver(final InteractiveConsole interp, final String programText) {
+		this.programText = programText;
+		this.isStaticMode = !METHOD_DEF.matcher(programText).find();
 		this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
 		this.interp = interp;
 		initializeStatics(builtins);
 		populateBuiltins();
 		setFields();
+
+		if (!isStaticMode) {
+			interp.exec(programText);
+		}
+
+		findAppletMethods();
 	}
 
 	/**
@@ -69,11 +86,11 @@ abstract public class PAppletJythonDriver extends PApplet {
 
 	@Override
 	public void setup() {
-		if (setupMeth == NOMETH) {
-			super.setup();
-		} else {
+		setFields();
+		if (isStaticMode) {
+			interp.exec(programText);
+		} else if (setupMeth != NOMETH) {
 			try {
-				setFields();
 				setupMeth.__call__();
 			} catch (PyException e) {
 				if (e.getCause() instanceof RendererChangeException) {
