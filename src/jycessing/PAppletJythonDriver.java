@@ -85,6 +85,13 @@ abstract public class PAppletJythonDriver extends PApplet {
 	}
 
 	@Override
+	public void size(final int iwidth, final int iheight, final String irenderer,
+			final String ipath) {
+		super.size(iwidth, iheight, irenderer, ipath);
+		setFields();
+	}
+
+	@Override
 	public void setup() {
 		setFields();
 		if (isStaticMode) {
