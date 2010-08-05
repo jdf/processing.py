@@ -28,7 +28,7 @@ abstract public class PAppletJythonDriver extends PApplet {
 	private PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
 			mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth;
 
-	private static final Pattern METHOD_DEF = Pattern.compile(
+	private static final Pattern ACTIVE_METHOD_DEF = Pattern.compile(
 			"^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
 
 	public PAppletJythonDriver(final InteractiveConsole interp) {
@@ -37,7 +37,7 @@ abstract public class PAppletJythonDriver extends PApplet {
 
 	public PAppletJythonDriver(final InteractiveConsole interp, final String programText) {
 		this.programText = programText;
-		this.isStaticMode = !METHOD_DEF.matcher(programText).find();
+		this.isStaticMode = !ACTIVE_METHOD_DEF.matcher(programText).find();
 		this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
 		this.interp = interp;
 		initializeStatics(builtins);
@@ -48,13 +48,6 @@ abstract public class PAppletJythonDriver extends PApplet {
 			interp.exec(programText);
 		}
 
-		findAppletMethods();
-	}
-
-	/**
-	 * Call this after populating the interpreter's locals by executing the script
-	 */
-	public void findAppletMethods() {
 		drawMeth = getMethod("draw");
 		setupMeth = getMethod("setup");
 		mousePressedMeth = getMethod("mousePressed");

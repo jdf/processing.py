@@ -2,10 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="generated"/>
-	<classpathentry kind="src" path="buildtime"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/processing-core"/>
-	<classpathentry kind="lib" path="C:/jython2.5.2b1core/jython.jar" sourcepath="C:/jython2.5.2b1src/src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/processing-opengl"/>
+	<classpathentry kind="lib" path="C:/jython2.5.2b1core/jython.jar" sourcepath="/jython-trunk"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
