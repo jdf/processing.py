@@ -13,6 +13,11 @@ import org.python.util.InteractiveConsole;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
+/**
+ * Copyright (C)
+ * @author Jonathan Feinberg &lt;jdf@pobox.com&gt;
+ *
+ */
 @SuppressWarnings("serial")
 abstract public class PAppletJythonDriver extends PApplet {
 

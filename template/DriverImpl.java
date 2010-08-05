@@ -1,7 +1,6 @@
 package jycessing;
 
 import org.python.util.InteractiveConsole;
-import org.python.util.PythonInterpreter;
 import org.python.core.*;
 import processing.core.*;
 import java.io.*;

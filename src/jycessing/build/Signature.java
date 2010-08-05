@@ -7,7 +7,6 @@ import java.util.List;
 
 public class Signature implements Comparable<Signature> {
 	private static final Comparator<Class<?>> CLASS_COMP = new Comparator<Class<?>>() {
-		@Override
 		public int compare(final Class<?> a, final Class<?> b) {
 			if (a == int.class && b == float.class) {
 				return -1;
@@ -19,7 +18,6 @@ public class Signature implements Comparable<Signature> {
 		}
 	};
 
-	@Override
 	public int compareTo(final Signature o) {
 		if (argTypes.size() != o.argTypes.size()) {
 			throw new IllegalArgumentException("Can't compare Signatures of unlike size");
