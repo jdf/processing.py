@@ -9,4 +9,5 @@ examples.pde
 generated/**
 *.py.class
 *$py.class
+line.pdf
 

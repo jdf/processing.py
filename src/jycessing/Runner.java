@@ -8,6 +8,7 @@ import java.io.Reader;
 
 import org.python.core.Py;
 import org.python.core.PyString;
+import org.python.core.PySystemState;
 import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
@@ -35,6 +36,13 @@ public class Runner {
 		final InteractiveConsole interp = new InteractiveConsole();
 		final String path = new File(pathname).getCanonicalFile().getParent();
 		Py.getSystemState().path.insert(0, new PyString(path));
+		PySystemState.packageManager.addJarDir("thirdparty/processing/lib", false);
+		PySystemState.packageManager.addJarDir("thirdparty/processing/lib/pdf", false);
+		final String qtJava = System.getenv("QTJAVA");
+		if (qtJava != null) {
+			final String dir = new File(qtJava).getParentFile().getAbsolutePath();
+			PySystemState.packageManager.addJarDir(dir, false);
+		}
 		try {
 			interp.getLocals().__setitem__(new PyString("__file__"), new PyString(pathname));
 			final PAppletJythonDriver applet = new DriverImpl(interp, text);

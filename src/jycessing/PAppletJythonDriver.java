@@ -48,6 +48,7 @@ abstract public class PAppletJythonDriver extends PApplet {
 		initializeStatics(builtins);
 		populateBuiltins();
 		setFields();
+		builtins.__setitem__("this", Py.java2py(this));
 
 		if (!isStaticMode) {
 			interp.exec(programText);

@@ -1,10 +1,10 @@
-""" * Cubic Grid 
- * by Ira Greenberg. 
- * 
- * 3D translucent colored grid uses nested pushMatrix()
- * and popMatrix() functions. 
 """
+    Cubic Grid 
+    by Ira Greenberg. 
 
+    3D translucent colored grid uses nested pushMatrix()
+    and popMatrix() functions. 
+"""
 boxSize = 40
 margin = boxSize*2
 depth = 400
