@@ -3,11 +3,9 @@ cachedir
 src.zip
 python-hack.jar
 kinetic-type/
-jython.jar
 jython_processing_demo
 examples.pde
-generated/**
 *.py.class
 *$py.class
 line.pdf
-
+generated/jycessing/*.java
