@@ -6,6 +6,7 @@
  * Uses the PVector and Cube classes. 
 """
 from cube import Cube
+from peasy import PeasyCam
 bricksPerLayer = 16.0
 brickLayers = 18.0
 brickWidth = 60
@@ -15,7 +16,8 @@ radius = 175.0
 brick = Cube(brickWidth, brickHeight, brickDepth)
 
 def setup():
-    size(640, 360, P3D)
+    size(640, 360, OPENGL)
+    PeasyCam(this, 200)
 
 def draw():
     background(0)

@@ -3,8 +3,14 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="generated"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="thirdparty/processing/lib/core.jar" sourcepath="/processing-core/src"/>
-	<classpathentry kind="lib" path="thirdparty/jython/jython.jar" sourcepath="/jython-trunk/src"/>
+	<classpathentry kind="lib" path="jython/jython.jar" sourcepath="/jython-trunk/src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/processing-app"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/processing-core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/processing-dxf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/processing-net"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/processing-opengl"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/processing-pdf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/processing-serial"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/processing-video"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

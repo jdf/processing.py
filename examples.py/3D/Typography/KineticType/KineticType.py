@@ -13,7 +13,7 @@ words = [
         ]
 
 def setup():
-    size(640, 360, P3D)
+    size(640, 360, OPENGL)
     textFont(loadFont("Univers-66.vlw"), 1.0)
     fill(255)
     frameRate(1000)
