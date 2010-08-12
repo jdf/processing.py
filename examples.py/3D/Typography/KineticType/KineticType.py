@@ -1,12 +1,12 @@
 """
- Kinetic Type 
- by Zach Lieberman. 
+ Kinetic Type
+ by Zach Lieberman.
  Adapted to Python by Jonathan Feinberg
- Using push() and pop() to define the curves of the lines of type. 
+ Using push() and pop() to define the curves of the lines of type.
 """
 
 words = [
-          "sometimes it's like", "the lines of text", "are so happy", 
+          "sometimes it's like", "the lines of text", "are so happy",
           "that they want to dance", "or leave the page or jump",
           "can you blame them?", "living on the page like that",
           "waiting to be read..."
@@ -14,16 +14,16 @@ words = [
 
 def setup():
     size(640, 360, OPENGL)
+    hint(DISABLE_DEPTH_TEST)
     textFont(loadFont("Univers-66.vlw"), 1.0)
     fill(255)
-    frameRate(1000)
 
 def draw():
     background(0)
     pushMatrix()
     translate(-200, -50, -450)
     rotateY(0.3)
-    
+
     # Now animate every line object & draw it...
     for i in range(len(words)):
         f1 = sin((i + 1.0) * (millis() / 10000.0) * TWO_PI)
@@ -41,5 +41,3 @@ def draw():
             popMatrix()
         popMatrix()
     popMatrix()
-    scale(20)
-    text("%d fps"%int(frameRate), .5, 1)

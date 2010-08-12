@@ -120,6 +120,7 @@ public class Runner {
 		Py.initPython();
 		final InteractiveConsole interp = new InteractiveConsole();
 		final String path = new File(pathname).getCanonicalFile().getParent();
+                System.setProperty("user.dir", path);
 		Py.getSystemState().path.insert(0, new PyString(path));
 		try {
 			interp.getLocals().__setitem__(new PyString("__file__"), new PyString(pathname));
