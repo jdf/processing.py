@@ -1,12 +1,12 @@
 /*
  * Copyright 2010 Jonathan Feinberg
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -34,107 +34,109 @@ import processing.core.PApplet;
 
 @SuppressWarnings("serial")
 public class DriverGenerator {
-	final String BAD_METHOD = "^(init|handleDraw|draw|parse[A-Z].*|arraycopy|openStream)$";
+    final String BAD_METHOD =
+            "^(init|handleDraw|draw|parse[A-Z].*|arraycopy|openStream)$";
 
-	private static final Set<String> BAD_FIELDS = new HashSet<String>(Arrays.asList(
-			"screen", "args", "recorder", "frame", "g", "selectedFile", "keyEvent",
-			"mouseEvent", "sketchPath", "screenWidth", "screenHeight", "defaultSize",
-			"firstMouse", "finished", "requestImageMax"));
+    private static final Set<String> BAD_FIELDS = new HashSet<String>(
+            Arrays.asList("screen", "args", "recorder", "frame", "g", "selectedFile",
+                    "keyEvent", "mouseEvent", "sketchPath", "screenWidth", "screenHeight",
+                    "defaultSize", "firstMouse", "finished", "requestImageMax"));
 
-	private static final Set<String> ALL_APPLET_METHODS = Collections
-			.unmodifiableSet(new HashSet<String>() {
-				{
-					for (final Method m : PApplet.class.getDeclaredMethods()) {
-						if (!Modifier.isPublic(m.getModifiers())) {
-							continue;
-						}
-						add(m.getName());
-					}
-				}
-			});
+    private static final Set<String> ALL_APPLET_METHODS = Collections.unmodifiableSet(
+            new HashSet<String>() {
+                {
+                    for (final Method m : PApplet.class.getDeclaredMethods()) {
+                        if (!Modifier.isPublic(m.getModifiers())) {
+                            continue;
+                        }
+                        add(m.getName());
+                    }
+                }
+            });
 
-	final Map<String, Binding> bindings = new HashMap<String, Binding>();
+    final Map<String, Binding> bindings = new HashMap<String, Binding>();
 
-	public DriverGenerator() {
-		for (final Method m : PApplet.class.getDeclaredMethods()) {
-			maybeAdd(m);
-		}
-		for (final Field f : PApplet.class.getDeclaredFields()) {
-			maybeAdd(f);
-		}
-	}
+    public DriverGenerator() {
+        for (final Method m : PApplet.class.getDeclaredMethods()) {
+            maybeAdd(m);
+        }
+        for (final Field f : PApplet.class.getDeclaredFields()) {
+            maybeAdd(f);
+        }
+    }
 
-	private Binding findOrCreateBinding(final String name) {
-		if (!bindings.containsKey(name)) {
-			bindings.put(name, new Binding("interp", name));
-		}
-		return bindings.get(name);
-	}
+    private Binding findOrCreateBinding(final String name) {
+        if (!bindings.containsKey(name)) {
+            bindings.put(name, new Binding("interp", name));
+        }
+        return bindings.get(name);
+    }
 
-	private void maybeAdd(final Method m) {
-		final String name = m.getName();
-		final int mods = m.getModifiers();
-		if (!Modifier.isPublic(mods) || !PolymorphicMethod.shouldAdd(m)
-				|| name.matches(BAD_METHOD) || !ALL_APPLET_METHODS.contains(name)) {
-			return;
-		}
-		findOrCreateBinding(name).add(m);
-	}
+    private void maybeAdd(final Method m) {
+        final String name = m.getName();
+        final int mods = m.getModifiers();
+        if (!Modifier.isPublic(mods) || !PolymorphicMethod.shouldAdd(m)
+                || name.matches(BAD_METHOD) || !ALL_APPLET_METHODS.contains(name)) {
+            return;
+        }
+        findOrCreateBinding(name).add(m);
+    }
 
-	private void maybeAdd(final Field f) {
-		final String name = f.getName();
-		final int mods = f.getModifiers();
-		if (!Modifier.isPublic(mods) || Modifier.isStatic(mods) || BAD_FIELDS.contains(name)) {
-			return;
-		}
-		findOrCreateBinding(name).setField(f);
-	}
+    private void maybeAdd(final Field f) {
+        final String name = f.getName();
+        final int mods = f.getModifiers();
+        if (!Modifier.isPublic(mods) || Modifier.isStatic(mods)
+                || BAD_FIELDS.contains(name)) {
+            return;
+        }
+        findOrCreateBinding(name).setField(f);
+    }
 
-	public String getMethodBindings() {
-		final StringBuilder sb = new StringBuilder();
-		for (final Binding b : bindings.values()) {
-			if (!b.hasGlobal()) {
-				sb.append(b.toString());
-			}
-		}
-		return sb.toString();
-	}
+    public String getMethodBindings() {
+        final StringBuilder sb = new StringBuilder();
+        for (final Binding b : bindings.values()) {
+            if (!b.hasGlobal()) {
+                sb.append(b.toString());
+            }
+        }
+        return sb.toString();
+    }
 
-	public String getFieldBindings() {
-		final StringBuilder sb = new StringBuilder();
-		for (final Binding b : bindings.values()) {
-			if (b.hasGlobal()) {
-				sb.append(b.toString());
-			}
-		}
-		return sb.toString();
-	}
+    public String getFieldBindings() {
+        final StringBuilder sb = new StringBuilder();
+        for (final Binding b : bindings.values()) {
+            if (b.hasGlobal()) {
+                sb.append(b.toString());
+            }
+        }
+        return sb.toString();
+    }
 
-	public static String getText(final Reader r) throws IOException {
-		final BufferedReader reader = new BufferedReader(r);
-		final StringBuilder sb = new StringBuilder();
-		String line;
-		try {
-			while ((line = reader.readLine()) != null) {
-				sb.append(line).append("\n");
-			}
-			return sb.toString();
-		} finally {
-			reader.close();
-		}
-	}
+    public static String getText(final Reader r) throws IOException {
+        final BufferedReader reader = new BufferedReader(r);
+        final StringBuilder sb = new StringBuilder();
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            return sb.toString();
+        } finally {
+            reader.close();
+        }
+    }
 
-	public static void main(final String[] args) throws Exception {
-		final DriverGenerator gen = new DriverGenerator();
+    public static void main(final String[] args) throws Exception {
+        final DriverGenerator gen = new DriverGenerator();
 
-		final String template = getText(new FileReader("template/DriverImpl.java"));
-		final String withMethodBindings = template.replace("%METHOD_BINDINGS%", gen
-				.getMethodBindings());
-		final String withFieldBindings = withMethodBindings.replace("%FIELD_BINDINGS%", gen
-				.getFieldBindings());
+        final String template = getText(new FileReader("template/DriverImpl.java"));
+        final String withMethodBindings = template.replace(
+                "%METHOD_BINDINGS%", gen.getMethodBindings());
+        final String withFieldBindings = withMethodBindings.replace(
+                "%FIELD_BINDINGS%", gen.getFieldBindings());
 
-		final FileWriter out = new FileWriter("generated/jycessing/DriverImpl.java");
-		out.write(withFieldBindings);
-		out.close();
-	}
+        final FileWriter out = new FileWriter("generated/jycessing/DriverImpl.java");
+        out.write(withFieldBindings);
+        out.close();
+    }
 }
