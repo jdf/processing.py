@@ -1,11 +1,6 @@
 # processing.py #
 
-## What? ##
-
 Write [Processing](http://processing.org) sketches in Python.
-
-## Who? ##
-
 [Jonathan Feinberg](http://mrfeinberg.com) <jdf@pobox.com>
 
 ## How? ##
@@ -57,7 +52,7 @@ and unnecessarily complex when you're used to Python.
 I shared my experience with Processing creators
 [Ben Fry](http://benfry.com/) and [Casey Reas](http://reas.com/), and they
 told me that, indeed, the original Processing was a fork of
-["Design by Numbers"](http://dbn.media.mit.edu/) with Python and Scheme
+["Design by Numbers"](http://dbn.media.mit.edu/), with Python and Scheme
 support hacked in. Support for a multi-lingual programming
 environment was always part of the plan, so they were enthusiastic
 about any new attempt at the problem.
