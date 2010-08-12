@@ -1,4 +1,3 @@
-<div style="max-width:35em">
 # processing.py #
 
 Write [Processing](http://processing.org) sketches in Python.      
@@ -109,4 +108,3 @@ project, and kudos to Jython!
 
 Please play with this, report bugs, and port more of the Processing
 examples!
-</div>
