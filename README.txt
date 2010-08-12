@@ -9,8 +9,21 @@ Jonathan Feinberg <jdf@pobox.com>
     $ java -jar processing-py.jar examples.py/Library/OpenGL/SpaceJunk/SpaceJunk.py
 
 Put processing extension libraries in "libraries" directory any way you like.
+Import them in the usual Python way, e.g.
 
-Use "this" to refer to the running applet, e.g.
+    import peasy.PeasyCam
+    cam = peasy.PeasyCam(this, 200)
 
+or
+
+    import peasy.PeasyCam as PeasyCam
+    cam = PeasyCam(this, 200)
+    
+or
+
+    from peasy import PeasyCam
     cam = PeasyCam(this, 200)
 
+Unfortunately, "from foo import *" is not supported.
+
+Use "this" to refer to the running applet, as in the examples above.
