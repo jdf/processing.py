@@ -2,6 +2,36 @@
 
 Write [Processing](http://processing.org) sketches in Python.      
 [Jonathan Feinberg](http://mrfeinberg.com) &lt;[jdf@pobox.com](mailto:jdf@pobox.com)&gt;
+            
+## How? ##
+
+Quick start:
+
+    $ git clone git://github.com/jdf/processing.py.git
+    $ cd processing.py
+    $ ant
+    $ java -jar processing-py.jar examples.py/3D/Typography/KineticType/KineticType.py
+    $ java -jar processing-py.jar examples.py/Library/OpenGL/SpaceJunk/SpaceJunk.py
+
+Put processing extension libraries in the "libraries" directory any
+way you like. Import them in the usual Python way, e.g.
+
+    import peasy.PeasyCam
+    cam = peasy.PeasyCam(this, 200)
+
+or
+
+    import peasy.PeasyCam as PeasyCam
+    cam = PeasyCam(this, 200)
+    
+or
+
+    from peasy import PeasyCam
+    cam = PeasyCam(this, 200)
+
+Unfortunately, `from foo import *` is not supported.
+
+Use `this` to refer to the PApplet you're in, as in the examples above.
 
 ## What!? ##
 
@@ -40,36 +70,6 @@ Write [Processing](http://processing.org) sketches in Python.
             set(int(j - filler), int(py) - filler, c)
             set(int(j), int(py), c)
             set(int(j + filler), int(py) + filler, c)
-            
-## How? ##
-
-Quick start:
-
-    $ git clone git://github.com/jdf/processing.py.git
-    $ cd processing.py
-    $ ant
-    $ java -jar processing-py.jar examples.py/3D/Typography/KineticType/KineticType.py
-    $ java -jar processing-py.jar examples.py/Library/OpenGL/SpaceJunk/SpaceJunk.py
-
-Put processing extension libraries in the "libraries" directory any
-way you like. Import them in the usual Python way, e.g.
-
-    import peasy.PeasyCam
-    cam = peasy.PeasyCam(this, 200)
-
-or
-
-    import peasy.PeasyCam as PeasyCam
-    cam = PeasyCam(this, 200)
-    
-or
-
-    from peasy import PeasyCam
-    cam = PeasyCam(this, 200)
-
-Unfortunately, `from foo import *` is not supported.
-
-Use `this` to refer to the PApplet you're in, as in the examples above.
 
 ## Why? ##
 
@@ -90,7 +90,7 @@ and unnecessarily complex when you're used to Python.
 I shared my experience with Processing creators
 [Ben Fry](http://benfry.com/) and [Casey Reas](http://reas.com/), and they
 told me that, indeed, the original Processing was a fork of
-["Design by Numbers"](http://dbn.media.mit.edu/), with Python and Scheme
+["Design By Numbers"](http://dbn.media.mit.edu/), with Python and Scheme
 support hacked in. Support for a multi-lingual programming
 environment was always part of the plan, so they were enthusiastic
 about any new attempt at the problem.
