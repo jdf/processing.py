@@ -18,8 +18,8 @@ Quick start:
     $ java -jar processing-py.jar examples.py/3D/Typography/KineticType/KineticType.py
     $ java -jar processing-py.jar examples.py/Library/OpenGL/SpaceJunk/SpaceJunk.py
 
-Put processing extension libraries in "libraries" directory any way you like.
-Import them in the usual Python way, e.g.
+Put processing extension libraries in the "libraries" directory any
+way you like. Import them in the usual Python way, e.g.
 
     import peasy.PeasyCam
     cam = peasy.PeasyCam(this, 200)
