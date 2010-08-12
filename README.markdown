@@ -1,3 +1,6 @@
+<style type="text/css">
+div,p { max-width:30em }
+</style>
 # processing.py #
 
 Write [Processing](http://processing.org) sketches in Python.      
