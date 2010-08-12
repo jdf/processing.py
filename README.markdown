@@ -1,3 +1,4 @@
+<div style="max-width:35em">
 # processing.py #
 
 Write [Processing](http://processing.org) sketches in Python.      
@@ -9,7 +10,7 @@ Write [Processing](http://processing.org) sketches in Python.
     """
       Wave Gradient 
       by Ira Greenberg.
-      Adapted to python by Jonathan Feinberg  
+      Adapted to python by Jonathan Feinberg.  
        
       Generate a gradient along a sin() wave.
     """
@@ -108,3 +109,4 @@ project, and kudos to Jython!
 
 Please play with this, report bugs, and port more of the Processing
 examples!
+</div>
