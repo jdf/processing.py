@@ -34,9 +34,9 @@ or
     from peasy import PeasyCam
     cam = PeasyCam(this, 200)
 
-Unfortunately, "from foo import *" is not supported.
+Unfortunately, `from foo import *` is not supported.
 
-Use "this" to refer to the PApplet you're in, as in the examples above.
+Use `this` to refer to the PApplet you're in, as in the examples above.
 
 ## Why? ##
 
