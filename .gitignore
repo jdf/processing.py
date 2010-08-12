@@ -10,4 +10,5 @@ examples.pde
 line.pdf
 generated/jycessing/*.java
 build
+processing-py.jar
 

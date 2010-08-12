@@ -1,44 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- ====================================================================== 
-     Aug 8, 2010 10:37:58 AM                                                        
+     Aug 8, 2010 10:37:58 AM
 
-     processing.py    
+     processing.py
      Write processing sketches in Python
-                   
-     jdf                                                                
+
+     jdf
      ====================================================================== -->
-<project name="processing.py" default="gen-driver">
-	<description>
+<project name="processing.py" default="jar">
+  <description>
             Write processing sketches in Python
-    </description>
+  </description>
 
-	<eclipse.convertPath resourcepath="processing.py" property="project" />
+  <target name="jar" depends="build">
+    <jar destfile="processing-py.jar">
+      <fileset dir="bin" excludes="jycessing/build/**"/>
+      <zipgroupfileset file="lib/jython/jython.jar"/>
+      <zipgroupfileset file="lib/processing/core.jar"/>
+      <manifest>
+        <attribute name="Main-Class" value="jycessing.Runner" />
+      </manifest>
+    </jar>
+  </target>
 
-	<target name="gen-driver" description="Generate DriverImpl class">
-		<java classpath="bin:thirdparty/processing/lib/core.jar"
-		      classname="jycessing.build.DriverGenerator"
-		      fork="true"
-		      dir="${project}" />
-		<eclipse.refreshLocal resource="processing.py" />
-	</target>
+  <target name="build" depends="generate-driver">
+    <mkdir dir="bin" />
+    <javac
+      classpath="lib/jython/jython.jar:lib/processing/core.jar"
+      destdir="bin">
+      <src path="src"/>
+      <src path="generated"/>
+      <exclude name="jycessing/build/**"/>
+    </javac>
+  </target>
 
-	<target name="ziptool" description="Create processing tool">
-		<eclipse.convertPath resourcepath="processing-app/userdir"
-		                     property="userdir" />
-		<delete dir="build" includeemptydirs="true" />
-		<mkdir dir="build/PythonMode/tool" />
-		<jar destfile="build/PythonMode/tool/PythonMode.jar">
-			<fileset dir="bin" />
-		</jar>
-		<copy todir="build/PythonMode/tool"
-		      file="thirdparty/jython/jython.jar" />
-		<zip basedir="build" file="build/PythonMode.zip" />
-		<copy todir="${userdir}/tools">
-			<fileset dir="build" includes="PythonMode/**">
-			</fileset>
-		</copy>
-		<eclipse.refreshLocal resource="processing.py" />
-		<eclipse.refreshLocal resource="processing-app" />
-	</target>
+  <target name="generate-driver"
+    depends="build-driver-generator"
+    description="Generate DriverImpl class">
+    <java
+      classpath="bin:lib/processing/core.jar"
+      classname="jycessing.build.DriverGenerator"
+      fork="true" />
+  </target>
 
+  <target name="build-driver-generator">
+    <mkdir dir="bin" />
+    <javac
+      srcdir="src"
+      includes="jycessing/build/**"
+      classpath="lib/processing/core.jar"
+      destdir="bin" />
+  </target>
+
+  <target name="clean">
+    <delete dir="bin"/>
+    <delete file="generated/jycessing/DriverImpl.java"/>
+    <mkdir dir="bin"/>
+  </target>
 </project>
