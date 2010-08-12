@@ -1,8 +1,8 @@
 # processing.py #
 
-Write [Processing](http://processing.org) sketches in Python.
-<br>[Jonathan Feinberg](http://mrfeinberg.com) 
-<br>&lt;[jdf@pobox.com](mailto:jdf@pobox.com)&gt;
+Write [Processing](http://processing.org) sketches in Python.    
+[Jonathan Feinberg](http://mrfeinberg.com)  
+&lt;[jdf@pobox.com](mailto:jdf@pobox.com)&gt;
 
 ## What!? ##
 
