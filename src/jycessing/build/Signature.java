@@ -62,7 +62,7 @@ public class Signature implements Comparable<Signature> {
         final Class<?> k = argTypes.get(i);
         if (k == float.class) {
             return String.format(
-                    "(%s == PyFloat.TYPE || %s == PyInteger.TYPE)", name, name);
+                    "(%s == PyFloat.TYPE || %s == PyInteger.TYPE || %s == PyLong.TYPE)", name, name, name);
         } else if (k == int.class || k == byte.class) {
             return String.format("%s == PyInteger.TYPE", name);
         } else if (k == boolean.class) {
