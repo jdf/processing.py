@@ -39,7 +39,6 @@ def draw():
     
   # Output into a buffered image for reuse
   pg.beginDraw()
-  pg.loadPixels()
   for y in range(pg.height):
     for x in range(pg.width):
       m = 1
@@ -47,7 +46,6 @@ def draw():
         # Increase this number to make your blobs bigger
         m += 60000 / (vy[i][y] + vx[i][x] + 1)
       pg.set(x, y, color(0, m + x, (x + m + y) / 2))
-  pg.updatePixels()
   pg.endDraw()
 
   # Display the results
