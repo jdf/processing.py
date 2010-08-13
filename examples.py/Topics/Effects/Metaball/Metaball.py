@@ -50,5 +50,3 @@ def draw():
 
   # Display the results
   image(pg, 0, 0, width, height)
-
-
