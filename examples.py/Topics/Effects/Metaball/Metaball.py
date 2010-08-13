@@ -23,7 +23,7 @@ def setup():
   size(640, 360)
 
 def draw():
-  vx, vy = [None for i in range(numBlobs)], [None for i in range(numBlobs)]
+  vx, vy = [], []
   for i in range(numBlobs):
     blogPx[i] += blogDx[i]
     blogPy[i] += blogDy[i]
@@ -34,8 +34,8 @@ def draw():
     if blogPy[i] < 0: blogDy[i] = 1
     if blogPy[i] > pg.height: blogDy[i] = -1
     
-    vx[i] = [sq(blogPx[i] - x) for x in xrange(pg.width)]
-    vy[i] = [sq(blogPy[i] - y) for y in xrange(pg.height)] 
+    vx.append([sq(blogPx[i] - x) for x in xrange(pg.width)])
+    vy.append([sq(blogPy[i] - y) for y in xrange(pg.height)]) 
     
   # Output into a buffered image for reuse
   pg.beginDraw()
