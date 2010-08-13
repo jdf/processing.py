@@ -34,8 +34,8 @@ def draw():
     if blogPy[i] < 0: blogDy[i] = 1
     if blogPy[i] > pg.height: blogDy[i] = -1
     
-    vx.append([sq(blogPx[i] - x) for x in xrange(pg.width)])
-    vy.append([sq(blogPy[i] - y) for y in xrange(pg.height)]) 
+    vx.append(tuple(sq(blogPx[i] - x) for x in xrange(pg.width)))
+    vy.append(tuple(sq(blogPy[i] - y) for y in xrange(pg.height))) 
     
   # Output into a buffered image for reuse
   pg.beginDraw()
