@@ -42,20 +42,31 @@ abstract public class PAppletJythonDriver extends PApplet {
 
     abstract protected void setFields();
 
-    private static final PyObject NOMETH = new PyObject();
     protected final PyStringMap builtins;
     protected final InteractiveConsole interp;
     private final String pySketchPath;
     private final String programText;
-    private final boolean isStaticMode;
-    private PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
-            mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth,
-            keyTypedMeth;
 
+    // A static-mode sketch must be interpreted from with the setup() method.
+    // All others are interpreted during construction in order to harvest method
+    // definitions, which we then invoke during the run loop.
+    private final boolean isStaticMode;
+
+    // The presence of either setup() or draw() indicates that this is not a
+    // static sketch.
     private static final Pattern ACTIVE_METHOD_DEF = Pattern.compile(
             "^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
 
-    private void executeSketch() {
+    // These are all of the methods that PApplet might call in your sketch. If
+    // you have implemented a method, we save it and call it.
+    private final PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
+            mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth,
+            keyTypedMeth;
+
+    // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
+    // the source file name, so that errors have the file name instead of
+    // "<string>"
+    private void interpretSketch() {
         Py.setSystemState(interp.getSystemState());
         Py.exec(Py.compile_flags(programText, pySketchPath, CompileMode.exec,
                 new CompilerFlags()), interp.getLocals(), null);
@@ -75,25 +86,27 @@ abstract public class PAppletJythonDriver extends PApplet {
         builtins.__setitem__("this", Py.java2py(this));
 
         if (!isStaticMode) {
-            executeSketch();
+            // Executing the sketch will bind method names ("draw") to PyCode
+            // objects (the sketch's draw method), which can then be invoked
+            // during the run loop
+            interpretSketch();
         }
 
-        drawMeth = getMethod("draw");
-        setupMeth = getMethod("setup");
-        mousePressedMeth = getMethod("mousePressed");
-        mouseClickedMeth = getMethod("mouseClicked");
-        mouseReleasedMeth = getMethod("mouseReleased");
-        mouseDraggedMeth = getMethod("mouseDragged");
-        keyPressedMeth = getMethod("keyPressed");
-        keyReleasedMeth = getMethod("keyReleased");
-        keyTypedMeth = getMethod("keyTyped");
+        // Find and cache any PApplet callbacks defined in the Python sketch
+        drawMeth = interp.get("draw");
+        setupMeth = interp.get("setup");
+        mousePressedMeth = interp.get("mousePressed");
+        mouseClickedMeth = interp.get("mouseClicked");
+        mouseReleasedMeth = interp.get("mouseReleased");
+        mouseDraggedMeth = interp.get("mouseDragged");
+        keyPressedMeth = interp.get("keyPressed");
+        keyReleasedMeth = interp.get("keyReleased");
+        keyTypedMeth = interp.get("keyTyped");
     }
 
-    private PyObject getMethod(final String key) {
-        final PyObject val = interp.get(key);
-        return val == null ? NOMETH : val;
-    }
-
+    /**
+     * Populate the Python builtins namespace with PConstants.
+     */
     public static void initializeStatics(final PyStringMap builtins) {
         for (final Field f : PConstants.class.getDeclaredFields()) {
             final int mods = f.getModifiers();
@@ -107,6 +120,11 @@ abstract public class PAppletJythonDriver extends PApplet {
         }
     }
 
+    /**
+     * We have to override PApplet's size method in order to reset the Python
+     * context's knowledge of the magic variables that reflect the state of the
+     * sketch's world, particularly width and height.
+     */
     @Override
     public void size(final int iwidth, final int iheight, final String irenderer,
             final String ipath) {
@@ -116,14 +134,22 @@ abstract public class PAppletJythonDriver extends PApplet {
 
     @Override
     public void setup() {
+        // Put all of PApplet's globals into the Python context
         setFields();
+
         if (isStaticMode) {
-            executeSketch();
-        } else if (setupMeth != NOMETH) {
+            // A static sketch gets called once, from this spot.
+            interpretSketch();
+        } else if (setupMeth != null) {
             try {
+                // Call the Python sketch's setup()
                 setupMeth.__call__();
             } catch (PyException e) {
                 if (e.getCause() instanceof RendererChangeException) {
+                    // This is an expected condition. PApplet uses an exception
+                    // to signal a change to the rendering context, so we unwrap
+                    // the Python exception to extract the signal, and pass it
+                    // up the stack.
                     throw (RendererChangeException) e.getCause();
                 } else {
                     throw e;
@@ -134,73 +160,88 @@ abstract public class PAppletJythonDriver extends PApplet {
 
     @Override
     public void draw() {
-        setFields();
-        if (drawMeth == NOMETH) {
+        if (drawMeth == null) {
             super.draw();
         } else {
+            // Put all of PApplet's globals into the Python context
+            setFields();
             drawMeth.__call__();
         }
     }
 
     @Override
     public void mouseClicked() {
-        if (mouseClickedMeth == NOMETH) {
+        if (mouseClickedMeth == null) {
             super.mouseClicked();
         } else {
+            // Put all of PApplet's globals into the Python context
+            setFields();
             mouseClickedMeth.__call__();
         }
     }
 
     @Override
     public void mousePressed() {
-        if (mousePressedMeth == NOMETH) {
+        if (mousePressedMeth == null) {
             super.mousePressed();
         } else {
+            // Put all of PApplet's globals into the Python context
+            setFields();
             mousePressedMeth.__call__();
         }
     }
 
     @Override
     public void mouseReleased() {
-        if (mouseReleasedMeth == NOMETH) {
+        if (mouseReleasedMeth == null) {
             super.mouseReleased();
         } else {
+            // Put all of PApplet's globals into the Python context
+            setFields();
             mouseReleasedMeth.__call__();
         }
     }
 
     @Override
     public void mouseDragged() {
-        if (mouseDraggedMeth == NOMETH) {
+        if (mouseDraggedMeth == null) {
             super.mouseDragged();
         } else {
+            // Put all of PApplet's globals into the Python context
+            setFields();
             mouseDraggedMeth.__call__();
         }
     }
 
     @Override
     public void keyPressed() {
-        if (keyPressedMeth == NOMETH) {
+        if (keyPressedMeth == null) {
             super.keyPressed();
         } else {
+            // Put all of PApplet's globals into the Python context
+            setFields();
             keyPressedMeth.__call__();
         }
     }
 
     @Override
     public void keyReleased() {
-        if (keyReleasedMeth == NOMETH) {
+        if (keyReleasedMeth == null) {
             super.keyReleased();
         } else {
+            // Put all of PApplet's globals into the Python context
+            setFields();
             keyReleasedMeth.__call__();
         }
     }
 
     @Override
     public void keyTyped() {
-        if (keyTypedMeth == NOMETH) {
+        if (keyTypedMeth == null) {
             super.keyTyped();
         } else {
+            // Put all of PApplet's globals into the Python context
+            setFields();
             keyTypedMeth.__call__();
         }
     }
