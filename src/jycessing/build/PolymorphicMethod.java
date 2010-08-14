@@ -1,12 +1,12 @@
 /*
  * Copyright 2010 Jonathan Feinberg
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -43,12 +43,12 @@ public class PolymorphicMethod {
     public void add(final Method method) {
         final Class<?>[] types = method.getParameterTypes();
         if (types.length != arity) {
-            throw new IllegalArgumentException(
-                    "I expect methods with " + arity + " args, but got " + method);
+            throw new IllegalArgumentException("I expect methods with " + arity
+                    + " args, but got " + method);
         }
         if (!shouldAdd(method)) {
-            throw new IllegalArgumentException(
-                    "I can't cope with " + method + " because it's evil.");
+            throw new IllegalArgumentException("I can't cope with " + method
+                    + " because it's evil.");
         }
         signatures.add(new Signature(method));
     }
@@ -85,8 +85,7 @@ public class PolymorphicMethod {
                 sb.append("\t\t\t\t}");
             }
             sb
-                    .append(
-                            " else { throw new IllegalArgumentException(\"Couldn't figure out which \\\"");
+                    .append(" else { throw new IllegalArgumentException(\"Couldn't figure out which \\\"");
             sb.append(name);
             sb.append("\\\" to call.\"); }\n");
         }
@@ -118,7 +117,7 @@ public class PolymorphicMethod {
 
     public static String asJavaExpression(final Signature signature, final int i) {
         final String name = "args[" + i + "]";
-        final Class<?> javaType = signature.getArgTypes().get(i);
+        final Class<?> javaType = signature.getArgType(i);
         final StringBuilder sb = new StringBuilder();
         if (javaType == float.class) {
             sb.append("(float)").append(name).append(".asDouble()");
@@ -139,6 +138,7 @@ public class PolymorphicMethod {
         } else {
             final String simpleName = javaType.isArray() ? javaType.getSimpleName()
                     : javaType.getName();
+            // no need to cast Object to Object
             if (!simpleName.equals("java.lang.Object")) {
                 sb.append('(').append(simpleName).append(')');
             }

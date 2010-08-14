@@ -1,12 +1,12 @@
 /*
  * Copyright 2010 Jonathan Feinberg
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -34,16 +34,15 @@ import processing.core.PApplet;
 
 @SuppressWarnings("serial")
 public class DriverGenerator {
-    final String BAD_METHOD =
-            "^(init|handleDraw|draw|parse[A-Z].*|arraycopy|openStream)$";
+    final String BAD_METHOD = "^(init|handleDraw|draw|parse[A-Z].*|arraycopy|openStream)$";
 
-    private static final Set<String> BAD_FIELDS = new HashSet<String>(
-            Arrays.asList("screen", "args", "recorder", "frame", "g", "selectedFile",
-                    "keyEvent", "mouseEvent", "sketchPath", "screenWidth", "screenHeight",
-                    "defaultSize", "firstMouse", "finished", "requestImageMax"));
+    private static final Set<String> BAD_FIELDS = new HashSet<String>(Arrays.asList(
+            "screen", "args", "recorder", "frame", "g", "selectedFile", "keyEvent",
+            "mouseEvent", "sketchPath", "screenWidth", "screenHeight", "defaultSize",
+            "firstMouse", "finished", "requestImageMax"));
 
-    private static final Set<String> ALL_APPLET_METHODS = Collections.unmodifiableSet(
-            new HashSet<String>() {
+    private static final Set<String> ALL_APPLET_METHODS = Collections
+            .unmodifiableSet(new HashSet<String>() {
                 {
                     for (final Method m : PApplet.class.getDeclaredMethods()) {
                         if (!Modifier.isPublic(m.getModifiers())) {
@@ -67,7 +66,7 @@ public class DriverGenerator {
 
     private Binding findOrCreateBinding(final String name) {
         if (!bindings.containsKey(name)) {
-            bindings.put(name, new Binding("interp", name));
+            bindings.put(name, new Binding(name));
         }
         return bindings.get(name);
     }
@@ -130,10 +129,10 @@ public class DriverGenerator {
         final DriverGenerator gen = new DriverGenerator();
 
         final String template = getText(new FileReader("template/DriverImpl.java"));
-        final String withMethodBindings = template.replace(
-                "%METHOD_BINDINGS%", gen.getMethodBindings());
-        final String withFieldBindings = withMethodBindings.replace(
-                "%FIELD_BINDINGS%", gen.getFieldBindings());
+        final String withMethodBindings = template.replace("%METHOD_BINDINGS%", gen
+                .getMethodBindings());
+        final String withFieldBindings = withMethodBindings.replace("%FIELD_BINDINGS%",
+                gen.getFieldBindings());
 
         final FileWriter out = new FileWriter("generated/jycessing/DriverImpl.java");
         out.write(withFieldBindings);
