@@ -19,11 +19,13 @@ Quick start:
         text(frameRate, 20, 20)
     $ java -jar processing-py.jar mysketch.py
 
+Put processing extension libraries in the "libraries" directory.
 
-    
+    $ curl -O http://mrfeinberg.com/peasycam/download/PeasyCam_0.8.3.zip
+    $ cd libraries
+    $ unzip ../PeasyCam_0.8.3.zip
 
-Put processing extension libraries in the "libraries" directory any
-way you like. Import them in the usual Python way, e.g.
+Import them in the usual Python way, e.g.
 
     import peasy.PeasyCam
     cam = peasy.PeasyCam(this, 200)
