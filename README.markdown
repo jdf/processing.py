@@ -73,7 +73,7 @@ I recently gave a talk about Processing to a group of rather bright 8th-graders,
 as part of a computer-programming summer camp they were attending at my office.
 Their curriculum up to that point had been in Python, which is an eminently
 sensible choice, given the 
-[pedagogical roots](http://en.wikipedia.org/wiki/ABC_(programming_language))
+[pedagogical roots](http://en.wikipedia.org/wiki/ABC_%40programming_language%41)
 of the language.
 
 The kids were really turned on by the demos--I showed them the
