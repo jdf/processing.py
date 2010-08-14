@@ -10,8 +10,17 @@ Quick start:
     $ git clone git://github.com/jdf/processing.py.git
     $ cd processing.py
     $ ant
+    $ java -jar processing-py.jar examples.py/Basics/Math/NoiseField/noisefield.py
     $ java -jar processing-py.jar examples.py/3D/Typography/KineticType/KineticType.py
     $ java -jar processing-py.jar examples.py/Library/OpenGL/SpaceJunk/SpaceJunk.py
+    $ cat > mysketch.py
+    def draw():
+        background(0)
+        text(frameRate, 20, 20)
+    $ java -jar processing-py.jar mysketch.py
+
+
+    
 
 Put processing extension libraries in the "libraries" directory any
 way you like. Import them in the usual Python way, e.g.
