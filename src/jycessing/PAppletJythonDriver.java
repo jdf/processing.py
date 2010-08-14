@@ -19,6 +19,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.regex.Pattern;
 
+import org.python.core.CompileMode;
+import org.python.core.CompilerFlags;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyObject;
@@ -29,7 +31,6 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 /**
- * Copyright (C)
  * 
  * @author Jonathan Feinberg &lt;jdf@pobox.com&gt;
  * 
@@ -44,6 +45,7 @@ abstract public class PAppletJythonDriver extends PApplet {
     private static final PyObject NOMETH = new PyObject();
     protected final PyStringMap builtins;
     protected final InteractiveConsole interp;
+    private final String sketchPath;
     private final String programText;
     private final boolean isStaticMode;
     private PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
@@ -53,12 +55,17 @@ abstract public class PAppletJythonDriver extends PApplet {
     private static final Pattern ACTIVE_METHOD_DEF = Pattern.compile(
             "^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
 
-    public PAppletJythonDriver(final InteractiveConsole interp) {
-        this(interp, null);
+    private void executeSketch() {
+        Py.setSystemState(interp.getSystemState());
+        Py.exec(Py.compile_flags(programText, sketchPath, CompileMode.exec,
+                new CompilerFlags()), interp.getLocals(), null);
+        Py.flushLine();
     }
 
-    public PAppletJythonDriver(final InteractiveConsole interp, final String programText) {
+    public PAppletJythonDriver(final InteractiveConsole interp, final String sketchPath,
+            final String programText) {
         this.programText = programText;
+        this.sketchPath = sketchPath;
         this.isStaticMode = !ACTIVE_METHOD_DEF.matcher(programText).find();
         this.builtins = (PyStringMap) interp.getSystemState().getBuiltins();
         this.interp = interp;
@@ -68,7 +75,7 @@ abstract public class PAppletJythonDriver extends PApplet {
         builtins.__setitem__("this", Py.java2py(this));
 
         if (!isStaticMode) {
-            interp.exec(programText);
+            executeSketch();
         }
 
         drawMeth = getMethod("draw");
@@ -111,7 +118,7 @@ abstract public class PAppletJythonDriver extends PApplet {
     public void setup() {
         setFields();
         if (isStaticMode) {
-            interp.exec(programText);
+            executeSketch();
         } else if (setupMeth != NOMETH) {
             try {
                 setupMeth.__call__();

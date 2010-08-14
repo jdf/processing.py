@@ -144,11 +144,11 @@ public class Runner {
         VERBOSE = Boolean.getBoolean("verbose");
 
         // The last argument is the path to the Python sketch
-        final String pathname = args[args.length - 1];
+        final String sketchPath = args[args.length - 1];
 
         // This will throw an exception and die if the given file is not there
         // or not readable.
-        final String sketchSource = read(new FileReader(pathname));
+        final String sketchSource = read(new FileReader(sketchPath));
 
         // Recursively search the "libraries" directory for jar files and
         // directories containing dynamic libraries, adding them to the
@@ -159,7 +159,7 @@ public class Runner {
         final InteractiveConsole interp = new InteractiveConsole();
 
         // Where is the sketch located?
-        final String sketchDir = new File(pathname).getCanonicalFile().getParent();
+        final String sketchDir = new File(sketchPath).getCanonicalFile().getParent();
 
         // Tell PApplet to make its home there, so that it can find the data
         // folder
@@ -169,10 +169,11 @@ public class Runner {
         Py.getSystemState().path.insert(0, new PyString(sketchDir));
 
         // For error messages
-        interp.getLocals().__setitem__("__file__", new PyString(pathname));
+        interp.getLocals().__setitem__("__file__", new PyString(sketchPath));
 
         // Bind the sketch to a PApplet
-        final PAppletJythonDriver applet = new DriverImpl(interp, sketchSource);
+        final PAppletJythonDriver applet = new DriverImpl(interp, sketchPath,
+                sketchSource);
 
         try {
             PApplet.runSketch(args, applet);

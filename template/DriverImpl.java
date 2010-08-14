@@ -23,8 +23,9 @@ import java.io.*;
 @SuppressWarnings("serial")
 public class DriverImpl extends PAppletJythonDriver {
 
-	public DriverImpl(final InteractiveConsole interp, final String programText) {
-		super(interp, programText);
+	public DriverImpl(final InteractiveConsole interp,
+	        final String sketchPath, final String programText) {
+		super(interp, sketchPath, programText);
 	}
 	@Override
 	protected void populateBuiltins() {
