@@ -45,7 +45,7 @@ abstract public class PAppletJythonDriver extends PApplet {
     private static final PyObject NOMETH = new PyObject();
     protected final PyStringMap builtins;
     protected final InteractiveConsole interp;
-    private final String sketchPath;
+    private final String pySketchPath;
     private final String programText;
     private final boolean isStaticMode;
     private PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
@@ -57,7 +57,7 @@ abstract public class PAppletJythonDriver extends PApplet {
 
     private void executeSketch() {
         Py.setSystemState(interp.getSystemState());
-        Py.exec(Py.compile_flags(programText, sketchPath, CompileMode.exec,
+        Py.exec(Py.compile_flags(programText, pySketchPath, CompileMode.exec,
                 new CompilerFlags()), interp.getLocals(), null);
         Py.flushLine();
     }
@@ -65,7 +65,7 @@ abstract public class PAppletJythonDriver extends PApplet {
     public PAppletJythonDriver(final InteractiveConsole interp, final String sketchPath,
             final String programText) {
         this.programText = programText;
-        this.sketchPath = sketchPath;
+        this.pySketchPath = sketchPath;
         this.isStaticMode = !ACTIVE_METHOD_DEF.matcher(programText).find();
         this.builtins = (PyStringMap) interp.getSystemState().getBuiltins();
         this.interp = interp;
