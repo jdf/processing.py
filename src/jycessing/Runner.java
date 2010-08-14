@@ -1,12 +1,12 @@
 /*
  * Copyright 2010 Jonathan Feinberg
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -36,6 +36,7 @@ import processing.core.PApplet;
 public class Runner {
     static boolean VERBOSE = false;
 
+    // Slurp the given Reader into a String.
     private static String read(final Reader r) throws IOException {
         final BufferedReader reader = new BufferedReader(r);
         final StringBuilder sb = new StringBuilder(1024);
@@ -50,8 +51,19 @@ public class Runner {
         }
     }
 
-    // See
-    // http://robertmaldon.blogspot.com/2007/11/dynamically-add-to-eclipse-junit.html
+    /**
+     * Add a URL (referring to a jar file or class directory) to the current
+     * classloader. Of course, this is a filthy hack, which depends on an
+     * implementation detail (i.e., that the system classloader is a
+     * URLClassLoader). But it certainly works with all known Sun JVMs of recent
+     * vintage, and with OS X's JVMs.
+     * 
+     * <p>
+     * See <a href=
+     * "http://robertmaldon.blogspot.com/2007/11/dynamically-add-to-eclipse-junit.html"
+     * >this blog post</a>.
+     * 
+     */
     private static void addJar(final URL url) throws Exception {
         final URLClassLoader classLoader = (URLClassLoader) ClassLoader
                 .getSystemClassLoader();
@@ -63,7 +75,16 @@ public class Runner {
         }
     }
 
-    // See http://forums.sun.com/thread.jspa?threadID=707176
+    /**
+     * Add the given path to the list of paths searched for DLLs (as in those
+     * loaded by loadLibrary). A hack, which depends on the presence of a
+     * particular field in ClassLoader. Known to work on all recent Sun JVMs and
+     * OS X.
+     * 
+     * <p>
+     * See <a href="http://forums.sun.com/thread.jspa?threadID=707176">this
+     * thread</a>.
+     */
     private static void addLibraryPath(final String newPath) throws Exception {
         final Field field = ClassLoader.class.getDeclaredField("usr_paths");
         field.setAccessible(true);
@@ -82,6 +103,11 @@ public class Runner {
         }
     }
 
+    /**
+     * Recursively search the given directory for jar files and directories
+     * containing dynamic libraries, adding them to the classpath and the
+     * library path respectively.
+     */
     private static void searchForExtraStuff(final File dir) throws Exception {
         final File[] dlls = dir.listFiles(new FilenameFilter() {
             public boolean accept(final File dir, final String name) {
@@ -113,26 +139,48 @@ public class Runner {
         if (args.length < 1) {
             System.err.println("I need the path of your Python script as an argument.");
         }
-        if (Boolean.getBoolean("verbose")) {
-            VERBOSE = true;
-        }
+
+        // -Dverbose=true for some logging
+        VERBOSE = Boolean.getBoolean("verbose");
+
+        // The last argument is the path to the Python sketch
         final String pathname = args[args.length - 1];
-        final String text = read(new FileReader(pathname));
+
+        // This will throw an exception and die if the given file is not there
+        // or not readable.
+        final String sketchSource = read(new FileReader(pathname));
+
+        // Recursively search the "libraries" directory for jar files and
+        // directories containing dynamic libraries, adding them to the
+        // classpath and the library path respectively.
         searchForExtraStuff(new File("libraries"));
+
         Py.initPython();
         final InteractiveConsole interp = new InteractiveConsole();
-        final String path = new File(pathname).getCanonicalFile().getParent();
-        System.setProperty("user.dir", path);
-        Py.getSystemState().path.insert(0, new PyString(path));
+
+        // Where is the sketch located?
+        final String sketchDir = new File(pathname).getCanonicalFile().getParent();
+
+        // Tell PApplet to make its home there, so that it can find the data
+        // folder
+        System.setProperty("user.dir", sketchDir);
+
+        // Add it to the Python library path for auxilliary modules
+        Py.getSystemState().path.insert(0, new PyString(sketchDir));
+
+        // For error messages
+        interp.getLocals().__setitem__("__file__", new PyString(pathname));
+
+        // Bind the sketch to a PApplet
+        final PAppletJythonDriver applet = new DriverImpl(interp, sketchSource);
+
         try {
-            interp.getLocals().__setitem__(
-                    new PyString("__file__"), new PyString(pathname));
-            final PAppletJythonDriver applet = new DriverImpl(interp, text);
             PApplet.runSketch(args, applet);
         } catch (Throwable t) {
             Py.printException(t);
-            interp.cleanup();
             System.exit(-1);
+        } finally {
+            interp.cleanup();
         }
     }
 }
