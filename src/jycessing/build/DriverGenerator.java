@@ -53,6 +53,9 @@ public class DriverGenerator {
                 }
             });
 
+    private static final Set<String> PYTHON_BUILTINS = new HashSet<String>(Arrays.asList(
+            "map", "filter", "set", "str"));
+
     final Map<String, Binding> bindings = new HashMap<String, Binding>();
 
     public DriverGenerator() {

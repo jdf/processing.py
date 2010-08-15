@@ -150,6 +150,11 @@ public class Runner {
         // or not readable.
         final String sketchSource = read(new FileReader(sketchPath));
 
+        runSketch(args, sketchPath, sketchSource);
+    }
+
+    public static void runSketch(final String[] args, final String sketchPath,
+            final String sketchSource) throws Exception {
         // Recursively search the "libraries" directory for jar files and
         // directories containing dynamic libraries, adding them to the
         // classpath and the library path respectively.
@@ -179,7 +184,7 @@ public class Runner {
             PApplet.runSketch(args, applet);
         } catch (Throwable t) {
             Py.printException(t);
-            System.exit(-1);
+            throw new RuntimeException(t);
         } finally {
             interp.cleanup();
         }
