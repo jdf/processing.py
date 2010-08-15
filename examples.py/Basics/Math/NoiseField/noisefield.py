@@ -4,10 +4,10 @@
 """ 
 srcSize = 50
 destSize = 400
-g = createGraphics(srcSize, srcSize, P2D)
+g = createGraphics(srcSize, srcSize, JAVA2D)
 
 def setup():
-    size(destSize, destSize)
+    size(destSize, destSize, OPENGL)
 
 def draw():
     t = .0005 * millis()
