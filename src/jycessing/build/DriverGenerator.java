@@ -34,7 +34,7 @@ import processing.core.PApplet;
 
 @SuppressWarnings("serial")
 public class DriverGenerator {
-    final String BAD_METHOD = "^(init|handleDraw|draw|parse[A-Z].*|arraycopy|openStream)$";
+    final String BAD_METHOD = "^(init|handleDraw|draw|parse[A-Z].*|arraycopy|openStream|str)$";
 
     private static final Set<String> BAD_FIELDS = new HashSet<String>(Arrays.asList(
             "screen", "args", "recorder", "frame", "g", "selectedFile", "keyEvent",

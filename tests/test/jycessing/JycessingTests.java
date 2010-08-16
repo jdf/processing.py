@@ -26,6 +26,11 @@ public class JycessingTests {
     }
 
     @Test
+    public void inherit_str() throws Exception {
+        assertEquals("cosmic\n12\n[12, 13]\n", run("inherit_str"));
+    }
+
+    @Test
     public void set_builtins() throws Exception {
         assertEquals("128\nset(['banana'])\n", run("set"));
     }
