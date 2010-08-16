@@ -168,6 +168,8 @@ public class Runner {
         Py.initPython();
         final InteractiveConsole interp = new InteractiveConsole();
 
+        // This hack seems to be necessary in order to redirect stdout for unit
+        // tests
         interp.setOut(System.out);
 
         // Where is the sketch located?
@@ -193,7 +195,7 @@ public class Runner {
             Py.printException(t);
             throw new RuntimeException(t);
         } finally {
-            // interp.cleanup();
+            interp.cleanup();
         }
 
     }
