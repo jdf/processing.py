@@ -3,11 +3,9 @@
 Write [Processing](http://processing.org) sketches in Python.      
 [Jonathan Feinberg](http://mrfeinberg.com) &lt;[jdf@pobox.com](mailto:jdf@pobox.com)&gt;
 
-## See [known issues](http://wiki.github.com/jdf/processing.py/) and the [open bugs in the bug tracker](http://github.com/jdf/processing.py/issues).
+## See some [known issues](http://wiki.github.com/jdf/processing.py/) and the [open bugs in the bug tracker](http://github.com/jdf/processing.py/issues).
 
-## How? ##
-
-Quick start:
+## Quick Start ##
 
     $ git clone git://github.com/jdf/processing.py.git
     $ cd processing.py
