@@ -41,11 +41,11 @@ def setup():
     # always start Minim before you do anything with it
     global minim
     minim = Minim(this)
-    # load BD.mp3 from the data folder with a 1024 sample buffer
-    # kick = Minim.loadSample("BD.mp3")
-    # load BD.mp3 from the data folder, with a 512 sample buffer
     global kick
-    kick = minim.loadSample("BD.mp3", 2048)
+    # load BD.mp3 from the data folder with a 1024 sample buffer
+    kick = minim.loadSample("BD.mp3")
+    # load BD.mp3 from the data folder, with a 512 sample buffer
+    #kick = minim.loadSample("BD.mp3", 2048)
 
 def draw():
     background(0)
