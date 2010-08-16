@@ -44,7 +44,7 @@ Unfortunately, `from foo import *` is not supported.
 
 Use `this` to refer to the PApplet you're in, as in the examples above.
 
-## What!? ##
+## Example Code ##
 
 	"""
 	  noisefield.py - demonstrate Perlin noise
@@ -102,5 +102,6 @@ absolutely no work to profile and optimize, I can get hundreds of frames
 per second of 3D graphics on my linux box. So, kudos to the Processing
 project, and kudos to Jython!
 
-Please play with this, report bugs, and port more of the Processing
-examples!
+Please play with this,
+[report bugs](http://github.com/jdf/processing.py/issues),
+and port more of the Processing examples!
