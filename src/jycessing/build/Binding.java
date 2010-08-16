@@ -23,9 +23,11 @@ public class Binding {
     private final String name;
     private final ArrayList<PolymorphicMethod> methods = new ArrayList<PolymorphicMethod>();
     private Field global = null;
+    private final boolean isPythonBuiltin;
 
-    public Binding(final String name) {
+    public Binding(final String name, final boolean isPythonBuiltin) {
         this.name = name;
+        this.isPythonBuiltin = isPythonBuiltin;
     }
 
     public boolean hasGlobal() {
@@ -36,6 +38,10 @@ public class Binding {
         final boolean hasMethods = methods.size() > 0;
 
         final StringBuilder sb = new StringBuilder();
+        if (isPythonBuiltin) {
+            sb.append("final PyObject ").append(name).append("_builtin = ");
+            sb.append(String.format("builtins.__getitem__(\"%s\");\n", name));
+        }
         sb.append(String.format("builtins.__setitem__(\"%s\", ", name));
         if (hasGlobal()) {
             sb.append(TypeUtil.pyConversionPrefix(global.getType()));
@@ -49,13 +55,17 @@ public class Binding {
             sb
                     .append("\tpublic PyObject __call__(final PyObject[] args, final String[] kws) {\n");
             sb.append("\t\tswitch(args.length) {\n");
-            sb.append("\t\t\tdefault: throw new RuntimeException(\"");
-            sb
-                    .append(String
-                            .format(
-                                    "Can't call \\\"%s\\\" with \" + args.length + \" parameters.",
-                                    name));
-            sb.append("\");\n");
+            sb.append("\t\t\tdefault: ");
+            if (isPythonBuiltin) {
+                sb.append("return ").append(name).append(
+                        "_builtin.__call__(args, kws);\n");
+            } else {
+                sb.append("throw new RuntimeException(\"");
+                sb.append(String.format(
+                        "Can't call \\\"%s\\\" with \" + args.length + \" parameters.",
+                        name));
+                sb.append("\");\n");
+            }
             for (final PolymorphicMethod m : methods) {
                 if (m == null) {
                     continue;
@@ -78,7 +88,7 @@ public class Binding {
             }
         }
         if (methods.get(arity) == null) {
-            methods.set(arity, new PolymorphicMethod(name, arity));
+            methods.set(arity, new PolymorphicMethod(name, arity, isPythonBuiltin));
         }
         methods.get(arity).add(m);
     }

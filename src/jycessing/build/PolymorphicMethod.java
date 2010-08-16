@@ -24,10 +24,13 @@ public class PolymorphicMethod {
     private final String name;
     private final int arity;
     private final List<Signature> signatures = new ArrayList<Signature>();
+    private final boolean isPythonBuiltin;
 
-    public PolymorphicMethod(final String name, final int arity) {
+    public PolymorphicMethod(final String name, final int arity,
+            final boolean isPythonBuiltin) {
         this.name = name;
         this.arity = arity;
+        this.isPythonBuiltin = isPythonBuiltin;
     }
 
     public static boolean shouldAdd(final Method method) {
@@ -56,7 +59,7 @@ public class PolymorphicMethod {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append(String.format("\t\t\tcase %d: {\n", arity));
-        if (signatures.size() == 1) {
+        if (!isPythonBuiltin && signatures.size() == 1) {
             sb.append("\t\t\t\t");
             append(signatures.get(0), sb);
         } else {
@@ -72,22 +75,30 @@ public class PolymorphicMethod {
                 } else {
                     sb.append("\t\t\t\t");
                 }
-                sb.append("if (");
-                for (int j = 0; j < arity; j++) {
-                    if (j > 0) {
-                        sb.append(" && ");
+                if (arity > 0) {
+                    sb.append("if (");
+                    for (int j = 0; j < arity; j++) {
+                        if (j > 0) {
+                            sb.append(" && ");
+                        }
+                        final String typeExpr = String.format("t%d", j);
+                        sb.append(sig.getTypecheckExpression(j, typeExpr));
                     }
-                    final String typeExpr = String.format("t%d", j);
-                    sb.append(sig.getTypecheckExpression(j, typeExpr));
+                    sb.append(") {\n\t\t\t\t\t");
                 }
-                sb.append(") {\n\t\t\t\t\t");
                 append(sig, sb);
-                sb.append("\t\t\t\t}");
+                if (arity > 0) {
+                    sb.append("\t\t\t\t}");
+                }
             }
-            sb
-                    .append(" else { throw new IllegalArgumentException(\"Couldn't figure out which \\\"");
-            sb.append(name);
-            sb.append("\\\" to call.\"); }\n");
+            if (isPythonBuiltin) {
+                sb.append(" else { return ").append(name).append(
+                        "_builtin.__call__(args, kws); }\n");
+            } else if (arity > 0) {
+                sb.append(" else { throw new UnexpectedInvocationError(\"");
+                sb.append(name);
+                sb.append("\", args, kws); }\n");
+            }
         }
         sb.append("\t\t\t}\n");
         return sb.toString();

@@ -67,6 +67,11 @@ public class Runner {
     private static void addJar(final URL url) throws Exception {
         final URLClassLoader classLoader = (URLClassLoader) ClassLoader
                 .getSystemClassLoader();
+        for (final URL u : classLoader.getURLs()) {
+            if (u.equals(url)) {
+                return;
+            }
+        }
         final Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
         method.setAccessible(true);
         method.invoke(classLoader, new Object[] { url });
@@ -163,6 +168,8 @@ public class Runner {
         Py.initPython();
         final InteractiveConsole interp = new InteractiveConsole();
 
+        interp.setOut(System.out);
+
         // Where is the sketch located?
         final String sketchDir = new File(sketchPath).getCanonicalFile().getParent();
 
@@ -186,7 +193,8 @@ public class Runner {
             Py.printException(t);
             throw new RuntimeException(t);
         } finally {
-            interp.cleanup();
+            // interp.cleanup();
         }
+
     }
 }

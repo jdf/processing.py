@@ -69,7 +69,7 @@ public class DriverGenerator {
 
     private Binding findOrCreateBinding(final String name) {
         if (!bindings.containsKey(name)) {
-            bindings.put(name, new Binding(name));
+            bindings.put(name, new Binding(name, PYTHON_BUILTINS.contains(name)));
         }
         return bindings.get(name);
     }

@@ -1,0 +1,2 @@
+import urllib
+print "OK"
