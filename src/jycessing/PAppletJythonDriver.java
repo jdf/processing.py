@@ -1,12 +1,12 @@
 /*
  * Copyright 2010 Jonathan Feinberg
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -31,9 +31,9 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 /**
- * 
+ *
  * @author Jonathan Feinberg &lt;jdf@pobox.com&gt;
- * 
+ *
  */
 @SuppressWarnings("serial")
 abstract public class PAppletJythonDriver extends PApplet {
@@ -61,15 +61,16 @@ abstract public class PAppletJythonDriver extends PApplet {
     // you have implemented a method, we save it and call it.
     private final PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
             mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth,
-            keyTypedMeth;
+            keyTypedMeth, stopMeth;
 
     // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
     // the source file name, so that errors have the file name instead of
     // "<string>"
     private void interpretSketch() {
         Py.setSystemState(interp.getSystemState());
-        Py.exec(Py.compile_flags(programText, pySketchPath, CompileMode.exec,
-                new CompilerFlags()), interp.getLocals(), null);
+        Py.exec(Py.compile_flags(
+                programText, pySketchPath, CompileMode.exec, new CompilerFlags()),
+                interp.getLocals(), null);
         Py.flushLine();
     }
 
@@ -102,6 +103,7 @@ abstract public class PAppletJythonDriver extends PApplet {
         keyPressedMeth = interp.get("keyPressed");
         keyReleasedMeth = interp.get("keyReleased");
         keyTypedMeth = interp.get("keyTyped");
+        stopMeth = interp.get("stop");
     }
 
     /**
@@ -243,6 +245,18 @@ abstract public class PAppletJythonDriver extends PApplet {
             // Put all of PApplet's globals into the Python context
             setFields();
             keyTypedMeth.__call__();
+        }
+    }
+
+    // Minim sketches seem to want to override stop()
+    @Override
+    public void stop() {
+        try {
+            if (stopMeth != null) {
+                stopMeth.__call__();
+            }
+        } finally {
+            super.stop();
         }
     }
 }
