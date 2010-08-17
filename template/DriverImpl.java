@@ -32,6 +32,11 @@ public class DriverImpl extends PAppletJythonDriver {
 		%METHOD_BINDINGS%
 	}
 
+    @Override
+    protected void setIntegerFields() {
+        %INTEGER_FIELD_BINDINGS%
+    }
+    
 	@Override
 	protected void setFields() {
 		%FIELD_BINDINGS%

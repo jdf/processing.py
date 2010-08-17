@@ -1,12 +1,12 @@
 /*
  * Copyright 2010 Jonathan Feinberg
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -31,14 +31,16 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 /**
- *
+ * 
  * @author Jonathan Feinberg &lt;jdf@pobox.com&gt;
- *
+ * 
  */
 @SuppressWarnings("serial")
 abstract public class PAppletJythonDriver extends PApplet {
 
     abstract protected void populateBuiltins();
+
+    abstract protected void setIntegerFields();
 
     abstract protected void setFields();
 
@@ -68,9 +70,8 @@ abstract public class PAppletJythonDriver extends PApplet {
     // "<string>"
     private void interpretSketch() {
         Py.setSystemState(interp.getSystemState());
-        Py.exec(Py.compile_flags(
-                programText, pySketchPath, CompileMode.exec, new CompilerFlags()),
-                interp.getLocals(), null);
+        Py.exec(Py.compile_flags(programText, pySketchPath, CompileMode.exec,
+                new CompilerFlags()), interp.getLocals(), null);
         Py.flushLine();
     }
 
@@ -83,6 +84,7 @@ abstract public class PAppletJythonDriver extends PApplet {
         this.interp = interp;
         initializeStatics(builtins);
         populateBuiltins();
+        setIntegerFields();
         setFields();
         builtins.__setitem__("this", Py.java2py(this));
 

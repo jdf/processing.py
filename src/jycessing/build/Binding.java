@@ -34,8 +34,14 @@ public class Binding {
         return global != null;
     }
 
+    public Class<?> getGlobalType() {
+        return global.getType();
+    }
+
     public String toString() {
         final boolean hasMethods = methods.size() > 0;
+        final boolean isWrappedInteger = hasGlobal()
+                && global.getType().equals(int.class);
 
         final StringBuilder sb = new StringBuilder();
         if (isPythonBuiltin) {
@@ -43,15 +49,22 @@ public class Binding {
             sb.append(String.format("builtins.__getitem__(\"%s\");\n", name));
         }
         sb.append(String.format("builtins.__setitem__(\"%s\", ", name));
+
         if (hasGlobal()) {
-            sb.append(TypeUtil.pyConversionPrefix(global.getType()));
-            sb.append(global.getName());
-            sb.append(")");
+            if (isWrappedInteger) {
+                sb.append("new WrappedInteger()");
+            } else {
+                sb.append(TypeUtil.pyConversionPrefix(global.getType()));
+                sb.append(global.getName());
+                sb.append(")");
+            }
         } else {
             sb.append("new PyObject()");
         }
-        if (hasMethods) {
+        if (hasMethods || isWrappedInteger) {
             sb.append("{");
+        }
+        if (hasMethods) {
             sb
                     .append("\tpublic PyObject __call__(final PyObject[] args, final String[] kws) {\n");
             sb.append("\t\tswitch(args.length) {\n");
@@ -73,6 +86,11 @@ public class Binding {
                 sb.append(m.toString());
             }
             sb.append("\t\t}\n\t}\n");
+        }
+        if (isWrappedInteger) {
+            sb.append("\tpublic int getValue() { return ").append(name).append("; }\n");
+        }
+        if (hasMethods || isWrappedInteger) {
             sb.append("}");
         }
         sb.append(");\n");

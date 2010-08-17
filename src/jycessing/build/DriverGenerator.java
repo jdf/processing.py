@@ -34,7 +34,7 @@ import processing.core.PApplet;
 
 @SuppressWarnings("serial")
 public class DriverGenerator {
-    final String BAD_METHOD = "^(init|handleDraw|draw|parse[A-Z].*|arraycopy|openStream|str)$";
+    final String BAD_METHOD = "^(init|handleDraw|draw|parse[A-Z].*|arraycopy|openStream|str|.*Pressed)$";
 
     private static final Set<String> BAD_FIELDS = new HashSet<String>(Arrays.asList(
             "screen", "args", "recorder", "frame", "g", "selectedFile", "keyEvent",
@@ -107,7 +107,17 @@ public class DriverGenerator {
     public String getFieldBindings() {
         final StringBuilder sb = new StringBuilder();
         for (final Binding b : bindings.values()) {
-            if (b.hasGlobal()) {
+            if (b.hasGlobal() && !b.getGlobalType().equals(int.class)) {
+                sb.append(b.toString());
+            }
+        }
+        return sb.toString();
+    }
+
+    public String getIntegerFieldBindings() {
+        final StringBuilder sb = new StringBuilder();
+        for (final Binding b : bindings.values()) {
+            if (b.hasGlobal() && b.getGlobalType().equals(int.class)) {
                 sb.append(b.toString());
             }
         }
@@ -136,9 +146,11 @@ public class DriverGenerator {
                 .getMethodBindings());
         final String withFieldBindings = withMethodBindings.replace("%FIELD_BINDINGS%",
                 gen.getFieldBindings());
+        final String withIntegerFieldBindings = withFieldBindings.replace(
+                "%INTEGER_FIELD_BINDINGS%", gen.getIntegerFieldBindings());
 
         final FileWriter out = new FileWriter("generated/jycessing/DriverImpl.java");
-        out.write(withFieldBindings);
+        out.write(withIntegerFieldBindings);
         out.close();
     }
 }
