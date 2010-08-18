@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Properties;
 
 import org.python.core.Py;
 import org.python.core.PyString;
@@ -147,6 +148,10 @@ public class Runner {
 
         // -Dverbose=true for some logging
         VERBOSE = Boolean.getBoolean("verbose");
+
+        final Properties buildnum = new Properties();
+        buildnum.load(Runner.class.getResourceAsStream("buildnumber.properties"));
+        System.err.println("processing.py build " + buildnum.getProperty("buildnumber"));
 
         // The last argument is the path to the Python sketch
         final String sketchPath = args[args.length - 1];

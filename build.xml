@@ -8,53 +8,87 @@
      jdf
      ====================================================================== -->
 <project name="processing.py" default="jar">
-  <description>
+	<description>
             Write processing sketches in Python
-  </description>
+  	</description>
 
-  <target name="jar" depends="build">
-    <jar destfile="processing-py.jar">
-      <fileset dir="bin" excludes="jycessing/build/**"/>
-      <zipgroupfileset file="lib/jython/jython.jar"/>
-      <zipgroupfileset file="lib/processing/core.jar"/>
-      <manifest>
-        <attribute name="Main-Class" value="jycessing.Runner" />
-      </manifest>
-    </jar>
-  </target>
+	<target name="newversion" depends="bumpversion,clean,dist" />
 
-  <target name="build" depends="generate-driver">
-    <mkdir dir="bin" />
-    <javac
-      classpath="lib/jython/jython.jar:lib/processing/core.jar"
-      destdir="bin">
-      <src path="src"/>
-      <src path="generated"/>
-      <exclude name="jycessing/build/**"/>
-    </javac>
-  </target>
+	<target name="dist" depends="jar">
+		<property file="src/jycessing/buildnumber.properties"
+		          prefix="jycessing" />
+		<property name="dist" value="processing.py-${jycessing.buildnumber}" />
+		<delete dir="dist" />
+		<mkdir dir="dist/${dist}" />
+		<copy todir="dist/${dist}">
+			<fileset file="processing-py.jar" />
+			<fileset file="scripts/processing-py.bat" />
+			<fileset file="scripts/processing-py" />
+			<fileset file="LICENSE.txt" />
+			<fileset dir="."
+			         includes="examples.py/**,libraries/processing/**" />
+		</copy>
+		<zip basedir="dist" includes="${dist}/**" destfile="dist/${dist}.zip" />
+		<tar compression="gzip"
+		     basedir="dist"
+		     includes="${dist}/**"
+		     destfile="dist/${dist}.tgz" />
+	</target>
 
-  <target name="generate-driver"
-    depends="build-driver-generator"
-    description="Generate DriverImpl class">
-    <java
-      classpath="bin:lib/processing/core.jar"
-      classname="jycessing.build.DriverGenerator"
-      fork="true" />
-  </target>
+	<target name="jar" depends="build">
+		<jar destfile="processing-py.jar">
+			<fileset dir="bin" excludes="jycessing/build/**" />
+			<zipgroupfileset file="lib/jython/jython.jar" />
+			<zipgroupfileset file="lib/processing/core.jar" />
+			<manifest>
+				<attribute name="Main-Class" value="jycessing.Runner" />
+			</manifest>
+		</jar>
+	</target>
 
-  <target name="build-driver-generator">
-    <mkdir dir="bin" />
-    <javac
-      srcdir="src"
-      includes="jycessing/build/**"
-      classpath="lib/processing/core.jar"
-      destdir="bin" />
-  </target>
+	<target name="build" depends="generate-driver">
+		<mkdir dir="bin" />
+		<javac classpath="lib/jython/jython.jar:lib/processing/core.jar"
+		       destdir="bin">
+			<src path="src" />
+			<src path="generated" />
+			<exclude name="jycessing/build/**" />
+		</javac>
+		<copy todir="bin">
+			<fileset dir="src" excludes="**/*.java" />
+		</copy>
+	</target>
 
-  <target name="clean">
-    <delete dir="bin"/>
-    <delete file="generated/jycessing/DriverImpl.java"/>
-    <mkdir dir="bin"/>
-  </target>
+	<target name="generate-driver"
+	        depends="build-driver-generator"
+	        description="Generate DriverImpl class">
+		<java classpath="bin:lib/processing/core.jar"
+		      classname="jycessing.build.DriverGenerator"
+		      fork="true" />
+	</target>
+
+	<target name="build-driver-generator">
+		<mkdir dir="bin" />
+		<javac srcdir="src"
+		       includes="jycessing/build/**"
+		       classpath="lib/processing/core.jar"
+		       destdir="bin" />
+	</target>
+
+	<target name="clean">
+		<delete dir="bin" />
+		<delete file="generated/jycessing/DriverImpl.java" />
+		<mkdir dir="bin" />
+	</target>
+
+	<target name="bumpversion">
+		<propertyfile file="src/jycessing/buildnumber.properties">
+			<entry key="buildnumber"
+			       type="int"
+			       operation="+"
+			       pattern="0000"
+			       default="0000" />
+		</propertyfile>
+	</target>
+
 </project>
