@@ -11,7 +11,7 @@ Write [Processing](http://processing.org) sketches in Python.
     $ cd processing.py
     $ ant
     
-    (or download a distribution from http://github.com/jdf/processing.py/downloads)
+(or download a distribution from http://github.com/jdf/processing.py/downloads)
     
     $ java -jar processing-py.jar examples.py/Basics/Math/NoiseField/noisefield.py
     $ java -jar processing-py.jar examples.py/3D/Typography/KineticType/KineticType.py
