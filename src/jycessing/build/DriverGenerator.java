@@ -1,12 +1,12 @@
 /*
  * Copyright 2010 Jonathan Feinberg
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -34,15 +34,24 @@ import processing.core.PApplet;
 
 @SuppressWarnings("serial")
 public class DriverGenerator {
-    final String BAD_METHOD = "^(init|handleDraw|draw|parse[A-Z].*|arraycopy|openStream|str|.*Pressed)$";
+    final String BAD_METHOD = "^(" //
+            + "init|handleDraw|draw|parse[A-Z].*"
+            + "|arraycopy|openStream|str|.*Pressed|.*Released"
+            + "|(un)?register[A-Z].*|print(ln)?|setup[A-Z].+|thread" //
+            + "|(get|set|remove)Cache|max|update|destroy|main|flush" //
+            + "|addListeners|dataFile|die|setup|mouseE(ntered|xited)" //
+            + "|paint|sketch[A-Z].*|stop|save(File|Path)|displayable|method" //
+            + "|runSketch|start|focus(Lost|Gained)" //
+            + ")$";
 
-    private static final Set<String> BAD_FIELDS = new HashSet<String>(Arrays.asList(
-            "screen", "args", "recorder", "frame", "g", "selectedFile", "keyEvent",
-            "mouseEvent", "sketchPath", "screenWidth", "screenHeight", "defaultSize",
-            "firstMouse", "finished", "requestImageMax"));
+    private static final Set<String> BAD_FIELDS = new HashSet<String>(
+            Arrays.asList("screen", "args", "recorder", "frame", "g",
+                    "selectedFile", "keyEvent", "mouseEvent", "sketchPath",
+                    "screenWidth", "screenHeight", "defaultSize", "firstMouse",
+                    "finished", "requestImageMax"));
 
-    private static final Set<String> ALL_APPLET_METHODS = Collections
-            .unmodifiableSet(new HashSet<String>() {
+    private static final Set<String> ALL_APPLET_METHODS =
+            Collections.unmodifiableSet(new HashSet<String>() {
                 {
                     for (final Method m : PApplet.class.getDeclaredMethods()) {
                         if (!Modifier.isPublic(m.getModifiers())) {
@@ -53,8 +62,8 @@ public class DriverGenerator {
                 }
             });
 
-    private static final Set<String> PYTHON_BUILTINS = new HashSet<String>(Arrays.asList(
-            "map", "filter", "set", "str"));
+    private static final Set<String> PYTHON_BUILTINS = new HashSet<String>(
+            Arrays.asList("map", "filter", "set", "str"));
 
     final Map<String, Binding> bindings = new HashMap<String, Binding>();
 
@@ -69,7 +78,8 @@ public class DriverGenerator {
 
     private Binding findOrCreateBinding(final String name) {
         if (!bindings.containsKey(name)) {
-            bindings.put(name, new Binding(name, PYTHON_BUILTINS.contains(name)));
+            bindings.put(
+                    name, new Binding(name, PYTHON_BUILTINS.contains(name)));
         }
         return bindings.get(name);
     }
@@ -78,7 +88,8 @@ public class DriverGenerator {
         final String name = m.getName();
         final int mods = m.getModifiers();
         if (!Modifier.isPublic(mods) || !PolymorphicMethod.shouldAdd(m)
-                || name.matches(BAD_METHOD) || !ALL_APPLET_METHODS.contains(name)) {
+                || name.matches(BAD_METHOD)
+                || !ALL_APPLET_METHODS.contains(name)) {
             return;
         }
         findOrCreateBinding(name).add(m);
@@ -141,15 +152,17 @@ public class DriverGenerator {
     public static void main(final String[] args) throws Exception {
         final DriverGenerator gen = new DriverGenerator();
 
-        final String template = getText(new FileReader("template/DriverImpl.java"));
-        final String withMethodBindings = template.replace("%METHOD_BINDINGS%", gen
-                .getMethodBindings());
-        final String withFieldBindings = withMethodBindings.replace("%FIELD_BINDINGS%",
-                gen.getFieldBindings());
+        final String template = getText(
+                new FileReader("template/DriverImpl.java"));
+        final String withMethodBindings = template.replace(
+                "%METHOD_BINDINGS%", gen.getMethodBindings());
+        final String withFieldBindings = withMethodBindings.replace(
+                "%FIELD_BINDINGS%", gen.getFieldBindings());
         final String withIntegerFieldBindings = withFieldBindings.replace(
                 "%INTEGER_FIELD_BINDINGS%", gen.getIntegerFieldBindings());
 
-        final FileWriter out = new FileWriter("generated/jycessing/DriverImpl.java");
+        final FileWriter out = new FileWriter(
+                "generated/jycessing/DriverImpl.java");
         out.write(withIntegerFieldBindings);
         out.close();
     }
