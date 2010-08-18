@@ -20,7 +20,7 @@ blogDy = [1, 1, 1]
 pg = createGraphics(160, 90, P2D)    
 
 def setup(): 
-  size(640, 360)
+  size(640, 360, OPENGL)
 
 def draw():
   vx, vy = [], []
