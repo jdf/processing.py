@@ -73,7 +73,8 @@ public class Runner {
                 return;
             }
         }
-        final Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+        final Method method = URLClassLoader.class.getDeclaredMethod("addURL",
+                URL.class);
         method.setAccessible(true);
         method.invoke(classLoader, new Object[] { url });
         if (VERBOSE) {
@@ -143,15 +144,20 @@ public class Runner {
 
     public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
-            System.err.println("I need the path of your Python script as an argument.");
+            System.err
+                    .println("I need the path of your Python script as an argument.");
         }
 
         // -Dverbose=true for some logging
         VERBOSE = Boolean.getBoolean("verbose");
 
         final Properties buildnum = new Properties();
-        buildnum.load(Runner.class.getResourceAsStream("buildnumber.properties"));
-        System.err.println("processing.py build " + buildnum.getProperty("buildnumber"));
+        buildnum.load(Runner.class
+                .getResourceAsStream("buildnumber.properties"));
+        if (VERBOSE) {
+            System.err.println("processing.py build "
+                    + buildnum.getProperty("buildnumber"));
+        }
 
         // The last argument is the path to the Python sketch
         final String sketchPath = args[args.length - 1];
@@ -178,7 +184,8 @@ public class Runner {
         interp.setOut(System.out);
 
         // Where is the sketch located?
-        final String sketchDir = new File(sketchPath).getCanonicalFile().getParent();
+        final String sketchDir = new File(sketchPath).getCanonicalFile()
+                .getParent();
 
         // Tell PApplet to make its home there, so that it can find the data
         // folder

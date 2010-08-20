@@ -5,7 +5,7 @@
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jython/jython.jar"/>
-	<classpathentry kind="lib" path="lib/processing/core.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/processing-core"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

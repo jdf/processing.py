@@ -15,6 +15,7 @@
  */
 package jycessing;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.regex.Pattern;
@@ -61,9 +62,9 @@ abstract public class PAppletJythonDriver extends PApplet {
 
     // These are all of the methods that PApplet might call in your sketch. If
     // you have implemented a method, we save it and call it.
-    private final PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
-            mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth,
-            keyTypedMeth, stopMeth;
+    private final PyObject setupMeth, drawMeth, mousePressedMeth,
+            mouseClickedMeth, mouseReleasedMeth, mouseDraggedMeth,
+            keyPressedMeth, keyReleasedMeth, keyTypedMeth, stopMeth;
 
     // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
     // the source file name, so that errors have the file name instead of
@@ -75,10 +76,11 @@ abstract public class PAppletJythonDriver extends PApplet {
         Py.flushLine();
     }
 
-    public PAppletJythonDriver(final InteractiveConsole interp, final String sketchPath,
-            final String programText) {
+    public PAppletJythonDriver(final InteractiveConsole interp,
+            final String sketchPath, final String programText) {
         this.programText = programText;
         this.pySketchPath = sketchPath;
+        this.sketchPath = new File(sketchPath).getParent();
         this.isStaticMode = !ACTIVE_METHOD_DEF.matcher(programText).find();
         this.builtins = (PyStringMap) interp.getSystemState().getBuiltins();
         this.interp = interp;
@@ -130,8 +132,8 @@ abstract public class PAppletJythonDriver extends PApplet {
      * sketch's world, particularly width and height.
      */
     @Override
-    public void size(final int iwidth, final int iheight, final String irenderer,
-            final String ipath) {
+    public void size(final int iwidth, final int iheight,
+            final String irenderer, final String ipath) {
         super.size(iwidth, iheight, irenderer, ipath);
         setFields();
     }

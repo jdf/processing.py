@@ -6,7 +6,7 @@
  * on the display window and is saved to the file.  
 """
 
-from processing.pdf import *
+#from processing.pdf import *
 
 size(600, 600)
 

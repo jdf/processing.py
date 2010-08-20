@@ -17,9 +17,10 @@ public class JycessingTests {
         final PrintStream saved = System.out;
         try {
             System.setOut(new PrintStream(baos, true));
-            Runner.main(new String[] { "test_resources/test_" + testResource + ".py" });
-            return new String(baos.toByteArray()).replaceAll("\r\n", "\n").replaceAll(
-                    "\r", "\n");
+            Runner.main(new String[] { "test_resources/test_" + testResource
+                    + ".py" });
+            return new String(baos.toByteArray()).replaceAll("\r\n", "\n")
+                    .replaceAll("\r", "\n");
         } finally {
             System.setOut(saved);
         }
@@ -53,6 +54,11 @@ public class JycessingTests {
     @Test
     public void urllib() throws Exception {
         assertEquals("OK\n", run("urllib"));
+    }
+
+    @Test
+    public void load_in_initializer() throws Exception {
+        assertEquals("OK\n", run("load_in_initializer"));
     }
 
     public static void main(final String[] args) {
