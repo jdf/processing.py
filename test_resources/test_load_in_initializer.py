@@ -6,7 +6,7 @@ __author__="max.franks"
 font = loadFont("Cabal1-48.vlw")
 
 def setup():
-    size(800, 800, P3D)
+    size(10, 10, P3D)
     noLoop();
 
 def draw():
