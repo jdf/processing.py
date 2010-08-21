@@ -3,7 +3,9 @@
 Write [Processing](http://processing.org) sketches in Python.      
 [Jonathan Feinberg](http://mrfeinberg.com) &lt;[jdf@pobox.com](mailto:jdf@pobox.com)&gt;
 
-## See some [known issues](http://wiki.github.com/jdf/processing.py/) and the [open bugs in the bug tracker](http://github.com/jdf/processing.py/issues).
+## See some [known issues](http://wiki.github.com/jdf/processing.py/) 
+and the [open bugs in the bug tracker](http://github.com/jdf/processing.py/issues).
+I'm seeking help to create [a simple Eclipse plugin](http://wiki.github.com/jdf/processing.py/eclipse-plugin-spec).
 
 ## Quick Start ##
 
