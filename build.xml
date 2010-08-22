@@ -35,7 +35,7 @@
 
 	<target name="jar" depends="build">
 		<jar destfile="processing-py.jar">
-			<fileset dir="bin" excludes="jycessing/build/**" />
+			<fileset dir="bin" excludes="jycessing/build/**,test/**" />
 			<zipgroupfileset file="buildtime/lib/jython/jython.jar" />
 			<zipgroupfileset file="buildtime/lib/processing/core.jar" />
 			<manifest>
