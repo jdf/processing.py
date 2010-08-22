@@ -22,8 +22,6 @@
 		<mkdir dir="dist/${dist}" />
 		<copy todir="dist/${dist}">
 			<fileset file="processing-py.jar" />
-			<fileset file="scripts/processing-py.bat" />
-			<fileset file="scripts/processing-py" />
 			<fileset file="LICENSE.txt" />
 			<fileset dir="."
 			         includes="examples.py/**,libraries/processing/**" />
@@ -38,8 +36,8 @@
 	<target name="jar" depends="build">
 		<jar destfile="processing-py.jar">
 			<fileset dir="bin" excludes="jycessing/build/**" />
-			<zipgroupfileset file="lib/jython/jython.jar" />
-			<zipgroupfileset file="lib/processing/core.jar" />
+			<zipgroupfileset file="buildtime/lib/jython/jython.jar" />
+			<zipgroupfileset file="buildtime/lib/processing/core.jar" />
 			<manifest>
 				<attribute name="Main-Class" value="jycessing.Runner" />
 			</manifest>
@@ -48,41 +46,43 @@
 
 	<target name="build" depends="generate-driver">
 		<mkdir dir="bin" />
-		<javac classpath="lib/jython/jython.jar:lib/processing/core.jar"
+		<javac classpath="buildtime/lib/jython/jython.jar:buildtime/lib/processing/core.jar"
 		       destdir="bin">
-			<src path="src" />
-			<src path="generated" />
-			<exclude name="jycessing/build/**" />
+			<src path="runtime/src" />
+			<src path="runtime/generated" />
 		</javac>
 		<copy todir="bin">
-			<fileset dir="src" excludes="**/*.java" />
+			<fileset dir="runtime/src" excludes="**/*.java" />
 		</copy>
 	</target>
 
 	<target name="generate-driver"
 	        depends="build-driver-generator"
 	        description="Generate DriverImpl class">
-		<java classpath="bin:lib/processing/core.jar"
+		<java classpath="bin:buildtime/lib/processing/core.jar"
 		      classname="jycessing.build.DriverGenerator"
-		      fork="true" />
+		      fork="true">
+			<arg value="buildtime/template/DriverImpl.java"/>
+			<arg value="runtime/generated/jycessing/DriverImpl.java"/>
+		</java>
 	</target>
 
 	<target name="build-driver-generator">
 		<mkdir dir="bin" />
-		<javac srcdir="src"
+		<javac srcdir="buildtime/src"
 		       includes="jycessing/build/**"
-		       classpath="lib/processing/core.jar"
+		       classpath="buildtime/lib/processing/core.jar"
 		       destdir="bin" />
 	</target>
 
 	<target name="clean">
 		<delete dir="bin" />
-		<delete file="generated/jycessing/DriverImpl.java" />
+		<delete file="runtime/generated/jycessing/DriverImpl.java" />
 		<mkdir dir="bin" />
 	</target>
 
 	<target name="bumpversion">
-		<propertyfile file="src/jycessing/buildnumber.properties">
+		<propertyfile file="runtime/src/jycessing/buildnumber.properties">
 			<entry key="buildnumber"
 			       type="int"
 			       operation="+"

@@ -8,7 +8,7 @@ examples.pde
 *.py.class
 *$py.class
 line.pdf
-generated/jycessing/*.java
+runtime/generated/jycessing/*.java
 build
 processing-py.jar
 libraries/peasycam
