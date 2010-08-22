@@ -98,7 +98,7 @@ public class Binding {
         return sb.toString();
     }
 
-    public void add(final Method m) {
+    public void addMethod(final Method m) {
         final int arity = m.getParameterTypes().length;
         if (methods.size() < arity + 1) {
             for (int i = methods.size(); i < arity + 1; i++) {

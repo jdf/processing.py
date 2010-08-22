@@ -92,7 +92,7 @@ public class DriverGenerator {
                 || !ALL_APPLET_METHODS.contains(name)) {
             return;
         }
-        findOrCreateBinding(name).add(m);
+        findOrCreateBinding(name).addMethod(m);
     }
 
     private void maybeAdd(final Field f) {
@@ -105,20 +105,10 @@ public class DriverGenerator {
         findOrCreateBinding(name).setField(f);
     }
 
-    public String getMethodBindings() {
+    public String getSimpleMethodBindings() {
         final StringBuilder sb = new StringBuilder();
         for (final Binding b : bindings.values()) {
             if (!b.hasGlobal()) {
-                sb.append(b.toString());
-            }
-        }
-        return sb.toString();
-    }
-
-    public String getFieldBindings() {
-        final StringBuilder sb = new StringBuilder();
-        for (final Binding b : bindings.values()) {
-            if (b.hasGlobal() && !b.getGlobalType().equals(int.class)) {
                 sb.append(b.toString());
             }
         }
@@ -129,6 +119,16 @@ public class DriverGenerator {
         final StringBuilder sb = new StringBuilder();
         for (final Binding b : bindings.values()) {
             if (b.hasGlobal() && b.getGlobalType().equals(int.class)) {
+                sb.append(b.toString());
+            }
+        }
+        return sb.toString();
+    }
+
+    public String getFieldBindings() {
+        final StringBuilder sb = new StringBuilder();
+        for (final Binding b : bindings.values()) {
+            if (b.hasGlobal() && !b.getGlobalType().equals(int.class)) {
                 sb.append(b.toString());
             }
         }
@@ -154,7 +154,7 @@ public class DriverGenerator {
 
         final String template = getText(new FileReader(args[0]));
         final String withMethodBindings = template.replace("%METHOD_BINDINGS%",
-                gen.getMethodBindings());
+                gen.getSimpleMethodBindings());
         final String withFieldBindings = withMethodBindings.replace(
                 "%FIELD_BINDINGS%", gen.getFieldBindings());
         final String withIntegerFieldBindings = withFieldBindings.replace(
