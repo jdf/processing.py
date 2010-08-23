@@ -34,7 +34,6 @@ public class DriverImpl extends PAppletJythonDriver {
 	@Override
 	protected void populateBuiltins() {
 	   /*[[[cog
-	   
 	   ]]]*/
 	   /*[[[end]]]*/
 	}

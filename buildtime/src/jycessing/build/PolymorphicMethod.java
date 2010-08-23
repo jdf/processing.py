@@ -18,12 +18,13 @@ package jycessing.build;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class PolymorphicMethod {
     private final String name;
     private final int arity;
-    private final List<Signature> signatures = new ArrayList<Signature>();
+    private final List<Method> methods = new ArrayList<Method>();
     private final boolean isPythonBuiltin;
 
     public PolymorphicMethod(final String name, final int arity,
@@ -53,23 +54,23 @@ public class PolymorphicMethod {
             throw new IllegalArgumentException("I can't cope with " + method
                     + " because it's evil.");
         }
-        signatures.add(new Signature(method));
+        methods.add(method);
     }
 
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append(String.format("\t\t\tcase %d: {\n", arity));
-        if (!isPythonBuiltin && signatures.size() == 1) {
+        if (!isPythonBuiltin && methods.size() == 1) {
             sb.append("\t\t\t\t");
-            append(signatures.get(0), sb);
+            append(methods.get(0), sb);
         } else {
             for (int i = 0; i < arity; i++) {
                 final String typeTemp = "\t\t\t\tfinal PyType t%d = args[%d].getType();\n";
                 sb.append(String.format(typeTemp, i, i));
             }
-            Collections.sort(signatures);
-            for (int i = 0; i < signatures.size(); i++) {
-                final Signature sig = signatures.get(i);
+            Collections.sort(methods, METHOD_COMPARATOR);
+            for (int i = 0; i < methods.size(); i++) {
+                final Method m = methods.get(i);
                 if (i > 0) {
                     sb.append(" else ");
                 } else {
@@ -82,18 +83,19 @@ public class PolymorphicMethod {
                             sb.append(" && ");
                         }
                         final String typeExpr = String.format("t%d", j);
-                        sb.append(sig.getTypecheckExpression(j, typeExpr));
+                        sb.append(getTypecheckExpression(
+                                m.getParameterTypes()[j], typeExpr));
                     }
                     sb.append(") {\n\t\t\t\t\t");
                 }
-                append(sig, sb);
+                append(m, sb);
                 if (arity > 0) {
                     sb.append("\t\t\t\t}");
                 }
             }
             if (isPythonBuiltin) {
-                sb.append(" else { return ").append(name).append(
-                        "_builtin.__call__(args, kws); }\n");
+                sb.append(" else { return ").append(name)
+                        .append("_builtin.__call__(args, kws); }\n");
             } else if (arity > 0) {
                 sb.append(" else { throw new UnexpectedInvocationError(\"");
                 sb.append(name);
@@ -104,9 +106,10 @@ public class PolymorphicMethod {
         return sb.toString();
     }
 
-    private void append(final Signature signature, final StringBuilder sb) {
-        if (!signature.isVoid()) {
-            final String prefix = TypeUtil.pyConversionPrefix(signature.getReturnType());
+    private void append(final Method m, final StringBuilder sb) {
+        if (m.getReturnType() != Void.TYPE) {
+            final String prefix = TypeUtil.pyConversionPrefix(m
+                    .getReturnType());
             sb.append("return ").append(prefix);
         }
         sb.append(name).append('(');
@@ -114,10 +117,10 @@ public class PolymorphicMethod {
             if (i > 0) {
                 sb.append(", ");
             }
-            sb.append(asJavaExpression(signature, i));
+            sb.append(asJavaExpression(m, i));
         }
         sb.append(')');
-        if (signature.isVoid()) {
+        if (m.getReturnType() == Void.TYPE) {
             sb.append(";\n");
             sb.append("\t\t\t\treturn Py.None;");
         } else {
@@ -126,9 +129,9 @@ public class PolymorphicMethod {
         sb.append('\n');
     }
 
-    public static String asJavaExpression(final Signature signature, final int i) {
+    public static String asJavaExpression(final Method signature, final int i) {
         final String name = "args[" + i + "]";
-        final Class<?> javaType = signature.getArgType(i);
+        final Class<?> javaType = signature.getParameterTypes()[i];
         final StringBuilder sb = new StringBuilder();
         if (javaType == float.class) {
             sb.append("(float)").append(name).append(".asDouble()");
@@ -147,15 +150,64 @@ public class PolymorphicMethod {
         } else if (javaType.isPrimitive()) {
             throw new RuntimeException("You need a converter for " + javaType);
         } else {
-            final String simpleName = javaType.isArray() ? javaType.getSimpleName()
-                    : javaType.getName();
+            final String simpleName = javaType.isArray() ? javaType
+                    .getSimpleName() : javaType.getName();
             // no need to cast Object to Object
             if (!simpleName.equals("java.lang.Object")) {
                 sb.append('(').append(simpleName).append(')');
             }
-            sb.append(name).append(".__tojava__(").append(simpleName).append(".class)");
+            sb.append(name).append(".__tojava__(").append(simpleName)
+                    .append(".class)");
         }
         return sb.toString();
     }
 
+    public String getTypecheckExpression(final Class<?> k, final String name) {
+        if (k == float.class) {
+            return String
+                    .format("(%s == PyFloat.TYPE || %s == PyInteger.TYPE || %s == PyLong.TYPE)",
+                            name, name, name);
+        } else if (k == int.class || k == byte.class) {
+            return String.format("%s == PyInteger.TYPE", name);
+        } else if (k == boolean.class) {
+            return String.format("%s == PyBoolean.TYPE", name);
+        } else if (k == String.class) {
+            return String.format("%s == PyString.TYPE", name);
+        } else if (k.isPrimitive()) {
+            throw new RuntimeException("You need a converter for " + k);
+        } else {
+            return String
+                    .format("%s.getProxyType() != null && %s.getProxyType() == %s.class",
+                            name, name, k.getSimpleName());
+        }
+    }
+
+    private static final Comparator<Method> METHOD_COMPARATOR = new Comparator<Method>() {
+        private final Comparator<Class<?>> CLASS_COMP = new Comparator<Class<?>>() {
+            public int compare(final Class<?> a, final Class<?> b) {
+                if (a == int.class && b == float.class) {
+                    return -1;
+                }
+                if (a == float.class && b == int.class) {
+                    return 1;
+                }
+                return a.getSimpleName().compareTo(b.getSimpleName());
+            }
+        };
+        public int compare(Method a, Method b) {
+            final Class<?>[] atypes = a.getParameterTypes();
+            final Class<?>[] btypes = b.getParameterTypes();
+            if (atypes.length != btypes.length) {
+                throw new IllegalArgumentException(
+                        "Can't compare Methods of unlike arity");
+            }
+            for (int i = 0; i < atypes.length; i++) {
+                final int c = CLASS_COMP.compare(atypes[i], btypes[i]);
+                if (c != 0) {
+                    return c;
+                }
+            }
+            return 0;
+        }
+    };
 }
