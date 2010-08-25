@@ -13,6 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+/*[[[cog
+    import processing_parser as p
+    import cog
+    ]]]
+  [[[end]]] */
 package jycessing;
 
 import org.python.util.InteractiveConsole;
@@ -27,19 +32,32 @@ public class DriverImpl extends PAppletJythonDriver {
 	        final String sketchPath, final String programText) {
 		super(interp, sketchPath, programText);
 	}
+	
+	
 	@Override
 	protected void populateBuiltins() {
-		%METHOD_BINDINGS%
+	   /*[[[cog
+	   for b in p.simple_method_bindings:
+	       b.emit()
+	   ]]]*/
+	   /*[[[end]]]*/
 	}
 
     @Override
     protected void setIntegerFields() {
-        %INTEGER_FIELD_BINDINGS%
+        /*[[[cog
+       for b in p.integer_field_bindings:
+           b.emit()
+        ]]]*/
+        /*[[[end]]] */
     }
     
 	@Override
 	protected void setFields() {
-		%FIELD_BINDINGS%
+       /*[[[cog
+       for b in p.field_bindings:
+           b.emit()
+       ]]]*/
+       /*[[[end]]] */
 	}
-
 }

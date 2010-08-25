@@ -10,4 +10,7 @@ abstract public class WrappedInteger extends PyInteger {
         super(0);
     }
 
+    public static void main(String[] args) throws Exception {
+        System.err.println(Class.forName("int"));
+    }
 }
