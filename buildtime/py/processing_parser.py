@@ -155,7 +155,7 @@ class PolymorphicMethod(object):
             cog.outl(');')
         
     def emit(self):
-        cog.outl('\t\t\tcase %d: {\n' % self.arity)
+        cog.outl('\t\t\tcase %d: {' % self.arity)
         if len(self.methods) == 1 and not is_builtin(self.name):
             cog.out('\t\t\t\t')
             self.emit_method(self.methods[0])
@@ -181,9 +181,9 @@ class PolymorphicMethod(object):
                 if self.arity > 0:
                     cog.out('\t\t\t\t}') 
             if is_builtin(self.name):
-                cog.outl('else { return %s_builtin.__call__(args, kws); }' % self.name)
+                cog.outl(' else { return %s_builtin.__call__(args, kws); }' % self.name)
             elif self.arity > 0:
-                cog.outl('else { throw new UnexpectedInvocationError'
+                cog.outl(' else { throw new UnexpectedInvocationError'
                          '("%s", args, kws); }' % self.name)  
         cog.outl('\t\t\t}')
                 
@@ -229,8 +229,8 @@ class Binding(object):
             if is_builtin(n):
                 cog.outl('return %s_builtin.__call__(args, kws);' % n)
             else:
-                cog.outl('''throw new RuntimeException("Can\'t call \\"%s\\" with "
-                            + args.length + " parameters."); ''' % n)
+                cog.outl('throw new RuntimeException("Can\'t call \\"%s\\" with "'
+                         ' + args.length + " parameters."); ' % n)
             for k in sorted(self.methods.keys()):
                 self.methods[k].emit()
             cog.outl('\t\t}\n\t}')
