@@ -56,19 +56,18 @@
 		</copy>
 	</target>
 
-    <target name="generate-driver"
-            description="Generate DriverImpl class">
-        <java classpath="buildtime/lib/jython/jython.jar:buildtime/lib/processing/core.jar"
-              classname="org.python.util.jython"
-              fork="true">
-        	<env key="JYTHONPATH" value="builtime/py/lib"/>
-            <arg value="buildtime/py/cog.py"/>
-            <arg value="-U"/>
-            <arg value="-o"/>
-            <arg value="runtime/generated/jycessing/DriverImpl.java"/>
-            <arg value="buildtime/template/DriverImpl.java.cog"/>
-        </java>
-    </target>
+  <target name="generate-driver"
+          description="Generate DriverImpl class">
+      <java classpath="buildtime/lib/jython/jython.jar:buildtime/lib/processing/core.jar"
+            classname="org.python.util.jython"
+            fork="true">
+          <arg value="buildtime/py/cog.py"/>
+          <arg value="-U"/>
+          <arg value="-o"/>
+          <arg value="runtime/generated/jycessing/DriverImpl.java"/>
+          <arg value="buildtime/template/DriverImpl.java.cog"/>
+      </java>
+  </target>
 
 	<target name="clean">
 		<delete dir="bin" />

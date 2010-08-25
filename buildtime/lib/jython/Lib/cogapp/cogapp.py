@@ -4,7 +4,7 @@
     Copyright 2004-2009, Ned Batchelder.
 """
 
-import copy, getopt, imp, os, re, string, sys, traceback
+import copy, getopt, imp, os, string, shlex, sys, traceback
 from cStringIO import StringIO
 
 # The recommended way to compute md5's changed in Python 2.5
@@ -621,7 +621,7 @@ class Cog(Redirectable):
             This is used by main.
             argv is the equivalent of sys.argv.
         """
-        argv0 = argv.pop(0)
+        argv.pop(0)
 
         # Provide help if asked for anywhere in the command line.
         if '-?' in argv or '-h' in argv:
