@@ -4,7 +4,7 @@ import re
 import cog
 
 from java.lang.reflect import Field, Method, Modifier
-from java.lang import Class, String
+from java.lang import Class, String, Void
 from processing.core import PApplet
 
 
@@ -54,37 +54,79 @@ class ClassConversionInfo(object):
         self.to_python_prefix = to_python_prefix
         self.to_java_format = to_java_format
         self.typecheck_format = typecheck_format
-
+            
+"""
+    Mapping from java type to various expressions needed in code
+    generation around those types.
+"""
 CONVERSIONS = {
-   PRIMITIVES['int']: ClassConversionInfo('new PyInteger', 
-                                          '{0}.asInt()', 
-                                          '{0} == PyInteger.TYPE'),
-   PRIMITIVES['byte']: ClassConversionInfo('new PyInteger', 
-                                           '(byte){0}.asInt()', 
-                                           '{0} == PyInteger.TYPE'),
-   PRIMITIVES['float']: ClassConversionInfo('new PyFloat', 
-                                            '(float){0}.asDouble()', 
-                                            '({0} == PyFloat.TYPE || {0} == PyInteger.TYPE || {0} == PyLong.TYPE)'),
-   PRIMITIVES['long']: ClassConversionInfo('new PyLong', 
-                                           '{0}.asLong()', 
-                                           '{0} == PyLong.TYPE'),
-   PRIMITIVES['long']: ClassConversionInfo('new PyLong', 
-                                           '{0}.asLong()', 
-                                           '{0} == PyLong.TYPE'),
-   PRIMITIVES['char']:     'new PyString',
-   Class.forName("java.lang.String"): 'new PyString',
-   PRIMITIVES['boolean']:  'new PyBoolean' }
-PY_CONVERSION_PREFIX = {PRIMITIVES['int']:      'new PyInteger',
-                        PRIMITIVES['float']:    'new PyFloat',
-                        PRIMITIVES['long']:     'new PyLong',
-                        PRIMITIVES['char']:     'new PyString',
-                        Class.forName("java.lang.String"): 'new PyString',
-                        PRIMITIVES['boolean']:  'new PyBoolean' }
-def get_conversion_prefix(klass):
-    return PY_CONVERSION_PREFIX.get(klass, 'Py.java2py')
+   PRIMITIVES['int']:
+        ClassConversionInfo('new PyInteger', 
+                            '%s.asInt()',
+                            '%(name)s == PyInteger.TYPE'),
+   PRIMITIVES['byte']:
+        ClassConversionInfo(None,
+                            '(byte)%s.asInt()',
+                            '%(name)s == PyInteger.TYPE'),
+   PRIMITIVES['float']:
+        ClassConversionInfo('new PyFloat',
+                            '(float)%s.asDouble()',
+                            '(%(name)s == PyFloat.TYPE '
+                                '|| %(name)s == PyInteger.TYPE '
+                                '|| %(name)s == PyLong.TYPE)'),
+   PRIMITIVES['long']:
+        ClassConversionInfo('new PyLong',
+                            '%s.asLong()',
+                            None),
+   Class.forName("java.lang.String"):
+        ClassConversionInfo('new PyString',
+                            '%s.asString()',
+                            '%(name)s == PyString.TYPE'),
+   PRIMITIVES['char']:
+        ClassConversionInfo('new PyString',
+                            '%s.asString().charAt(0)',
+                            None),
+   PRIMITIVES['boolean']:
+        ClassConversionInfo('new PyBoolean',
+                            '%s.__nonzero__()',
+                            '%(name)s == PyBoolean.TYPE')
+}
+
+def emit_python_prefix(klass):
+    try:
+        cog.out(CONVERSIONS[klass].to_python_prefix)
+    except (KeyError, AttributeError):
+        if klass.isPrimitive():
+            raise Exception("You need a converter for %s" % klass.getName())
+        cog.out('Py.java2py')
+    cog.out('(')
+
+def emit_java_expression(klass, name):
+    try:
+        cog.out(CONVERSIONS[klass].to_java_format % name)
+    except KeyError:
+        if klass.isPrimitive():
+            raise Exception("You need a converter for %s" % klass.getName())
+        simpleName = Class.getName(klass)
+        if klass.isArray():
+            simpleName = Class.getSimpleName(klass)
+        if simpleName != 'java.lang.Object':
+            cog.out('(%s)' % simpleName)
+        cog.out('%s.__tojava__(%s.class)' % (name, simpleName))
+
+def emit_typecheck_expression(klass, name):
+    try:
+        cog.out(CONVERSIONS[klass].typecheck_format % {'name': name})
+    except (TypeError, KeyError):
+        if klass.isPrimitive():
+            raise Exception("You need a converter for %s" % klass.getName())
+        cog.out('%s.getProxyType() != null '
+                '&& %s.getProxyType() == %s.class' % (name, 
+                                                      name, 
+                                                      Class.getSimpleName(klass)))
 
 def is_builtin(name):
-    return hasattr(__builtin__, name)
+    return name in ('map', 'filter', 'set', 'str')
 
 class PolymorphicMethod(object):
     def __init__(self, name, arity):
@@ -96,8 +138,55 @@ class PolymorphicMethod(object):
         assert len(m.getParameterTypes()) == self.arity
         self.methods.append(m)
     
-    
-
+    def emit_method(self, m):
+        if m.getReturnType() is not Void.TYPE:
+            cog.out('return ')
+            emit_python_prefix(m.getReturnType())
+        cog.out('%s(' % self.name)
+        for i in range(self.arity):
+            if i > 0:
+                cog.out(', ')
+            emit_java_expression(m.getParameterTypes()[i], 'args[%d]' % i)
+        cog.out(')')
+        if m.getReturnType() is Void.TYPE:
+            cog.outl(';')
+            cog.outl('\t\t\t\treturn Py.None;')
+        else:
+            cog.outl(');')
+        
+    def emit(self):
+        cog.outl('\t\t\tcase %d: {\n' % self.arity)
+        if len(self.methods) == 1 and not is_builtin(self.name):
+            cog.out('\t\t\t\t')
+            self.emit_method(self.methods[0])
+        else:
+            for i in range(self.arity):
+                cog.outl('\t\t\t\tfinal PyType t%d = args[%d].getType();' % (i, i))
+            self.methods.sort(key=lambda p: [m.getSimpleName() for m in p.getParameterTypes()])
+            for i in range(len(self.methods)):
+                m = self.methods[i]
+                if i > 0:
+                    cog.out(' else ')
+                else:
+                    cog.out('\t\t\t\t')
+                if self.arity > 0:
+                    cog.out('if (')
+                    for j in range(self.arity):
+                        if j > 0:
+                            cog.out(' && ')
+                        emit_typecheck_expression(m.getParameterTypes()[j], 
+                                                  't%d' % j)
+                    cog.out(') {\n\t\t\t\t\t')
+                self.emit_method(m)
+                if self.arity > 0:
+                    cog.out('\t\t\t\t}') 
+            if is_builtin(self.name):
+                cog.outl('else { return %s_builtin.__call__(args, kws); }' % self.name)
+            elif self.arity > 0:
+                cog.outl('else { throw new UnexpectedInvocationError'
+                         '("%s", args, kws); }' % self.name)  
+        cog.outl('\t\t\t}')
+                
 
 class Binding(object):
     def __init__(self, name):
@@ -107,7 +196,7 @@ class Binding(object):
 
     def add_method(self, m):
         arity = len(m.getParameterTypes())
-        pm = self.methods.get(arity, PolymorphicMethod(self.name, arity))
+        pm = self.methods.setdefault(arity, PolymorphicMethod(self.name, arity))
         pm.add_method(m)
     
     def set_field(self, f):
@@ -116,7 +205,7 @@ class Binding(object):
         self.field = f
     
     def emit(self):
-        has_methods = len(self.methods) > 0
+        has_methods = len(self.methods.values()) > 0
         is_wrapped_integer = self.field and self.field.getType() == PRIMITIVES['int']
         n = self.name
         if is_builtin(n):
@@ -126,7 +215,8 @@ class Binding(object):
             if is_wrapped_integer:
                 cog.out('new WrappedInteger()')
             else:
-                cog.out('%s(%s)'%(get_conversion_prefix(self.field.getType()), n))
+                emit_python_prefix(self.field.getType())
+                cog.out('%s)' % n)
         else:
             cog.out('new PyObject()')
         if has_methods or is_wrapped_integer:
@@ -140,12 +230,26 @@ class Binding(object):
                 cog.outl('return %s_builtin.__call__(args, kws);' % n)
             else:
                 cog.outl('''throw new RuntimeException("Can\'t call \\"%s\\" with "
-                            + args.length + " parameters."); '''% n)
-            for m in self.methods.values:
-                m.emit()
+                            + args.length + " parameters."); ''' % n)
+            for k in sorted(self.methods.keys()):
+                self.methods[k].emit()
             cog.outl('\t\t}\n\t}')
         if is_wrapped_integer:
             cog.outl('\tpublic int getValue() { return %s; }' % n)
         if has_methods or is_wrapped_integer:
             cog.out('}')
         cog.outl(');')
+
+bindings = {}
+for m in WANTED_METHODS:
+    bindings.setdefault(m.getName(), Binding(m.getName())).add_method(m)
+for f in WANTED_FIELDS:
+    bindings.setdefault(f.getName(), Binding(f.getName())).set_field(f)
+
+simple_method_bindings = [b for b in bindings.values() if not b.field]
+integer_field_bindings = [b for b in bindings.values() 
+                          if b.field 
+                          and b.field.getType() is PRIMITIVES['int']]
+field_bindings = [b for b in bindings.values()
+                  if b.field
+                  and b.field.getType() is not PRIMITIVES['int']]

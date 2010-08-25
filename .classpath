@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="buildtime/src"/>
 	<classpathentry kind="src" path="testing/tests"/>
 	<classpathentry kind="src" path="runtime/src"/>
 	<classpathentry kind="src" path="runtime/generated"/>

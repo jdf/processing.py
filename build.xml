@@ -56,7 +56,7 @@
 		</copy>
 	</target>
 
-    <target name="generate-driver-with-cog"
+    <target name="generate-driver"
             description="Generate DriverImpl class">
         <java classpath="buildtime/lib/jython/jython.jar:buildtime/lib/processing/core.jar"
               classname="org.python.util.jython"
@@ -69,25 +69,6 @@
             <arg value="buildtime/template/DriverImpl.java.cog"/>
         </java>
     </target>
-
-	<target name="generate-driver"
-	        depends="build-driver-generator"
-	        description="Generate DriverImpl class">
-		<java classpath="bin:buildtime/lib/processing/core.jar"
-		      classname="jycessing.build.DriverGenerator"
-		      fork="true">
-			<arg value="buildtime/template/DriverImpl.java"/>
-			<arg value="runtime/generated/jycessing/DriverImpl.java"/>
-		</java>
-	</target>
-
-	<target name="build-driver-generator">
-		<mkdir dir="bin" />
-		<javac srcdir="buildtime/src"
-		       includes="jycessing/build/**"
-		       classpath="buildtime/lib/processing/core.jar"
-		       destdir="bin" />
-	</target>
 
 	<target name="clean">
 		<delete dir="bin" />
