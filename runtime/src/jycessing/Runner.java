@@ -31,6 +31,7 @@ import java.util.Properties;
 import org.python.core.Py;
 import org.python.core.PyString;
 import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
 
 import processing.core.PApplet;
 
@@ -174,7 +175,17 @@ public class Runner {
         // Recursively search the "libraries" directory for jar files and
         // directories containing dynamic libraries, adding them to the
         // classpath and the library path respectively.
-        searchForExtraStuff(new File("libraries"));
+        final File libraries = new File("libraries");
+        searchForExtraStuff(libraries);
+
+        // Where is the sketch located?
+        final String sketchDir = new File(sketchPath).getCanonicalFile()
+                .getParent();
+
+        Properties props = new Properties();
+        props.setProperty("python.path", libraries.getAbsolutePath()
+                + File.pathSeparator + sketchDir);
+        PythonInterpreter.initialize(null, props, new String[] { "" });
 
         Py.initPython();
         final InteractiveConsole interp = new InteractiveConsole();
@@ -182,10 +193,6 @@ public class Runner {
         // This hack seems to be necessary in order to redirect stdout for unit
         // tests
         interp.setOut(System.out);
-
-        // Where is the sketch located?
-        final String sketchDir = new File(sketchPath).getCanonicalFile()
-                .getParent();
 
         // Tell PApplet to make its home there, so that it can find the data
         // folder

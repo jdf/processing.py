@@ -21,9 +21,10 @@ BAD_METHOD = re.compile(r'''
     ^(
     init|handleDraw|draw|parse[A-Z].*|arraycopy|openStream|str|.*Pressed
     |.*Released|(un)?register[A-Z].*|print(ln)?|setup[A-Z].+|thread
-    |(get|set|remove)Cache|max|update|destroy|main|flush|addListeners|dataFile
+    |(get|set|remove)Cache|update|destroy|main|flush|addListeners|dataFile
     |die|setup|mouseE(ntered|xited)|paint|sketch[A-Z].*|stop|save(File|Path)
     |displayable|method|runSketch|start|focus(Lost|Gained)|(data|create)Path
+    |round|abs|max|min|open|append|splice|expand|contract
     )$
     ''', re.X)
 
@@ -38,11 +39,11 @@ PRIMITIVES = { 'int': prim("java.lang.Integer"),
                'float': prim("java.lang.Float"),
                'boolean': prim("java.lang.Boolean") }
 
-CHAR_TYPES = (PRIMITIVES['char'], Class.forName('[C'))
+USELESS_TYPES = (PRIMITIVES['char'], Class.forName('[C'), PRIMITIVES['byte'])
 WANTED_METHODS = [m for m in Class.getDeclaredMethods(PApplet)
                       if Modifier.isPublic(m.getModifiers())
                       and not BAD_METHOD.match(m.getName())
-                      and not any(k in CHAR_TYPES for k in m.getParameterTypes())]
+                      and not any(k in USELESS_TYPES for k in m.getParameterTypes())]
 
 WANTED_FIELDS = [f for f in Class.getDeclaredFields(PApplet)
                     if Modifier.isPublic(f.getModifiers())
@@ -54,7 +55,7 @@ class ClassConversionInfo(object):
         self.to_python_prefix = to_python_prefix
         self.to_java_format = to_java_format
         self.typecheck_format = typecheck_format
-            
+
 """
     Mapping from java type to various expressions needed in code
     generation around those types.
@@ -128,6 +129,11 @@ def emit_typecheck_expression(klass, name):
 def is_builtin(name):
     return name in ('map', 'filter', 'set', 'str')
 
+def type_to_sort_order(t):
+    if t == 'byte':
+        return 'z'
+    return t
+
 class PolymorphicMethod(object):
     def __init__(self, name, arity):
         self.name = name
@@ -162,7 +168,8 @@ class PolymorphicMethod(object):
         else:
             for i in range(self.arity):
                 cog.outl('\t\t\t\tfinal PyType t%d = args[%d].getType();' % (i, i))
-            self.methods.sort(key=lambda p: [m.getSimpleName() for m in p.getParameterTypes()])
+            self.methods.sort(key=lambda p: [type_to_sort_order(m.getSimpleName())
+                                             for m in p.getParameterTypes()])
             for i in range(len(self.methods)):
                 m = self.methods[i]
                 if i > 0:
