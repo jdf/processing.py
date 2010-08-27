@@ -1,10 +1,9 @@
-import __builtin__
-
 import re
+
 import cog
 
-from java.lang.reflect import Field, Method, Modifier
-from java.lang import Class, String, Void
+from java.lang.reflect import Modifier
+from java.lang import Class, Void
 from processing.core import PApplet
 
 
