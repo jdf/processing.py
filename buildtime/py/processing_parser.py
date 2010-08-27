@@ -129,11 +129,6 @@ def emit_typecheck_expression(klass, name):
 def is_builtin(name):
     return name in ('map', 'filter', 'set', 'str')
 
-def type_to_sort_order(t):
-    if t == 'byte':
-        return 'z'
-    return t
-
 class PolymorphicMethod(object):
     def __init__(self, name, arity):
         self.name = name
@@ -168,8 +163,9 @@ class PolymorphicMethod(object):
         else:
             for i in range(self.arity):
                 cog.outl('\t\t\t\tfinal PyType t%d = args[%d].getType();' % (i, i))
-            self.methods.sort(key=lambda p: [type_to_sort_order(m.getSimpleName())
-                                             for m in p.getParameterTypes()])
+            self.methods.sort(key=lambda p: [m.getSimpleName()
+                                             for m in p.getParameterTypes()],
+                               reverse=True)
             for i in range(len(self.methods)):
                 m = self.methods[i]
                 if i > 0:

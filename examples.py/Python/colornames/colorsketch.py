@@ -13,5 +13,7 @@ def setup():
 def draw():
     background(0)
     image(flag, 75, 40 )
-    if mouseX >= 0 and mouseX <= width and mouseY >= 0 and mouseY <= height: 
-        text(namer.name(hex(0x00FFFFFF & get(mouseX, mouseY))[2:]).name, 60, 120)
+    if mouseX >= 0 and mouseX <= width and mouseY >= 0 and mouseY <= height:
+        c = 0x00FFFFFF & get(mouseX, mouseY)
+        fill(c >> 16, c >> 8 & 0xFF, c & 0xFF)
+        text(namer.name(hex(c)[2:]).name, 75, 120)

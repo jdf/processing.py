@@ -15,7 +15,7 @@
 	<target name="newversion" depends="bumpversion,clean,dist" />
 
 	<target name="dist" depends="jar">
-		<property file="src/jycessing/buildnumber.properties"
+		<property file="runtime/src/jycessing/buildnumber.properties"
 		          prefix="jycessing" />
 		<property name="dist" value="processing.py-${jycessing.buildnumber}" />
 		<delete dir="dist" />
