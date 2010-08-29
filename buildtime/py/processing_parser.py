@@ -208,20 +208,16 @@ class Binding(object):
     
     def emit(self):
         has_methods = len(self.methods.values()) > 0
-        is_wrapped_integer = self.field and self.field.getType() == PRIMITIVES['int']
         n = self.name
         if is_builtin(n):
             cog.outl('final PyObject %s_builtin = builtins.__getitem__("%s");' % (n, n))
         cog.out('builtins.__setitem__("%s",' % n)
         if self.field:
-            if is_wrapped_integer:
-                cog.out('new WrappedInteger()')
-            else:
-                emit_python_prefix(self.field.getType())
-                cog.out('%s)' % n)
+            emit_python_prefix(self.field.getType())
+            cog.out('%s)' % n)
         else:
             cog.out('new PyObject()')
-        if has_methods or is_wrapped_integer:
+        if has_methods:
             cog.outl('{')
         if has_methods:
             cog.outl('\tpublic PyObject __call__(final PyObject[] args, final String[] kws) {')
@@ -236,9 +232,7 @@ class Binding(object):
             for k in sorted(self.methods.keys()):
                 self.methods[k].emit()
             cog.outl('\t\t}\n\t}')
-        if is_wrapped_integer:
-            cog.outl('\tpublic int getValue() { return %s; }' % n)
-        if has_methods or is_wrapped_integer:
+        if has_methods:
             cog.out('}')
         cog.outl(');')
 
@@ -249,9 +243,4 @@ for f in WANTED_FIELDS:
     bindings.setdefault(f.getName(), Binding(f.getName())).set_field(f)
 
 simple_method_bindings = [b for b in bindings.values() if not b.field]
-integer_field_bindings = [b for b in bindings.values() 
-                          if b.field 
-                          and b.field.getType() is PRIMITIVES['int']]
-field_bindings = [b for b in bindings.values()
-                  if b.field
-                  and b.field.getType() is not PRIMITIVES['int']]
+field_bindings = [b for b in bindings.values() if b.field]
