@@ -24,7 +24,8 @@
 			<fileset file="processing-py.jar" />
 			<fileset file="LICENSE.txt" />
 			<fileset dir="."
-			         includes="examples.py/**,libraries/processing/**" />
+			         includes="examples.py/**,libraries/processing/**"
+			         excludes="**.class"/>
 		</copy>
 		<zip basedir="dist" includes="${dist}/**" destfile="dist/${dist}.zip" />
 		<tar compression="gzip"
