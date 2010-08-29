@@ -41,8 +41,6 @@ abstract public class PAppletJythonDriver extends PApplet {
 
     abstract protected void populateBuiltins();
 
-    abstract protected void setIntegerFields();
-
     abstract protected void setFields();
 
     protected final PyStringMap builtins;
@@ -86,7 +84,6 @@ abstract public class PAppletJythonDriver extends PApplet {
         this.interp = interp;
         initializeStatics(builtins);
         populateBuiltins();
-        setIntegerFields();
         setFields();
         builtins.__setitem__("this", Py.java2py(this));
 
