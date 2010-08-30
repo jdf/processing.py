@@ -26,6 +26,7 @@ import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyObject;
 import org.python.core.PyStringMap;
+import org.python.core.PySyntaxError;
 import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
@@ -68,10 +69,18 @@ abstract public class PAppletJythonDriver extends PApplet {
     // the source file name, so that errors have the file name instead of
     // "<string>"
     private void interpretSketch() {
-        Py.setSystemState(interp.getSystemState());
-        Py.exec(Py.compile_flags(programText, pySketchPath, CompileMode.exec,
-                new CompilerFlags()), interp.getLocals(), null);
-        Py.flushLine();
+        try {
+            Py.setSystemState(interp.getSystemState());
+            Py.exec(Py.compile_flags(programText, pySketchPath,
+                    CompileMode.exec, new CompilerFlags()), interp.getLocals(),
+                    null);
+            Py.flushLine();
+        } catch (Throwable t) {
+            while (t.getCause() != null)
+                t = t.getCause();
+            t.printStackTrace(System.err);
+            System.exit(-1);
+        }
     }
 
     public PAppletJythonDriver(final InteractiveConsole interp,

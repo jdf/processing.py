@@ -212,7 +212,6 @@ public class Runner {
             PApplet.runSketch(args, applet);
         } catch (Throwable t) {
             Py.printException(t);
-            throw new RuntimeException(t);
         } finally {
             interp.cleanup();
         }
