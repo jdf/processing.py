@@ -16,6 +16,7 @@ Write [Processing](http://processing.org) sketches in Python.
     $ java -jar processing-py.jar examples.py/Basics/Math/NoiseField/noisefield.py
     $ java -jar processing-py.jar examples.py/3D/Typography/KineticType/KineticType.py
     $ java -jar processing-py.jar examples.py/Library/OpenGL/SpaceJunk/SpaceJunk.py
+    $ java -jar processing-py.jar examples.py/3D/Textures/TextureCube/TextureCube.py
     $ cat > mysketch.py
     def draw():
         background(0)
@@ -46,6 +47,9 @@ or
 Unfortunately, `from foo import *` is not supported.
 
 Use `this` to refer to the PApplet you're in, as in the examples above.
+
+Put any Python libraries in the "libraries" directory, or in sketch directories.
+Only pure-Python libraries will work--nothing that requires "native" code.
 
 ## Example Code ##
 
