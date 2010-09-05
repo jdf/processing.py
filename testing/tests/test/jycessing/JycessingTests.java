@@ -50,6 +50,11 @@ public class JycessingTests {
     }
 
     @Test
+    public void static_size() throws Exception {
+        assertEquals("OK\n", run("static_size"));
+    }
+
+    @Test
     public void set_builtins() throws Exception {
         assertEquals("128\nset(['banana'])\n", run("set"));
     }
