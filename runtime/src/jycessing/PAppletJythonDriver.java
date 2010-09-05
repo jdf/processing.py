@@ -26,7 +26,6 @@ import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyObject;
 import org.python.core.PyStringMap;
-import org.python.core.PySyntaxError;
 import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
@@ -76,6 +75,7 @@ abstract public class PAppletJythonDriver extends PApplet {
                     null);
             Py.flushLine();
         } catch (Throwable t) {
+            checkForRendererChangeException(t);
             while (t.getCause() != null)
                 t = t.getCause();
             t.printStackTrace(System.err);
@@ -132,6 +132,16 @@ abstract public class PAppletJythonDriver extends PApplet {
         }
     }
 
+    private void checkForRendererChangeException(final Throwable t) {
+        if (t.getCause() instanceof RendererChangeException) {
+            // This is an expected condition. PApplet uses an exception
+            // to signal a change to the rendering context, so we unwrap
+            // the Python exception to extract the signal, and pass it
+            // up the stack.
+            throw (RendererChangeException) t.getCause();
+        }
+    }
+
     /**
      * We have to override PApplet's size method in order to reset the Python
      * context's knowledge of the magic variables that reflect the state of the
@@ -149,24 +159,17 @@ abstract public class PAppletJythonDriver extends PApplet {
         // Put all of PApplet's globals into the Python context
         setFields();
 
-        if (isStaticMode) {
-            // A static sketch gets called once, from this spot.
-            interpretSketch();
-        } else if (setupMeth != null) {
-            try {
+        try {
+            if (isStaticMode) {
+                // A static sketch gets called once, from this spot.
+                interpretSketch();
+            } else if (setupMeth != null) {
                 // Call the Python sketch's setup()
                 setupMeth.__call__();
-            } catch (PyException e) {
-                if (e.getCause() instanceof RendererChangeException) {
-                    // This is an expected condition. PApplet uses an exception
-                    // to signal a change to the rendering context, so we unwrap
-                    // the Python exception to extract the signal, and pass it
-                    // up the stack.
-                    throw (RendererChangeException) e.getCause();
-                } else {
-                    throw e;
-                }
             }
+        } catch (PyException e) {
+            checkForRendererChangeException(e);
+            throw e;
         }
     }
 
