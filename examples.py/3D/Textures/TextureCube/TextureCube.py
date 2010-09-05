@@ -12,7 +12,6 @@ rate = 0.01
 
 def setup(): 
     size(640, 360, OPENGL)
-    tex = loadImage("berlin-1.jpg")
     textureMode(NORMALIZED)
     fill(255)
     stroke(color(44, 48, 32))
@@ -26,7 +25,7 @@ def draw():
     scale(90)
     TexturedCube()
 
-def TexturedCube(): 
+def TexturedCube():
     beginShape(QUADS)
     texture(tex)
     # Given one texture and six faces, we can easily set up the uv coordinates
