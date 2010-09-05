@@ -83,8 +83,8 @@ CONVERSIONS = {
                             '%s.asString()',
                             '%(name)s == PyString.TYPE'),
    PRIMITIVES['char']:
-        ClassConversionInfo('new PyString',
-                            '%s.asString().charAt(0)',
+        ClassConversionInfo('new PyInteger',
+                            '%s.asInt()',
                             None),
    PRIMITIVES['boolean']:
         ClassConversionInfo('new PyBoolean',
