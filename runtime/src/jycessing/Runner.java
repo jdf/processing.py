@@ -1,12 +1,12 @@
 /*
  * Copyright 2010 Jonathan Feinberg
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -27,6 +27,8 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.python.core.Py;
 import org.python.core.PyString;
@@ -59,12 +61,12 @@ public class Runner {
      * implementation detail (i.e., that the system classloader is a
      * URLClassLoader). But it certainly works with all known Sun JVMs of recent
      * vintage, and with OS X's JVMs.
-     * 
+     *
      * <p>
      * See <a href=
      * "http://robertmaldon.blogspot.com/2007/11/dynamically-add-to-eclipse-junit.html"
      * >this blog post</a>.
-     * 
+     *
      */
     private static void addJar(final URL url) throws Exception {
         final URLClassLoader classLoader = (URLClassLoader) ClassLoader
@@ -74,8 +76,8 @@ public class Runner {
                 return;
             }
         }
-        final Method method = URLClassLoader.class.getDeclaredMethod("addURL",
-                URL.class);
+        final Method method = URLClassLoader.class.getDeclaredMethod(
+                "addURL", URL.class);
         method.setAccessible(true);
         method.invoke(classLoader, new Object[] { url });
         if (VERBOSE) {
@@ -88,7 +90,7 @@ public class Runner {
      * loaded by loadLibrary). A hack, which depends on the presence of a
      * particular field in ClassLoader. Known to work on all recent Sun JVMs and
      * OS X.
-     * 
+     *
      * <p>
      * See <a href="http://forums.sun.com/thread.jspa?threadID=707176">this
      * thread</a>.
@@ -145,16 +147,16 @@ public class Runner {
 
     public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
-            System.err
-                    .println("I need the path of your Python script as an argument.");
+            System.err.println(
+                    "I need the path of your Python script as an argument.");
         }
 
         // -Dverbose=true for some logging
         VERBOSE = Boolean.getBoolean("verbose");
 
         final Properties buildnum = new Properties();
-        buildnum.load(Runner.class
-                .getResourceAsStream("buildnumber.properties"));
+        buildnum.load(
+                Runner.class.getResourceAsStream("buildnumber.properties"));
         if (VERBOSE) {
             System.err.println("processing.py build "
                     + buildnum.getProperty("buildnumber"));
@@ -170,21 +172,60 @@ public class Runner {
         runSketch(args, sketchPath, sketchSource);
     }
 
+    private static final
+            Pattern JAR_RESOURCE =
+            Pattern
+                    .compile(
+                            "jar:file:(.+?)/processing-py.jar!/jycessing/buildnumber.properties");
+    private static final Pattern FILE_RESOURCE = Pattern.compile(
+            "file:(.+?)/bin/jycessing/buildnumber.properties");
+
+    private static File getLibrariesDir() {
+        final String propsResource = Runner.class.getResource(
+                "buildnumber.properties").toString();
+        {
+            final Matcher m = JAR_RESOURCE.matcher(propsResource);
+            if (m.matches()) {
+                if (VERBOSE) {
+                    System.err.println("We're running from a JAR file.");
+                }
+                return new File(m.group(1), "libraries");
+            }
+        }
+        {
+            final Matcher m = FILE_RESOURCE.matcher(propsResource);
+            if (m.matches()) {
+                if (VERBOSE) {
+                    System.err.println("We're running from class files.");
+                }
+                return new File(m.group(1), "libraries");
+            }
+        }
+        System.err.println(
+                "WARNING: I can't figure out where my libraries directory is.");
+        return new File("libraries");
+    }
+
     public static void runSketch(final String[] args, final String sketchPath,
             final String sketchSource) throws Exception {
         // Recursively search the "libraries" directory for jar files and
         // directories containing dynamic libraries, adding them to the
         // classpath and the library path respectively.
-        final File libraries = new File("libraries");
+
+        // jar:file:/opt/feinberg/processing.py/processing-py.jar
+        // or
+        // file:/opt/feinberg/processing.py/bin/jycessing/buildnumber.properties
+
+        final File libraries = getLibrariesDir();
         searchForExtraStuff(libraries);
 
         // Where is the sketch located?
-        final String sketchDir = new File(sketchPath).getCanonicalFile()
-                .getParent();
+        final String sketchDir = new File(sketchPath)
+                .getCanonicalFile().getParent();
 
         Properties props = new Properties();
-        props.setProperty("python.path", libraries.getAbsolutePath()
-                + File.pathSeparator + sketchDir);
+        props.setProperty("python.path",
+                libraries.getAbsolutePath() + File.pathSeparator + sketchDir);
         PythonInterpreter.initialize(null, props, new String[] { "" });
 
         Py.initPython();
@@ -205,8 +246,8 @@ public class Runner {
         interp.getLocals().__setitem__("__file__", new PyString(sketchPath));
 
         // Bind the sketch to a PApplet
-        final PAppletJythonDriver applet = new DriverImpl(interp, sketchPath,
-                sketchSource);
+        final PAppletJythonDriver applet = new DriverImpl(
+                interp, sketchPath, sketchSource);
 
         try {
             PApplet.runSketch(args, applet);
