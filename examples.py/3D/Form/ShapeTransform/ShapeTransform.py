@@ -23,7 +23,7 @@ pts = 12
 isPyramid = False
 
 def setup():
-    size(640, 360, P3D)
+    size(640, 360, OPENGL)
     noStroke()
 
 def draw():
