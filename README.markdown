@@ -1,6 +1,6 @@
 # processing.py #
 
-Write [Processing](http://processing.org) sketches in Python.      
+Write [Processing](http://processing.org) sketches in Python.
 [Jonathan Feinberg](http://mrfeinberg.com) &lt;[jdf@pobox.com](mailto:jdf@pobox.com)&gt;
 
 ## See some [known issues](http://wiki.github.com/jdf/processing.py/) and the [open bugs in the bug tracker](http://github.com/jdf/processing.py/issues). I'm seeking help to create [a simple Eclipse plugin](http://wiki.github.com/jdf/processing.py/eclipse-plugin-spec).
@@ -10,11 +10,11 @@ Write [Processing](http://processing.org) sketches in Python.
     $ git clone git://github.com/jdf/processing.py.git
     $ cd processing.py
     $ ant
-    
+
 (or download a distribution from http://github.com/jdf/processing.py/downloads)
-    
+
     $ java -jar processing-py.jar examples.py/Basics/Math/NoiseField/noisefield.py
-    $ java -jar processing-py.jar examples.py/3D/Typography/KineticType/KineticType.py
+    $ java -jar processing-py.jar examples.py/3D/Typography/KineticType.py
     $ java -jar processing-py.jar examples.py/Library/OpenGL/SpaceJunk/SpaceJunk.py
     $ java -jar processing-py.jar examples.py/3D/Textures/TextureCube/TextureCube.py
     $ cat > mysketch.py
@@ -38,7 +38,7 @@ or
 
     import peasy.PeasyCam as PeasyCam
     cam = PeasyCam(this, 200)
-    
+
 or
 
     from peasy import PeasyCam
@@ -56,7 +56,7 @@ Only pure-Python libraries will work--nothing that requires "native" code.
 	"""
 	  noisefield.py - demonstrate Perlin noise
 	  Jonathan Feinberg
-	""" 
+	"""
 	srcSize = 50
 	destSize = 400
 	g = createGraphics(srcSize, srcSize, JAVA2D)
@@ -79,12 +79,12 @@ Only pure-Python libraries will work--nothing that requires "native" code.
 I recently gave a talk about Processing to a group of rather bright 8th-graders,
 as part of a computer-programming summer camp they were attending at my office.
 Their curriculum up to that point had been in Python, which is an eminently
-sensible choice, given the 
+sensible choice, given the
 [pedagogical roots](http://en.wikipedia.org/wiki/ABC_%28programming_language%29)
 of the language.
 
 The kids were really turned on by the demos--I showed them the
-[white glove](http://whiteglovetracking.com/), and 
+[white glove](http://whiteglovetracking.com/), and
 [Golan Levin](http://flong.com/)'s
 [New Year's cards](http://www.flong.com/storage/experience/newyear/newyear10/)--but
 they were bogged down by Processing's C-like syntax, which really seems arcane
