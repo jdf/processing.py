@@ -5,21 +5,18 @@
  by Danny Greenberg.
  (Rewritten in Python by Jonathan Feinberg.)
 
- Rotating cubes in space using a custom Cube class.
- Color controlled by light sources. Move the mouse left
- and right to zoom.
+ Rotating cubes in space.
+ Color controlled by light sources.
+ Move the mouse left and right to zoom.
 """
 
 # Cube count-lower/raise to test P3D/OPENGL performance
 limit = 500
 
-# Array for all cubes
-cubes = [(int(random(-10, 10)),  # width
-          int(random(-10, 10)),  # height
-          int(random(-10, 10)),  # depth
-          int(random(-140, 140)),  # x
-          int(random(-140, 140)),  # y
-          int(random(-140, 140)))  # z
+# List of cubes, where each cube is a tuple
+# (width, height, depth, x, y, z)
+cubes = [(random(-10, 10), random(-10, 10), random(-10, 10),
+          random(-140, 140), random(-140, 140), random(-140, 140))
           for i in range(limit)]
 
 def setup():
