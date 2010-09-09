@@ -1,7 +1,7 @@
 """
   noisefield.py - demonstrate Perlin noise
   Jonathan Feinberg
-""" 
+"""
 srcSize = 50
 destSize = 400
 g = createGraphics(srcSize, srcSize, JAVA2D)

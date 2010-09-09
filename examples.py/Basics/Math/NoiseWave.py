@@ -1,10 +1,10 @@
 """
   Noise Wave
-  by Daniel Shiffman.  
-  
-  Using Perlin Noise to generate a wave-like pattern. 
+  by Daniel Shiffman.
+
+  Using Perlin Noise to generate a wave-like pattern.
 """
- 
+
 xspacing = 8   # How far apart should each horizontal location be spaced
 
 yoff = 0.0       # 2nd dimension of perlin noise
@@ -27,14 +27,14 @@ def calcWave():
     dx = 0.05
     dy = 0.01
     amplitude = 100.0
-    
+
     # Increment y ('time')
     global yoff
     yoff += dy
-    
+
     #xoff = 0.0  # Option #1
     xoff = yoff # Option #2
-    
+
     for i in range(len(yvalues)):
         # Using 2D noise function
         #yvalues[i] = (2*noise(xoff,yoff)-1)*amplitude
@@ -49,4 +49,3 @@ def renderWave():
         fill(255, 50)
         ellipseMode(CENTER)
         ellipse(x * xspacing, width / 2 + v, 16, 16)
-
