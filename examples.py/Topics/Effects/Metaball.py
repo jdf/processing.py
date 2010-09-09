@@ -1,10 +1,10 @@
 """
   Metaball Demo Effect
-  by luis2048. (Adapted to Python by Jonathan Feinberg) 
-  
-  Organic-looking n-dimensional objects. The technique for rendering 
-  metaballs was invented by Jim Blinn in the early 1980s. Each metaball 
-  is defined as a function in n-dimensions. 
+  by luis2048. (Adapted to Python by Jonathan Feinberg)
+
+  Organic-looking n-dimensional objects. The technique for rendering
+  metaballs was invented by Jim Blinn in the early 1980s. Each metaball
+  is defined as a function in n-dimensions.
 """
 
 numBlobs = 3
@@ -17,9 +17,9 @@ blogPy = [0, 120, 45]
 blogDx = [1, 1, 1]
 blogDy = [1, 1, 1]
 
-pg = createGraphics(160, 90, P2D)    
+pg = createGraphics(160, 90, P2D)
 
-def setup(): 
+def setup():
   size(640, 360, OPENGL)
 
 def draw():
@@ -33,16 +33,16 @@ def draw():
     if blogPx[i] > pg.width: blogDx[i] = -1
     if blogPy[i] < 0: blogDy[i] = 1
     if blogPy[i] > pg.height: blogDy[i] = -1
-    
+
     vx.append(tuple(sq(blogPx[i] - x) for x in xrange(pg.width)))
-    vy.append(tuple(sq(blogPy[i] - y) for y in xrange(pg.height))) 
-    
+    vy.append(tuple(sq(blogPy[i] - y) for y in xrange(pg.height)))
+
   # Output into a buffered image for reuse
   pg.beginDraw()
   for y in range(pg.height):
     for x in range(pg.width):
       m = 1
-      for i in range(numBlobs): 
+      for i in range(numBlobs):
         # Increase this number to make your blobs bigger
         m += 60000 / (vy[i][y] + vx[i][x] + 1)
       pg.set(x, y, color(0, m + x, (x + m + y) / 2))
