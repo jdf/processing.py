@@ -13,7 +13,7 @@ Write [Processing](http://processing.org) sketches in Python.
 
 (or download a distribution from http://github.com/jdf/processing.py/downloads)
 
-    $ java -jar processing-py.jar examples.py/Basics/Math/NoiseField/noisefield.py
+    $ java -jar processing-py.jar examples.py/Basics/Math/noisefield.py
     $ java -jar processing-py.jar examples.py/3D/Typography/KineticType.py
     $ java -jar processing-py.jar examples.py/Library/OpenGL/SpaceJunk.py
     $ java -jar processing-py.jar examples.py/3D/Textures/TextureCube.py
