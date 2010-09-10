@@ -20,33 +20,33 @@ blogDy = [1, 1, 1]
 pg = createGraphics(160, 90, P2D)
 
 def setup():
-  size(640, 360, OPENGL)
+    size(640, 360, OPENGL)
 
 def draw():
-  vx, vy = [], []
-  for i in range(numBlobs):
-    blogPx[i] += blogDx[i]
-    blogPy[i] += blogDy[i]
+    vx, vy = [], []
+    for i in range(numBlobs):
+        blogPx[i] += blogDx[i]
+        blogPy[i] += blogDy[i]
 
-    # bounce across screen
-    if blogPx[i] < 0: blogDx[i] = 1
-    if blogPx[i] > pg.width: blogDx[i] = -1
-    if blogPy[i] < 0: blogDy[i] = 1
-    if blogPy[i] > pg.height: blogDy[i] = -1
+        # bounce across screen
+        if blogPx[i] < 0: blogDx[i] = 1
+        if blogPx[i] > pg.width: blogDx[i] = -1
+        if blogPy[i] < 0: blogDy[i] = 1
+        if blogPy[i] > pg.height: blogDy[i] = -1
 
-    vx.append(tuple(sq(blogPx[i] - x) for x in xrange(pg.width)))
-    vy.append(tuple(sq(blogPy[i] - y) for y in xrange(pg.height)))
+        vx.append(tuple(sq(blogPx[i] - x) for x in xrange(pg.width)))
+        vy.append(tuple(sq(blogPy[i] - y) for y in xrange(pg.height)))
 
   # Output into a buffered image for reuse
-  pg.beginDraw()
-  for y in range(pg.height):
-    for x in range(pg.width):
-      m = 1
-      for i in range(numBlobs):
-        # Increase this number to make your blobs bigger
-        m += 60000 / (vy[i][y] + vx[i][x] + 1)
-      pg.set(x, y, color(0, m + x, (x + m + y) / 2))
-  pg.endDraw()
+    pg.beginDraw()
+    for y in range(pg.height):
+        for x in range(pg.width):
+            m = 1
+            for i in range(numBlobs):
+                # Increase this number to make your blobs bigger
+                m += 60000 / (vy[i][y] + vx[i][x] + 1)
+                pg.set(x, y, color(0, m + x, (x + m + y) / 2))
+    pg.endDraw()
 
   # Display the results
-  image(pg, 0, 0, width, height)
+    image(pg, 0, 0, width, height)
