@@ -1,12 +1,12 @@
 """
  * Listing files in directories and subdirectories
- * inspired by an example by Daniel Shiffman.    
- * 
+ * inspired by an example by Daniel Shiffman.
+ *
  * 1) List the names of files in a directory
- * 2) List the names along with metadata (size, lastModified) 
+ * 2) List the names along with metadata (size, lastModified)
  *        of files in a directory
  * 3) List the names along with metadata (size, lastModified)
- *        of files in a directory and all subdirectories (using recursion) 
+ *        of files in a directory and all subdirectories (using recursion)
 """
 
 from datetime import datetime
