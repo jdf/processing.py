@@ -23,7 +23,7 @@ BAD_METHOD = re.compile(r'''
     |(get|set|remove)Cache|update|destroy|main|flush|addListeners|dataFile
     |die|setup|mouseE(ntered|xited)|paint|sketch[A-Z].*|stop|save(File|Path)
     |displayable|method|runSketch|start|focus(Lost|Gained)|(data|create)Path
-    |round|abs|max|min|open|append|splice|expand|contract
+    |round|abs|max|min|open|append|splice|expand|contract|set
     )$
     ''', re.X)
 

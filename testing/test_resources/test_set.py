@@ -8,4 +8,12 @@ print get(10,10) & 0x00FFFFFF
 s = set()
 s.add('banana')
 print s
-#expect 13
+
+# subclass
+class MySet(set):
+    def __init__(self):
+        set.__init__(self)
+print"issubclass: %s" % issubclass(MySet, set)
+foo = MySet()
+foo.add('baz')
+print foo

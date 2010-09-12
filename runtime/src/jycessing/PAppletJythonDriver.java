@@ -18,18 +18,24 @@ package jycessing;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.HashSet;
 import java.util.regex.Pattern;
 
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
 import org.python.core.PyException;
+import org.python.core.PyInteger;
+import org.python.core.PyJavaType;
 import org.python.core.PyObject;
+import org.python.core.PySet;
 import org.python.core.PyStringMap;
+import org.python.core.PyType;
 import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PImage;
 
 /**
  * 
@@ -92,6 +98,7 @@ abstract public class PAppletJythonDriver extends PApplet {
         this.builtins = (PyStringMap) interp.getSystemState().getBuiltins();
         this.interp = interp;
         initializeStatics(builtins);
+        setSet();
         populateBuiltins();
         setFields();
         builtins.__setitem__("this", Py.java2py(this));
@@ -114,6 +121,53 @@ abstract public class PAppletJythonDriver extends PApplet {
         keyReleasedMeth = interp.get("keyReleased");
         keyTypedMeth = interp.get("keyTyped");
         stopMeth = interp.get("stop");
+    }
+
+    /**
+     * Permit the punning use of set() by mucking with the builtin "set" Type.
+     * If you call it with 3 arguments, it acts like the Processing set(x, y,
+     * whatever) method. If you call it with 0 or 1 args, it constructs a Python
+     * set.
+     */
+    private void setSet() {
+        builtins.__setitem__("set", new PyJavaType() {
+            {
+                builtin = true;
+                init(PySet.class, new HashSet<PyJavaType>());
+                invalidateMethodCache();
+            }
+
+            @Override
+            public PyObject __call__(PyObject[] args, String[] kws) {
+                switch (args.length) {
+                    default:
+                        return super.__call__(args, kws);
+                    case 3: {
+                        final PyObject x = args[0];
+                        final PyType tx = x.getType();
+                        final PyObject y = args[1];
+                        final PyType ty = y.getType();
+                        final PyObject c = args[2];
+                        final PyType tc = c.getType();
+                        if (tx == PyInteger.TYPE && ty == PyInteger.TYPE
+                                && tc == PyInteger.TYPE) {
+                            set(x.asInt(), y.asInt(), c.asInt());
+                            return Py.None;
+                        } else if (tx == PyInteger.TYPE && ty == PyInteger.TYPE
+                                && tc.getProxyType() != null
+                                && tc.getProxyType() == PImage.class) {
+                            set(x.asInt(),
+                                    y.asInt(),
+                                    (processing.core.PImage) c
+                                            .__tojava__(processing.core.PImage.class));
+                            return Py.None;
+                        } else {
+                            return super.__call__(args, kws);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     /**
