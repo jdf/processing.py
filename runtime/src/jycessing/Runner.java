@@ -245,6 +245,26 @@ public class Runner {
         // For error messages
         interp.getLocals().__setitem__("__file__", new PyString(sketchPath));
 
+        // import core Processing classes
+        interp.exec("from processing.core import PApplet");
+        interp.exec("from processing.core import PConstants");
+        interp.exec("from processing.core import PFont");
+        interp.exec("from processing.core import PGraphics");
+        interp.exec("from processing.core import PGraphics2D");
+        interp.exec("from processing.core import PGraphics3D");
+        interp.exec("from processing.core import PGraphicsJava2D");
+        interp.exec("from processing.core import PImage");
+        interp.exec("from processing.core import PLine");
+        interp.exec("from processing.core import PMatrix");
+        interp.exec("from processing.core import PMatrix2D");
+        interp.exec("from processing.core import PMatrix3D");
+        interp.exec("from processing.core import PPolygon");
+        interp.exec("from processing.core import PShape");
+        interp.exec("from processing.core import PShapeSVG");
+        interp.exec("from processing.core import PSmoothTriangle");
+        interp.exec("from processing.core import PStyle");
+        interp.exec("from processing.core import PTriangle");
+        interp.exec("from processing.core import PVector");
         // Bind the sketch to a PApplet
         final PAppletJythonDriver applet = new DriverImpl(
                 interp, sketchPath, sketchSource);
