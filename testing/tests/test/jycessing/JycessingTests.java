@@ -57,7 +57,8 @@ public class JycessingTests {
 
     @Test
     public void set_builtins() throws Exception {
-        assertEquals("128\nset(['banana'])\nissubclass: True\nset(['baz'])\n", run("set"));
+        assertEquals("128\nset(['banana'])\nissubclass: True\nset(['baz'])\n",
+                run("set"));
     }
 
     @Test
@@ -97,8 +98,14 @@ public class JycessingTests {
 
     @Test
     public void processing_core() throws Exception {
-        assertEquals("[ 1.0, 2.0, 3.0 ]\n<type 'processing.core.PFont'>\n", run("pcore"));
+        assertEquals("[ 1.0, 2.0, 3.0 ]\n<type 'processing.core.PFont'>\n",
+                run("pcore"));
     }
+
+    // @Test
+    // public void pvector() throws Exception {
+    // assertEquals("[ 8.0, 10.0, 12.0 ]\n", run("pvector"));
+    // }
 
     public static void main(final String[] args) {
         JUnitCore.runClasses(JycessingTests.class);

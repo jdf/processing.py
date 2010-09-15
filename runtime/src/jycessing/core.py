@@ -17,14 +17,28 @@ from processing.core import PSmoothTriangle
 from processing.core import PStyle
 from processing.core import PTriangle
 from processing.core import PVector
-from processing.core import PVector
 
+# Thanks, Guido!
+# http://mail.python.org/pipermail/python-dev/2008-January/076194.html
 def monkeypatch_method(cls):
     def decorator(func):
         setattr(cls, func.__name__, func)
         return func
     return decorator
 
+# Because PVector isn't serializable, we have to add __deepcopy__
 @monkeypatch_method(PVector)
 def __deepcopy__(self, memo):
     return PVector(self.x, self.y, self.z)
+
+@monkeypatch_method(PVector)
+def __sub__(a, b):
+    return PVector(a.x - b.x, a.y - b.y, a.z - b.z)
+
+@monkeypatch_method(PVector)
+def __add__(a, b):
+    return PVector(a.x + b.x, a.y + b.y, a.z + b.z)
+
+@monkeypatch_method(PVector)
+def __mul__(a, b):
+    return PVector(a.x + b.x, a.y + b.y, a.z + b.z)
