@@ -15,13 +15,23 @@
  */
 package jycessing;
 
+import org.python.core.Py;
+import org.python.core.PyString;
+import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
+
+import processing.core.PApplet;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -29,13 +39,6 @@ import java.net.URLClassLoader;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.python.core.Py;
-import org.python.core.PyString;
-import org.python.util.InteractiveConsole;
-import org.python.util.PythonInterpreter;
-
-import processing.core.PApplet;
 
 public class Runner {
     static boolean VERBOSE = false;
@@ -53,6 +56,10 @@ public class Runner {
         } finally {
             reader.close();
         }
+    }
+
+    private static String read(final InputStream in) throws IOException {
+        return read(new InputStreamReader(in, "UTF-8"));
     }
 
     /**
@@ -245,6 +252,7 @@ public class Runner {
         // For error messages
         interp.getLocals().__setitem__("__file__", new PyString(sketchPath));
 
+        interp.exec(read(Runner.class.getResourceAsStream("core.py")));
         // Bind the sketch to a PApplet
         final PAppletJythonDriver applet = new DriverImpl(
                 interp, sketchPath, sketchSource);

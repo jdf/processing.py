@@ -19,6 +19,7 @@ public class JycessingTests {
             System.setOut(new PrintStream(baos, true));
             Runner.main(new String[] { "testing/test_resources/test_"
                     + testResource + ".py" });
+            Thread.sleep(500);
             return new String(baos.toByteArray()).replaceAll("\r\n", "\n")
                     .replaceAll("\r", "\n");
         } finally {
@@ -92,6 +93,11 @@ public class JycessingTests {
     @Test
     public void calendar() throws Exception {
         testImport("calendar");
+    }
+
+    @Test
+    public void processing_core() throws Exception {
+        assertEquals("[ 1.0, 2.0, 3.0 ]\n<type 'processing.core.PFont'>\n", run("pcore"));
     }
 
     public static void main(final String[] args) {
