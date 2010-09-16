@@ -22,6 +22,8 @@ import org.python.util.PythonInterpreter;
 
 import processing.core.PApplet;
 
+import java.awt.Component;
+import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -39,6 +41,8 @@ import java.net.URLClassLoader;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.swing.SwingUtilities;
 
 public class Runner {
     static boolean VERBOSE = false;
@@ -259,9 +263,19 @@ public class Runner {
 
         try {
             PApplet.runSketch(args, applet);
+            applet.blockUntilFinished();
+            if (VERBOSE) {
+                System.err.println("Applet is finished. Disposing window.");
+            }
+            Window w = (Window) SwingUtilities.getRoot(applet);
+            w.setVisible(false);
+            w.dispose();
         } catch (Throwable t) {
             Py.printException(t);
         } finally {
+            if (VERBOSE) {
+                System.err.println("Cleaning up interpreter.");
+            }
             interp.cleanup();
         }
 

@@ -63,11 +63,6 @@ class PVector(object):
     def angleBetween(cls, a, b):
         return RealPVector.angleBetween(a, b)
 
-# Because PVector isn't serializable, we have to add __deepcopy__
-@monkeypatch_method(RealPVector)
-def __deepcopy__(self, memo):
-    return PVector(self.x, self.y, self.z)
-
 @monkeypatch_method(RealPVector)
 def __sub__(a, b):
     return PVector(a.x - b.x, a.y - b.y, a.z - b.z)
@@ -79,5 +74,5 @@ def __add__(a, b):
 @monkeypatch_method(RealPVector)
 def __mul__(a, b):
     if isinstance(b, RealPVector):
-        return PVector(a.x + b.x, a.y + b.y, a.z + b.z)
+        raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
     return PVector(a.x * b, a.y * b, a.z * b)

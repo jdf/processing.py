@@ -8,6 +8,4 @@ font = loadFont("Cabal1-48.vlw")
 def setup():
     size(10, 10, P3D)
     noLoop();
-
-def draw():
-    print "OK"
+    print 'OK'

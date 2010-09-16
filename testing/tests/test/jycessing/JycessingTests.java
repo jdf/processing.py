@@ -17,11 +17,12 @@ public class JycessingTests {
         final PrintStream saved = System.out;
         try {
             System.setOut(new PrintStream(baos, true));
-            Runner.main(new String[] { "testing/test_resources/test_"
-                    + testResource + ".py" });
+            Runner.main(
+                    new String[] { "testing/test_resources/test_" + testResource
+                            + ".py" });
             Thread.sleep(500);
-            return new String(baos.toByteArray()).replaceAll("\r\n", "\n")
-                    .replaceAll("\r", "\n");
+            return new String(baos.toByteArray())
+                    .replaceAll("\r\n", "\n").replaceAll("\r", "\n");
         } finally {
             System.setOut(saved);
         }
@@ -35,11 +36,10 @@ public class JycessingTests {
             final String testClass = module + "_test";
             final String bogusFileName = "<test " + module + ">";
             final String testText = "import " + module + "\nprint 'OK'";
-            Runner.runSketch(new String[] { testClass }, bogusFileName,
-                    testText);
-            assertEquals("OK\n",
-                    new String(baos.toByteArray()).replaceAll("\r\n", "\n")
-                            .replaceAll("\r", "\n"));
+            Runner.runSketch(
+                    new String[] { testClass }, bogusFileName, testText);
+            assertEquals("OK\n", new String(baos.toByteArray())
+                    .replaceAll("\r\n", "\n").replaceAll("\r", "\n"));
         } finally {
             System.setOut(saved);
         }
@@ -102,10 +102,10 @@ public class JycessingTests {
                 run("pcore"));
     }
 
-    // @Test
-    // public void pvector() throws Exception {
-    // assertEquals("[ 8.0, 10.0, 12.0 ]\n", run("pvector"));
-    // }
+    @Test
+    public void pvector() throws Exception {
+        assertEquals("OK\n", run("pvector"));
+    }
 
     public static void main(final String[] args) {
         JUnitCore.runClasses(JycessingTests.class);

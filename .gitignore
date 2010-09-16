@@ -14,4 +14,6 @@ processing-py.jar
 libraries/peasycam
 dist
 zamples
+libraries/GSVideo
+test.py
 
