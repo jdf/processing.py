@@ -22,7 +22,6 @@ import org.python.util.PythonInterpreter;
 
 import processing.core.PApplet;
 
-import java.awt.Component;
 import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,7 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -80,7 +78,7 @@ public class Runner {
      *
      */
     private static void addJar(final URL url) throws Exception {
-        final URLClassLoader classLoader = (URLClassLoader) ClassLoader
+        final URLClassLoader classLoader = (URLClassLoader)ClassLoader
                 .getSystemClassLoader();
         for (final URL u : classLoader.getURLs()) {
             if (u.equals(url)) {
@@ -109,7 +107,7 @@ public class Runner {
     private static void addLibraryPath(final String newPath) throws Exception {
         final Field field = ClassLoader.class.getDeclaredField("usr_paths");
         field.setAccessible(true);
-        final String[] paths = (String[]) field.get(null);
+        final String[] paths = (String[])field.get(null);
         for (final String path : paths) {
             if (newPath.equals(path)) {
                 return;
@@ -170,7 +168,7 @@ public class Runner {
                 Runner.class.getResourceAsStream("buildnumber.properties"));
         if (VERBOSE) {
             System.err.println("processing.py build "
-                    + buildnum.getProperty("buildnumber"));
+                               + buildnum.getProperty("buildnumber"));
         }
 
         // The last argument is the path to the Python sketch
@@ -218,7 +216,7 @@ public class Runner {
     }
 
     public static void runSketch(final String[] args, final String sketchPath,
-            final String sketchSource) throws Exception {
+                                 final String sketchSource) throws Exception {
         // Recursively search the "libraries" directory for jar files and
         // directories containing dynamic libraries, adding them to the
         // classpath and the library path respectively.
@@ -234,7 +232,7 @@ public class Runner {
         final String sketchDir = new File(sketchPath)
                 .getCanonicalFile().getParent();
 
-        Properties props = new Properties();
+        final Properties props = new Properties();
         props.setProperty("python.path",
                 libraries.getAbsolutePath() + File.pathSeparator + sketchDir);
         PythonInterpreter.initialize(null, props, new String[] { "" });
@@ -258,8 +256,8 @@ public class Runner {
 
         interp.exec(read(Runner.class.getResourceAsStream("core.py")));
         // Bind the sketch to a PApplet
-        final PAppletJythonDriver applet = new DriverImpl(
-                interp, sketchPath, sketchSource);
+        final PAppletJythonDriver applet = new DriverImpl(interp, sketchPath,
+                                                          sketchSource);
 
         try {
             PApplet.runSketch(args, applet);
@@ -267,10 +265,10 @@ public class Runner {
             if (VERBOSE) {
                 System.err.println("Applet is finished. Disposing window.");
             }
-            Window w = (Window) SwingUtilities.getRoot(applet);
+            final Window w = (Window)SwingUtilities.getRoot(applet);
             w.setVisible(false);
             w.dispose();
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             Py.printException(t);
         } finally {
             if (VERBOSE) {

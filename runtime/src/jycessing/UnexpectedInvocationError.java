@@ -4,7 +4,7 @@ import org.python.core.PyObject;
 
 public class UnexpectedInvocationError extends RuntimeException {
     private static String buildMessage(final String name, final PyObject[] args,
-            final String[] kws) {
+                                       final String[] kws) {
         final StringBuilder sb = new StringBuilder();
         sb.append("I don't know how to handle a call to ");
         sb.append(name).append('(');
@@ -22,7 +22,7 @@ public class UnexpectedInvocationError extends RuntimeException {
     }
 
     public UnexpectedInvocationError(final String name, final PyObject[] args,
-            final String[] kws) {
+                                     final String[] kws) {
         super(buildMessage(name, args, kws));
     }
 }

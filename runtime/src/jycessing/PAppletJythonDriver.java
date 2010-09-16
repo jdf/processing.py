@@ -15,17 +15,6 @@
  */
 package jycessing;
 
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashSet;
-import java.util.concurrent.CountDownLatch;
-import java.util.regex.Pattern;
-
-import javax.swing.SwingUtilities;
-
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
@@ -41,7 +30,15 @@ import org.python.util.InteractiveConsole;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
-import processing.core.PVector;
+
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -61,7 +58,7 @@ abstract public class PAppletJythonDriver extends PApplet {
     private final String programText;
 
     private final CountDownLatch finishedLatch = new CountDownLatch(1);
-    
+
     // A static-mode sketch must be interpreted from with the setup() method.
     // All others are interpreted during construction in order to harvest method
     // definitions, which we then invoke during the run loop.
@@ -91,15 +88,17 @@ abstract public class PAppletJythonDriver extends PApplet {
             Py.flushLine();
         } catch (Throwable t) {
             checkForRendererChangeException(t);
-            while (t.getCause() != null)
+            while (t.getCause() != null) {
                 t = t.getCause();
+            }
             t.printStackTrace(System.err);
             System.exit(-1);
         }
     }
 
     public PAppletJythonDriver(final InteractiveConsole interp,
-            final String sketchPath, final String programText) {
+                               final String sketchPath,
+                               final String programText) {
         this.programText = programText;
         this.pySketchPath = sketchPath;
         this.sketchPath = new File(sketchPath).getParent();
@@ -112,8 +111,9 @@ abstract public class PAppletJythonDriver extends PApplet {
         setFields();
         builtins.__setitem__("this", Py.java2py(this));
         builtins.__setitem__("exit", new PyObject() {
-            public PyObject __call__(
-                    final PyObject[] args, final String[] kws) {
+            @Override
+            public PyObject __call__(final PyObject[] args,
+                                     final String[] kws) {
                 finishedLatch.countDown();
                 return Py.None;
             }
@@ -139,7 +139,7 @@ abstract public class PAppletJythonDriver extends PApplet {
         stopMeth = interp.get("stop");
         addComponentListener(new ComponentAdapter() {
             @Override
-            public void componentHidden(ComponentEvent e) {
+            public void componentHidden(final ComponentEvent e) {
                 finishedLatch.countDown();
             }
         });
@@ -148,7 +148,7 @@ abstract public class PAppletJythonDriver extends PApplet {
     public void blockUntilFinished() throws InterruptedException {
         finishedLatch.await();
     }
-    
+
     /**
      * Permit the punning use of set() by mucking with the builtin "set" Type.
      * If you call it with 3 arguments, it acts like the Processing set(x, y,
@@ -164,7 +164,8 @@ abstract public class PAppletJythonDriver extends PApplet {
             }
 
             @Override
-            public PyObject __call__(PyObject[] args, String[] kws) {
+            public PyObject __call__(final PyObject[] args,
+                                     final String[] kws) {
                 switch (args.length) {
                     default:
                         return super.__call__(args, kws);
@@ -176,12 +177,12 @@ abstract public class PAppletJythonDriver extends PApplet {
                         final PyObject c = args[2];
                         final PyType tc = c.getType();
                         if (tx == PyInteger.TYPE && ty == PyInteger.TYPE
-                                && tc == PyInteger.TYPE) {
+                            && tc == PyInteger.TYPE) {
                             set(x.asInt(), y.asInt(), c.asInt());
                             return Py.None;
                         } else if (tx == PyInteger.TYPE && ty == PyInteger.TYPE
-                                && tc.getProxyType() != null
-                                && tc.getProxyType() == PImage.class) {
+                                   && tc.getProxyType() != null
+                                   && tc.getProxyType() == PImage.class) {
                             set(x.asInt(), y.asInt(),
                                     (processing.core.PImage) c.__tojava__(
                                             processing.core.PImage.class));
@@ -204,7 +205,7 @@ abstract public class PAppletJythonDriver extends PApplet {
             if (Modifier.isPublic(mods) || Modifier.isStatic(mods)) {
                 try {
                     builtins.__setitem__(f.getName(), Py.java2py(f.get(null)));
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -228,7 +229,7 @@ abstract public class PAppletJythonDriver extends PApplet {
      */
     @Override
     public void size(final int iwidth, final int iheight,
-            final String irenderer, final String ipath) {
+                     final String irenderer, final String ipath) {
         super.size(iwidth, iheight, irenderer, ipath);
         setFields();
     }
@@ -246,7 +247,7 @@ abstract public class PAppletJythonDriver extends PApplet {
                 // Call the Python sketch's setup()
                 setupMeth.__call__();
             }
-        } catch (PyException e) {
+        } catch (final PyException e) {
             checkForRendererChangeException(e);
             throw e;
         }
