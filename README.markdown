@@ -112,3 +112,14 @@ project, and kudos to Jython!
 Please play with this,
 [report bugs](http://github.com/jdf/processing.py/issues),
 and port more of the Processing examples!
+
+## A word from a sponsor ##
+
+YourKit has kindly granted me a license to use their excellent Java profiler.
+I'm happy to grant them the space to say:
+
+> YourKit is kindly supporting open source projects with its full-featured Java Profiler.
+> YourKit, LLC is the creator of innovative and intelligent tools for profiling
+> Java and .NET applications. Take a look at YourKit's leading software products:
+> [YourKit Java Profiler](http://www.yourkit.com/java/profiler/index.jsp) and
+> [YourKit .NET Profiler](http://www.yourkit.com/.net/profiler/index.jsp).
