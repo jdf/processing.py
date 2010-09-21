@@ -116,7 +116,7 @@ and port more of the Processing examples!
 ## A word from a sponsor ##
 
 YourKit has kindly granted me a license to use their excellent Java profiler.
-I'm happy to grant them the space to say:
+I'm happy to give them the space to say:
 
 > YourKit is kindly supporting open source projects with its full-featured Java Profiler.
 > YourKit, LLC is the creator of innovative and intelligent tools for profiling
