@@ -7,7 +7,7 @@ Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the conditions in LICENSE.txt are met
 """
 from collections import namedtuple
-import os, re
+
 ColorInfo = namedtuple('ColorInfo',
                        ' '.join(['hex_value', 'name', 'red', 'green', 'blue',
                                  'hue', 'saturation', 'lightness']))
@@ -20,13 +20,11 @@ HSL = namedtuple('HSL', ' '.join(['hue', 'saturation', 'lightness']))
 class NameThatColor(object):
     """Utility for finding the closest "human readable" name for a hex color
     """
-    def __init__(self, colorfile=None):
+    def __init__(self, color_file):
         import csv
-
         self.color_info = []
 
-        data = os.path.dirname(__file__) + '/data/colors.csv'
-        reader = csv.reader(open(data))
+        reader = csv.reader(open(color_file))
 
         for hex_val, name in reader:
             red, green, blue = self.rgb(hex_val.strip())
@@ -129,6 +127,10 @@ class NameThatColor(object):
                    int(lightness * 255))
 
 def main():
+    """Entry point for NameThatColor.py.
+    Parse options, and find that color.
+    """
+
     import json
     import argparse
 
@@ -143,15 +145,24 @@ def main():
         'json': lambda r: json.dumps(r),
         'raw' : lambda r: r
     }
+
+    color_set_choices = {
+        'resene': 'resene.csv',
+        'html4': 'html4.csv',
+        'css3': 'css3.csv'
+    }
     
     parser = argparse.ArgumentParser(
         description="Find the closest known color name for a hex value")
 
-    parser.add_argument('-c', '--colors', dest='colors_file',
-                        help="a csv file of known color name definitions")
+    color_set_sources = parser.add_mutually_exclusive_group(required=True)
 
-    parser.add_argument('target',
-                        help="hex value of the color to search for")
+    color_set_sources.add_argument('-s', '--color-set', dest="color_set",
+                                  choices=color_set_choices.keys(),
+                                  help="the set of color names to match to.")
+
+    color_set_sources.add_argument('-c', '--colors', dest='colors_file',
+                                   help="a csv file colors and their hex value")
 
     parser.add_argument('-o', '--output',
                         dest="output",
@@ -166,9 +177,21 @@ def main():
                         default="json",
                         help="what format to return data in")
 
+    parser.add_argument('target',
+                        help="hex value of the color to search for")
+
     args = parser.parse_args()
 
-    Namer = NameThatColor(args.colors_file)
+    colors_file = args.colors_file
+
+    if not colors_file:
+        from pkg_resources import Requirement, resource_filename
+        colors_file = resource_filename(
+            Requirement.parse('namethatcolor'),
+            'namethatcolor/data/%s' % color_set_choices[args.color_set]
+        )
+        
+    Namer = NameThatColor(colors_file)
     match = Namer.name(args.target)
     result = {}
     for choice in args.output:
