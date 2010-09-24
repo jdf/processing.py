@@ -1,4 +1,4 @@
-#Thu Sep 16 14:46:47 EDT 2010
+#Thu Sep 16 23:36:16 EDT 2010
 eclipse.preferences.version=1
 org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode=enabled
 org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.5
@@ -353,7 +353,7 @@ org.eclipse.jdt.core.formatter.sort_parameter_annotations=false
 org.eclipse.jdt.core.formatter.sort_type_annotations=false
 org.eclipse.jdt.core.formatter.tabulation.char=space
 org.eclipse.jdt.core.formatter.tabulation.size=4
-org.eclipse.jdt.core.formatter.use_on_off_tags=true
+org.eclipse.jdt.core.formatter.use_on_off_tags=false
 org.eclipse.jdt.core.formatter.use_tabs_only_for_leading_indentations=false
 org.eclipse.jdt.core.formatter.wrap_before_binary_operator=true
 org.eclipse.jdt.core.formatter.wrap_comment_inline_tags=false

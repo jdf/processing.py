@@ -15,13 +15,6 @@
  */
 package jycessing;
 
-import org.python.core.Py;
-import org.python.core.PyString;
-import org.python.util.InteractiveConsole;
-import org.python.util.PythonInterpreter;
-
-import processing.core.PApplet;
-
 import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,6 +34,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
+
+import org.python.core.Py;
+import org.python.core.PyString;
+import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
+
+import processing.core.PApplet;
 
 public class Runner {
     static boolean VERBOSE = false;
@@ -85,8 +85,8 @@ public class Runner {
                 return;
             }
         }
-        final Method method = URLClassLoader.class.getDeclaredMethod(
-                "addURL", URL.class);
+        final Method method = URLClassLoader.class.getDeclaredMethod("addURL",
+                URL.class);
         method.setAccessible(true);
         method.invoke(classLoader, new Object[] { url });
         if (VERBOSE) {
@@ -156,19 +156,19 @@ public class Runner {
 
     public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
-            System.err.println(
-                    "I need the path of your Python script as an argument.");
+            System.err
+                    .println("I need the path of your Python script as an argument.");
         }
 
         // -Dverbose=true for some logging
         VERBOSE = Boolean.getBoolean("verbose");
 
         final Properties buildnum = new Properties();
-        buildnum.load(
-                Runner.class.getResourceAsStream("buildnumber.properties"));
+        buildnum.load(Runner.class
+                .getResourceAsStream("buildnumber.properties"));
         if (VERBOSE) {
             System.err.println("processing.py build "
-                               + buildnum.getProperty("buildnumber"));
+                    + buildnum.getProperty("buildnumber"));
         }
 
         // The last argument is the path to the Python sketch
@@ -181,13 +181,10 @@ public class Runner {
         runSketch(args, sketchPath, sketchSource);
     }
 
-    private static final
-            Pattern JAR_RESOURCE =
-            Pattern
-                    .compile(
-                            "jar:file:(.+?)/processing-py.jar!/jycessing/buildnumber.properties");
-    private static final Pattern FILE_RESOURCE = Pattern.compile(
-            "file:(.+?)/bin/jycessing/buildnumber.properties");
+    private static final Pattern JAR_RESOURCE = Pattern
+            .compile("jar:file:(.+?)/processing-py.jar!/jycessing/buildnumber.properties");
+    private static final Pattern FILE_RESOURCE = Pattern
+            .compile("file:(.+?)/bin/jycessing/buildnumber.properties");
 
     private static File getLibrariesDir() {
         final String propsResource = Runner.class.getResource(
@@ -210,13 +207,13 @@ public class Runner {
                 return new File(m.group(1), "libraries");
             }
         }
-        System.err.println(
-                "WARNING: I can't figure out where my libraries directory is.");
+        System.err
+                .println("WARNING: I can't figure out where my libraries directory is.");
         return new File("libraries");
     }
 
     public static void runSketch(final String[] args, final String sketchPath,
-                                 final String sketchSource) throws Exception {
+            final String sketchSource) throws Exception {
         // Recursively search the "libraries" directory for jar files and
         // directories containing dynamic libraries, adding them to the
         // classpath and the library path respectively.
@@ -229,12 +226,12 @@ public class Runner {
         searchForExtraStuff(libraries);
 
         // Where is the sketch located?
-        final String sketchDir = new File(sketchPath)
-                .getCanonicalFile().getParent();
+        final String sketchDir = new File(sketchPath).getCanonicalFile()
+                .getParent();
 
         final Properties props = new Properties();
-        props.setProperty("python.path",
-                libraries.getAbsolutePath() + File.pathSeparator + sketchDir);
+        props.setProperty("python.path", libraries.getAbsolutePath()
+                + File.pathSeparator + sketchDir);
         PythonInterpreter.initialize(null, props, new String[] { "" });
 
         Py.initPython();
@@ -257,7 +254,7 @@ public class Runner {
         interp.exec(read(Runner.class.getResourceAsStream("core.py")));
         // Bind the sketch to a PApplet
         final PAppletJythonDriver applet = new DriverImpl(interp, sketchPath,
-                                                          sketchSource);
+                sketchSource);
 
         try {
             PApplet.runSketch(args, applet);
@@ -265,9 +262,7 @@ public class Runner {
             if (VERBOSE) {
                 System.err.println("Applet is finished. Disposing window.");
             }
-            final Window w = (Window)SwingUtilities.getRoot(applet);
-            w.setVisible(false);
-            w.dispose();
+            ((Window)SwingUtilities.getRoot(applet)).dispose();
         } catch (final Throwable t) {
             Py.printException(t);
         } finally {
