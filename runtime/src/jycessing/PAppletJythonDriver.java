@@ -15,6 +15,16 @@
  */
 package jycessing;
 
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.io.File;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
+
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
@@ -30,15 +40,6 @@ import org.python.util.InteractiveConsole;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
-
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashSet;
-import java.util.concurrent.CountDownLatch;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -81,10 +82,9 @@ abstract public class PAppletJythonDriver extends PApplet {
     private void interpretSketch() {
         try {
             Py.setSystemState(interp.getSystemState());
-            Py.exec(
-                    Py.compile_flags(programText, pySketchPath,
-                            CompileMode.exec, new CompilerFlags()),
-                    interp.getLocals(), null);
+            Py.exec(Py.compile_flags(programText, pySketchPath,
+                    CompileMode.exec, new CompilerFlags()), interp.getLocals(),
+                    null);
             Py.flushLine();
         } catch (Throwable t) {
             checkForRendererChangeException(t);
@@ -97,13 +97,12 @@ abstract public class PAppletJythonDriver extends PApplet {
     }
 
     public PAppletJythonDriver(final InteractiveConsole interp,
-                               final String sketchPath,
-                               final String programText) {
+            final String sketchPath, final String programText) {
         this.programText = programText;
         this.pySketchPath = sketchPath;
         this.sketchPath = new File(sketchPath).getParent();
         this.isStaticMode = !ACTIVE_METHOD_DEF.matcher(programText).find();
-        this.builtins = (PyStringMap) interp.getSystemState().getBuiltins();
+        this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
         this.interp = interp;
         initializeStatics(builtins);
         setSet();
@@ -112,8 +111,7 @@ abstract public class PAppletJythonDriver extends PApplet {
         builtins.__setitem__("this", Py.java2py(this));
         builtins.__setitem__("exit", new PyObject() {
             @Override
-            public PyObject __call__(final PyObject[] args,
-                                     final String[] kws) {
+            public PyObject __call__(final PyObject[] args, final String[] kws) {
                 finishedLatch.countDown();
                 return Py.None;
             }
@@ -145,6 +143,19 @@ abstract public class PAppletJythonDriver extends PApplet {
         });
     }
 
+    @Override
+    public void start() {
+        // I want to quit on runtime exceptions.
+        // Processing just sits there by default.
+        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+            public void uncaughtException(Thread t, Throwable e) {
+                e.printStackTrace(System.err);
+                System.exit(-1);
+            }
+        });
+        super.start();
+    }
+
     public void blockUntilFinished() throws InterruptedException {
         finishedLatch.await();
     }
@@ -164,8 +175,7 @@ abstract public class PAppletJythonDriver extends PApplet {
             }
 
             @Override
-            public PyObject __call__(final PyObject[] args,
-                                     final String[] kws) {
+            public PyObject __call__(final PyObject[] args, final String[] kws) {
                 switch (args.length) {
                     default:
                         return super.__call__(args, kws);
@@ -177,15 +187,14 @@ abstract public class PAppletJythonDriver extends PApplet {
                         final PyObject c = args[2];
                         final PyType tc = c.getType();
                         if (tx == PyInteger.TYPE && ty == PyInteger.TYPE
-                            && tc == PyInteger.TYPE) {
+                                && tc == PyInteger.TYPE) {
                             set(x.asInt(), y.asInt(), c.asInt());
                             return Py.None;
                         } else if (tx == PyInteger.TYPE && ty == PyInteger.TYPE
-                                   && tc.getProxyType() != null
-                                   && tc.getProxyType() == PImage.class) {
-                            set(x.asInt(), y.asInt(),
-                                    (processing.core.PImage) c.__tojava__(
-                                            processing.core.PImage.class));
+                                && tc.getProxyType() != null
+                                && tc.getProxyType() == PImage.class) {
+                            set(x.asInt(), y.asInt(), (processing.core.PImage)c
+                                    .__tojava__(processing.core.PImage.class));
                             return Py.None;
                         } else {
                             return super.__call__(args, kws);
@@ -218,7 +227,7 @@ abstract public class PAppletJythonDriver extends PApplet {
             // to signal a change to the rendering context, so we unwrap
             // the Python exception to extract the signal, and pass it
             // up the stack.
-            throw (RendererChangeException) t.getCause();
+            throw (RendererChangeException)t.getCause();
         }
     }
 
@@ -229,7 +238,7 @@ abstract public class PAppletJythonDriver extends PApplet {
      */
     @Override
     public void size(final int iwidth, final int iheight,
-                     final String irenderer, final String ipath) {
+            final String irenderer, final String ipath) {
         super.size(iwidth, iheight, irenderer, ipath);
         setFields();
     }

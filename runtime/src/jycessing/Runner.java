@@ -25,10 +25,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLDecoder;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -128,6 +130,14 @@ public class Runner {
      * library path respectively.
      */
     private static void searchForExtraStuff(final File dir) throws Exception {
+        if (dir == null) {
+            throw new IllegalArgumentException("null dir");
+        }
+
+        if (VERBOSE) {
+            System.err.println("Searching: " + dir);
+        }
+
         final File[] dlls = dir.listFiles(new FilenameFilter() {
             public boolean accept(final File dir, final String name) {
                 return name.matches("^.+\\.(so|dll|jnilib)$");
@@ -135,22 +145,37 @@ public class Runner {
         });
         if (dlls != null && dlls.length > 0) {
             addLibraryPath(dir.getAbsolutePath());
+        } else if (VERBOSE) {
+            System.err.println("No DLLs in " + dir);
         }
+
         final File[] jars = dir.listFiles(new FilenameFilter() {
             public boolean accept(final File dir, final String name) {
                 return name.matches("^.+\\.jar$");
             }
         });
-        for (final File jar : jars) {
-            addJar(jar.toURI().toURL());
+        if (!(jars == null || jars.length == 0)) {
+            for (final File jar : jars) {
+                addJar(jar.toURI().toURL());
+            }
+        } else if (VERBOSE) {
+            System.err.println("No JARs in " + dir);
         }
+
         final File[] dirs = dir.listFiles(new FileFilter() {
             public boolean accept(final File f) {
+                if (VERBOSE) {
+                    System.err.println("Looking at " + f);
+                }
                 return f.isDirectory() && f.getName().charAt(0) != '.';
             }
         });
-        for (final File d : dirs) {
-            searchForExtraStuff(d);
+        if (!(dirs == null || dirs.length == 0)) {
+            for (final File d : dirs) {
+                searchForExtraStuff(d);
+            }
+        } else if (VERBOSE) {
+            System.err.println("No dirs in " + dir);
         }
     }
 
@@ -187,8 +212,14 @@ public class Runner {
             .compile("file:(.+?)/bin/jycessing/buildnumber.properties");
 
     private static File getLibrariesDir() {
-        final String propsResource = Runner.class.getResource(
-                "buildnumber.properties").toString();
+        String propsResource;
+        try {
+            propsResource = URLDecoder.decode(
+                    Runner.class.getResource("buildnumber.properties")
+                            .toString(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Impossible: " + e);
+        }
         {
             final Matcher m = JAR_RESOURCE.matcher(propsResource);
             if (m.matches()) {
@@ -271,6 +302,5 @@ public class Runner {
             }
             interp.cleanup();
         }
-
     }
 }
