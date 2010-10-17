@@ -17,33 +17,33 @@ def setup():
 
 def draw():
   background(0)
-  (tempX, tempY, tempZ) = (0,0,0)
+  (tempX, tempY, tempZ) = (0, 0, 0)
   fill(182, 62, 29)
   noStroke()
   # Add basic light setup
   lights()
-  translate(width/2, height*1.2, -380)
+  translate(width / 2, height * 1.2, -380)
   # Tip tower to see inside
   rotateX(radians(-45))
   # Slowly rotate tower
-  rotateY(frameCount * PI/600)
+  rotateY(frameCount * PI / 600)
   for i in range(brickLayers):
     # Increment rows
-    tempY-=brickHeight
+    tempY -= brickHeight
     # Alternate brick seams
-    angle = 360.0 / bricksPerLayer * i/2
+    angle = 360.0 / bricksPerLayer * i / 2
     for j in range(bricksPerLayer):
-      tempZ = cos(radians(angle))*radius
-      tempX = sin(radians(angle))*radius
+      tempZ = cos(radians(angle)) * radius
+      tempX = sin(radians(angle)) * radius
       pushMatrix()
       translate(tempX, tempY, tempZ)
       rotateY(radians(angle))
       # Add crenelation
-      if (i==brickLayers-1):
-        if (j%2 == 0):
+      if (i == brickLayers - 1):
+        if (j % 2 == 0):
           box(brickWidth, brickHeight, brickDepth)
       else:
         # Create main tower
         box(brickWidth, brickHeight, brickDepth)
       popMatrix()
-      angle += 360.0/bricksPerLayer
+      angle += 360.0 / bricksPerLayer
