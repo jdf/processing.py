@@ -2,13 +2,13 @@ package test.jycessing;
 
 import static junit.framework.Assert.assertEquals;
 
-import org.junit.Test;
-import org.junit.runner.JUnitCore;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 import jycessing.Runner;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import org.junit.Test;
+import org.junit.runner.JUnitCore;
 
 public class JycessingTests {
 
@@ -18,10 +18,10 @@ public class JycessingTests {
         try {
             System.setOut(new PrintStream(baos, true));
             Runner.main(new String[] { "testing/test_resources/test_"
-                                       + testResource + ".py" });
+                    + testResource + ".py" });
             Thread.sleep(500);
             return new String(baos.toByteArray()).replaceAll("\r\n", "\n")
-                                                 .replaceAll("\r", "\n");
+                    .replaceAll("\r", "\n");
         } finally {
             System.setOut(saved);
         }
@@ -36,10 +36,10 @@ public class JycessingTests {
             final String bogusFileName = "<test " + module + ">";
             final String testText = "import " + module + "\nprint 'OK'";
             Runner.runSketch(new String[] { testClass }, bogusFileName,
-                             testText);
+                    testText);
             assertEquals("OK\n",
-                         new String(baos.toByteArray()).replaceAll("\r\n", "\n")
-                                                       .replaceAll("\r", "\n"));
+                    new String(baos.toByteArray()).replaceAll("\r\n", "\n")
+                            .replaceAll("\r", "\n"));
         } finally {
             System.setOut(saved);
         }
@@ -58,7 +58,7 @@ public class JycessingTests {
     @Test
     public void set_builtins() throws Exception {
         assertEquals("128\nset(['banana'])\nissubclass: True\nset(['baz'])\n",
-                     run("set"));
+                run("set"));
     }
 
     @Test
@@ -99,12 +99,17 @@ public class JycessingTests {
     @Test
     public void processing_core() throws Exception {
         assertEquals("[ 1.0, 2.0, 3.0 ]\n<type 'processing.core.PFont'>\n",
-                     run("pcore"));
+                run("pcore"));
     }
 
     @Test
     public void pvector() throws Exception {
         assertEquals("OK\n", run("pvector"));
+    }
+
+    @Test
+    public void loadPixels() throws Exception {
+        assertEquals("OK\n", run("loadPixels"));
     }
 
     public static void main(final String[] args) {
