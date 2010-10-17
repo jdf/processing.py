@@ -275,6 +275,12 @@ abstract public class PAppletJythonDriver extends PApplet {
     }
 
     @Override
+    public void loadPixels() {
+        super.loadPixels();
+        builtins.__setitem__("pixels", Py.java2py(pixels));
+    }
+
+    @Override
     public void mouseClicked() {
         if (mouseClickedMeth == null) {
             super.mouseClicked();
