@@ -280,7 +280,7 @@ public class Runner {
         Py.getSystemState().path.insert(0, new PyString(sketchDir));
 
         // For error messages
-        interp.getLocals().__setitem__("__file__", new PyString(sketchPath));
+        interp.set("__file__", sketchPath);
 
         interp.exec(read(Runner.class.getResourceAsStream("core.py")));
         // Bind the sketch to a PApplet
