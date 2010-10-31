@@ -109,6 +109,7 @@ abstract public class PAppletJythonDriver extends PApplet {
         populateBuiltins();
         setFields();
         builtins.__setitem__("this", Py.java2py(this));
+        builtins.__setitem__("g", Py.java2py(g));
         builtins.__setitem__("exit", new PyObject() {
             @Override
             public PyObject __call__(final PyObject[] args, final String[] kws) {
@@ -238,9 +239,10 @@ abstract public class PAppletJythonDriver extends PApplet {
      */
     @Override
     public void size(final int iwidth, final int iheight,
-            final String irenderer, final String ipath) {
+                     final String irenderer, final String ipath) {
         super.size(iwidth, iheight, irenderer, ipath);
         setFields();
+        builtins.__setitem__("g", Py.java2py(g));
     }
 
     @Override
