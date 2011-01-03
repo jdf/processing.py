@@ -25,7 +25,7 @@ Write [Processing](http://processing.org) sketches in Python.
 
 Put processing extension libraries in the "libraries" directory.
 
-    $ curl -O http://mrfeinberg.com/peasycam/download/PeasyCam_0.8.3.zip
+    $ curl -O http://mrfeinberg.com/peasycam/download/PeasyCam_0.91.zip
     $ cd libraries
     $ unzip ../PeasyCam_0.8.3.zip
 
