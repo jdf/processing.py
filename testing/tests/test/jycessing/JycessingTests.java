@@ -112,6 +112,11 @@ public class JycessingTests {
         assertEquals("OK\n", run("loadPixels"));
     }
 
+    @Test
+    public void unicode() throws Exception {
+        assertEquals("OK\n", run("unicode"));
+    }
+
     public static void main(final String[] args) {
         JUnitCore.runClasses(JycessingTests.class);
     }

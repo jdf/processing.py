@@ -79,9 +79,10 @@ CONVERSIONS = {
                             '%s.asLong()',
                             None),
    Class.forName("java.lang.String"):
-        ClassConversionInfo('new PyString',
+        ClassConversionInfo('new PyUnicode',
                             '%s.asString()',
-                            '%(name)s == PyString.TYPE'),
+                            '(%(name)s == PyString.TYPE'
+                                '|| %(name)s == PyUnicode.TYPE)'),
    PRIMITIVES['char']:
         ClassConversionInfo('new PyInteger',
                             '%s.asInt()',
