@@ -1,0 +1,25 @@
+<!-- Monkstone, 2011-February-11 -->
+<COMMANDO>
+<UI>
+<CAPTION LABEL="Run">
+<FILE_ENTRY LABEL="ruby file" VARNAME="file" EVAL="buffer.getName()"/>
+</CAPTION>
+<CAPTION LABEL="Path to PYP5">
+<ENTRY LABEL="(no spaces)" VARNAME="PYP5" DEFAULT="/home/tux/bin/"/>
+</CAPTION>
+</UI>
+
+<COMMANDS>
+<!-- NB: I found that if I cd to the directory of the sketch, the data folder is not recognized, 
+     So now I call the file at its absolute address using the prefix dir, and it works
+-->
+<COMMAND SHELL="System" CONFIRM="FALSE">
+          dir = new StringBuilder(MiscUtilities.getParentOfPath(buffer.getPath()));
+	  buf = new StringBuilder(PYP5 + "pyp5 ");
+	  buf.append(" ");
+	  buf.append(dir);
+	  buf.append(file);
+	  buf.toString();
+</COMMAND>
+</COMMANDS>
+</COMMANDO>

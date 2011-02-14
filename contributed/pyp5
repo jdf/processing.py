@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# adjust JAVA_HOME and the path to the processing-py.jar to match your environment 
+# similary adjust memory requirements, bigger is not always better
+export JAVA_HOME="/opt/jdk1.6.0_23" 
+java -Xms64m -Xmx256m -jar /home/tux/processing.py/processing-py.jar $@
