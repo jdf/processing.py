@@ -74,7 +74,7 @@ abstract public class PAppletJythonDriver extends PApplet {
     // you have implemented a method, we save it and call it.
     private final PyObject setupMeth, drawMeth, mousePressedMeth,
             mouseClickedMeth, mouseReleasedMeth, mouseDraggedMeth,
-            keyPressedMeth, keyReleasedMeth, keyTypedMeth, stopMeth;
+            keyPressedMeth, keyReleasedMeth, keyTypedMeth, initMeth, stopMeth;
 
     // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
     // the source file name, so that errors have the file name instead of
@@ -135,6 +135,7 @@ abstract public class PAppletJythonDriver extends PApplet {
         keyPressedMeth = interp.get("keyPressed");
         keyReleasedMeth = interp.get("keyReleased");
         keyTypedMeth = interp.get("keyTyped");
+        initMeth = interp.get("init");
         stopMeth = interp.get("stop");
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -155,6 +156,18 @@ abstract public class PAppletJythonDriver extends PApplet {
             }
         });
         super.start();
+    }
+
+    @Override
+    public void init() {
+        try {
+            if (initMeth != null) {
+                builtins.__setitem__("frame", Py.java2py(frame));
+                initMeth.__call__();
+            }
+        } finally {
+            super.init();
+        }
     }
 
     public void blockUntilFinished() throws InterruptedException {
@@ -243,12 +256,14 @@ abstract public class PAppletJythonDriver extends PApplet {
         super.size(iwidth, iheight, irenderer, ipath);
         setFields();
         builtins.__setitem__("g", Py.java2py(g));
+        builtins.__setitem__("frame", Py.java2py(frame));
     }
 
     @Override
     public void setup() {
         // Put all of PApplet's globals into the Python context
         setFields();
+        builtins.__setitem__("frame", Py.java2py(frame));
 
         try {
             if (isStaticMode) {
