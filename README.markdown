@@ -10,7 +10,7 @@ See the [open bugs in the bug tracker](http://github.com/jdf/processing.py/issue
 ## Quick Start ##
 
 
-Download the peasycam distribution.
+Download the processing.py distribution.
 
     $ curl -L https://github.com/downloads/jdf/processing.py/processing.py-0019.tgz | tar zx
     $ cd processing.py-0019
