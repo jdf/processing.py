@@ -9,7 +9,6 @@ See the [open bugs in the bug tracker](http://github.com/jdf/processing.py/issue
 
 ## Quick Start ##
 
-
 Download the processing.py distribution.
 
     $ curl -L https://github.com/downloads/jdf/processing.py/processing.py-0019.tgz | tar zx
@@ -27,30 +26,49 @@ Then try some examples.
         text(frameRate, 20, 20)
     $ java -jar processing-py.jar mysketch.py
 
-Put processing extension libraries in the "libraries" directory.
+## What is this? ##
+
+processing.py is a system that lets you write programs in a dialect
+of Python that has [all of these keywords](http://processing.org/reference/). 
+
+In general, the way you run a processing.py program is to say
+
+    $ java -jar processing-py.jar path/to/your_sketch.py
+
+## Can I use all of the existing [Processing libraries](http://processing.org/reference/libraries/)? ##
+
+Yes! processing.py is implemented in Java, and is meant to be compatible
+with the whole existing ecosystem of
+[Processing libraries](http://processing.org/reference/libraries/).
+
+Put processing extension libraries in the "libraries" subdirectory of
+your processing.py installation.
 
     $ curl -O http://mrfeinberg.com/peasycam/peasycam.zip
     $ cd libraries
     $ unzip ../peasycam.zip
 
-Import them in the usual Python way, e.g.
+Import them in the usual Python way, as in these snippets:
 
     import peasy.PeasyCam
-    cam = peasy.PeasyCam(this, 200)
 
 or
 
     import peasy.PeasyCam as PeasyCam
-    cam = PeasyCam(this, 200)
 
 or
 
     from peasy import PeasyCam
+
+and then, in your `setup()` method
+
     cam = PeasyCam(this, 200)
 
 Unfortunately, `from foo import *` is not supported.
 
 Use `this` to refer to the PApplet you're in, as in the examples above.
+Many libraries need a reference to "the current PApplet", and that's what
+`this` is for.
 
 Put any Python libraries in the "libraries" directory, or in sketch directories.
 Only pure-Python libraries will work--nothing that requires "native" code.
