@@ -15,16 +15,6 @@
  */
 package jycessing;
 
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.io.File;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashSet;
-import java.util.concurrent.CountDownLatch;
-import java.util.regex.Pattern;
-
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
@@ -40,6 +30,16 @@ import org.python.util.InteractiveConsole;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
+
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.io.File;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -114,6 +114,7 @@ abstract public class PAppletJythonDriver extends PApplet {
             @Override
             public PyObject __call__(final PyObject[] args, final String[] kws) {
                 finishedLatch.countDown();
+                PAppletJythonDriver.super.exit();
                 return Py.None;
             }
         });
