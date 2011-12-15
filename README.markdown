@@ -7,11 +7,13 @@ Write [Processing](http://processing.org) sketches in Python.
 
 ## Quick Start ##
 
-    $ git clone git://github.com/jdf/processing.py.git
-    $ cd processing.py
-    $ ant
 
-(or download a distribution from http://github.com/jdf/processing.py/downloads)
+Download the peasycam distribution.
+
+    $ curl -L https://github.com/downloads/jdf/processing.py/processing.py-0019.tgz | tar zx
+    $ cd processing.py-0019
+
+Then try some examples.
 
     $ java -jar processing-py.jar examples.py/Basics/Math/noisefield.py
     $ java -jar processing-py.jar examples.py/3D/Typography/KineticType.py
@@ -25,9 +27,9 @@ Write [Processing](http://processing.org) sketches in Python.
 
 Put processing extension libraries in the "libraries" directory.
 
-    $ curl -O http://mrfeinberg.com/peasycam/download/PeasyCam_0.91.zip
+    $ curl -O http://mrfeinberg.com/peasycam/peasycam.zip
     $ cd libraries
-    $ unzip ../PeasyCam_0.8.3.zip
+    $ unzip ../peasycam.zip
 
 Import them in the usual Python way, e.g.
 
