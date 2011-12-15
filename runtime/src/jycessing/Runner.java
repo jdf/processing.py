@@ -15,10 +15,18 @@
  */
 package jycessing;
 
+import org.python.core.Py;
+import org.python.core.PyString;
+import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
+
+import processing.core.PApplet;
+
 import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -37,15 +45,18 @@ import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
 
-import org.python.core.Py;
-import org.python.core.PyString;
-import org.python.util.InteractiveConsole;
-import org.python.util.PythonInterpreter;
-
-import processing.core.PApplet;
-
 public class Runner {
     static boolean VERBOSE = false;
+
+    static void log(final Object... objs) {
+        if (!VERBOSE) {
+            return;
+        }
+        for (final Object o : objs) {
+            System.err.print(String.valueOf(o));
+        }
+        System.err.println();
+    }
 
     // Slurp the given Reader into a String.
     private static String read(final Reader r) throws IOException {
@@ -80,20 +91,18 @@ public class Runner {
      *
      */
     private static void addJar(final URL url) throws Exception {
-        final URLClassLoader classLoader = (URLClassLoader)ClassLoader
-                .getSystemClassLoader();
+        final URLClassLoader classLoader =
+                (URLClassLoader)ClassLoader.getSystemClassLoader();
         for (final URL u : classLoader.getURLs()) {
             if (u.equals(url)) {
                 return;
             }
         }
-        final Method method = URLClassLoader.class.getDeclaredMethod("addURL",
-                URL.class);
+        final Method method =
+                URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
         method.setAccessible(true);
         method.invoke(classLoader, new Object[] { url });
-        if (VERBOSE) {
-            System.err.println("Added " + url + " to classpath.");
-        }
+        log("Added ", url, " to classpath.");
     }
 
     /**
@@ -119,9 +128,7 @@ public class Runner {
         System.arraycopy(paths, 0, tmp, 0, paths.length);
         tmp[paths.length] = newPath;
         field.set(null, tmp);
-        if (VERBOSE) {
-            System.err.println("Added " + newPath + " to java.library.path.");
-        }
+        log("Added ", newPath, " to java.library.path.");
     }
 
     /**
@@ -134,9 +141,7 @@ public class Runner {
             throw new IllegalArgumentException("null dir");
         }
 
-        if (VERBOSE) {
-            System.err.println("Searching: " + dir);
-        }
+        log("Searching: ", dir);
 
         final File[] dlls = dir.listFiles(new FilenameFilter() {
             public boolean accept(final File dir, final String name) {
@@ -145,8 +150,8 @@ public class Runner {
         });
         if (dlls != null && dlls.length > 0) {
             addLibraryPath(dir.getAbsolutePath());
-        } else if (VERBOSE) {
-            System.err.println("No DLLs in " + dir);
+        } else {
+            log("No DLLs in ", dir);
         }
 
         final File[] jars = dir.listFiles(new FilenameFilter() {
@@ -158,15 +163,13 @@ public class Runner {
             for (final File jar : jars) {
                 addJar(jar.toURI().toURL());
             }
-        } else if (VERBOSE) {
-            System.err.println("No JARs in " + dir);
+        } else {
+            log("No JARs in ", dir);
         }
 
         final File[] dirs = dir.listFiles(new FileFilter() {
             public boolean accept(final File f) {
-                if (VERBOSE) {
-                    System.err.println("Looking at " + f);
-                }
+                log("Looking at ", f);
                 return f.isDirectory() && f.getName().charAt(0) != '.';
             }
         });
@@ -174,15 +177,27 @@ public class Runner {
             for (final File d : dirs) {
                 searchForExtraStuff(d);
             }
-        } else if (VERBOSE) {
-            System.err.println("No dirs in " + dir);
+        } else {
+            log("No dirs in ", dir);
         }
     }
 
     public static void main(final String[] args) throws Exception {
+        runFromCommandLineArguments(args);
+        System.exit(0);
+    }
+
+    /**
+     * @param args
+     * @throws IOException
+     * @throws FileNotFoundException
+     * @throws Exception
+     */
+    public static void
+            runFromCommandLineArguments(final String[] args) throws Exception {
         if (args.length < 1) {
-            System.err
-                    .println("I need the path of your Python script as an argument.");
+            throw new RuntimeException(
+                    "I need the path of your Python script as an argument.");
         }
 
         // -Dverbose=true for some logging
@@ -191,10 +206,7 @@ public class Runner {
         final Properties buildnum = new Properties();
         buildnum.load(Runner.class
                 .getResourceAsStream("buildnumber.properties"));
-        if (VERBOSE) {
-            System.err.println("processing.py build "
-                    + buildnum.getProperty("buildnumber"));
-        }
+        log("processing.py build ", buildnum.getProperty("buildnumber"));
 
         // The last argument is the path to the Python sketch
         final String sketchPath = args[args.length - 1];
@@ -206,35 +218,32 @@ public class Runner {
         runSketch(args, sketchPath, sketchSource);
     }
 
-    private static final Pattern JAR_RESOURCE = Pattern
-            .compile("jar:file:(.+?)/processing-py.jar!/jycessing/buildnumber.properties");
+    private static final Pattern JAR_RESOURCE =
+            Pattern.compile("jar:file:(.+?)/processing-py.jar!/jycessing/buildnumber.properties");
     private static final Pattern FILE_RESOURCE = Pattern
             .compile("file:(.+?)/bin/jycessing/buildnumber.properties");
 
     private static File getLibrariesDir() {
         String propsResource;
         try {
-            propsResource = URLDecoder.decode(
-                    Runner.class.getResource("buildnumber.properties")
-                            .toString(), "UTF-8");
+            propsResource =
+                    URLDecoder.decode(
+                            Runner.class.getResource("buildnumber.properties")
+                                    .toString(), "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Impossible: " + e);
         }
         {
             final Matcher m = JAR_RESOURCE.matcher(propsResource);
             if (m.matches()) {
-                if (VERBOSE) {
-                    System.err.println("We're running from a JAR file.");
-                }
+                log("We're running from a JAR file.");
                 return new File(m.group(1), "libraries");
             }
         }
         {
             final Matcher m = FILE_RESOURCE.matcher(propsResource);
             if (m.matches()) {
-                if (VERBOSE) {
-                    System.err.println("We're running from class files.");
-                }
+                log("We're running from class files.");
                 return new File(m.group(1), "libraries");
             }
         }
@@ -244,7 +253,7 @@ public class Runner {
     }
 
     public static void runSketch(final String[] args, final String sketchPath,
-            final String sketchSource) throws Exception {
+                                 final String sketchSource) throws Exception {
         // Recursively search the "libraries" directory for jar files and
         // directories containing dynamic libraries, adding them to the
         // classpath and the library path respectively.
@@ -257,8 +266,8 @@ public class Runner {
         searchForExtraStuff(libraries);
 
         // Where is the sketch located?
-        final String sketchDir = new File(sketchPath).getCanonicalFile()
-                .getParent();
+        final String sketchDir =
+                new File(sketchPath).getCanonicalFile().getParent();
 
         final Properties props = new Properties();
         props.setProperty("python.path", libraries.getAbsolutePath()
@@ -284,22 +293,18 @@ public class Runner {
 
         interp.exec(read(Runner.class.getResourceAsStream("core.py")));
         // Bind the sketch to a PApplet
-        final PAppletJythonDriver applet = new DriverImpl(interp, sketchPath,
-                sketchSource);
+        final PAppletJythonDriver applet =
+                new DriverImpl(interp, sketchPath, sketchSource);
 
         try {
             PApplet.runSketch(args, applet);
             applet.blockUntilFinished();
-            if (VERBOSE) {
-                System.err.println("Applet is finished. Disposing window.");
-            }
+            log("Applet is finished. Disposing window.");
             ((Window)SwingUtilities.getRoot(applet)).dispose();
         } catch (final Throwable t) {
             Py.printException(t);
         } finally {
-            if (VERBOSE) {
-                System.err.println("Cleaning up interpreter.");
-            }
+            log("Cleaning up interpreter.");
             interp.cleanup();
         }
     }

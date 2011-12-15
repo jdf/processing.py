@@ -102,6 +102,7 @@ abstract public class PAppletJythonDriver extends PApplet {
         this.pySketchPath = sketchPath;
         this.sketchPath = new File(sketchPath).getParent();
         this.isStaticMode = !ACTIVE_METHOD_DEF.matcher(programText).find();
+        Runner.log("Mode: ", (isStaticMode ? "static" : "active"));
         this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
         this.interp = interp;
         initializeStatics(builtins);
@@ -114,7 +115,6 @@ abstract public class PAppletJythonDriver extends PApplet {
             @Override
             public PyObject __call__(final PyObject[] args, final String[] kws) {
                 finishedLatch.countDown();
-                PAppletJythonDriver.super.exit();
                 return Py.None;
             }
         });
@@ -269,6 +269,7 @@ abstract public class PAppletJythonDriver extends PApplet {
         try {
             if (isStaticMode) {
                 // A static sketch gets called once, from this spot.
+                Runner.log("Interpreting static-mode sketch.");
                 interpretSketch();
             } else if (setupMeth != null) {
                 // Call the Python sketch's setup()
@@ -283,8 +284,8 @@ abstract public class PAppletJythonDriver extends PApplet {
     @Override
     public void draw() {
         if (drawMeth == null) {
+            Runner.log("Calling super.draw() in what I assume is a static-mode sketch.");
             super.draw();
-            finishedLatch.countDown();
         } else {
             // Put all of PApplet's globals into the Python context
             setFields();

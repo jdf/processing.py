@@ -7,3 +7,4 @@ print int(map(5, 0, 10, 0, 100))
 # Python builtin
 print map(lambda x: x + 1, (12, 16, 22))[0]
 #expect 13
+exit()

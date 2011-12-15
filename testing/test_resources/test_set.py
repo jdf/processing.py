@@ -17,3 +17,4 @@ print"issubclass: %s" % issubclass(MySet, set)
 foo = MySet()
 foo.add('baz')
 print foo
+exit()

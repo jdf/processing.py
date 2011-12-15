@@ -9,4 +9,4 @@ foo = Foo('cosmic')
 print foo
 print str(12)
 print str([12,13])
-noLoop()
+exit()

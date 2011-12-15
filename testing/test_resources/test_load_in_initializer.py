@@ -9,3 +9,4 @@ def setup():
     size(10, 10, P3D)
     noLoop();
     print 'OK'
+    exit()

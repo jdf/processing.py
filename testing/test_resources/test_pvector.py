@@ -41,3 +41,4 @@ assert x != y
 
 print 'OK'
 
+exit()

@@ -17,7 +17,7 @@ public class JycessingTests {
         final PrintStream saved = System.out;
         try {
             System.setOut(new PrintStream(baos, true));
-            Runner.main(new String[] { "testing/test_resources/test_"
+            Runner.runFromCommandLineArguments(new String[] { "testing/test_resources/test_"
                     + testResource + ".py" });
             return new String(baos.toByteArray()).replaceAll("\r\n", "\n")
                     .replaceAll("\r", "\n");
@@ -33,7 +33,7 @@ public class JycessingTests {
             System.setOut(new PrintStream(baos, true));
             final String testClass = module + "_test";
             final String bogusFileName = "<test " + module + ">";
-            final String testText = "import " + module + "\nprint 'OK'";
+            final String testText = "import " + module + "\nprint 'OK'\nexit()";
             Runner.runSketch(new String[] { testClass }, bogusFileName,
                     testText);
             assertEquals("OK\n",
