@@ -7,6 +7,10 @@ from java.lang import Class, Void
 from processing.core import PApplet
 
 
+"""
+A field is bad if it happens to be marked public in the PApplet source,
+but is undocumented or implementation-private.
+"""
 BAD_FIELD = re.compile(r'''
     ^(
         screen|args|recorder|frame|g|selectedFile|keyEvent|mouseEvent
@@ -15,11 +19,15 @@ BAD_FIELD = re.compile(r'''
     )$
     ''', re.X)
 
-
+"""
+A method is "bad" if either there's already a native python implementation
+of it (as in max()) or if it's private to the implementation of PApplet, but
+is marked public as a subclass of Component or Applet.
+"""
 BAD_METHOD = re.compile(r'''
     ^(
     init|handleDraw|draw|parse[A-Z].*|arraycopy|openStream|str|.*Pressed
-    |.*Released|(un)?register[A-Z].*|print(ln)?|setup[A-Z].+|thread
+    |.*Released|(un)?register[A-Z].*|print|setup[A-Z].+|thread
     |(get|set|remove)Cache|update|destroy|main|flush|addListeners|dataFile
     |die|setup|mouseE(ntered|xited)|paint|sketch[A-Z].*|stop|save(File|Path)
     |displayable|method|runSketch|start|focus(Lost|Gained)|(data|create)Path
@@ -29,35 +37,57 @@ BAD_METHOD = re.compile(r'''
 
 
 # I don't know of any other way to refer to primitive classes in Jython.
-prim = lambda(type_name): Class.forName(type_name).getField("TYPE").get(None)
-PRIMITIVES = { 'int': prim("java.lang.Integer"),
-               'char': prim("java.lang.Character"),
-               'byte': prim("java.lang.Byte"),
-               'long': prim("java.lang.Long"),
-               'double': prim("java.lang.Double"),
-               'float': prim("java.lang.Float"),
-               'boolean': prim("java.lang.Boolean") }
+def prim(type_name):
+    return Class.forName("java.lang.%s" % type_name).getField("TYPE").get(None)
+
+"""
+Here we map from mnemonic type names to the actual Java classes that implement
+those types.
+"""
+PRIMITIVES = { 'int': prim("Integer"),
+               'char': prim("Character"),
+               'byte': prim("Byte"),
+               'long': prim("Long"),
+               'double': prim("Double"),
+               'float': prim("Float"),
+               'boolean': prim("Boolean") }
 
 USELESS_TYPES = (PRIMITIVES['char'], Class.forName('[C'), PRIMITIVES['byte'])
+
+"""
+We want to create Jython wrappers for all public methods of PApplet except
+those in "BAD_METHOD". Also, if we have both foo(int) and foo(char), we throw
+away the char variant, and always call the int variant. Same with foo(byte).
+Sadly, Java has no unisgned types, so the distinction is weird.
+"""
 WANTED_METHODS = [m for m in Class.getDeclaredMethods(PApplet)
                       if Modifier.isPublic(m.getModifiers())
                       and not BAD_METHOD.match(m.getName())
                       and not any(k in USELESS_TYPES for k in m.getParameterTypes())]
 
+"""
+We want to create Jython wrappers for all variables visible during the
+Processing runtime.
+"""
 WANTED_FIELDS = [f for f in Class.getDeclaredFields(PApplet)
                     if Modifier.isPublic(f.getModifiers())
                     and not Modifier.isStatic(f.getModifiers())
                     and not BAD_FIELD.match(f.getName())]
 
+
 class ClassConversionInfo(object):
+    """
+    A structure to keep in one place all of the templates for generating
+    code for going back and forth between Python and Java.
+    """
     def __init__(self, to_python_prefix, to_java_format, typecheck_format):
         self.to_python_prefix = to_python_prefix
         self.to_java_format = to_java_format
         self.typecheck_format = typecheck_format
 
 """
-    Mapping from java type to various expressions needed in code
-    generation around those types.
+Map from java types to various expressions needed in code
+generation around those types.
 """
 CONVERSIONS = {
    PRIMITIVES['int']:
@@ -128,6 +158,9 @@ def emit_typecheck_expression(klass, name):
 
 def is_builtin(name):
     return name in ('map', 'filter', 'set', 'str')
+
+
+# TODO: replace this insanity with a decent templating system. What was I thinking?
 
 class PolymorphicMethod(object):
     def __init__(self, name, arity):
