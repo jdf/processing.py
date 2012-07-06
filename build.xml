@@ -48,7 +48,8 @@
 	<target name="build" depends="generate-driver">
 		<mkdir dir="bin" />
 		<javac classpath="buildtime/lib/jython/jython.jar:buildtime/lib/processing/core.jar"
-		       destdir="bin">
+		       destdir="bin"
+                       includeantruntime="false">
 			<src path="runtime/src" />
 			<src path="runtime/generated" />
 		</javac>
