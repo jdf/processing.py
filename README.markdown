@@ -11,8 +11,8 @@ See the [open bugs in the bug tracker](http://github.com/jdf/processing.py/issue
 
 Download the processing.py distribution.
 
-    $ curl -L https://github.com/downloads/jdf/processing.py/processing.py-0020.tgz | tar zx
-    $ cd processing.py-0020
+    $ curl -L https://github.com/downloads/jdf/processing.py/processing.py-0021.tgz | tar zx
+    $ cd processing.py-0021
 
 Then try some examples.
 
