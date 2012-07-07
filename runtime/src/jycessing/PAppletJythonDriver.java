@@ -25,6 +25,7 @@ import org.python.core.PyObject;
 import org.python.core.PySet;
 import org.python.core.PyStringMap;
 import org.python.core.PyType;
+import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
@@ -50,8 +51,6 @@ import java.util.regex.Pattern;
 abstract public class PAppletJythonDriver extends PApplet {
 
     abstract protected void populateBuiltins();
-
-    abstract protected void setFields();
 
     protected final PyStringMap builtins;
     protected final InteractiveConsole interp;
@@ -94,6 +93,10 @@ abstract public class PAppletJythonDriver extends PApplet {
             t.printStackTrace(System.err);
             System.exit(-1);
         }
+    }
+
+    protected void setFields() {
+        builtins.__setitem__("key", new PyUnicode(Character.toString(key)));
     }
 
     public PAppletJythonDriver(final InteractiveConsole interp,

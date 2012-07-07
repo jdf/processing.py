@@ -50,5 +50,6 @@ public class DriverImpl extends PAppletJythonDriver {
            b.emit()
        ]]]*/
        /*[[[end]]] */
+       super.setFields();
 	}
 }
