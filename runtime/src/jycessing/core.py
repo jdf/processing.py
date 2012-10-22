@@ -10,6 +10,7 @@ from processing.core import PImage
 from processing.core import PMatrix
 from processing.core import PMatrix2D
 from processing.core import PMatrix3D
+from processing.opengl import PShader
 from processing.core import PShape
 from processing.core import PShapeSVG
 from processing.core import PStyle
