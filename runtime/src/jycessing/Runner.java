@@ -130,12 +130,6 @@ public class Runner {
    * thread</a>.
    */
   private static void addLibraryPath(final String newPath) throws Exception {
-    final File d = new File(newPath);
-    final String dirName = d.getName();
-    if (!dirName.equals(ARCH) && dirName.matches("^(macosx|windows|linux)(32|64)$")) {
-      log("Ignoring wrong architecture " + newPath);
-      return;
-    }
     final Field field = ClassLoader.class.getDeclaredField("usr_paths");
     field.setAccessible(true);
     final String[] paths = (String[])field.get(null);
@@ -159,6 +153,12 @@ public class Runner {
   private static void searchForExtraStuff(final File dir) throws Exception {
     if (dir == null) {
       throw new IllegalArgumentException("null dir");
+    }
+
+    final String dirName = dir.getName();
+    if (!dirName.equals(ARCH) && dirName.matches("^(macosx|windows|linux)(32|64)$")) {
+      log("Ignoring wrong architecture " + dir);
+      return;
     }
 
     log("Searching: ", dir);
@@ -189,7 +189,6 @@ public class Runner {
 
     final File[] dirs = dir.listFiles(new FileFilter() {
       public boolean accept(final File f) {
-        log("Looking at ", f);
         return f.isDirectory() && f.getName().charAt(0) != '.';
       }
     });
