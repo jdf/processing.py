@@ -21,6 +21,7 @@ import org.python.util.InteractiveConsole;
 import org.python.util.PythonInterpreter;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 
 import java.awt.Window;
 import java.io.BufferedReader;
@@ -46,6 +47,21 @@ import java.util.regex.Pattern;
 import javax.swing.SwingUtilities;
 
 public class Runner {
+
+  private static final String ARCH;
+  static {
+    final int archBits = Integer.parseInt(System.getProperty("sun.arch.data.model"));
+    if (PApplet.platform == PConstants.MACOSX) {
+      ARCH = "macosx" + archBits;
+    } else if (PApplet.platform == PConstants.WINDOWS) {
+      ARCH = "macosx" + archBits;
+    } else if (PApplet.platform == PConstants.LINUX) {
+      ARCH = "linux" + archBits;
+    } else {
+      ARCH = "unknown" + archBits;
+    }
+  }
+
   static boolean VERBOSE = false;
 
   static void log(final Object... objs) {
@@ -114,6 +130,12 @@ public class Runner {
    * thread</a>.
    */
   private static void addLibraryPath(final String newPath) throws Exception {
+    final File d = new File(newPath);
+    final String dirName = d.getName();
+    if (!dirName.equals(ARCH) && dirName.matches("^(macosx|windows|linux)(32|64)$")) {
+      log("Ignoring wrong architecture " + newPath);
+      return;
+    }
     final Field field = ClassLoader.class.getDeclaredField("usr_paths");
     field.setAccessible(true);
     final String[] paths = (String[])field.get(null);
@@ -143,7 +165,7 @@ public class Runner {
 
     final File[] dlls = dir.listFiles(new FilenameFilter() {
       public boolean accept(final File dir, final String name) {
-        return name.matches("^.+\\.(so|dll|jnilib)$");
+        return name.matches("^.+\\.(so|dll|jnilib|dylib)$");
       }
     });
     if (dlls != null && dlls.length > 0) {

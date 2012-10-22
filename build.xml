@@ -60,7 +60,7 @@
 
   <target name="generate-driver"
           description="Generate DriverImpl class">
-      <java classpath="buildtime/lib/jython/jython.jar:buildtime/lib/processing/core.jar"
+      <java classpath="buildtime/lib/jython/jython.jar:buildtime/lib/processing/core.jar:libraries/processing/opengl/jogl-all.jar:libraries/processing/opengl/gluegen-rt.jar"
             classname="org.python.util.jython"
             fork="true">
           <arg value="buildtime/py/cog.py"/>

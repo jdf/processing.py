@@ -15,7 +15,7 @@ BAD_FIELD = re.compile(r'''
     ^(
         screen|args|recorder|frame|g|selectedFile|keyEvent|mouseEvent
         |sketchPath|screen(Width|Height)|defaultSize|firstMouse|finished
-        |requestImageMax
+        |requestImageMax|online
     )$
     ''', re.X)
 
@@ -31,7 +31,8 @@ BAD_METHOD = re.compile(r'''
     |(get|set|remove)Cache|update|destroy|main|flush|addListeners|dataFile
     |die|setup|mouseE(ntered|xited)|paint|sketch[A-Z].*|stop|save(File|Path)
     |displayable|method|runSketch|start|focus(Lost|Gained)|(data|create)Path
-    |round|abs|max|min|open|append|splice|expand|contract|set|exit
+    |round|abs|max|min|open|append|splice|expand|contract|set|exit|link|param
+    |status
     )$
     ''', re.X)
 
@@ -58,10 +59,11 @@ USELESS_TYPES = (PRIMITIVES['char'], Class.forName('[C'), PRIMITIVES['byte'])
 We want to create Jython wrappers for all public methods of PApplet except
 those in "BAD_METHOD". Also, if we have both foo(int) and foo(char), we throw
 away the char variant, and always call the int variant. Same with foo(byte).
-Sadly, Java has no unisgned types, so the distinction is weird.
+Sadly, Java has no unsigned types, so the distinction is weird.
 """
 WANTED_METHODS = [m for m in Class.getDeclaredMethods(PApplet)
                       if Modifier.isPublic(m.getModifiers())
+                      and not m.getExceptionTypes()
                       and not BAD_METHOD.match(m.getName())
                       and not any(k in USELESS_TYPES for k in m.getParameterTypes())]
 
@@ -104,10 +106,14 @@ CONVERSIONS = {
                             '(%(name)s == PyFloat.TYPE '
                                 '|| %(name)s == PyInteger.TYPE '
                                 '|| %(name)s == PyLong.TYPE)'),
+   PRIMITIVES['double']:
+        ClassConversionInfo('new PyFloat',
+                            '%s.asDouble()',
+                            '%(name)s == PyFloat.TYPE'),
    PRIMITIVES['long']:
         ClassConversionInfo('new PyLong',
                             '%s.asLong()',
-                            None),
+                            '%(name)s == PyLong.TYPE'),
    Class.forName("java.lang.String"):
         ClassConversionInfo('new PyUnicode',
                             '%s.asString()',
