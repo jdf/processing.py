@@ -184,14 +184,14 @@ abstract public class PAppletJythonDriver extends PApplet {
    * set.
    */
   private void setSet() {
-    builtins.__setitem__("set", new PyJavaType() {
+    builtins.__setitem__("set", new PyType(PyType.TYPE) {
       {
         builtin = true;
         init(PySet.class, new HashSet<PyJavaType>());
         invalidateMethodCache();
       }
 
-      @Override
+      //@Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
         switch (args.length) {
           default:
