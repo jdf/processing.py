@@ -5,14 +5,14 @@
  * Drag mouse to rotate cube. Demonstrates use of u/v coords in 
  * vertex() and effect on texture().
 """
-tex = loadImage("berlin-1.jpg")
+tex = loadImage("data/berlin-1.jpg")
 rotx = PI / 4
 roty = PI / 4
 rate = 0.01
 
 def setup(): 
     size(640, 360, OPENGL)
-    textureMode(NORMALIZED)
+    textureMode(NORMAL)
     fill(255)
     stroke(color(44, 48, 32))
 
