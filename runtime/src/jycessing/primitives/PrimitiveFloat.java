@@ -1,4 +1,4 @@
-package jycessing;
+package jycessing.primitives;
 
 public class PrimitiveFloat {
 	public PrimitiveFloat(float value) {

@@ -28,18 +28,22 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -207,12 +211,51 @@ public class Runner {
   }
 
   /**
+   * Returns the path of the main processing-py.jar file. 
+   * 
+   * @return
+   */
+  public static File getMainJarFile() {
+    // On a Mac, when launched as an app, this will contain ".app/Contents/Java/processing-py.jar"
+    try {
+      return new File(Runner.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  /**
+   * Returns the 'root' folder of this instance. Used when running with a
+   * wrapper.
+   * 
+   * @return
+   */
+  public static File getRoot() {
+    final File jar = getMainJarFile();
+
+    // If we are on a mac
+    if (jar.getAbsolutePath().contains(".app/Contents/")) {
+      return getMainJarFile().getParentFile().getParentFile();
+    }
+
+    // If we are on Windows 
+    return getMainJarFile().getParentFile();
+  }
+
+  /**
    * @param args
    * @throws IOException
    * @throws FileNotFoundException
    * @throws Exception
    */
   public static void runFromCommandLineArguments(final String[] args) throws Exception {
+    // Debug when using launcher
+    if (Arrays.asList(args).contains("--redirect")) {
+      System.setOut(new PrintStream(new FileOutputStream("output.txt")));
+      System.setErr(new PrintStream(new FileOutputStream("error.txt")));
+    }
+
     if (args.length < 1) {
       throw new RuntimeException("I need the path of your Python script as an argument.");
     }
@@ -225,13 +268,20 @@ public class Runner {
     log("processing.py build ", buildnum.getProperty("buildnumber"));
 
     // The last argument is the path to the Python sketch
-    final String sketchPath = args[args.length - 1];
+    String sketchPath = args[args.length - 1];
+
+    // In case the sketch path points to "internal" we get it from the wrapper
+    if (Arrays.asList(args).contains("--redirect")) {
+      sketchPath = new File(getRoot(), "Runtime/sketch.py").getAbsolutePath();
+    }
+
+    System.out.println("Running: " + sketchPath);
 
     // This will throw an exception and die if the given file is not there
     // or not readable.
     final String sketchSource = read(new FileReader(sketchPath));
-
     runSketch(args, sketchPath, sketchSource);
+
   }
 
   private static final Pattern JAR_RESOURCE = Pattern
@@ -247,6 +297,8 @@ public class Runner {
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException("Impossible: " + e);
     }
+
+    System.out.println(propsResource);
     {
       final Matcher m = JAR_RESOURCE.matcher(propsResource);
       if (m.matches()) {
@@ -276,6 +328,8 @@ public class Runner {
     // file:/opt/feinberg/processing.py/bin/jycessing/buildnumber.properties
 
     final File libraries = getLibrariesDir();
+    System.out.println(libraries);
+
     searchForExtraStuff(libraries);
 
     // Where is the sketch located?
