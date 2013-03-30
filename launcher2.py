@@ -45,43 +45,20 @@ class __launcher(object):
 		try: shutil.rmtree(outdir) 
 		except: pass
 
-		# ... and recreate it
-		os.mkdir(outdir)
-		for platform in platforms: os.mkdir(outdir + "/" + platform)
 
-
-		# Now the platform specific logic
-		if "mac" in platforms:	
-			# Copy archive
-			LaunchHelper.copyTo("launcher.mac.zip", outdir + "/" + "mac.zip")
-
-			root = outdir + "/" + "mac/Processing.app/Contents/"			
-
-			# Unzip
-			z = zipfile.ZipFile(outdir + "/" + "mac.zip", "r")
-			z.extractall(outdir + "/" + "mac")
-			z.close()
-
-			# Set launcher permissions ... mmhm, when created on Windows this 
-			# might lead to trouble ... Any ideas?
-			mode = os.stat(root + "/MacOS/JavaAppLauncher").st_mode
-			os.chmod(root + "/MacOS/JavaAppLauncher", mode | stat.S_IXUSR)
-
-			os.remove(outdir + "/" + "mac.zip")
-			
-			# Copy jars & co
+		def copyjars(root):
+			"""Copy jars & co"""
 			_mainjar = Runner.getMainJarFile()
 			mainjar, mainjarname = _mainjar.getAbsolutePath(), _mainjar.getName()
 			libraries = Runner.getLibrariesDir().getAbsolutePath()
 
-			shutil.copyfile(mainjar, root + "Java/"+ mainjarname)
-			shutil.copytree(libraries, root + "Java/libraries", ignore=shutil.ignore_patterns(*ignorelibs))
+			shutil.copyfile(mainjar, root + "/" + mainjarname)
+			shutil.copytree(libraries, root + "/libraries", ignore=shutil.ignore_patterns(*ignorelibs))
 
-			# Adjust Info.plist
-			# TODO
 
+		def copydata(runtimedir):
+			"""Copy the main script and the given data"""
 			# Create runtime directory 
-			runtimedir = root + "/" + "Runtime"
 
 			try: os.mkdir(runtimedir)
 			except: pass
@@ -96,9 +73,56 @@ class __launcher(object):
 			shutil.copyfile(main, runtimedir + "/sketch.py")
 
 
+		# ... and recreate it
+		os.mkdir(outdir)
+		for platform in platforms: 
+			os.mkdir(outdir + "/" + platform)
+
+			# Copy archive
+			LaunchHelper.copyTo("launcher." + platform + ".zip", outdir + "/" + platform + ".zip")
+			
+			# Unzip
+			z = zipfile.ZipFile(outdir + "/" + platform + ".zip", "r")
+			z.extractall(outdir + "/" + platform)
+			z.close()
+
+
+
+		# Now the platform specific logic
+		if "mac" in platforms:	
+			root = outdir + "/mac/Processing.app/Contents/"			
+
+			# Set launcher permissions ... mmhm, when created on Windows this 
+			# might lead to trouble ... Any ideas?
+			mode = os.stat(root + "/MacOS/JavaAppLauncher").st_mode
+			os.chmod(root + "/MacOS/JavaAppLauncher", mode | stat.S_IXUSR)
+			os.remove(outdir + "/" + "mac.zip")
+		
+			# Copy the jars and app
+			copyjars(root + "Java")	
+			copydata(root + "/Runtime")
+		
+			# Adjust Info.plist
+			# TODO
+
+		if "win" in platforms:	
+			root = outdir + "/win/"	
+
+			# Copy the jars and app
+			copyjars(root)	
+			copydata(root + "/runtime")
+
+			# Adjust the launcher.ini
+			# TODO
+
+			# delete the console version (for now)
+			os.remove(root + "/launcherc.exe")
+
+
+
 		# We dont want to return
 		System.exit(0)
 
 			
 # Set the name space 
-sys.modules["launcher2"] = __launcher
+sys.modules["launcher"] = __launcher
