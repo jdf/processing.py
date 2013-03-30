@@ -20,3 +20,4 @@ test.py
 .DS_Store
 runtime/src/.DS_Store
 __pycache__
+dist.platforms

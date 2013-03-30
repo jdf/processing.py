@@ -271,11 +271,9 @@ public class Runner {
     String sketchPath = args[args.length - 1];
 
     // In case the sketch path points to "internal" we get it from the wrapper
-    if (Arrays.asList(args).contains("--redirect")) {
+    if (Arrays.asList(args).contains("--internal")) {
       sketchPath = new File(getRoot(), "Runtime/sketch.py").getAbsolutePath();
     }
-
-    System.out.println("Running: " + sketchPath);
 
     // This will throw an exception and die if the given file is not there
     // or not readable.
@@ -289,7 +287,7 @@ public class Runner {
   private static final Pattern FILE_RESOURCE = Pattern
       .compile("file:(.+?)/bin/jycessing/buildnumber.properties");
 
-  private static File getLibrariesDir() {
+  public static File getLibrariesDir() {
     String propsResource;
     try {
       propsResource =
@@ -298,7 +296,6 @@ public class Runner {
       throw new RuntimeException("Impossible: " + e);
     }
 
-    System.out.println(propsResource);
     {
       final Matcher m = JAR_RESOURCE.matcher(propsResource);
       if (m.matches()) {
@@ -328,16 +325,17 @@ public class Runner {
     // file:/opt/feinberg/processing.py/bin/jycessing/buildnumber.properties
 
     final File libraries = getLibrariesDir();
-    System.out.println(libraries);
 
     searchForExtraStuff(libraries);
 
     // Where is the sketch located?
     final String sketchDir = new File(sketchPath).getCanonicalFile().getParent();
-
     final Properties props = new Properties();
+
     props.setProperty("python.path", libraries.getAbsolutePath() + File.pathSeparator + sketchDir);
-    PythonInterpreter.initialize(null, props, new String[] { "" });
+    props.setProperty("python.main", new File(sketchPath).getCanonicalFile().getAbsolutePath());
+
+    PythonInterpreter.initialize(null, props, args);
 
     Py.initPython();
     final InteractiveConsole interp = new InteractiveConsole();
