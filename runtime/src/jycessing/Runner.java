@@ -50,6 +50,8 @@ import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
 
+import jycessing.launcher.LaunchHelper;
+
 public class Runner {
 
   private static final String ARCH;
@@ -334,6 +336,8 @@ public class Runner {
 
     props.setProperty("python.path", libraries.getAbsolutePath() + File.pathSeparator + sketchDir);
     props.setProperty("python.main", new File(sketchPath).getCanonicalFile().getAbsolutePath());
+    props.setProperty("python.main.root", new File(sketchPath).getCanonicalFile().getParentFile()
+        .getAbsolutePath());
 
     PythonInterpreter.initialize(null, props, args);
 
@@ -355,6 +359,8 @@ public class Runner {
     interp.set("__file__", sketchPath);
 
     interp.exec(read(Runner.class.getResourceAsStream("core.py")));
+    interp.exec(read(LaunchHelper.class.getResourceAsStream("launcher.py")));
+
     // Bind the sketch to a PApplet
     final PAppletJythonDriver applet = new DriverImpl(interp, sketchPath, sketchSource);
 

@@ -16,9 +16,9 @@
 
 	
 	<!-- At the moment creating this launcher requires a few manual steps:
-		1) Run this target
-		2.1) Remove the content of the contained "Java" folder"
-		2.2) Adjust the included Info.plist (TODO!)
+		1) Run this target ("ant launcher.mac") 
+		2.1) Remove the content of the contained "Java" folder
+		2.2) Adjust the included Info.plist so our python code recognizes it (TODO!)
 		3) Zip the app folder
 		4) Place the zip into the runtime's deployment folder.  -->     
 	<target name="launcher.mac">
@@ -28,7 +28,7 @@
 	        outputdirectory="launcher.mac" 
 	        name="Processing" 
 	        displayname="Processing.py Launcher" 
-	        identifier="xr.io.processingpy.launcher" 
+	        identifier="processing.py.launcher" 
 	        shortversion="1.0"
 	        applicationCategory="public.app-category.developer-tools"
 	        mainclassname="jycessing.Runner">
