@@ -20,4 +20,14 @@ IF exist "%ROOT%\JREs\jre7.win" (
 	set "JAVA=%ROOT%\JREs\jre7.win\bin\java"
 ) 
 
+
+REM msg "%username%" "%JAVA% not found!"
+
+
+
 "%JAVA%" %JVM_ARGS% -jar "%ROOT%\processing-py.jar" "%DEFAULTSCRIPT%"
+
+if not %ERRORLEVEL% == 0 (
+	echo "Unable to start Java"	
+	msg "%username%" "Unable to start Java"
+)

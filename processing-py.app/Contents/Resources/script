@@ -2,7 +2,7 @@
 
 
 ####
-#### The default script to run. Only used if non is given as an 
+#### The default script to run. Only used if none is given as an 
 #### optional argument
 ####
 DEFAULT_SCRIPT="workspace/example.py"
@@ -68,7 +68,7 @@ fi
 ####
 if [ $# -eq 0 ]; then
     DEFAULT_SCRIPT="$BASEDIR/$DEFAULT_SCRIPT"
-    echo "No script supplied, running $DEFAULT_SCRIPT"    
+    echo "No script supplied, running default."
 else 
     DEFAULT_SCRIPT=$1
 fi 
@@ -79,5 +79,8 @@ fi
 # DJ, spin that shit!
 #
 ####
-"$JAVA" $JVM_ARGS -jar "$BASEDIR/processing-py.jar" "$DEFAULT_SCRIPT"
-
+if [ -f "$JAVA" ]; then 
+    "$JAVA" $JVM_ARGS -jar "$BASEDIR/processing-py.jar" "$DEFAULT_SCRIPT"
+else 
+    echo "ERROR: Java not found!"    
+fi
