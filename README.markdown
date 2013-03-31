@@ -9,7 +9,7 @@ Write [Processing](http://processing.org) sketches in Python.
 
 ## Quick Start ##
 
-To take off immediately download and unzip the [processing.py distribution](http://xr.io/d/processing.py.zip).
+To take off immediately download and unzip the [processing.py distribution](http://xr.io/d/processingpy.zip).
 
 
 Then, paste this code into a file, e.g., __mysketch.py__.
