@@ -32,6 +32,8 @@ if [ "$(expr $(uname -s) : 'Darwin')" != 0 ]; then
     PLATFORM="mac"
 elif [ "$(expr $(uname -s) : '.*CYGWIN.*')" != 0 ]; then
     PLATFORM="win"
+elif [ "$(expr $(uname -s) : '.*MINGW.*')" != 0 ]; then
+    PLATFORM="win"
 else
     echo "Linux / Unix support untested."   
     PLATFORM="linux"    
