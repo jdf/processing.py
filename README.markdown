@@ -6,10 +6,13 @@ Write [Processing](http://processing.org) sketches in Python.
   * The [Python 2.7.3 library](http://docs.python.org/2/library/).
   * And of course the [Java 6.x / 7.x library](http://docs.oracle.com/javase/6/docs/api/).
 
+Tested on Mac OS 10.8.3, Windows XP and Ubuntu 12.10.
 
 ## Quick Start ##
 
-To take off immediately download and unzip the [processing.py distribution](http://xr.io/d/processingpy.zip).
+Download __[Processing.py All-inclusive](http://s.xr.io/processing.py/latest.zip)__ (Windows & Mac, ~170mb). 
+
+Download [Processing.py without JRE](http://s.xr.io/processing.py/latest.nojre.zip)  (Windows, Mac & Linux, ~70mb.).
 
 
 Then, paste this code into a file, e.g., __mysketch.py__.
@@ -21,10 +24,14 @@ Then, paste this code into a file, e.g., __mysketch.py__.
 	    ellipse(mouseX, mouseY, 10, 10)
 
 
-Eventually, you can run the code by executing:
+Eventually, you can run the code by drag-dropping your sketch onto one of these files according to your platform:
 
-    $ java -jar processing-py.jar mysketch.py
+<img src="http://s.xr.io/processing.py/howtolaunch.jpg"/>
 
+If that does not work for one of your platforms (such as Linux), you can run the sketch either semi-manually or fully by hand:
+    
+    $ ./processing-py.sh mysketch.py  (semi manually w. automated JRE detection)
+	$ java -jar processing-py.jar mysketch.py  (manual)
 
 ## Documentation ##
 
@@ -86,7 +93,8 @@ Launcher & adjustments [Ralf Biedert](http://xr.io) &lt;[rb@xr.io](mailto:rb@xr.
 This is a slightly enhanced clone from [Jonathan's repository](https://github.com/jdf/processing.py). Differences between this and the upstream version (as of 2013/03/31):
   * Uses jython 2.7 (instead of 2.5)
   * Supports fullscreen mode
-  * Creates launchers for Windows and Mac
+  * Debug launchers running on Windows, Mac and Linux w. splash screen and input redirection
+  * Creates wrappers for Windows and Mac
   * Better support for frameworks such as [Ani](http://www.looksgood.de/libraries/Ani/)
   
 
