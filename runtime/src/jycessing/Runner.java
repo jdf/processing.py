@@ -23,6 +23,7 @@ import org.python.util.PythonInterpreter;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
+import java.awt.SplashScreen;
 import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.File;
@@ -363,6 +364,12 @@ public class Runner {
 
     // Bind the sketch to a PApplet
     final PAppletJythonDriver applet = new DriverImpl(interp, sketchPath, sketchSource);
+
+    // Hide the splash, if possible 
+    final SplashScreen splash = SplashScreen.getSplashScreen();
+    if (splash != null) {
+      splash.close();
+    }
 
     try {
       PApplet.runSketch(args, applet);

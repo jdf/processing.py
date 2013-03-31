@@ -21,6 +21,7 @@ JVM_ARGS="-Xmx1024m"
 JAVA=`which java`
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PLATFORM='unknown'
+SPLASH="-splash:$BASEDIR/libraries/runtime/splash.png"
 
 
 ####
@@ -47,6 +48,7 @@ fi
 #
 ####
 if [ "$(expr "$BASEDIR" : '.*Contents/Resources.*')" != 0 ]; then
+    unset SPLASH
     BASEDIR="$BASEDIR/../../../"
 fi
 
@@ -56,7 +58,7 @@ fi
 # Check if there is a user supplied JRE
 #
 ####
-if [ -d "./JREs/jre7.$PLATFORM" ]; then   
+if [ -d "$BASEDIR/JREs/jre7.$PLATFORM" ]; then   
     JAVA="$BASEDIR/JREs/jre7.$PLATFORM/bin/java"
 fi
 
@@ -80,7 +82,8 @@ fi
 #
 ####
 if [ -f "$JAVA" ]; then 
-    "$JAVA" $JVM_ARGS -jar "$BASEDIR/processing-py.jar" "$DEFAULT_SCRIPT"
+    # I have to admit, the -Xmixed move is somewhat of a hack ...
+    "$JAVA" "${SPLASH:--Xmixed}" $JVM_ARGS -jar "$BASEDIR/processing-py.jar" "$DEFAULT_SCRIPT"
 else 
     echo "ERROR: Java not found!"    
 fi

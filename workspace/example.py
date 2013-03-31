@@ -4,7 +4,7 @@
 
 
 def setup():
-	size(640, 480, P2D)
+	size(640, 480, P3D)
 
 
 def draw():
