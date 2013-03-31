@@ -9,7 +9,29 @@
      ====================================================================== -->
 <project name="processing.py" default="jar">
 	<taskdef  name="bundleapp"  classname="com.oracle.appbundler.AppBundlerTask" classpath="buildtime/lib/java/appbundler-1.0.jar" />
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="buildtime/lib/java/ant-contrib.jar"/>
 
+	
+	<!-- Because Java's / Ant's zip task is crap and does not preserve file permissions ... --> 
+	<macrodef name="zipdir">
+	  	<attribute name="destfile"/>
+	  	<attribute name="sourcedir"/>
+		<attribute name="name"/>
+		<sequential>
+			<property name="absolute.destfile" location="@{destfile}"/>			
+			<echo message="${absolute.destfile}"/>
+			<exec executable="zip" dir="@{sourcedir}" 
+				failonerror="false" 
+				failifexecutionfails="false">
+			<arg value="-qr"/>
+			<arg value="${absolute.destfile}"/>
+			<arg value="@{name}/"/>
+			<arg value="-x *.svn* "/>	  	
+	  		</exec>
+		</sequential>
+	</macrodef>
+
+	
 	<description>
             Write processing sketches in Python
   	</description>
@@ -47,17 +69,39 @@
 		<delete dir="dist" />
 		<mkdir dir="dist/${dist}" />
 		<copy todir="dist/${dist}">
-			<fileset file="processing-py.jar" />
 			<fileset file="LICENSE.txt" />
+			<fileset dir="." includes="processing-py.*,processing-py.app/**"/>
+			<fileset dir="." includes="workspace/**"/>			
+			<fileset dir="." includes="JREs/**"/>			
 			<fileset dir="."
-			         includes="examples.py/**,libraries/processing/**"
+			         includes="examples.py/**,libraries/**"
 			         excludes="**.class"/>
 		</copy>
-		<zip basedir="dist" includes="${dist}/**" destfile="dist/${dist}.zip" />
-		<tar compression="gzip"
+			
+		<!-- Only does something on MacOS / Linux --> 		
+		<chmod file="dist/${dist}/processing-py.sh" perm="755"/>
+		<chmod file="dist/${dist}/processing-py.app/Contents/MacOS/processing-py" perm="755"/>
+		<chmod file="dist/${dist}/JREs/jre7.mac/bin/java" perm="755"/>
+				
+		<!-- I did mention already that Ant is an abomination? Anyway, here we have to check 
+		if zip is installed and use this instead of the internal zip. Otherwise the executable
+		flags will not be preserved. Oh, and thanks Ant for providing an integrated if/else task! --> 		
+		 <if>
+		 	<available file="/usr/bin/zip"/>
+		        <then>
+		    		<zipdir sourcedir="dist/" name="${dist}" destfile="dist/${dist}.zip"/>
+		        </then>
+		        <else>
+		        	<echo level="warning" message="******* DO NOT DISTRIBUTE THE RESULTING ZIP. The launchers will not run on MacOS / Linux. *******"/>
+		    		<zip basedir="dist" includes="${dist}/**" destfile="dist/${dist}.zip"/>
+		        </else>
+		</if>
+
+		<!-- Do we need this? -->
+		<!--tar compression="gzip"
 		     basedir="dist"
 		     includes="${dist}/**"
-		     destfile="dist/${dist}.tgz" />
+		     destfile="dist/${dist}.tgz" /-->
 	</target>
 
 	<target name="jar" depends="build">
@@ -82,6 +126,10 @@
 		<copy todir="bin">
 			<fileset dir="runtime/src" excludes="**/*.java" />
 		</copy>
+		
+		<!-- Update the internal launch script with the external one-->
+		<copy tofile="processing-py.app/Contents/Resources/script" file="processing-py.sh"/>
+		<chmod file="processing-py.app/Contents/MacOS/processing-py" perm="755"/>
 	</target>
 
   <target name="generate-driver"
