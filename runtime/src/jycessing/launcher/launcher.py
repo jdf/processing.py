@@ -19,6 +19,7 @@ def __copyeverything(src, dst):
 class __launcher(object):
     @staticmethod
     def create(
+            name = "Launcher",
             bundle = [],
             platforms=["mac", "win"], 
             outdir="dist.platforms", 
@@ -105,6 +106,9 @@ class __launcher(object):
             # Adjust Info.plist
             # TODO
 
+            os.rename(outdir + "/mac/Processing.app", outdir + "/mac/" + name + ".app/")
+
+
         if "win" in platforms:    
             root = outdir + "/win/"    
 
@@ -112,12 +116,20 @@ class __launcher(object):
             copyjars(root)    
             copydata(root + "/runtime")
 
+            os.mkdir(root + "/jre/")
+
+            JREREADME = open(root + "/jre/README.txt", "w")            
+            JREREADME.write("In the future, you can place your JRE in here (not implemented yet).")
+            JREREADME.close()
+
             # Adjust the launcher.ini
             # TODO
 
             # delete the console version (for now)
             os.remove(root + "/launcherc.exe")
 
+            os.rename(root + "/launcher.exe", root + "/" + name.lower() + ".exe")
+            os.rename(root + "/launcher.ini", root + "/" + name.lower() + ".ini")
 
 
         # We dont want to return
