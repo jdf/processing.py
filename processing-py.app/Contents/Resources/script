@@ -22,7 +22,7 @@ JAVA=`which java`
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PLATFORM='unknown'
 SPLASH="-splash:$BASEDIR/libraries/runtime/splash.png"
-
+REDIRECT="--noredirect"
 
 ####
 #
@@ -50,6 +50,7 @@ fi
 if [ "$(expr "$BASEDIR" : '.*Contents/Resources.*')" != 0 ]; then
     unset SPLASH
     BASEDIR="$BASEDIR/../../../"
+    WRAPPED_WITH_CONSOLE=true
 fi
 
 
@@ -78,12 +79,31 @@ fi
 
 ####
 #
+# Check if we are running in a terminal or not
+#
+####
+if [ -t 2 ]; then 
+    # In case we have a terminal connected
+    REDIRECT=--noredirect
+else 
+    # Or we don't ... In that case, redirect stdout / stderr, however
+    # we only do this when we are not actually wrapped with a console.
+    if $WRAPPED_WITH_CONSOLE; then
+        REDIRECT=--noredirect   
+    else
+        REDIRECT=--redirect
+    fi
+fi
+
+
+####
+#
 # DJ, spin that shit!
 #
 ####
 if [ -f "$JAVA" ]; then 
     # I have to admit, the -Xmixed move is somewhat of a hack ...
-    "$JAVA" "${SPLASH:--Xmixed}" $JVM_ARGS -jar "$BASEDIR/processing-py.jar" "$DEFAULT_SCRIPT"
+    "$JAVA" "${SPLASH:--Xmixed}" $JVM_ARGS -jar "$BASEDIR/processing-py.jar" $REDIRECT "$DEFAULT_SCRIPT"
 else 
     echo "ERROR: Java not found!"    
 fi

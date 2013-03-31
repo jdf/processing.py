@@ -25,7 +25,10 @@ IF exist "%ROOT%\JREs\jre7.win" (
 REM msg "%username%" "%JAVA% not found!"
 
 
-start "xxx" "%JAVA%" %JVM_ARGS% -splash:"%SPLASH%" -jar "%ROOT%\processing-py.jar" "%DEFAULTSCRIPT%"
+
+start "xxx" "%JAVA%" %JVM_ARGS% -splash:"%SPLASH%" -jar "%ROOT%\processing-py.jar" --redirect "%DEFAULTSCRIPT%"
+
+
 
 if not %ERRORLEVEL% == 1 (
 	echo "Unable to start Java"	
