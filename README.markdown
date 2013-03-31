@@ -1,147 +1,92 @@
 # processing.py #
 
-Write [Processing](http://processing.org) sketches in Python.
-[Jonathan Feinberg](http://mrfeinberg.com) &lt;[jdf@pobox.com](mailto:jdf@pobox.com)&gt;
+Write [Processing](http://processing.org) sketches in Python. 
 
-## Found a bug? ##
+  * Supports [Processing 2.0 functions](http://processing.org/reference/) as well as its third party libraries.
+  * The [Python 2.7.3 library](http://docs.python.org/2/library/).
+  * And of course the [Java 6.x / 7.x library](http://docs.oracle.com/javase/6/docs/api/).
 
-See the [open bugs in the bug tracker](http://github.com/jdf/processing.py/issues).
 
 ## Quick Start ##
 
-Download the processing.py distribution.
+To take off immediately download and unzip the [processing.py distribution](http://xr.io/d/processing.py.zip).
 
-    $ curl -L https://github.com/downloads/jdf/processing.py/processing.py-0021.tgz | tar zx
-    $ cd processing.py-0021
 
-Then try some examples.
+Then, paste this code into a file, e.g., __mysketch.py__.
 
-    $ java -jar processing-py.jar examples.py/Basics/Math/noisefield.py
-    $ java -jar processing-py.jar examples.py/3D/Typography/KineticType.py
-    $ java -jar processing-py.jar examples.py/Library/OpenGL/SpaceJunk.py
-    $ java -jar processing-py.jar examples.py/3D/Textures/TextureCube.py
-    $ cat > mysketch.py
-    def draw():
-        background(0)
-        text(frameRate, 20, 20)
+	def setup():
+	    size(600, 400, P3D)
+	
+	def draw():	   
+	    ellipse(mouseX, mouseY, 10, 10)
+
+
+Eventually, you can run the code by executing:
+
     $ java -jar processing-py.jar mysketch.py
 
-## What is this? ##
 
-processing.py is a system that lets you write programs in a dialect
-of Python that has [all of these keywords](http://processing.org/reference/). 
+## Documentation ##
 
-In general, the way you run a processing.py program is to say
+See the official [Processing Reference](http://processing.org/reference/) for core drawing / interaction functions. For a more advanced example, see the code below:
 
-    $ java -jar processing-py.jar path/to/your_sketch.py
 
-## Can I use all of the existing [Processing libraries](http://processing.org/reference/libraries/)? ##
 
-Yes! processing.py is implemented in Java, and is meant to be compatible
-with the whole existing ecosystem of
-[Processing libraries](http://processing.org/reference/libraries/).
+	import jycessing.primitives.PrimitiveFloat as PF
+	import launcher
 
-Put processing extension libraries in the "libraries" subdirectory of
-your processing.py installation.
+	# Create a launcher (for options see below)
+	launcher.create(bundle=['*.txt'])
 
-    $ curl -O http://mrfeinberg.com/peasycam/peasycam.zip
-    $ cd libraries
-    $ unzip ../peasycam.zip
+	# Read some data 
+	datafile = pwd('data.txt')
+	data = open(datafile, 'r').readlines()
 
-Import them in the usual Python way, as in these snippets:
+	# Create a primitive float
+	pf = PF(10.0)
 
-    import peasy.PeasyCam
-
-or
-
-    import peasy.PeasyCam as PeasyCam
-
-or
-
-    from peasy import PeasyCam
-
-and then, in your `setup()` method
-
-    cam = PeasyCam(this, 200)
-
-Unfortunately, `from foo import *` is not supported.
-
-Use `this` to refer to the PApplet you're in, as in the examples above.
-Many libraries need a reference to "the current PApplet", and that's what
-`this` is for.
-
-Put any Python libraries in the "libraries" directory, or in sketch directories.
-Only pure-Python libraries will work--nothing that requires "native" code.
-
-## Example Code ##
-
-	"""
-	  noisefield.py - demonstrate Perlin noise
-	  Jonathan Feinberg
-	"""
-	srcSize = 50
-	destSize = 400
-	g = createGraphics(srcSize, srcSize, JAVA2D)
-	
-	def setup():
-	    size(destSize, destSize, OPENGL)
-	
+	def setup():	
+		size(640, 480, P3D)	
+		frame.setTitle("Test Application");
+		
 	def draw():
-	    t = .0005 * millis()
-	    g.beginDraw()
-	    for y in range(srcSize):
-	        for x in range(srcSize):
-	            blue = noise(t + .1*x, t + .05*y, .2*t)
-	            g.set(x, y, color(0, 0, 255 * blue))
-	    g.endDraw()
-	    image(g, 0, 0, destSize, destSize)
+		background(0)
+		ellipse(mouseX, mouseY, pf.value, pf.value)
 
-## Why? ##
 
-I recently gave a talk about Processing to a group of rather bright 8th-graders,
-as part of a computer-programming summer camp they were attending at my office.
-Their curriculum up to that point had been in Python, which is an eminently
-sensible choice, given the
-[pedagogical roots](http://en.wikipedia.org/wiki/ABC_%28programming_language%29)
-of the language.
 
-The kids were really turned on by the demos--I showed them the
-[white glove](http://whiteglovetracking.com/), and
-[Golan Levin](http://flong.com/)'s
-[New Year's cards](http://www.flong.com/storage/experience/newyear/newyear10/)--but
-they were bogged down by Processing's C-like syntax, which really seems arcane
-and unnecessarily complex when you're used to Python.
+<br/>
+In this example there are a few things to note. First, you can create a launcher for your application by performing 
 
-I shared my experience with Processing creators
-[Ben Fry](http://benfry.com/) and [Casey Reas](http://reas.com/), and they
-told me that, indeed, the original Processing was a fork of
-["Design By Numbers"](http://dbn.media.mit.edu/), with Python and Scheme
-support hacked in. Support for a multi-lingual programming
-environment was always part of the plan, so they were enthusiastic
-about any new attempt at the problem.
+	import launcher
+	launcher.create()
 
-I was able to hack up a proof of concept in a couple of hours, and have
-managed to create something worth sharing in a couple of weeks. I was only
-able to do it at all thanks to the brilliant and beautiful
-[Jython](http://www.jython.org/) project.
 
-At the time of Processing's first public release, August of 2001,
-Jython was too young a project to be used in this way. But now, having done
-absolutely no work to profile and optimize, I can get hundreds of frames
-per second of 3D graphics on my linux box. So, kudos to the Processing
-project, and kudos to Jython!
+Supported arguments to the call are:
 
-Please play with this,
-[report bugs](http://github.com/jdf/processing.py/issues),
-and port more of the Processing examples!
+  * __name__: The final name of the application, defaults to _'Launcher'_.
+  * __bundle__: Set of string-patterns to bundle with your application, defaults to _[]_.
+  * __platforms__: Create launchers for these platforms, defaults to _['mac', 'win']_. 
+  * __outdir__: Where to create the output, defaults to _'dist.platforms'_. 
+  * __ignorelibs__: Plugin libraries to ignore, defaults to _['*video*']_.
 
-## A word from a sponsor ##
 
-YourKit has kindly granted me a license to use their excellent Java profiler.
-I'm happy to give them the space to say:
+<br/>
+Along with the launcher the function __pwd()__ was introduced. For a given argument it resolves the path for an object relative to the currently running script. Very useful when loading bundled resourced in a wrapped / launched application.  
 
-> YourKit is kindly supporting open source projects with its full-featured Java Profiler.
-> YourKit, LLC is the creator of innovative and intelligent tools for profiling
-> Java and .NET applications. Take a look at YourKit's leading software products:
-> [YourKit Java Profiler](http://www.yourkit.com/java/profiler/index.jsp) and
-> [YourKit .NET Profiler](http://www.yourkit.com/.net/profiler/index.jsp).
+<br/>
+The Java class __jycessing.primitives.PrimitiveFloat__ was added as a convenience class for mutable float objects (exposes the field __value__). Comes in handy when using libraries such as [Ani](http://www.looksgood.de/libraries/Ani/), who want to modify Java fields directly.
+
+
+## Credits ##
+
+Written by [Jonathan Feinberg](http://mrfeinberg.com) &lt;[jdf@pobox.com](mailto:jdf@pobox.com)&gt;   
+Launcher & adjustments [Ralf Biedert](http://xr.io) &lt;[rb@xr.io](mailto:rb@xr.io)&gt;  
+
+This is a slightly enhanced clone from [Jonathan's repository](https://github.com/jdf/processing.py). Differences between this and the upstream version (as of 2013/03/31):
+  * Uses jython 2.7 (instead of 2.5)
+  * Supports fullscreen mode
+  * Creates launchers for Windows and Mac
+  * Better support for frameworks such as [Ani](http://www.looksgood.de/libraries/Ani/)
+  
+
