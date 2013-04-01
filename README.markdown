@@ -1,6 +1,6 @@
 # processing.py #
 
-Write [Processing](http://processing.org) sketches in Python. 
+Write Processing sketches in Python. 
 
   * Based on [Processing 2.0](http://processing.org/), runtime compatible with most [3rd party libraries](http://www.processing.org/reference/libraries/).
   * Source compatible with [Python 2.7.3](http://python.org).
@@ -60,7 +60,7 @@ As always, on Windows use `processing-py.bat` instead, on Mac the `processing-py
 
 ## FAQ ##
 
-  * __Can I use all of the existing [Processing libraries](http://processing.org/reference/libraries/)?__
+  * __Can I use all of the existing Processing libraries?__
 
 
   Yes! Processing.py is implemented in Java, and is meant to be compatible with the whole existing ecosystem of [Processing libraries](http://processing.org/reference/libraries/). 
