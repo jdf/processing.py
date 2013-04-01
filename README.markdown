@@ -2,11 +2,12 @@
 
 Write [Processing](http://processing.org) sketches in Python. 
 
-  * Supports [Processing 2.0 functions](http://processing.org/reference/) as well as its third party libraries.
-  * The [Python 2.7.3 library](http://docs.python.org/2/library/).
-  * And of course the [Java 6.x / 7.x library](http://docs.oracle.com/javase/6/docs/api/).
+  * Based on [Processing 2.0](http://processing.org/), runtime compatible with most [3rd party libraries](http://www.processing.org/reference/libraries/).
+  * Source compatible with [Python 2.7.3](http://python.org).
 
 Tested on Mac OS 10.8.3, Windows XP and Ubuntu 12.10.
+
+
 
 ## Quick Start ##
 
@@ -15,7 +16,7 @@ Download __[Processing.py All-inclusive](http://s.xr.io/processing.py/latest.zip
 Download [Processing.py without JRE](http://s.xr.io/processing.py/latest.nojre.zip)  (Windows, Mac & Linux, ~70mb.).
 
 
-Then, paste this code into a file, e.g., __mysketch.py__.
+Then, paste this code into a file, e.g., `mysketch.py`.
 
 	def setup():
 	    size(600, 400, P3D)
@@ -28,61 +29,132 @@ Eventually, you can run the code by drag-dropping your sketch onto one of these 
 
 <img src="http://s.xr.io/processing.py/howtolaunch.jpg"/>
 
-If that does not work for one of your platforms (such as Linux), you can run the sketch either semi-manually or fully by hand:
+If that does not work for one of your platforms (such as Linux), you can run the sketch either semi-manually (with automated JRE detection) ...
     
-    $ ./processing-py.sh mysketch.py  (semi manually w. automated JRE detection)
-	$ java -jar processing-py.jar mysketch.py  (manual)
+    $ ./processing-py.sh mysketch.py
+
+... or fully by hand.
+
+	$ java -jar processing-py.jar mysketch.py
+
+
 
 ## Documentation ##
 
-See the official [Processing Reference](http://processing.org/reference/) for core drawing / interaction functions. For a more advanced example, see the code below:
+To learn Processing.py check out these resources:
 
 
-
-	import jycessing.primitives.PrimitiveFloat as PF
-	import launcher
-
-	# Create a launcher (for options see below)
-	launcher.create(bundle=['*.txt'])
-
-	# Read some data 
-	datafile = pwd('data.txt')
-	data = open(datafile, 'r').readlines()
-
-	# Create a primitive float
-	pf = PF(10.0)
-
-	def setup():	
-		size(640, 480, P3D)	
-		frame.setTitle("Test Application");
-		
-	def draw():
-		background(0)
-		ellipse(mouseX, mouseY, pf.value, pf.value)
+  * Built-in [Processing 2.0 functions](http://processing.org/reference/) for rendering and interaction.
+  * The [Python 2.7.3 library](http://docs.python.org/2/index.html).
+  * And of course the [Java 6.x / 7.x library](http://docs.oracle.com/javase/6/docs/api/).
 
 
+In addition, we are a great fan of learning by doing, and a number of converted examples outline how to use Processing.py:
 
-<br/>
-In this example there are a few things to note. First, you can create a launcher for your application by performing 
+    $ processing-py.sh examples.py/Basics/Math/noisefield.py
+    $ processing-py.sh examples.py/Library/OpenGL/SpaceJunk.py
+    $ processing-py.sh examples.py/3D/Typography/KineticType.py
+    $ processing-py.sh examples.py/3D/Textures/TextureCube.py    
+ 
+As always, on Windows use `processing-py.bat` instead, on Mac the `processing-py` app, or simply drag-drop the example on the launcher / batch. 
 
-	import launcher
-	launcher.create()
+## FAQ ##
 
-
-Supported arguments to the call are:
-
-  * __name__: The final name of the application, defaults to _'Launcher'_.
-  * __bundle__: Set of string-patterns to bundle with your application, defaults to _[]_.
-  * __platforms__: Create launchers for these platforms, defaults to _['mac', 'win']_. 
-  * __outdir__: Where to create the output, defaults to _'dist.platforms'_. 
-  * __ignorelibs__: Plugin libraries to ignore, defaults to _['*video*']_.
+  * __Can I use all of the existing [Processing libraries](http://processing.org/reference/libraries/)?__
 
 
-<br/>
-Along with the launcher the function __pwd()__ was introduced. For a given argument it resolves the path for an object relative to the currently running script. Very useful when loading bundled resourced in a wrapped / launched application.  
+  Yes! Processing.py is implemented in Java, and is meant to be compatible with the whole existing ecosystem of [Processing libraries](http://processing.org/reference/libraries/). 
 
-<br/>
-The Java class __jycessing.primitives.PrimitiveFloat__ was added as a convenience class for mutable float objects (exposes the field __value__). Comes in handy when using libraries such as [Ani](http://www.looksgood.de/libraries/Ani/), who want to modify Java fields directly.
+    * Put processing extension libraries in the `libraries` subdirectory of your processing.py installation.
+
+    * Import them in on of the usual Python ways, as in these snippets:
+
+
+            from peasy import PeasyCam # or
+            import peasy.PeasyCam      # or 
+            import peasy.PeasyCam as PeasyCam       
+
+        Unfortunately, `from foo import *` is not supported.            
+
+    * In your `setup()` method
+
+            cam = PeasyCam(this, 200)
+
+        
+        Use `this` to refer to the PApplet you're in, as in the examples above.
+        Many libraries need a reference to "the current PApplet", and that's what
+        `this` is for.
+
+
+  * __How can I create a wrapper?__
+  
+    Add these lines near the top of your script:
+
+        import launcher
+        launcher.create()
+
+  * __How should I load data?__        
+
+    [Tentative] Along with the launcher, consider using `pwd()` for file paths. For a given argument it resolves the path for an object relative to the currently running script:
+
+        data = load(pwd("data.txt"))
+
+    In that case, processing.py will try to search `data.txt` always where your script resides.
+
+
+  * __How can I use Ani, or any other library that modifies fields?__
+  
+    Some libraries such as [Ani](http://www.looksgood.de/libraries/Ani/) require you to specify a variable name for animation. Unfortunately they cannot access Python variables directly (and Java's built in classes are immutable).
+    
+    To solve this problem we instead create a mutable `PrimitiveFloat` object. This object has a field `.value`, which you can use for these purposes.
+
+        import jycessing.primitives.PrimitiveFloat as Float
+        x = Float(100.0)
+        Ani.to(x, 200, "value", 50);  # "value" is the name of the Float's internal field
+
+
+    In case you need other primitive values, please [let us know](http://github.com/jdf/processing.py/issues)!
+
+  * __I found a bug, what should I do?__
+  
+    Please report any issue in the [bug tracker](http://github.com/jdf/processing.py/issues).
+
+
+  * __Why was this project created?__
+
+
+    I (Jonathan) recently gave a talk about Processing to a group of rather bright 8th-graders,
+    as part of a computer-programming summer camp they were attending at my office.
+    Their curriculum up to that point had been in Python, which is an eminently
+    sensible choice, given the
+    [pedagogical roots](http://en.wikipedia.org/wiki/ABC_%28programming_language%29)
+    of the language.
+
+    The kids were really turned on by the demos--I showed them the
+    [white glove](http://whiteglovetracking.com/), and
+    [Golan Levin](http://flong.com/)'s
+    [New Year's cards](http://www.flong.com/storage/experience/newyear/newyear10/)--but
+    they were bogged down by Processing's C-like syntax, which really seems arcane
+    and unnecessarily complex when you're used to Python.
+
+    I shared my experience with Processing creators
+    [Ben Fry](http://benfry.com/) and [Casey Reas](http://reas.com/), and they
+    told me that, indeed, the original Processing was a fork of
+    ["Design By Numbers"](http://dbn.media.mit.edu/), with Python and Scheme
+    support hacked in. Support for a multi-lingual programming
+    environment was always part of the plan, so they were enthusiastic
+    about any new attempt at the problem.
+
+    I was able to hack up a proof of concept in a couple of hours, and have
+    managed to create something worth sharing in a couple of weeks. I was only
+    able to do it at all thanks to the brilliant and beautiful
+    [Jython](http://www.jython.org/) project.
+
+    At the time of Processing's first public release, August of 2001,
+    Jython was too young a project to be used in this way. But now, having done
+    absolutely no work to profile and optimize, I can get hundreds of frames
+    per second of 3D graphics on my linux box. So, kudos to the Processing
+    project, and kudos to Jython!
 
 
 ## Credits ##
@@ -90,11 +162,5 @@ The Java class __jycessing.primitives.PrimitiveFloat__ was added as a convenienc
 Written by [Jonathan Feinberg](http://mrfeinberg.com) &lt;[jdf@pobox.com](mailto:jdf@pobox.com)&gt;   
 Launcher & adjustments [Ralf Biedert](http://xr.io) &lt;[rb@xr.io](mailto:rb@xr.io)&gt;  
 
-This is a slightly enhanced clone from [Jonathan's repository](https://github.com/jdf/processing.py). Differences between this and the upstream version (as of 2013/03/31):
-  * Uses jython 2.7 (instead of 2.5)
-  * Supports fullscreen mode
-  * Debug launchers running on Windows, Mac and Linux w. splash screen and input redirection
-  * Creates wrappers for Windows and Mac
-  * Better support for frameworks such as [Ani](http://www.looksgood.de/libraries/Ani/)
-  
+Also, [YourKit, LLC](http://www.yourkit.com) was so kind to sponsor a license for their excellent [YourKit Java Profiler](http://www.yourkit.com/java/profiler/index.jsp). Thank you very much!
 
