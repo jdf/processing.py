@@ -53,7 +53,7 @@ public class JycessingTests {
 
   @Test
   public void set_builtins() throws Exception {
-    assertEquals("128\nset(['banana'])\nissubclass: True\nset(['baz'])\n", run("set"));
+    assertEquals("128\nset(['banana'])\nissubclass: True\nMySet(['baz'])\n", run("set"));
   }
 
   @Test
