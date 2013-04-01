@@ -116,6 +116,11 @@ public class JycessingTests {
     assertEquals("66.7\n", run("primitives"));
   }
 
+  @Test
+  public void launcher() throws Exception {
+    assertEquals("CMLx\n", run("launcher"));
+  }
+
   public static void main(final String[] args) {
     JUnitCore.runClasses(JycessingTests.class);
   }
