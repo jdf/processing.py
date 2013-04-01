@@ -51,6 +51,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
 
+import jycessing.annotations.PythonUsage;
 import jycessing.launcher.LaunchHelper;
 
 public class Runner {
@@ -214,10 +215,13 @@ public class Runner {
   }
 
   /**
-   * Returns the path of the main processing-py.jar file. 
+   * Returns the path of the main processing-py.jar file.
+   * 
+   * Used from launcher.py
    * 
    * @return
    */
+  @PythonUsage(methodName = "getMainJarFile")
   public static File getMainJarFile() {
     // On a Mac, when launched as an app, this will contain ".app/Contents/Java/processing-py.jar"
     try {
@@ -234,7 +238,7 @@ public class Runner {
    * 
    * @return
    */
-  public static File getRoot() {
+  public static File getRuntimeRoot() {
     final File jar = getMainJarFile();
 
     // If we are on a mac
@@ -253,14 +257,38 @@ public class Runner {
    * @throws Exception
    */
   public static void runFromCommandLineArguments(final String[] args) throws Exception {
-    // Debug when using launcher
-    if (Arrays.asList(args).contains("--redirect")) {
-      System.setOut(new PrintStream(new FileOutputStream("output.txt")));
-      System.setErr(new PrintStream(new FileOutputStream("error.txt")));
-    }
 
+    // In case we have no args, throw Exception. Also, since we don't know which script 
+    // to run, we cannot redirect our input at this point. 
     if (args.length < 1) {
       throw new RuntimeException("I need the path of your Python script as an argument.");
+    }
+
+    // The last argument is the path to the Python sketch
+    String sketchPath = args[args.length - 1];
+
+    // In case the sketch path points to "internal" we get it from the wrapper
+    if (Arrays.asList(args).contains("--internal")) {
+      sketchPath = new File(getRuntimeRoot(), "Runtime/sketch.py").getAbsolutePath();
+    }
+
+    // Sanity check in case parameter order is wrong
+    if (sketchPath.startsWith("--")) {
+      throw new RuntimeException("The last parameter MUST be the script to execute, not an option!");
+    }
+
+    // Debug when using launcher
+    if (Arrays.asList(args).contains("--redirect")) {
+
+      // Get sketch path, name, out and err names
+      final File file = new File(sketchPath).getCanonicalFile();
+      final String name = file.getName().replaceAll("\\.py", "");
+      final String out = file.getParent() + "/" + name + ".out.txt";
+      final String err = file.getParent() + "/" + name + ".err.txt";
+
+      // Redirect actual input
+      System.setOut(new PrintStream(new FileOutputStream(out)));
+      System.setErr(new PrintStream(new FileOutputStream(err)));
     }
 
     // -Dverbose=true for some logging
@@ -269,14 +297,6 @@ public class Runner {
     final Properties buildnum = new Properties();
     buildnum.load(Runner.class.getResourceAsStream("buildnumber.properties"));
     log("processing.py build ", buildnum.getProperty("buildnumber"));
-
-    // The last argument is the path to the Python sketch
-    String sketchPath = args[args.length - 1];
-
-    // In case the sketch path points to "internal" we get it from the wrapper
-    if (Arrays.asList(args).contains("--internal")) {
-      sketchPath = new File(getRoot(), "Runtime/sketch.py").getAbsolutePath();
-    }
 
     // This will throw an exception and die if the given file is not there
     // or not readable.
@@ -290,6 +310,14 @@ public class Runner {
   private static final Pattern FILE_RESOURCE = Pattern
       .compile("file:(.+?)/bin/jycessing/buildnumber.properties");
 
+  /**
+   * Returns the library dir.
+   * 
+   * Used from launcher.py
+   * 
+   * @return
+   */
+  @PythonUsage(methodName = "getLibrariesDir")
   public static File getLibrariesDir() {
     String propsResource;
     try {
