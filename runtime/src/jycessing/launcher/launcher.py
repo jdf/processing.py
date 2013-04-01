@@ -1,20 +1,6 @@
 import sys
 
 
-def __copyeverything(src, dst):
-    """The Machine That Copies EVERYTHING.
-    https://www.youtube.com/watch?v=ibEdgQJEdTA
-    """
-    import shutil, errno
-
-    try:
-        shutil.copytree(src, dst)
-    except OSError as exc:
-        if exc.errno == errno.ENOTDIR:
-            shutil.copy(src, dst)
-        else: raise
-
-
 # Our virtual "launcher" name space 
 class __launcher(object):
     @staticmethod
@@ -47,6 +33,19 @@ class __launcher(object):
         except: pass
 
 
+        def copyeverything(src, dst):
+            """The Machine That Copies EVERYTHING.
+            https://www.youtube.com/watch?v=ibEdgQJEdTA
+            """
+            import shutil, errno
+        
+            try:
+                shutil.copytree(src, dst)
+            except OSError as exc:
+                if exc.errno == errno.ENOTDIR:
+                    shutil.copy(src, dst)
+                else: raise
+
         def copyjars(root):
             """Copy jars & co"""
             _mainjar = Runner.getMainJarFile()
@@ -67,7 +66,7 @@ class __launcher(object):
             # Copy bundled files
             for data in bundle:
                 for f in list(glob.iglob(mainroot + "/" + data)):
-                    __copyeverything(f, runtimedir + "/" + f.replace(mainroot, ""))
+                    copyeverything(f, runtimedir + "/" + f.replace(mainroot, ""))
 
 
             # Eventually copy the main file
