@@ -111,6 +111,11 @@ public class JycessingTests {
     assertEquals("OK\n", run("unicode"));
   }
 
+  @Test
+  public void primitives() throws Exception {
+    assertEquals("66.7\n", run("primitives"));
+  }
+
   public static void main(final String[] args) {
     JUnitCore.runClasses(JycessingTests.class);
   }
