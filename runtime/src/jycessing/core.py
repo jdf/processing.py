@@ -74,3 +74,12 @@ def __mul__(a, b):
     if isinstance(b, RealPVector):
         raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
     return PVector(a.x * b, a.y * b, a.z * b)
+
+
+
+# Extra helper functions go here 
+def pwd(name = ""):
+    """Returns the script's path, or the path for some data close to the script."""
+    import java.lang.System as System
+    return System.getProperty("python.main.root") + "/" + name
+    

@@ -17,3 +17,8 @@ zamples
 libraries/GSVideo
 test.py
 */.DS_Store
+.DS_Store
+runtime/src/.DS_Store
+__pycache__
+dist.platforms
+JREs/jre7.*
