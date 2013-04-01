@@ -75,6 +75,8 @@ def __mul__(a, b):
         raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
     return PVector(a.x * b, a.y * b, a.z * b)
 
+
+
 # Extra helper functions go here 
 def pwd(name = ""):
     """Returns the script's path, or the path for some data close to the script."""
