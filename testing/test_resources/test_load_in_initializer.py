@@ -3,7 +3,7 @@
 
 __author__="max.franks"
 
-font = loadFont("Cabal1-48.vlw")
+font = loadFont(pwd("data/Cabal1-48.vlw"))
 
 def setup():
     size(10, 10, P3D)
