@@ -4,11 +4,13 @@
 """
 srcSize = 50
 destSize = 400
-g = createGraphics(srcSize, srcSize, JAVA2D)
+g = None
 
 def setup():
-    size(destSize, destSize, OPENGL)
-
+    global g
+    size(destSize, destSize, P3D)
+    g = createGraphics(srcSize, srcSize, JAVA2D)
+    
 def draw():
     t = .0005 * millis()
     g.beginDraw()

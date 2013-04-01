@@ -23,28 +23,36 @@ import org.python.util.PythonInterpreter;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
+import java.awt.SplashScreen;
 import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
+
+import jycessing.annotations.PythonUsage;
+import jycessing.launcher.LaunchHelper;
 
 public class Runner {
 
@@ -207,14 +215,80 @@ public class Runner {
   }
 
   /**
+   * Returns the path of the main processing-py.jar file.
+   * 
+   * Used from launcher.py
+   * 
+   * @return
+   */
+  @PythonUsage(methodName = "getMainJarFile")
+  public static File getMainJarFile() {
+    // On a Mac, when launched as an app, this will contain ".app/Contents/Java/processing-py.jar"
+    try {
+      return new File(Runner.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  /**
+   * Returns the 'root' folder of this instance. Used when running with a
+   * wrapper.
+   * 
+   * @return
+   */
+  public static File getRuntimeRoot() {
+    final File jar = getMainJarFile();
+
+    // If we are on a mac
+    if (jar.getAbsolutePath().contains(".app/Contents/")) {
+      return getMainJarFile().getParentFile().getParentFile();
+    }
+
+    // If we are on Windows 
+    return getMainJarFile().getParentFile();
+  }
+
+  /**
    * @param args
    * @throws IOException
    * @throws FileNotFoundException
    * @throws Exception
    */
   public static void runFromCommandLineArguments(final String[] args) throws Exception {
+
+    // In case we have no args, throw Exception. Also, since we don't know which script 
+    // to run, we cannot redirect our input at this point. 
     if (args.length < 1) {
       throw new RuntimeException("I need the path of your Python script as an argument.");
+    }
+
+    // The last argument is the path to the Python sketch
+    String sketchPath = args[args.length - 1];
+
+    // In case the sketch path points to "internal" we get it from the wrapper
+    if (Arrays.asList(args).contains("--internal")) {
+      sketchPath = new File(getRuntimeRoot(), "Runtime/sketch.py").getAbsolutePath();
+    }
+
+    // Sanity check in case parameter order is wrong
+    if (sketchPath.startsWith("--")) {
+      throw new RuntimeException("The last parameter MUST be the script to execute, not an option!");
+    }
+
+    // Debug when using launcher
+    if (Arrays.asList(args).contains("--redirect")) {
+
+      // Get sketch path, name, out and err names
+      final File file = new File(sketchPath).getCanonicalFile();
+      final String name = file.getName().replaceAll("\\.py", "");
+      final String out = file.getParent() + "/" + name + ".out.txt";
+      final String err = file.getParent() + "/" + name + ".err.txt";
+
+      // Redirect actual input
+      System.setOut(new PrintStream(new FileOutputStream(out)));
+      System.setErr(new PrintStream(new FileOutputStream(err)));
     }
 
     // -Dverbose=true for some logging
@@ -224,14 +298,11 @@ public class Runner {
     buildnum.load(Runner.class.getResourceAsStream("buildnumber.properties"));
     log("processing.py build ", buildnum.getProperty("buildnumber"));
 
-    // The last argument is the path to the Python sketch
-    final String sketchPath = args[args.length - 1];
-
     // This will throw an exception and die if the given file is not there
     // or not readable.
     final String sketchSource = read(new FileReader(sketchPath));
-
     runSketch(args, sketchPath, sketchSource);
+
   }
 
   private static final Pattern JAR_RESOURCE = Pattern
@@ -239,7 +310,15 @@ public class Runner {
   private static final Pattern FILE_RESOURCE = Pattern
       .compile("file:(.+?)/bin/jycessing/buildnumber.properties");
 
-  private static File getLibrariesDir() {
+  /**
+   * Returns the library dir.
+   * 
+   * Used from launcher.py
+   * 
+   * @return
+   */
+  @PythonUsage(methodName = "getLibrariesDir")
+  public static File getLibrariesDir() {
     String propsResource;
     try {
       propsResource =
@@ -247,6 +326,7 @@ public class Runner {
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException("Impossible: " + e);
     }
+
     {
       final Matcher m = JAR_RESOURCE.matcher(propsResource);
       if (m.matches()) {
@@ -276,14 +356,19 @@ public class Runner {
     // file:/opt/feinberg/processing.py/bin/jycessing/buildnumber.properties
 
     final File libraries = getLibrariesDir();
+
     searchForExtraStuff(libraries);
 
     // Where is the sketch located?
     final String sketchDir = new File(sketchPath).getCanonicalFile().getParent();
-
     final Properties props = new Properties();
+
     props.setProperty("python.path", libraries.getAbsolutePath() + File.pathSeparator + sketchDir);
-    PythonInterpreter.initialize(null, props, new String[] { "" });
+    props.setProperty("python.main", new File(sketchPath).getCanonicalFile().getAbsolutePath());
+    props.setProperty("python.main.root", new File(sketchPath).getCanonicalFile().getParentFile()
+        .getAbsolutePath());
+
+    PythonInterpreter.initialize(null, props, args);
 
     Py.initPython();
     final InteractiveConsole interp = new InteractiveConsole();
@@ -303,8 +388,16 @@ public class Runner {
     interp.set("__file__", sketchPath);
 
     interp.exec(read(Runner.class.getResourceAsStream("core.py")));
+    interp.exec(read(LaunchHelper.class.getResourceAsStream("launcher.py")));
+
     // Bind the sketch to a PApplet
     final PAppletJythonDriver applet = new DriverImpl(interp, sketchPath, sketchSource);
+
+    // Hide the splash, if possible 
+    final SplashScreen splash = SplashScreen.getSplashScreen();
+    if (splash != null) {
+      splash.close();
+    }
 
     try {
       PApplet.runSketch(args, applet);

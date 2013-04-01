@@ -73,7 +73,7 @@ abstract public class PAppletJythonDriver extends PApplet {
   // you have implemented a method, we save it and call it.
   private final PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
       mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth, initMeth,
-      stopMeth;
+      stopMeth, sketchFullScreenMeth;
 
   // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
   // the source file name, so that errors have the file name instead of
@@ -138,6 +138,7 @@ abstract public class PAppletJythonDriver extends PApplet {
     keyPressedMeth = interp.get("keyPressed");
     keyReleasedMeth = interp.get("keyReleased");
     keyTypedMeth = interp.get("keyTyped");
+    sketchFullScreenMeth = interp.get("sketchFullScreen");
     initMeth = interp.get("init");
     stopMeth = interp.get("stop");
     addComponentListener(new ComponentAdapter() {
@@ -184,14 +185,14 @@ abstract public class PAppletJythonDriver extends PApplet {
    * set.
    */
   private void setSet() {
-    builtins.__setitem__("set", new PyJavaType() {
+    builtins.__setitem__("set", new PyType(PyType.TYPE) {
       {
         builtin = true;
         init(PySet.class, new HashSet<PyJavaType>());
         invalidateMethodCache();
       }
 
-      @Override
+      //@Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
         switch (args.length) {
           default:
@@ -308,6 +309,18 @@ abstract public class PAppletJythonDriver extends PApplet {
       mouseClickedMeth.__call__();
     }
   }
+
+  @Override
+  public boolean sketchFullScreen() {
+    if (sketchFullScreenMeth == null) {
+      return super.sketchFullScreen();
+    } else {
+      // Put all of PApplet's globals into the Python context
+      setFields();
+      return sketchFullScreenMeth.__call__().__nonzero__();
+    }
+  }
+
 
   @Override
   public void mousePressed() {
