@@ -71,9 +71,22 @@ fi
 ####
 if [ $# -eq 0 ]; then
     DEFAULT_SCRIPT="$BASEDIR/$DEFAULT_SCRIPT"
-    echo "No script supplied, running default."
+
+    if [ ! -f "$DEFAULT_SCRIPT" ];
+    then
+        echo "No script given and no default script present. Doing nothing."
+        exit
+    else
+        echo "No script supplied, running default."
+    fi    
 else 
     DEFAULT_SCRIPT=$1
+
+    if [ ! -f "$DEFAULT_SCRIPT" ];
+    then
+        echo "The script you supplied does not exist. Doing nothing."
+        exit
+    fi    
 fi 
 
 
