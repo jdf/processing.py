@@ -73,7 +73,7 @@ abstract public class PAppletJythonDriver extends PApplet {
   // you have implemented a method, we save it and call it.
   private final PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
       mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth, initMeth,
-      stopMeth, sketchFullScreenMeth;
+      stopMeth, sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
 
   // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
   // the source file name, so that errors have the file name instead of
@@ -139,6 +139,9 @@ abstract public class PAppletJythonDriver extends PApplet {
     keyReleasedMeth = interp.get("keyReleased");
     keyTypedMeth = interp.get("keyTyped");
     sketchFullScreenMeth = interp.get("sketchFullScreen");
+    sketchWidthMeth = interp.get("sketchWidth");
+    sketchHeightMeth = interp.get("sketchHeight");
+    sketchRendererMeth = interp.get("sketchRenderer");
     initMeth = interp.get("init");
     stopMeth = interp.get("stop");
     addComponentListener(new ComponentAdapter() {
@@ -321,6 +324,38 @@ abstract public class PAppletJythonDriver extends PApplet {
     }
   }
 
+  @Override
+  public int sketchWidth() {
+    if (sketchWidthMeth == null) {
+      return super.sketchWidth();
+    } else {
+      // Put all of PApplet's globals into the Python context
+      setFields();
+      return sketchWidthMeth.__call__().asInt();
+    }
+  }
+
+  @Override
+  public String sketchRenderer() {
+    if (sketchRendererMeth == null) {
+      return super.sketchRenderer();
+    } else {
+      // Put all of PApplet's globals into the Python context
+      setFields();
+      return sketchRendererMeth.__call__().asString();
+    }
+  }
+
+  @Override
+  public int sketchHeight() {
+    if (sketchHeightMeth == null) {
+      return super.sketchWidth();
+    } else {
+      // Put all of PApplet's globals into the Python context
+      setFields();
+      return sketchHeightMeth.__call__().asInt();
+    }
+  }
 
   @Override
   public void mousePressed() {
