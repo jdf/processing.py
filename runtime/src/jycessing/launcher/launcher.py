@@ -78,22 +78,23 @@ class __launcher(object):
         for platform in platforms: 
 
             pdir = outdir + "/" + platform
+            tmpfile = pdir + ".zip"
 
             os.mkdir(pdir)
 
             # Copy archive
-            LaunchHelper.copyTo("launcher." + platform + ".zip", pdir + ".zip")
+            LaunchHelper.copyTo("launcher." + platform + ".zip", tmpfile)
             
             # Unzip
-            z = zipfile.ZipFile(pdir + ".zip", "r")
+            z = zipfile.ZipFile(tmpfile, "r")
             z.extractall(pdir)
             z.close()
 
             # Try to remove the platform file we created
             try:
-                os.remove(pdir + ".zip")
+                os.remove(tmpfile)
             except Exception, e:
-                print("Could not remove temporary file we used for creating the launcher. Strange. Please report " ,e)
+                print("Could not remove %s we used for creating the launcher. Please report." % tmpfile, e)
             
 
 
