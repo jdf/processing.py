@@ -71,7 +71,7 @@ abstract public class PAppletJythonDriver extends PApplet {
 
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
-  private final PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
+  private final PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth, mouseMovedMeth,
       mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth, initMeth,
       stopMeth, sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
 
@@ -133,6 +133,7 @@ abstract public class PAppletJythonDriver extends PApplet {
     setupMeth = interp.get("setup");
     mousePressedMeth = interp.get("mousePressed");
     mouseClickedMeth = interp.get("mouseClicked");
+    mouseMovedMeth = interp.get("mouseMoved");
     mouseReleasedMeth = interp.get("mouseReleased");
     mouseDraggedMeth = interp.get("mouseDragged");
     keyPressedMeth = interp.get("keyPressed");
@@ -196,6 +197,7 @@ abstract public class PAppletJythonDriver extends PApplet {
       }
 
       //@Override
+      @Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
         switch (args.length) {
           default:
@@ -310,6 +312,17 @@ abstract public class PAppletJythonDriver extends PApplet {
       // Put all of PApplet's globals into the Python context
       setFields();
       mouseClickedMeth.__call__();
+    }
+  }
+
+  @Override
+  public void mouseMoved() {
+    if (mouseMovedMeth == null) {
+      super.mouseMoved();
+    } else {
+      // Put all of PApplet's globals into the Python context
+      setFields();
+      mouseMovedMeth.__call__();
     }
   }
 
