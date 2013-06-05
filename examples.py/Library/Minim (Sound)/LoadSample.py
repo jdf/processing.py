@@ -37,7 +37,7 @@
 from ddf.minim import Minim
 
 def setup():
-    size(512, 200, P2D)
+    size(512, 200)
     # always start Minim before you do anything with it
     global minim
     minim = Minim(this)

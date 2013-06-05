@@ -20,8 +20,8 @@ blogDy = [1, 1, 1]
 pg = None 
 def setup():
     global pg
-    size(640, 360, OPENGL)
-    pg = createGraphics(160, 90, P2D)
+    size(640, 360)
+    pg = createGraphics(160, 90)
 
     frame.setTitle("Processing.py")
 

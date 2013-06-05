@@ -19,7 +19,7 @@ Download [Processing.py without JRE](http://s.xr.io/processing.py/latest.nojre.z
 Then, paste this code into a file, e.g., `mysketch.py`.
 
 	def setup():
-	    size(600, 400, P3D)
+	    size(600, 400)
 	
 	def draw():	   
 	    ellipse(mouseX, mouseY, 10, 10)

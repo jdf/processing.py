@@ -121,6 +121,11 @@ public class JycessingTests {
     assertEquals("CMLx\n", run("launcher"));
   }
 
+  @Test
+  public void millis() throws Exception {
+    assertEquals("True\n", run("millis"));
+  }
+
   public static void main(final String[] args) {
     JUnitCore.runClasses(JycessingTests.class);
   }
