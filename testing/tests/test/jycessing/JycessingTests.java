@@ -126,6 +126,16 @@ public class JycessingTests {
     assertEquals("True\n", run("millis"));
   }
 
+  @Test
+  public void imports() throws Exception {
+    assertEquals("OK!\n", run("import"));
+  }
+
+  @Test
+  public void pvector_import() throws Exception {
+    assertEquals("OK!\n", run("pvector_in_imported_module"));
+  }
+
   public static void main(final String[] args) {
     JUnitCore.runClasses(JycessingTests.class);
   }

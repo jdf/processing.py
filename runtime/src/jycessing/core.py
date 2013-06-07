@@ -1,19 +1,5 @@
-from processing.core import PApplet
-from processing.core import PConstants
-from processing.core import PFont
-from processing.core import PGraphics
-from processing.opengl import PGraphics2D
-from processing.opengl import PGraphics3D
-from processing.core import PGraphicsJava2D
-from processing.opengl import PGraphicsOpenGL
-from processing.core import PImage
-from processing.core import PMatrix
-from processing.core import PMatrix2D
-from processing.core import PMatrix3D
-from processing.opengl import PShader
-from processing.core import PShape
-from processing.core import PShapeSVG
-from processing.core import PStyle
+import __builtin__
+
 from processing.core import PVector as RealPVector
 
 # Thanks, Guido!
@@ -75,11 +61,11 @@ def __mul__(a, b):
         raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
     return PVector(a.x * b, a.y * b, a.z * b)
 
-
+__builtin__.PVector = PVector
 
 # Extra helper functions go here 
 def pwd(name = ""):
     """Returns the script's path, or the path for some data close to the script."""
     import java.lang.System as System
     return System.getProperty("python.main.root") + "/" + name
-    
+__builtin__.pwd = pwd

@@ -1,0 +1,2 @@
+def sayok():
+    print("OK!")

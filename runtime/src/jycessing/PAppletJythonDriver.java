@@ -30,7 +30,19 @@ import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PFont;
+import processing.core.PGraphics;
+import processing.core.PGraphicsJava2D;
 import processing.core.PImage;
+import processing.core.PMatrix2D;
+import processing.core.PMatrix3D;
+import processing.core.PShape;
+import processing.core.PShapeSVG;
+import processing.core.PStyle;
+import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphics3D;
+import processing.opengl.PGraphicsOpenGL;
+import processing.opengl.PShader;
 
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -120,6 +132,21 @@ abstract public class PAppletJythonDriver extends PApplet {
         return Py.None;
       }
     });
+    builtins.__setitem__("PApplet", Py.java2py(PApplet.class));
+    builtins.__setitem__("PConstants", Py.java2py(PConstants.class));
+    builtins.__setitem__("PFont", Py.java2py(PFont.class));
+    builtins.__setitem__("PGraphics", Py.java2py(PGraphics.class));
+    builtins.__setitem__("PGraphics2D", Py.java2py(PGraphics2D.class));
+    builtins.__setitem__("PGraphics3D", Py.java2py(PGraphics3D.class));
+    builtins.__setitem__("PGraphicsJava2D", Py.java2py(PGraphicsJava2D.class));
+    builtins.__setitem__("PGraphicsOpenGL", Py.java2py(PGraphicsOpenGL.class));
+    builtins.__setitem__("PImage", Py.java2py(PImage.class));
+    builtins.__setitem__("PMatrix2D", Py.java2py(PMatrix2D.class));
+    builtins.__setitem__("PMatrix3D", Py.java2py(PMatrix3D.class));
+    builtins.__setitem__("PShader", Py.java2py(PShader.class));
+    builtins.__setitem__("PShape", Py.java2py(PShape.class));
+    builtins.__setitem__("PShapeSVG", Py.java2py(PShapeSVG.class));
+    builtins.__setitem__("PStyle", Py.java2py(PStyle.class));
 
     if (!isStaticMode) {
       // Executing the sketch will bind method names ("draw") to PyCode
