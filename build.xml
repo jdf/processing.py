@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- ====================================================================== 
+<!-- ======================================================================
      Aug 8, 2010 10:37:58 AM
 
      processing.py
@@ -8,6 +8,11 @@
      jdf
      ====================================================================== -->
 <project name="processing.py" default="jar">
+
+  <property name="corejar" value="externals/processing/core/library/core.jar"/>
+  <property name="joglall" value="externals/processing/core/library/jogl-all.jar"/>
+  <property name="gluegenrt" value="externals/processing/core/library/gluegen-rt.jar"/>
+  <property name="jython" value="buildtime/lib/jython/jython.jar"/>
 
   <taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="buildtime/lib/java/appbundler-1.0.jar"/>
 
@@ -29,16 +34,29 @@
     </sequential>
   </macrodef>
 
-  <description>
-            Write processing sketches in Python
-  </description>
-  <!-- At the moment creating this launcher requires a few manual steps:
-		1) Run this target ("ant launcher.mac") 
-		2.1) Remove the content of the contained "Java" folder
-		2.2) Adjust the included Info.plist so our python code recognizes it (TODO!)
-		3) Zip the app folder
-		4) Place the zip into the runtime's deployment folder.  -->
+  <macrodef name="git">
+    <attribute name="command" />
+    <attribute name="dir" default="" />
+    <element name="args" optional="true" />
+    <sequential>
+      <echo message="git @{command}" />
+      <exec executable="git" dir="@{dir}">
+        <arg value="@{command}" />
+        <args/>
+      </exec>
+    </sequential>
+  </macrodef>
 
+  <description>Write Processing sketches in Python</description>
+
+  <!--
+    At the moment creating this launcher requires a few manual steps:
+      1) Run this target ("ant launcher.mac")
+      2.1) Remove the content of the contained "Java" folder
+      2.2) Adjust the included Info.plist so our python code recognizes it (TODO!)
+      3) Zip the app folder
+      4) Place the zip into the runtime's deployment folder.
+  -->
   <target name="launcher.mac">
     <mkdir dir="launcher.mac"/>
     <touch file="Info.plist"/>
@@ -68,9 +86,11 @@
     <!-- Only does something on MacOS / Linux -->
     <chmod file="dist/${dist}/processing-py.sh" perm="755"/>
     <chmod file="dist/${dist}/processing-py.app/Contents/MacOS/processing-py" perm="755"/>
-    <!-- I did mention already that Ant is an abomination? Anyway, here we have to check 
-		if zip is installed and use this instead of the internal zip. Otherwise the executable
-		flags will not be preserved. Oh, and thanks Ant for providing an integrated if/else task! -->
+    <!--
+      I did mention already that Ant is an abomination? Anyway, here we have to check
+      if zip is installed and use this instead of the internal zip. Otherwise the executable
+      flags will not be preserved. Oh, and thanks Ant for providing an integrated if/else task!
+    -->
     <if>
       <available file="/usr/bin/zip"/>
       <then>
@@ -87,25 +107,25 @@
     </if>
     <!-- Do we need this? -->
     <!--tar compression="gzip"
-		     basedir="dist"
-		     includes="${dist}/**"
-		     destfile="dist/${dist}.tgz" /-->
+         basedir="dist"
+         includes="${dist}/**"
+         destfile="dist/${dist}.tgz" /-->
   </target>
 
   <target name="jar" depends="build">
     <jar destfile="processing-py.jar">
       <fileset dir="bin" excludes="jycessing/build/**,test/**"/>
-      <zipgroupfileset file="buildtime/lib/jython/jython.jar"/>
-      <zipgroupfileset file="buildtime/lib/processing/core.jar"/>
+      <zipgroupfileset file="${jython}"/>
+      <zipgroupfileset file="${corejar}"/>
       <manifest>
         <attribute name="Main-Class" value="jycessing.Runner"/>
       </manifest>
     </jar>
   </target>
 
-  <target name="build" depends="generate-driver">
+  <target name="build" depends="generate-driver,build-processing">
     <mkdir dir="bin"/>
-    <javac classpath="buildtime/lib/jython/jython.jar:buildtime/lib/processing/core.jar" destdir="bin" includeantruntime="false">
+    <javac classpath="${jython}:${corejar}" destdir="bin" includeantruntime="false">
       <src path="runtime/src"/>
       <src path="runtime/generated"/>
     </javac>
@@ -117,9 +137,21 @@
     <chmod file="processing-py.app/Contents/MacOS/processing-py" perm="755"/>
   </target>
 
-  <target name="generate-driver" description="Generate DriverImpl class">
-    <java 
-        classpath="buildtime/lib/jython/jython.jar:buildtime/lib/processing/core.jar:libraries/processing/opengl/jogl-all.jar:libraries/processing/opengl/gluegen-rt.jar" classname="org.python.util.jython"
+  <target name="build-processing">
+    <echo message="Making sure processing submodule is up-to-date." />
+    <git command="submodule">
+      <args>
+        <arg value="update" />
+      </args>
+    </git>
+    <echo message="Building processing." />
+    <ant dir="externals/processing/build" target="build"/>
+  </target>
+
+  <target name="generate-driver" depends="build-processing" description="Generate DriverImpl class">
+    <java
+        classpath="${jython}:${corejar}:${joglall}:${gluegenrt}"
+        classname="org.python.util.jython"
         fork="true">
       <arg value="buildtime/py/cog.py"/>
       <arg value="-U"/>
@@ -130,6 +162,7 @@
   </target>
 
   <target name="clean">
+    <ant dir="externals/processing/build" target="clean"/>
     <delete dir="bin"/>
     <delete dir="dist"/>
     <delete file="runtime/generated/jycessing/DriverImpl.java"/>
