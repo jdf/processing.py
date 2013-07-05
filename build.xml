@@ -142,6 +142,8 @@
     <git command="submodule">
       <args>
         <arg value="update" />
+        <arg value="--init" />
+        <arg value="--recursive" />
       </args>
     </git>
     <echo message="Building processing." />
