@@ -17,10 +17,14 @@ blogPy = [0, 120, 45]
 blogDx = [1, 1, 1]
 blogDy = [1, 1, 1]
 
-pg = createGraphics(160, 90, P2D)
-
+pg = None 
 def setup():
-    size(640, 360, OPENGL)
+    global pg
+    size(640, 360)
+    pg = createGraphics(160, 90)
+
+    frame.setTitle("Processing.py")
+
 
 def draw():
     vx, vy = [], []

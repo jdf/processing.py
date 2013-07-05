@@ -8,9 +8,56 @@
      jdf
      ====================================================================== -->
 <project name="processing.py" default="jar">
+	<taskdef  name="bundleapp"  classname="com.oracle.appbundler.AppBundlerTask" classpath="buildtime/lib/java/appbundler-1.0.jar" />
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="buildtime/lib/java/ant-contrib.jar"/>
+
+	
+	<!-- Because Java's / Ant's zip task is crap and does not preserve file permissions ... --> 
+	<macrodef name="zipdir">
+	  	<attribute name="destfile"/>
+	  	<attribute name="sourcedir"/>
+		<attribute name="name"/>
+		<sequential>
+			<property name="absolute.destfile" location="@{destfile}"/>			
+			<exec executable="zip" dir="@{sourcedir}" 
+				failonerror="false" 
+				failifexecutionfails="false">
+			<arg value="-qr"/>
+			<arg value="${absolute.destfile}"/>
+			<arg value="@{name}/"/>
+			<arg value="-x *.svn* "/>	  	
+	  		</exec>
+		</sequential>
+	</macrodef>
+
+	
 	<description>
             Write processing sketches in Python
   	</description>
+
+	
+	<!-- At the moment creating this launcher requires a few manual steps:
+		1) Run this target ("ant launcher.mac") 
+		2.1) Remove the content of the contained "Java" folder
+		2.2) Adjust the included Info.plist so our python code recognizes it (TODO!)
+		3) Zip the app folder
+		4) Place the zip into the runtime's deployment folder.  -->     
+	<target name="launcher.mac">
+		<mkdir dir="launcher.mac"/>
+		<touch file="Info.plist"/>
+	    <bundleapp 
+	        outputdirectory="launcher.mac" 
+	        name="Processing" 
+	        displayname="Processing.py Launcher" 
+	        identifier="processing.py.launcher" 
+	        shortversion="1.0"
+	        applicationCategory="public.app-category.developer-tools"
+	        mainclassname="jycessing.Runner">
+	    	<argument value="--internal"/>
+	        <classpath file="processing-py.jar" />
+	    </bundleapp>
+		<delete><fileset file="Info.plist"/></delete>
+	</target>
 
 	<target name="newversion" depends="bumpversion,clean,dist" />
 
@@ -21,21 +68,47 @@
 		<delete dir="dist" />
 		<mkdir dir="dist/${dist}" />
 		<copy todir="dist/${dist}">
-			<fileset file="processing-py.jar" />
 			<fileset file="LICENSE.txt" />
+			<fileset dir="." includes="processing-py.*,processing-py.app/**"/>
+			<fileset dir="." includes="workspace/**"/>			
+			<fileset dir="." includes="JREs/**"/>			
 			<fileset dir="."
-			         includes="examples.py/**,libraries/processing/**"
+			         includes="examples.py/**,libraries/**"
 			         excludes="**.class"/>
 		</copy>
-		<zip basedir="dist" includes="${dist}/**" destfile="dist/${dist}.zip" />
-		<tar compression="gzip"
+			
+		<!-- Only does something on MacOS / Linux --> 		
+		<chmod file="dist/${dist}/processing-py.sh" perm="755"/>
+		<chmod file="dist/${dist}/processing-py.app/Contents/MacOS/processing-py" perm="755"/>
+				
+		<!-- I did mention already that Ant is an abomination? Anyway, here we have to check 
+		if zip is installed and use this instead of the internal zip. Otherwise the executable
+		flags will not be preserved. Oh, and thanks Ant for providing an integrated if/else task! --> 		
+		 <if>
+		 	<available file="/usr/bin/zip"/>
+		        <then>		        	
+		    		<!--how can one tool be so utterly fucked up? chmod ignoremissing="true" failifexecutionfails="false" failonerror="false" file="dist/${dist}/JREs/jre7.mac/bin/java" perm="755"/-->		        			      
+		        	<exec executable="chmod" dir="dist/${dist}/" failonerror="false" failifexecutionfails="false">
+		        	    <arg line="755 JREs/jre7.mac/bin/java" />
+		        	</exec>
+
+		    		<zipdir sourcedir="dist/" name="${dist}" destfile="dist/${dist}.zip"/>
+		        </then>
+		        <else>
+		        	<echo level="warning" message="******* DO NOT DISTRIBUTE THE RESULTING ZIP. The launchers will not run on MacOS / Linux. *******"/>
+		    		<zip basedir="dist" includes="${dist}/**" destfile="dist/${dist}.zip"/>
+		        </else>
+		</if>
+
+		<!-- Do we need this? -->
+		<!--tar compression="gzip"
 		     basedir="dist"
 		     includes="${dist}/**"
-		     destfile="dist/${dist}.tgz" />
+		     destfile="dist/${dist}.tgz" /-->
 	</target>
 
 	<target name="jar" depends="build">
-		<jar destfile="processing-py.jar">
+		<jar destfile="processing-py.jar">		
 			<fileset dir="bin" excludes="jycessing/build/**,test/**" />
 			<zipgroupfileset file="buildtime/lib/jython/jython.jar" />
 			<zipgroupfileset file="buildtime/lib/processing/core.jar" />
@@ -56,6 +129,10 @@
 		<copy todir="bin">
 			<fileset dir="runtime/src" excludes="**/*.java" />
 		</copy>
+		
+		<!-- Update the internal launch script with the external one-->
+		<copy tofile="processing-py.app/Contents/Resources/script" file="processing-py.sh"/>
+		<chmod file="processing-py.app/Contents/MacOS/processing-py" perm="755"/>
 	</target>
 
   <target name="generate-driver"

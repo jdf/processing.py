@@ -23,6 +23,7 @@ package jycessing;
 import org.python.util.InteractiveConsole;
 import org.python.core.*;
 import processing.core.*;
+import processing.event.*;
 import processing.opengl.*;
 import java.io.*;
 

@@ -30,7 +30,19 @@ import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PFont;
+import processing.core.PGraphics;
+import processing.core.PGraphicsJava2D;
 import processing.core.PImage;
+import processing.core.PMatrix2D;
+import processing.core.PMatrix3D;
+import processing.core.PShape;
+import processing.core.PShapeSVG;
+import processing.core.PStyle;
+import processing.opengl.PGraphics2D;
+import processing.opengl.PGraphics3D;
+import processing.opengl.PGraphicsOpenGL;
+import processing.opengl.PShader;
 
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -71,9 +83,9 @@ abstract public class PAppletJythonDriver extends PApplet {
 
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
-  private final PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth,
+  private final PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth, mouseMovedMeth,
       mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth, initMeth,
-      stopMeth;
+      stopMeth, sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
 
   // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
   // the source file name, so that errors have the file name instead of
@@ -120,6 +132,21 @@ abstract public class PAppletJythonDriver extends PApplet {
         return Py.None;
       }
     });
+    builtins.__setitem__("PApplet", Py.java2py(PApplet.class));
+    builtins.__setitem__("PConstants", Py.java2py(PConstants.class));
+    builtins.__setitem__("PFont", Py.java2py(PFont.class));
+    builtins.__setitem__("PGraphics", Py.java2py(PGraphics.class));
+    builtins.__setitem__("PGraphics2D", Py.java2py(PGraphics2D.class));
+    builtins.__setitem__("PGraphics3D", Py.java2py(PGraphics3D.class));
+    builtins.__setitem__("PGraphicsJava2D", Py.java2py(PGraphicsJava2D.class));
+    builtins.__setitem__("PGraphicsOpenGL", Py.java2py(PGraphicsOpenGL.class));
+    builtins.__setitem__("PImage", Py.java2py(PImage.class));
+    builtins.__setitem__("PMatrix2D", Py.java2py(PMatrix2D.class));
+    builtins.__setitem__("PMatrix3D", Py.java2py(PMatrix3D.class));
+    builtins.__setitem__("PShader", Py.java2py(PShader.class));
+    builtins.__setitem__("PShape", Py.java2py(PShape.class));
+    builtins.__setitem__("PShapeSVG", Py.java2py(PShapeSVG.class));
+    builtins.__setitem__("PStyle", Py.java2py(PStyle.class));
 
     if (!isStaticMode) {
       // Executing the sketch will bind method names ("draw") to PyCode
@@ -133,11 +160,16 @@ abstract public class PAppletJythonDriver extends PApplet {
     setupMeth = interp.get("setup");
     mousePressedMeth = interp.get("mousePressed");
     mouseClickedMeth = interp.get("mouseClicked");
+    mouseMovedMeth = interp.get("mouseMoved");
     mouseReleasedMeth = interp.get("mouseReleased");
     mouseDraggedMeth = interp.get("mouseDragged");
     keyPressedMeth = interp.get("keyPressed");
     keyReleasedMeth = interp.get("keyReleased");
     keyTypedMeth = interp.get("keyTyped");
+    sketchFullScreenMeth = interp.get("sketchFullScreen");
+    sketchWidthMeth = interp.get("sketchWidth");
+    sketchHeightMeth = interp.get("sketchHeight");
+    sketchRendererMeth = interp.get("sketchRenderer");
     initMeth = interp.get("init");
     stopMeth = interp.get("stop");
     addComponentListener(new ComponentAdapter() {
@@ -184,13 +216,14 @@ abstract public class PAppletJythonDriver extends PApplet {
    * set.
    */
   private void setSet() {
-    builtins.__setitem__("set", new PyJavaType() {
+    builtins.__setitem__("set", new PyType(PyType.TYPE) {
       {
         builtin = true;
         init(PySet.class, new HashSet<PyJavaType>());
         invalidateMethodCache();
       }
 
+      //@Override
       @Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
         switch (args.length) {
@@ -306,6 +339,61 @@ abstract public class PAppletJythonDriver extends PApplet {
       // Put all of PApplet's globals into the Python context
       setFields();
       mouseClickedMeth.__call__();
+    }
+  }
+
+  @Override
+  public void mouseMoved() {
+    if (mouseMovedMeth == null) {
+      super.mouseMoved();
+    } else {
+      // Put all of PApplet's globals into the Python context
+      setFields();
+      mouseMovedMeth.__call__();
+    }
+  }
+
+  @Override
+  public boolean sketchFullScreen() {
+    if (sketchFullScreenMeth == null) {
+      return super.sketchFullScreen();
+    } else {
+      // Put all of PApplet's globals into the Python context
+      setFields();
+      return sketchFullScreenMeth.__call__().__nonzero__();
+    }
+  }
+
+  @Override
+  public int sketchWidth() {
+    if (sketchWidthMeth == null) {
+      return super.sketchWidth();
+    } else {
+      // Put all of PApplet's globals into the Python context
+      setFields();
+      return sketchWidthMeth.__call__().asInt();
+    }
+  }
+
+  @Override
+  public String sketchRenderer() {
+    if (sketchRendererMeth == null) {
+      return super.sketchRenderer();
+    } else {
+      // Put all of PApplet's globals into the Python context
+      setFields();
+      return sketchRendererMeth.__call__().asString();
+    }
+  }
+
+  @Override
+  public int sketchHeight() {
+    if (sketchHeightMeth == null) {
+      return super.sketchWidth();
+    } else {
+      // Put all of PApplet's globals into the Python context
+      setFields();
+      return sketchHeightMeth.__call__().asInt();
     }
   }
 

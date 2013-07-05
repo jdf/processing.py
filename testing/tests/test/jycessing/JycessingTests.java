@@ -53,7 +53,7 @@ public class JycessingTests {
 
   @Test
   public void set_builtins() throws Exception {
-    assertEquals("128\nset(['banana'])\nissubclass: True\nset(['baz'])\n", run("set"));
+    assertEquals("128\nset(['banana'])\nissubclass: True\nMySet(['baz'])\n", run("set"));
   }
 
   @Test
@@ -109,6 +109,31 @@ public class JycessingTests {
   @Test
   public void unicode() throws Exception {
     assertEquals("OK\n", run("unicode"));
+  }
+
+  @Test
+  public void primitives() throws Exception {
+    assertEquals("66.7\n", run("primitives"));
+  }
+
+  @Test
+  public void launcher() throws Exception {
+    assertEquals("CMLx\n", run("launcher"));
+  }
+
+  @Test
+  public void millis() throws Exception {
+    assertEquals("True\n", run("millis"));
+  }
+
+  @Test
+  public void imports() throws Exception {
+    assertEquals("OK!\n", run("import"));
+  }
+
+  @Test
+  public void pvector_import() throws Exception {
+    assertEquals("OK!\n", run("pvector_in_imported_module"));
   }
 
   public static void main(final String[] args) {
