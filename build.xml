@@ -87,14 +87,11 @@
     <chmod file="dist/${dist}/processing-py.sh" perm="755"/>
     <chmod file="dist/${dist}/processing-py.app/Contents/MacOS/processing-py" perm="755"/>
     <!--
-      I did mention already that Ant is an abomination? Anyway, here we have to check
-      if zip is installed and use this instead of the internal zip. Otherwise the executable
-      flags will not be preserved. Oh, and thanks Ant for providing an integrated if/else task!
+      If zip is installed, use it instead of the internal zip to preserve mode bits.
     -->
     <if>
       <available file="/usr/bin/zip"/>
       <then>
-        <!--how can one tool be so utterly fucked up? chmod ignoremissing="true" failifexecutionfails="false" failonerror="false" file="dist/${dist}/JREs/jre7.mac/bin/java" perm="755"/-->
         <exec executable="chmod" dir="dist/${dist}/" failonerror="false" failifexecutionfails="false">
           <arg line="755 JREs/jre7.mac/bin/java"/>
         </exec>
