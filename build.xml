@@ -131,9 +131,25 @@
 
   <target name="clean">
     <delete dir="bin"/>
+    <delete dir="dist"/>
     <delete file="runtime/generated/jycessing/DriverImpl.java"/>
     <delete file="processing-py.jar"/>
-    <mkdir dir="bin"/>
+    <delete>
+      <fileset dir="buildtime/py" includes="*.class"/>
+    </delete>
+    <delete>
+      <fileset dir="buildtime/lib/jython/Lib/cogapp" includes="*.class"/>
+    </delete>
+    <exec executable="find">
+      <arg value="."/>
+      <arg value="-name"/>
+      <arg value=".DS_Store"/>
+      <arg value="-depth"/>
+      <arg value="-exec"/>
+      <arg value="rm"/>
+      <arg value="{}"/>
+      <arg value=";"/>
+    </exec>
   </target>
 
   <target name="bumpversion">
