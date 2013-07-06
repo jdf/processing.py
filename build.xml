@@ -20,22 +20,6 @@
 
   <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="buildtime/lib/java/ant-contrib.jar"/>
 
-  <!-- Because Java's / Ant's zip task is crap and does not preserve file permissions ... -->
-  <macrodef name="zipdir">
-    <attribute name="destfile"/>
-    <attribute name="sourcedir"/>
-    <attribute name="name"/>
-    <sequential>
-      <property name="absolute.destfile" location="@{destfile}"/>
-      <exec executable="zip" dir="@{sourcedir}" failonerror="false" failifexecutionfails="false">
-        <arg value="-qr"/>
-        <arg value="${absolute.destfile}"/>
-        <arg value="@{name}/"/>
-        <arg value="-x *.svn* "/>
-      </exec>
-    </sequential>
-  </macrodef>
-
   <macrodef name="getjre">
     <attribute name="platform"/>
     <sequential>
@@ -143,10 +127,10 @@
   <target name="newversion" depends="bumpversion,clean,dist"/>
 
   <target name="dist" depends="jar">
-    <!--<makedist platform="macosx"/>
+    <makedist platform="macosx"/>
     <makedist platform="linux32"/>
     <makedist platform="linux64"/>
-    <makedist platform="windows32"/>-->
+    <makedist platform="windows32"/>
     <makedist platform="windows64"/>
   </target>
 
