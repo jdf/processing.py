@@ -1,8 +1,2 @@
-
-
-If you put Oracle's JRE here as
-
-jre7.mac 
-jre7.win
-
-it will be used instead of your system's version.
+This directory is populated by the ant "dist" target in the course of
+building distributions for various platforms.

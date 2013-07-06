@@ -2,7 +2,7 @@
 
 
 ####
-#### The default script to run. Only used if none is given as an 
+#### The default script to run. Only used if none is given as an
 #### optional argument
 ####
 DEFAULT_SCRIPT="workspace/example.py"
@@ -15,7 +15,7 @@ JVM_ARGS="-Xmx1024m"
 
 ####
 #
-# Internal variables start here 
+# Internal variables start here
 #
 ####
 JAVA=`which java`
@@ -36,8 +36,8 @@ elif [ "$(expr $(uname -s) : '.*CYGWIN.*')" != 0 ]; then
 elif [ "$(expr $(uname -s) : '.*MINGW.*')" != 0 ]; then
     PLATFORM="win"
 else
-    echo "Linux / Unix support untested."   
-    PLATFORM="linux"    
+    echo "Linux / Unix support untested."
+    PLATFORM="linux"
 fi
 
 
@@ -59,8 +59,8 @@ fi
 # Check if there is a user supplied JRE
 #
 ####
-if [ -d "$BASEDIR/JREs/jre7.$PLATFORM" ]; then   
-    JAVA="$BASEDIR/JREs/jre7.$PLATFORM/bin/java"
+if [ -d "$BASEDIR/jre" ]; then
+    JAVA="$BASEDIR/jre/bin/java"
 fi
 
 
@@ -78,16 +78,16 @@ if [ $# -eq 0 ]; then
         exit
     else
         echo "No script supplied, running default."
-    fi    
-else 
+    fi
+else
     DEFAULT_SCRIPT=$1
 
     if [ ! -f "$DEFAULT_SCRIPT" ];
     then
         echo "The script you supplied does not exist. Doing nothing."
         exit
-    fi    
-fi 
+    fi
+fi
 
 
 ####
@@ -95,14 +95,14 @@ fi
 # Check if we are running in a terminal or not
 #
 ####
-if [ -t 2 ]; then 
+if [ -t 2 ]; then
     # In case we have a terminal connected
     REDIRECT=--noredirect
-else 
+else
     # Or we don't ... In that case, redirect stdout / stderr, however
     # we only do this when we are not actually wrapped with a console.
     if $WRAPPED_WITH_CONSOLE; then
-        REDIRECT=--noredirect   
+        REDIRECT=--noredirect
     else
         REDIRECT=--redirect
     fi
@@ -111,12 +111,12 @@ fi
 
 ####
 #
-# DJ, spin that shit!
+# DJ, spin that!
 #
 ####
-if [ -f "$JAVA" ]; then 
+if [ -f "$JAVA" ]; then
     # I have to admit, the -Xmixed move is somewhat of a hack ...
     "$JAVA" "${SPLASH:--Xmixed}" $JVM_ARGS -jar "$BASEDIR/processing-py.jar" $REDIRECT "$DEFAULT_SCRIPT"
-else 
-    echo "ERROR: Java not found!"    
+else
+    echo "ERROR: Java not found!"
 fi

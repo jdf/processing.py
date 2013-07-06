@@ -21,5 +21,7 @@ test.py
 runtime/src/.DS_Store
 __pycache__
 dist.platforms
-JREs/jre7.*
+JREs/windows*
+JREs/linux*
+JREs/macosx*
 

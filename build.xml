@@ -8,6 +8,8 @@
      jdf
      ====================================================================== -->
 <project name="processing.py" default="jar">
+  <description>Write Processing sketches in Python</description>
+
 
   <property name="corejar" value="externals/processing/core/library/core.jar"/>
   <property name="joglall" value="externals/processing/core/library/jogl-all.jar"/>
@@ -34,6 +36,38 @@
     </sequential>
   </macrodef>
 
+  <macrodef name="getjre">
+    <attribute name="platform"/>
+    <sequential>
+      <if>
+        <not><available file="JREs/@{platform}"/></not>
+        <then>
+          <echo message="Fetching JRE for @{platform}" />
+          <get src="http://processing.py.s3.amazonaws.com/jre-7u25-@{platform}.tgz"
+               dest="JREs/@{platform}.tgz"
+               usetimestamp="true"/>
+          <mkdir dir="JREs/@{platform}"/>
+          <exec executable="tar" dir="JREs">
+            <arg line="zxf @{platform}.tgz -C @{platform} --strip-components 1 "/>
+          </exec>
+          <if>
+            <equals arg1="@{platform}" arg2="macosx"/>
+            <then>
+              <echo message="Moving mac JRE to sane location."/>
+              <exec executable="/bin/sh" dir="JREs/macosx" failonerror="true">
+                <arg value="-c"/>
+                <arg value="mv Contents/Home/* ."/>
+              </exec>
+            </then>
+          </if>
+          <exec executable="chmod" dir="JREs/@{platform}/">
+            <arg line="755 bin/java"/>
+          </exec>
+        </then>
+      </if>
+    </sequential>
+  </macrodef>
+
   <macrodef name="git">
     <attribute name="command" />
     <attribute name="dir" default="" />
@@ -47,7 +81,44 @@
     </sequential>
   </macrodef>
 
-  <description>Write Processing sketches in Python</description>
+ <macrodef name="makedist">
+    <attribute name="platform" />
+    <sequential>
+      <echo message="Building distribution for @{platform}" />
+      <getjre platform="@{platform}"/>
+      <property file="runtime/src/jycessing/buildnumber.properties" prefix="jycessing"/>
+      <local name="dist"/>
+      <property name="dist" value="processing.py-${jycessing.buildnumber}-@{platform}"/>
+      <delete dir="dist/${dist}"/>
+      <mkdir dir="dist/${dist}/jre"/>
+      <copy todir="dist/${dist}/jre">
+        <fileset dir="JREs/@{platform}" includes="**"/>
+      </copy>
+
+      <copy todir="dist/${dist}">
+        <fileset file="LICENSE.txt"/>
+        <fileset dir="." includes="processing-py.jar"/>
+        <fileset dir="." includes="workspace/**"/>
+        <fileset dir="." includes="examples.py/**,libraries/**" excludes="**.class"/>
+        <fileset dir="." includes="processing-py.*,processing-py.app/**"/>
+      </copy>
+
+      <if>
+        <matches pattern="^windows.*$" string="@{platform}"/>
+        <then>
+          <exec executable="zip" dir="dist">
+            <arg line="-r ${dist}.zip ${dist}"/>
+          </exec>
+        </then>
+        <else>
+          <exec executable="tar" dir="dist">
+            <arg line="zcf ${dist}.tgz ${dist}"/>
+          </exec>
+        </else>
+      </if>
+
+    </sequential>
+</macrodef>
 
   <!--
     At the moment creating this launcher requires a few manual steps:
@@ -72,41 +143,11 @@
   <target name="newversion" depends="bumpversion,clean,dist"/>
 
   <target name="dist" depends="jar">
-    <property file="runtime/src/jycessing/buildnumber.properties" prefix="jycessing"/>
-    <property name="dist" value="processing.py-${jycessing.buildnumber}"/>
-    <delete dir="dist"/>
-    <mkdir dir="dist/${dist}"/>
-    <copy todir="dist/${dist}">
-      <fileset file="LICENSE.txt"/>
-      <fileset dir="." includes="processing-py.*,processing-py.app/**"/>
-      <fileset dir="." includes="workspace/**"/>
-      <fileset dir="." includes="JREs/**"/>
-      <fileset dir="." includes="examples.py/**,libraries/**" excludes="**.class"/>
-    </copy>
-    <!-- Only does something on MacOS / Linux -->
-    <chmod file="dist/${dist}/processing-py.sh" perm="755"/>
-    <chmod file="dist/${dist}/processing-py.app/Contents/MacOS/processing-py" perm="755"/>
-    <!--
-      If zip is installed, use it instead of the internal zip to preserve mode bits.
-    -->
-    <if>
-      <available file="/usr/bin/zip"/>
-      <then>
-        <exec executable="chmod" dir="dist/${dist}/" failonerror="false" failifexecutionfails="false">
-          <arg line="755 JREs/jre7.mac/bin/java"/>
-        </exec>
-        <zipdir sourcedir="dist/" name="${dist}" destfile="dist/${dist}.zip"/>
-      </then>
-      <else>
-        <echo level="warning" message="******* DO NOT DISTRIBUTE THE RESULTING ZIP. The launchers will not run on MacOS / Linux. *******"/>
-        <zip basedir="dist" includes="${dist}/**" destfile="dist/${dist}.zip"/>
-      </else>
-    </if>
-    <!-- Do we need this? -->
-    <!--tar compression="gzip"
-         basedir="dist"
-         includes="${dist}/**"
-         destfile="dist/${dist}.tgz" /-->
+    <!--<makedist platform="macosx"/>
+    <makedist platform="linux32"/>
+    <makedist platform="linux64"/>
+    <makedist platform="windows32"/>-->
+    <makedist platform="windows64"/>
   </target>
 
   <target name="jar" depends="build">
@@ -172,15 +213,8 @@
     <delete>
       <fileset dir="buildtime/lib/jython/Lib/cogapp" includes="*.class"/>
     </delete>
-    <exec executable="find">
-      <arg value="."/>
-      <arg value="-name"/>
-      <arg value=".DS_Store"/>
-      <arg value="-depth"/>
-      <arg value="-exec"/>
-      <arg value="rm"/>
-      <arg value="{}"/>
-      <arg value=";"/>
+    <exec executable="find" failonerror="true">
+      <arg line=". -name .DS_Store -depth -exec rm {} ;"/>
     </exec>
   </target>
 
