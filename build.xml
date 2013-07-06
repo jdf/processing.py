@@ -87,6 +87,10 @@
         <fileset dir="." includes="processing-py.*,processing-py.app/**"/>
       </copy>
 
+      <!--
+        TODO: Only copy platform-specific jars and DLLs.
+      -->
+
       <if>
         <matches pattern="^windows.*$" string="@{platform}"/>
         <then>
