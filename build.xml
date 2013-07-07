@@ -1,56 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- ======================================================================
-     Aug 8, 2010 10:37:58 AM
-
      processing.py
-     Write processing sketches in Python
+     Write processing sketches in Python.
+
+     This build file has only been tested on mac osx, but is expected to
+     work just fine on Linux. It is not expected to work at all on Windows.
 
      jdf
      ====================================================================== -->
 <project name="processing.py" default="jar">
   <description>Write Processing sketches in Python</description>
 
+  <!-- for <if> tag -->
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="buildtime/lib/java/ant-contrib.jar"/>
 
   <property name="corejar" value="externals/processing/core/library/core.jar"/>
   <property name="joglall" value="externals/processing/core/library/jogl-all.jar"/>
   <property name="gluegenrt" value="externals/processing/core/library/gluegen-rt.jar"/>
   <property name="jython" value="buildtime/lib/jython/jython.jar"/>
 
+  <!-- jycessing.buildnumber is the current version string -->
+  <property file="runtime/src/jycessing/buildnumber.properties" prefix="jycessing"/>
+
   <taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="buildtime/lib/java/appbundler-1.0.jar"/>
-
-  <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="buildtime/lib/java/ant-contrib.jar"/>
-
-  <macrodef name="getjre">
-    <attribute name="platform"/>
-    <sequential>
-      <if>
-        <not><available file="JREs/@{platform}"/></not>
-        <then>
-          <echo message="Fetching JRE for @{platform}" />
-          <get src="http://processing.py.s3.amazonaws.com/jre-7u25-@{platform}.tgz"
-               dest="JREs/@{platform}.tgz"
-               usetimestamp="true"/>
-          <mkdir dir="JREs/@{platform}"/>
-          <exec executable="tar" dir="JREs">
-            <arg line="zxf @{platform}.tgz -C @{platform} --strip-components 1 "/>
-          </exec>
-          <if>
-            <equals arg1="@{platform}" arg2="macosx"/>
-            <then>
-              <echo message="Moving mac JRE to sane location."/>
-              <exec executable="/bin/sh" dir="JREs/macosx" failonerror="true">
-                <arg value="-c"/>
-                <arg value="mv Contents/Home/* ."/>
-              </exec>
-            </then>
-          </if>
-          <exec executable="chmod" dir="JREs/@{platform}/">
-            <arg line="755 bin/java"/>
-          </exec>
-        </then>
-      </if>
-    </sequential>
-  </macrodef>
 
   <macrodef name="git">
     <attribute name="command" />
@@ -65,78 +37,7 @@
     </sequential>
   </macrodef>
 
- <macrodef name="makedist">
-    <attribute name="platform" />
-    <sequential>
-      <echo message="Building distribution for @{platform}" />
-      <getjre platform="@{platform}"/>
-      <property file="runtime/src/jycessing/buildnumber.properties" prefix="jycessing"/>
-      <local name="dist"/>
-      <property name="dist" value="processing.py-${jycessing.buildnumber}-@{platform}"/>
-      <delete dir="dist/${dist}"/>
-      <mkdir dir="dist/${dist}/jre"/>
-      <copy todir="dist/${dist}/jre">
-        <fileset dir="JREs/@{platform}" includes="**"/>
-      </copy>
-
-      <copy todir="dist/${dist}">
-        <fileset file="LICENSE.txt"/>
-        <fileset dir="." includes="processing-py.jar"/>
-        <fileset dir="." includes="workspace/**"/>
-        <fileset dir="." includes="examples.py/**,libraries/**" excludes="**.class"/>
-        <fileset dir="." includes="processing-py.*,processing-py.app/**"/>
-      </copy>
-
-      <!--
-        TODO: Only copy platform-specific jars and DLLs.
-      -->
-
-      <if>
-        <matches pattern="^windows.*$" string="@{platform}"/>
-        <then>
-          <exec executable="zip" dir="dist">
-            <arg line="-r ${dist}.zip ${dist}"/>
-          </exec>
-        </then>
-        <else>
-          <exec executable="tar" dir="dist">
-            <arg line="zcf ${dist}.tgz ${dist}"/>
-          </exec>
-        </else>
-      </if>
-
-    </sequential>
-</macrodef>
-
-  <!--
-    At the moment creating this launcher requires a few manual steps:
-      1) Run this target ("ant launcher.mac")
-      2.1) Remove the content of the contained "Java" folder
-      2.2) Adjust the included Info.plist so our python code recognizes it (TODO!)
-      3) Zip the app folder
-      4) Place the zip into the runtime's deployment folder.
-  -->
-  <target name="launcher.mac">
-    <mkdir dir="launcher.mac"/>
-    <touch file="Info.plist"/>
-    <bundleapp outputdirectory="launcher.mac" name="Processing" displayname="Processing.py Launcher" identifier="processing.py.launcher" shortversion="1.0" applicationCategory="public.app-category.developer-tools" mainclassname="jycessing.Runner">
-      <argument value="--internal"/>
-      <classpath file="processing-py.jar"/>
-    </bundleapp>
-    <delete>
-      <fileset file="Info.plist"/>
-    </delete>
-  </target>
-
-  <target name="newversion" depends="bumpversion,clean,dist"/>
-
-  <target name="dist" depends="jar">
-    <makedist platform="macosx"/>
-    <makedist platform="linux32"/>
-    <makedist platform="linux64"/>
-    <makedist platform="windows32"/>
-    <makedist platform="windows64"/>
-  </target>
+  <target name="newversion" depends="bump-version,clean,make-all-distributions"/>
 
   <target name="jar" depends="build">
     <jar destfile="processing-py.jar">
@@ -206,9 +107,225 @@
     </exec>
   </target>
 
-  <target name="bumpversion">
+  <target name="bump-version">
     <propertyfile file="runtime/src/jycessing/buildnumber.properties">
       <entry key="buildnumber" type="int" operation="+" pattern="0000" default="0000"/>
     </propertyfile>
+  </target>
+
+  <!--
+    At the moment creating this launcher requires a few manual steps:
+      1) Run this target ("ant launcher.mac")
+      2.1) Remove the content of the contained "Java" folder
+      2.2) Adjust the included Info.plist so our python code recognizes it (TODO!)
+      3) Zip the app folder
+      4) Place the zip into the runtime's deployment folder.
+  -->
+  <target name="launcher.mac">
+    <mkdir dir="launcher.mac"/>
+    <touch file="Info.plist"/>
+    <bundleapp outputdirectory="launcher.mac" name="Processing" displayname="Processing.py Launcher" identifier="processing.py.launcher" shortversion="1.0" applicationCategory="public.app-category.developer-tools" mainclassname="jycessing.Runner">
+      <argument value="--internal"/>
+      <classpath file="processing-py.jar"/>
+    </bundleapp>
+    <delete>
+      <fileset file="Info.plist"/>
+    </delete>
+  </target>
+
+  <!--
+    The following macros define properties for building, compressing, and distributing
+    platform-specific distributions.
+  -->
+  <macrodef name="for-platform">
+    <attribute name="platform"/>
+    <attribute name="target"/>
+    <element name="actions" implicit="true"/>
+    <sequential>
+      <local name="dist.name"/>
+      <property name="dist.name" value="processing.py-${jycessing.buildnumber}-@{platform}"/>
+      <local name="compression"/>
+      <if>
+        <matches pattern="^windows.*$" string="@{platform}"/>
+        <then>
+          <property name="compression" value="zip"/>
+        </then>
+        <else>
+          <property name="compression" value="tgz"/>
+        </else>
+      </if>
+      <echo message="Executing target @{target} for platform @{platform}."/>
+      <antcall target="@{target}">
+        <param name="platform" value="@{platform}"/>
+        <param name="dist.name" value="${dist.name}"/>
+        <param name="dist.compressed" value="${dist.name}.${compression}"/>
+        <param name="dist.dir" value="dist/${dist.name}"/>
+        <param name="dist.jre" value="dist/${dist.name}/jre"/>
+        <param name="jre.remote" value="http://processing.py.s3.amazonaws.com/jre-7u25-@{platform}.tgz"/>
+        <param name="jre.local.dir" value="JREs/@{platform}"/>
+        <param name="jre.local.compressed" value="JREs/@{platform}.tgz"/>
+      </antcall>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="for-all-platforms">
+    <attribute name="target"/>
+    <sequential>
+      <for-platform platform="macosx" target="@{target}"/>
+      <for-platform platform="linux32" target="@{target}"/>
+      <for-platform platform="linux64" target="@{target}"/>
+      <for-platform platform="windows32" target="@{target}"/>
+      <for-platform platform="windows64" target="@{target}"/>
+    </sequential>      
+  </macrodef>
+
+  <!-- For debugging the platform macros. -->
+  <target name="dump-platform">
+    <echo message="Dumping ${platform}:"/>
+    <echo message="  $${dist.name} = ${dist.name}"/>
+    <echo message="  $${dist.dir} = ${dist.dir}"/>
+    <echo message="  $${dist.compressed} = ${dist.compressed}"/>
+    <echo message="  $${dist.jre} = ${dist.jre}"/>
+    <echo message="  $${jre.remote} = ${jre.remote}"/>
+    <echo message="  $${jre.local.dir} = ${jre.local.dir}"/>
+    <echo message="  $${jre.local.compressed} = ${jre.local.compressed}"/>
+  </target>
+  <target name="dump-all-platforms">
+    <for-all-platforms target="dump-platform"/>
+  </target>
+
+  <!--
+    The following targets can only be run for particular platforms, as in
+       <for-platform platform="windows64" target="targetname"/>
+    They all refer to properties defined by the for-platform macro.
+  -->
+  <target name="getjre">
+    <if>
+      <not><available file="JREs/${platform}"/></not>
+      <then>
+        <echo message="Fetching JRE for ${platform}" />
+        <get src="${jre.remote" dest="${jre.local.compressed}" usetimestamp="true"/>
+        <mkdir dir="${jre.local.dir}"/>
+        <exec executable="tar" dir="JREs">
+          <arg line="zxf ${jre.local.compressed} -C ${platform} --strip-components 1 "/>
+        </exec>
+        <if>
+          <equals arg1="${platform}" arg2="macosx"/>
+          <then>
+            <echo message="Moving mac JRE to sane location."/>
+            <exec executable="/bin/sh" dir="${jre.local.dir}" failonerror="true">
+              <arg value="-c"/>
+              <arg value="mv Contents/Home/* ."/>
+            </exec>
+          </then>
+        </if>
+        <chmod file="${jre.local.dir}/bin/java" perm="755"/>
+      </then>
+    </if>
+  </target>
+
+  <macrodef name="copy-processing-library">
+    <attribute name="library"/>
+    <attribute name="dir"/>
+    <sequential>
+      <mkdir dir="@{dir}/libraries/processing/@{library}"/>
+      <copy todir="@{dir}/libraries/processing/@{library}">
+        <!--
+          The business about ${platform}/**, ${platform}64/** is for
+          catching both macosx/*.dylib and macosx64/*.dylib, for those
+          libraries that still have legacy OSX DLLs. Right now, that's
+          only video.
+        -->
+        <fileset dir="externals/processing/java/libraries/@{library}/library"
+                 includes="*.txt,*.jar,${platform}/**,${platform}64/**"/>
+      </copy>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="compress">
+    <attribute name="from"/>
+    <attribute name="to"/>
+    <attribute name="dir"/>
+    <sequential>
+      <if>
+        <matches pattern="^.*zip$" string="@{to}"/>
+        <then>
+          <exec executable="zip" dir="@{dir}">
+            <arg line="-r @{to} @{from}"/>
+          </exec>
+        </then>
+        <else>
+          <exec executable="tar" dir="@{dir}">
+            <arg line="zcf @{to} @{from}"/>
+          </exec>
+        </else>
+      </if>
+    </sequential>
+  </macrodef>
+
+  <target name="make-one-distribution">
+    <echo message="Building distribution for ${platform}" />
+    <for-platform platform="${platform}" target="getjre"/>
+    <delete dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir}"/>
+
+    <copy todir="${dist.dir}">
+      <fileset file="LICENSE.txt"/>
+      <fileset dir="." includes="processing-py.jar"/>
+      <fileset dir="." includes="workspace/**"/>
+      <fileset dir="." includes="examples.py/**,libraries/**" excludes="**.class"/>
+      <fileset dir="." includes="processing-py.*,processing-py.app/**"/>
+    </copy>
+    <chmod file="${dist.dir}/processing-py.sh" perm="755"/>
+    <chmod file="${dist.dir}/processing-py.bat" perm="755"/>
+    <copy todir="${dist.dir}/libraries/processing">
+      <fileset dir="externals/processing/core/library" includes="*.jar" excludes="core.jar"/>
+    </copy>
+    <copy-processing-library dir="${dist.dir}" library="dxf"/>
+    <copy-processing-library dir="${dist.dir}" library="lwjgl"/>
+    <copy-processing-library dir="${dist.dir}" library="minim"/>
+    <copy-processing-library dir="${dist.dir}" library="net"/>
+    <copy-processing-library dir="${dist.dir}" library="pdf"/>
+    <copy-processing-library dir="${dist.dir}" library="serial"/>
+    <copy-processing-library dir="${dist.dir}" library="video"/>
+
+    <mkdir dir="${dist.jre}"/>
+    <copy todir="${dist.jre}">
+      <fileset dir="${jre.local.dir}" includes="**"/>
+    </copy>
+    <chmod file="${dist.jre}/bin/java" perm="755"/>
+
+    <compress from="${dist.name}" to="${dist.compressed}" dir="dist"/>
+  </target>
+
+  <target name="make-all-distributions" depends="jar">
+    <for-all-platforms target="make-one-distribution"/>
+  </target>
+
+  <!-- 
+    $ ant ––Dplatform=macosx make-distribution
+  -->
+  <target name="make-distribution" depends="jar">
+    <for-platform platform="${platform}" target="make-one-distribution"/>
+  </target>
+
+  <target name="upload-one-distribution">
+    <echo message="Pushing ${dist.compressed} to py.processing.org..." />
+    <exec executable="/bin/sh">
+      <arg value="-c"/>
+      <arg value="scp -i ~/.ssh/id_rsa-processing.org dist/${dist.compressed} jdf@py.processing.org:/var/www/py" />
+    </exec>
+  </target>
+
+  <target name="upload-all-distributions">
+    <echo message="If you're not feinberg, this target will fail for you."/>
+    <for-all-platforms target="upload-one-distribution"/>
+  </target>
+
+  <!-- 
+    $ ant ––Dplatform=macosx upload-distribution
+  -->
+  <target name="upload-distribution" depends="jar">
+    <for-platform platform="${platform}" target="upload"/>
   </target>
 </project>
