@@ -204,10 +204,10 @@
       <not><available file="JREs/${platform}"/></not>
       <then>
         <echo message="Fetching JRE for ${platform}" />
-        <get src="${jre.remote" dest="${jre.local.compressed}" usetimestamp="true"/>
+        <get src="${jre.remote}" dest="${jre.local.compressed}" usetimestamp="true"/>
         <mkdir dir="${jre.local.dir}"/>
         <exec executable="tar" dir="JREs">
-          <arg line="zxf ${jre.local.compressed} -C ${platform} --strip-components 1 "/>
+          <arg line="zxf ${platform}.tgz -C ${platform} --strip-components 1 "/>
         </exec>
         <if>
           <equals arg1="${platform}" arg2="macosx"/>
@@ -278,6 +278,8 @@
     </copy>
     <chmod file="${dist.dir}/processing-py.sh" perm="755"/>
     <chmod file="${dist.dir}/processing-py.bat" perm="755"/>
+    <chmod file="${dist.dir}/processing-py.app/Contents/Resources/script" perm="755"/>
+    <chmod file="${dist.dir}/processing-py.app/Contents/MacOS/processing-py" perm="755"/>
     <copy todir="${dist.dir}/libraries/processing">
       <fileset dir="externals/processing/core/library" includes="*.jar" excludes="core.jar"/>
     </copy>
