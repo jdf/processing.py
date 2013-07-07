@@ -76,17 +76,26 @@ class __launcher(object):
         # ... and recreate it
         os.mkdir(outdir)
         for platform in platforms: 
-            os.mkdir(outdir + "/" + platform)
+
+            pdir = outdir + "/" + platform
+            tmpfile = pdir + ".zip"
+
+            os.mkdir(pdir)
 
             # Copy archive
-            LaunchHelper.copyTo("launcher." + platform + ".zip", outdir + "/" + platform + ".zip")
+            LaunchHelper.copyTo("launcher." + platform + ".zip", tmpfile)
             
             # Unzip
-            z = zipfile.ZipFile(outdir + "/" + platform + ".zip", "r")
-            z.extractall(outdir + "/" + platform)
+            z = zipfile.ZipFile(tmpfile, "r")
+            z.extractall(pdir)
             z.close()
 
-            os.remove(outdir + "/" + platform + ".zip")
+            # Try to remove the platform file we created
+            try:
+                os.remove(tmpfile)
+            except Exception, e:
+                print("Could not remove %s we used for creating the launcher. Please report." % tmpfile, e)
+            
 
 
         # Now the platform specific logic
