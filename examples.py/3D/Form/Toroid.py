@@ -130,20 +130,20 @@ def keyPressed():
             if segments < 80:
                 segments += 1
     # lathe radius
-    elif key == ord('a'):
+    elif key == 'a':
         if latheRadius > 0:
             latheRadius -= 1
-    elif key == ord('s'):
+    elif key == 's':
         latheRadius += 1
     # ellipse radius
-    elif key == ord('z'):
+    elif key == 'z':
         if radius > 10:
             radius -= 1
-    elif key == ord('x'):
+    elif key == 'x':
         radius += 1
     # wireframe
-    elif key == ord('w'):
+    elif key == 'w':
         isWireFrame = not isWireFrame
     # helix
-    elif key == ord('h'):
+    elif key == 'h':
         isHelix = not isHelix

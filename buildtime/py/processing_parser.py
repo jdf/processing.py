@@ -10,12 +10,14 @@ from processing.core import PApplet
 """
 A field is bad if it happens to be marked public in the PApplet source,
 but is undocumented or implementation-private.
+The "key" field is implemented by hand in the PAppletJythonDriver, since
+it's a chimera int/Unicode character.
 """
 BAD_FIELD = re.compile(r'''
     ^(
         screen|args|recorder|frame|g|selectedFile|keyEvent|mouseEvent
         |sketchPath|screen(Width|Height)|defaultSize|firstMouse|finished
-        |requestImageMax|online
+        |requestImageMax|online|key
     )$
     ''', re.X)
 

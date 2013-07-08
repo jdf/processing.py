@@ -70,5 +70,5 @@ def keyPressed():
             pts += 1
         elif keyCode == DOWN and pts > 4:
             pts -= 1
-    elif key == ord('p'):
+    elif key == 'p':
         isPyramid = not isPyramid

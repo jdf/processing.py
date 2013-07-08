@@ -71,7 +71,7 @@ abstract public class PAppletJythonDriver extends PApplet {
 
   private final CountDownLatch finishedLatch = new CountDownLatch(1);
 
-  // A static-mode sketch must be interpreted from with the setup() method.
+  // A static-mode sketch must be interpreted from within the setup() method.
   // All others are interpreted during construction in order to harvest method
   // definitions, which we then invoke during the run loop.
   private final boolean isStaticMode;
@@ -107,7 +107,13 @@ abstract public class PAppletJythonDriver extends PApplet {
   }
 
   protected void setFields() {
-    builtins.__setitem__("key", new PyUnicode(Character.toString(key)));
+    /*
+     * If key is "CODED", i.e., an arrow key or other non-printable, pass that
+     * value through as-is. If it's printable, convert it to a unicode string,
+     * so that the user can compare key == 'x' instead of key == ord('x').
+     */
+    builtins.__setitem__("key",
+        key == CODED ? new PyInteger(key) : new PyUnicode(Character.toString(key)));
   }
 
   public PAppletJythonDriver(final InteractiveConsole interp, final String sketchPath,
