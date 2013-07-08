@@ -330,4 +330,31 @@
   <target name="upload-distribution" depends="jar">
     <for-platform platform="${platform}" target="upload"/>
   </target>
+
+  <!--
+	Testing-related targets.
+  -->
+  <target name="build-tests" depends="jar">
+    <mkdir dir="testing/bin"/>
+    <javac classpath="testing/library/junit-4.11.jar:processing-py.jar" destdir="testing/bin"
+    	includeantruntime="false">
+      <src path="testing/tests"/>
+    </javac>
+  </target>
+  <target name="test" depends="build-tests">
+    <java classname="org.junit.runner.JUnitCore" fork="true">
+      <arg value="test.jycessing.JycessingTests"/>
+      <classpath>
+        <pathelement location="testing/bin"/>
+        <pathelement location="processing-py.jar"/>
+        <pathelement location="testing/library/junit-4.11.jar"/>
+        <pathelement location="testing/library/hamcrest-core-1.3.jar"/>
+        <fileset dir="externals/processing/core/library">
+          <include name="*.jar"/>
+          <exclude name="core.jar"/>
+        </fileset>        
+      </classpath>
+    </java>
+  </target>
+
 </project>
