@@ -338,7 +338,7 @@
     <mkdir dir="testing/bin"/>
     <javac classpath="testing/library/junit-4.11.jar:processing-py.jar" destdir="testing/bin"
     	includeantruntime="false">
-      <src path="testing/tests"/>
+      <src path="testing/src"/>
     </javac>
   </target>
   <target name="test" depends="build-tests">
@@ -351,7 +351,7 @@
         <pathelement location="testing/library/hamcrest-core-1.3.jar"/>
         <fileset dir="externals/processing/core/library">
           <include name="*.jar"/>
-          <exclude name="core.jar"/>
+          <exclude name="core.jar"/> <!-- It's already in the processing-py.jar. -->
         </fileset>        
       </classpath>
     </java>

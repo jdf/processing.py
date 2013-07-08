@@ -15,8 +15,8 @@ public class JycessingTests {
     final PrintStream saved = System.out;
     try {
       System.setOut(new PrintStream(baos, true));
-      Runner.runFromCommandLineArguments(new String[] { "testing/test_resources/test_"
-          + testResource + ".py" });
+      Runner.runFromCommandLineArguments(new String[] { "testing/resources/test_" + testResource
+          + ".py" });
       return new String(baos.toByteArray()).replaceAll("\r\n", "\n").replaceAll("\r", "\n");
     } finally {
       System.setOut(saved);

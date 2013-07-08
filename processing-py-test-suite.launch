@@ -2,7 +2,7 @@
 <launchConfiguration type="org.eclipse.jdt.junit.launchconfig">
 <stringAttribute key="bad_container_name" value="/processing.py/eclipse"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/processing.py/testing/tests/test/jycessing/JycessingTests.java"/>
+<listEntry value="/processing.py/testing/src/test/jycessing/JycessingTests.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
