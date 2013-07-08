@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 
 /**
  * Reminds you that this method is used from Python. Unless you know what 
- * you do, do not change it's name
+ * you're doing, do not change its name.
  * 
  * @author Ralf Biedert <rb@xr.io>
  */
@@ -20,7 +20,7 @@ public @interface PythonUsage {
   /**
    * The original method name. Must match with the actual method name. 
    * 
-   * @return
+   * @return The original method name.
    */
   public String methodName();
 }
