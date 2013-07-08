@@ -219,7 +219,7 @@
             </exec>
           </then>
         </if>
-        <chmod file="${jre.local.dir}/bin/java" perm="755"/>
+        <chmod dir="${jre.local.dir}/bin" includes="*" perm="755"/>
       </then>
     </if>
   </target>
@@ -295,7 +295,7 @@
     <copy todir="${dist.jre}">
       <fileset dir="${jre.local.dir}" includes="**"/>
     </copy>
-    <chmod file="${dist.jre}/bin/java" perm="755"/>
+    <chmod dir="${dist.jre}/bin" includes="*" perm="755"/>
 
     <compress from="${dist.name}" to="${dist.compressed}" dir="dist"/>
   </target>
@@ -305,7 +305,7 @@
   </target>
 
   <!-- 
-    $ ant ––Dplatform=macosx make-distribution
+    $ ant –Dplatform=macosx make-distribution
   -->
   <target name="make-distribution" depends="jar">
     <for-platform platform="${platform}" target="make-one-distribution"/>
@@ -325,7 +325,7 @@
   </target>
 
   <!-- 
-    $ ant ––Dplatform=macosx upload-distribution
+    $ ant –Dplatform=macosx upload-distribution
   -->
   <target name="upload-distribution" depends="jar">
     <for-platform platform="${platform}" target="upload"/>
