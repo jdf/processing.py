@@ -1,6 +1,7 @@
 *$py.class
 *.py.class
 */.DS_Store
+.cache
 .DS_Store
 JREs/linux*
 JREs/macosx*
@@ -8,14 +9,13 @@ JREs/windows*
 __pycache__
 bin
 build
+build.out
 cachedir
 dist
 dist.platforms
 examples.pde
 jython_processing_demo
 kinetic-type/
-libraries/GSVideo
-libraries/peasycam
 line.pdf
 processing-py.jar
 python-hack.jar

@@ -37,6 +37,15 @@
     </sequential>
   </macrodef>
 
+  <macrodef name="rm-rf">
+    <attribute name="target"/>
+    <sequential>
+      <exec executable="/bin/rm" failonerror="true">
+        <arg line="-rf ${basedir}/@{target}"/>
+      </exec>
+    </sequential>
+  </macrodef>
+
   <target name="newversion" depends="bump-version,clean,make-all-distributions"/>
 
   <target name="jar" depends="build">
@@ -64,7 +73,7 @@
     <chmod file="processing-py.app/Contents/MacOS/processing-py" perm="755"/>
   </target>
 
-  <target name="build-processing">
+  <target name="update-processing-submodule">
     <echo message="Making sure processing submodule is up-to-date." />
     <git command="submodule">
       <args>
@@ -73,11 +82,29 @@
         <arg value="--recursive" />
       </args>
     </git>
+  </target>
+  <target name="check-processing-needs-build"
+    depends="update-processing-submodule">
+    <uptodate property="processing-is-uptodate"
+              srcfile="externals/processing/core/src/processing/core/PApplet.java"
+              targetfile="${corejar}"/>
+  </target>
+  <target name="build-processing"
+    depends="check-processing-needs-build"
+    unless="processing-is-uptodate">
     <echo message="Building processing." />
     <ant dir="externals/processing/build" target="build"/>
   </target>
 
-  <target name="generate-driver" depends="build-processing" description="Generate DriverImpl class">
+  <target name="check-driver-required">
+    <uptodate property="driver-is-generated"
+              srcfile="buildtime/template/DriverImpl.java.cog"
+              targetfile="runtime/generated/jycessing/DriverImpl.java"/>
+  </target>
+  <target name="generate-driver"
+      depends="check-driver-required,build-processing"
+      unless="driver-is-generated"
+      description="Generate DriverImpl class">
     <java
         classpath="${jython}:${corejar}:${joglall}:${gluegenrt}"
         classname="org.python.util.jython"
@@ -92,8 +119,9 @@
 
   <target name="clean">
     <ant dir="externals/processing/build" target="clean"/>
-    <delete dir="bin"/>
-    <delete dir="dist"/>
+    <rm-rf target="bin"/>
+    <rm-rf target="dist"/>
+    <rm-rf target=".cache"/>
     <delete file="runtime/generated/jycessing/DriverImpl.java"/>
     <delete file="processing-py.jar"/>
     <delete>
@@ -176,7 +204,7 @@
       <for-platform platform="linux64" target="@{target}"/>
       <for-platform platform="windows32" target="@{target}"/>
       <for-platform platform="windows64" target="@{target}"/>
-    </sequential>      
+    </sequential>
   </macrodef>
 
   <!-- For debugging the platform macros. -->
@@ -219,17 +247,40 @@
             </exec>
           </then>
         </if>
-        <chmod dir="${jre.local.dir}/bin" includes="*" perm="755"/>
       </then>
     </if>
+    <chmod dir="${jre.local.dir}/bin" includes="*" perm="755"/>
   </target>
+
+  <macrodef name="compress">
+    <attribute name="from"/>
+    <attribute name="to"/>
+    <attribute name="dir"/>
+    <sequential>
+      <if>
+        <matches pattern="^.*zip$" string="@{to}"/>
+        <then>
+          <echo message="Creating zip archive @{to}."/>
+          <exec executable="zip" dir="@{dir}">
+            <arg line="-q -r @{to} @{from}"/>
+          </exec>
+        </then>
+        <else>
+          <echo message="Creating gzipped tar archive @{to}."/>
+          <exec executable="tar" dir="@{dir}">
+            <arg line="zcfh @{to} @{from}"/>
+          </exec>
+        </else>
+      </if>
+    </sequential>
+  </macrodef>
 
   <macrodef name="copy-processing-library">
     <attribute name="library"/>
     <attribute name="dir"/>
     <sequential>
-      <mkdir dir="@{dir}/libraries/processing/@{library}"/>
-      <copy todir="@{dir}/libraries/processing/@{library}">
+      <mkdir dir="@{dir}/@{library}"/>
+      <copy todir="@{dir}/@{library}">
         <!--
           The business about ${platform}/**, ${platform}64/** is for
           catching both macosx/*.dylib and macosx64/*.dylib, for those
@@ -242,60 +293,51 @@
     </sequential>
   </macrodef>
 
-  <macrodef name="compress">
-    <attribute name="from"/>
-    <attribute name="to"/>
-    <attribute name="dir"/>
-    <sequential>
-      <if>
-        <matches pattern="^.*zip$" string="@{to}"/>
-        <then>
-          <exec executable="zip" dir="@{dir}">
-            <arg line="-r @{to} @{from}"/>
-          </exec>
-        </then>
-        <else>
-          <exec executable="tar" dir="@{dir}">
-            <arg line="zcf @{to} @{from}"/>
-          </exec>
-        </else>
-      </if>
-    </sequential>
-  </macrodef>
+  <target name="check-for-platform-lib-cache">
+    <uptodate property="platform-lib-cache-exists"
+              srcfile="externals/processing/core/library/gluegen-rt.jar"
+              targetfile=".cache/libs/${platform}/opengl/gluegen-rt.jar"/>
+  </target>
+  <target name="platform-lib-cache"
+      depends="check-for-platform-lib-cache"
+      unless="platform-lib-cache-exists">
+    <local name="cache"/>
+    <property name="cache" value=".cache/libs/${platform}"/>
+    <mkdir dir="${cache}"/>
+    <mkdir dir="${cache}/opengl"/>
+    <copy todir="${cache}/opengl">
+      <fileset dir="externals/processing/core/library" includes="*.jar" excludes="core.jar"/>
+    </copy>
+    <copy-processing-library dir="${cache}" library="dxf"/>
+    <copy-processing-library dir="${cache}" library="lwjgl"/>
+    <copy-processing-library dir="${cache}" library="minim"/>
+    <copy-processing-library dir="${cache}" library="net"/>
+    <copy-processing-library dir="${cache}" library="pdf"/>
+    <copy-processing-library dir="${cache}" library="serial"/>
+    <copy-processing-library dir="${cache}" library="video"/>
+  </target>
 
-  <target name="make-one-distribution">
+  <target name="make-one-distribution" depends="platform-lib-cache">
     <echo message="Building distribution for ${platform}" />
     <for-platform platform="${platform}" target="getjre"/>
-    <delete dir="${dist.dir}"/>
+    <rm-rf target="${dist.dir}"/>
     <mkdir dir="${dist.dir}"/>
-
     <copy todir="${dist.dir}">
       <fileset file="LICENSE.txt"/>
-      <fileset dir="." includes="processing-py.jar"/>
       <fileset dir="." includes="workspace/**"/>
-      <fileset dir="." includes="examples.py/**,libraries/**" excludes="**.class"/>
-      <fileset dir="." includes="processing-py.*,processing-py.app/**"/>
+      <fileset dir="." includes="libraries/**"/>
+      <fileset dir="." includes="*.sh,*.bat,processing-py.app/**"/>
     </copy>
     <chmod file="${dist.dir}/processing-py.sh" perm="755"/>
     <chmod file="${dist.dir}/processing-py.bat" perm="755"/>
     <chmod file="${dist.dir}/processing-py.app/Contents/Resources/script" perm="755"/>
     <chmod file="${dist.dir}/processing-py.app/Contents/MacOS/processing-py" perm="755"/>
-    <copy todir="${dist.dir}/libraries/processing">
-      <fileset dir="externals/processing/core/library" includes="*.jar" excludes="core.jar"/>
-    </copy>
-    <copy-processing-library dir="${dist.dir}" library="dxf"/>
-    <copy-processing-library dir="${dist.dir}" library="lwjgl"/>
-    <copy-processing-library dir="${dist.dir}" library="minim"/>
-    <copy-processing-library dir="${dist.dir}" library="net"/>
-    <copy-processing-library dir="${dist.dir}" library="pdf"/>
-    <copy-processing-library dir="${dist.dir}" library="serial"/>
-    <copy-processing-library dir="${dist.dir}" library="video"/>
 
-    <mkdir dir="${dist.jre}"/>
-    <copy todir="${dist.jre}">
-      <fileset dir="${jre.local.dir}" includes="**"/>
-    </copy>
-    <chmod dir="${dist.jre}/bin" includes="*" perm="755"/>
+    <symlink resource="${basedir}/.cache/libs/${platform}"
+        link="${basedir}/${dist.dir}/libraries/processing"/>
+    <symlink resource="${basedir}/${jre.local.dir}" link="${basedir}/${dist.jre}"/>
+    <symlink resource="${basedir}/examples.py" link="${basedir}/${dist.dir}/examples.py"/>
+    <symlink resource="${basedir}/processing-py.jar" link="${basedir}/${dist.dir}/processing-py.jar"/>
 
     <compress from="${dist.name}" to="${dist.compressed}" dir="dist"/>
   </target>
@@ -304,7 +346,7 @@
     <for-all-platforms target="make-one-distribution"/>
   </target>
 
-  <!-- 
+  <!--
     $ ant –Dplatform=macosx make-distribution
   -->
   <target name="make-distribution" depends="jar">
@@ -324,7 +366,7 @@
     <for-all-platforms target="upload-one-distribution"/>
   </target>
 
-  <!-- 
+  <!--
     $ ant –Dplatform=macosx upload-distribution
   -->
   <target name="upload-distribution" depends="jar">
@@ -352,7 +394,7 @@
         <fileset dir="externals/processing/core/library">
           <include name="*.jar"/>
           <exclude name="core.jar"/> <!-- It's already in the processing-py.jar. -->
-        </fileset>        
+        </fileset>
       </classpath>
     </java>
   </target>
