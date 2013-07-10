@@ -41,7 +41,8 @@
     <attribute name="target"/>
     <sequential>
       <exec executable="/bin/rm" failonerror="true">
-        <arg line="-rf ${basedir}/@{target}"/>
+        <arg value="-rf"/>
+        <arg value="${basedir}/@{target}"/>
       </exec>
     </sequential>
   </macrodef>
