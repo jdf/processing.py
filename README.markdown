@@ -11,11 +11,11 @@ Tested on Mac OS 10.8.3, Windows XP and Ubuntu 12.10.
 
 ### Download Processing.py 0200 ###
 
-[Mac OS X (83M)](http://py.processing.org/processing.py-0200-macosx.tgz)
-[Windows x64 (74M)](processing.py-0200-windows64.zip)
-[Windows x32 (72M)](processing.py-0200-windows32.zip)
-[Linux x64 (68M)](processing.py-0200-linux64.tgz)
-[Linux x32 (69M)](processing.py-0200-linux32.tgz)
+  [Mac OS X (83M)](http://py.processing.org/processing.py-0200-macosx.tgz)
+  [Windows x64 (74M)](processing.py-0200-windows64.zip)
+  [Windows x32 (72M)](processing.py-0200-windows32.zip)
+  [Linux x64 (68M)](processing.py-0200-linux64.tgz)
+  [Linux x32 (69M)](processing.py-0200-linux32.tgz)
 
 Then, paste this code into a file, e.g., `mysketch.py`.
 
