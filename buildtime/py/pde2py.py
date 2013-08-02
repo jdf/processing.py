@@ -10,15 +10,9 @@ import re
 import shutil
 import sys
 
-(_, sketch) = sys.argv
-
-tld = 'C:/helios/workspace/zamples'
-
-src = '%s/examples/%s' % (tld, sketch)
+src, dest = sys.argv[1:]
 if not (os.path.exists(src) and os.path.isdir(src)):
     raise Exception("I expect the first argument to be the source directory.")
-
-dest = '%s/py/%s' % (tld, sketch)
 if os.path.exists(dest):
     shutil.rmtree(dest)
 os.makedirs(dest)
@@ -58,6 +52,8 @@ def xform_py(d, text):
     text = re.sub(r'(?m)^(\s*)else\s*$', r'\1else:', text)
     text = re.sub(r'/\*+|\*+/', '"""', text)
     text = text.replace('new ', '')
+    text = text.replace('true', 'True')
+    text = text.replace('false', 'False')
     text=text.replace('this.', 'self.')
     return (d, text)
 

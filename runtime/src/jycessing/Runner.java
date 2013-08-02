@@ -319,7 +319,7 @@ public class Runner {
    */
   @PythonUsage(methodName = "getLibrariesDir")
   public static File getLibrariesDir() {
-    String propsResource;
+    final String propsResource;
     try {
       propsResource =
           URLDecoder.decode(Runner.class.getResource("buildnumber.properties").toString(), "UTF-8");
@@ -350,13 +350,7 @@ public class Runner {
     // Recursively search the "libraries" directory for jar files and
     // directories containing dynamic libraries, adding them to the
     // classpath and the library path respectively.
-
-    // jar:file:/opt/feinberg/processing.py/processing-py.jar
-    // or
-    // file:/opt/feinberg/processing.py/bin/jycessing/buildnumber.properties
-
     final File libraries = getLibrariesDir();
-
     searchForExtraStuff(libraries);
 
     // Where is the sketch located?
@@ -401,7 +395,7 @@ public class Runner {
 
     try {
       PApplet.runSketch(args, applet);
-      applet.blockUntilFinished();
+      applet.await();
       log("Applet is finished. Disposing window.");
       ((Window)SwingUtilities.getRoot(applet)).dispose();
     } catch (final Throwable t) {

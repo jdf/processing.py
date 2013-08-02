@@ -28,6 +28,9 @@ import org.python.core.PyType;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
 
+import fisica.FContact;
+import fisica.FContactResult;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PFont;
@@ -86,6 +89,10 @@ abstract public class PAppletJythonDriver extends PApplet {
   private final PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth, mouseMovedMeth,
       mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth, initMeth,
       stopMeth, sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
+
+  // Callbacks from the Fisica library.
+  private final PyObject contactStartedMeth, contactPersistedMeth, contactEndedMeth,
+      contactResultMeth;
 
   // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
   // the source file name, so that errors have the file name instead of
@@ -178,6 +185,11 @@ abstract public class PAppletJythonDriver extends PApplet {
     sketchRendererMeth = interp.get("sketchRenderer");
     initMeth = interp.get("init");
     stopMeth = interp.get("stop");
+    contactEndedMeth = interp.get("contactEnded");
+    contactPersistedMeth = interp.get("contactPersisted");
+    contactResultMeth = interp.get("contactResult");
+    contactStartedMeth = interp.get("contactStarted");
+
     addComponentListener(new ComponentAdapter() {
       @Override
       public void componentHidden(final ComponentEvent e) {
@@ -211,7 +223,7 @@ abstract public class PAppletJythonDriver extends PApplet {
     }
   }
 
-  public void blockUntilFinished() throws InterruptedException {
+  public void await() throws InterruptedException {
     finishedLatch.await();
   }
 
@@ -478,6 +490,33 @@ abstract public class PAppletJythonDriver extends PApplet {
       }
     } finally {
       super.stop();
+    }
+  }
+
+  /*
+   * Fisica-related callbacks.
+   */
+  public void contactStarted(final FContact c) {
+    if (contactStartedMeth != null) {
+      contactStartedMeth.__call__(Py.java2py(c));
+    }
+  }
+
+  public void contactPersisted(final FContact c) {
+    if (contactPersistedMeth != null) {
+      contactPersistedMeth.__call__(Py.java2py(c));
+    }
+  }
+
+  public void contactEnded(final FContact c) {
+    if (contactEndedMeth != null) {
+      contactEndedMeth.__call__(Py.java2py(c));
+    }
+  }
+
+  public void contactResult(final FContactResult c) {
+    if (contactResultMeth != null) {
+      contactResultMeth.__call__(Py.java2py(c));
     }
   }
 }

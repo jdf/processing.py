@@ -62,9 +62,16 @@
 
   <target name="build" depends="generate-driver,build-processing">
     <mkdir dir="bin"/>
-    <javac classpath="${jython}:${corejar}" destdir="bin" includeantruntime="false">
+    <javac destdir="bin" includeantruntime="false">
       <src path="runtime/src"/>
       <src path="runtime/generated"/>
+      <classpath>
+        <pathelement location="${jython}"/>
+        <pathelement location="${corejar}"/>
+        <fileset dir="libraries/fisica">
+          <include name="*.jar"/>
+        </fileset>
+      </classpath>    	
     </javac>
     <copy todir="bin">
       <fileset dir="runtime/src" excludes="**/*.java"/>
