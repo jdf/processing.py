@@ -7,7 +7,7 @@ class Texto(FBox):
         self.textOffset = textAscent() - self.getHeight()/2
 
     def draw(self, applet):
-        self.super__draw(applet)
+        FBox.draw(self, applet)
         self.preDraw(applet)
         fill(0)
         stroke(0)
