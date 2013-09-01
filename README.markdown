@@ -45,13 +45,13 @@ To learn Processing.py check out these resources:
   * The [Python 2.7 documentation](http://docs.python.org/2/index.html).
   * And of course the [Java 7 API documentation](http://docs.oracle.com/javase/7/docs/api/).
 
-Processing.py comes with many examples, most of which are exactly like the
+Processing.py comes with many [examples](https://github.com/jdf/processing.py/tree/master/examples.py), most of which are exactly like the
 example sketches that come with Processing, but converted to Python.
 
-    $ processing-py.sh [examples.py/Basics/Math/noisefield.py](https://github.com/jdf/processing.py/tree/master/examples.py/Basics/Math/noisefield.py)
-    $ processing-py.sh [examples.py/Library/OpenGL/SpaceJunk.py](https://github.com/jdf/processing.py/tree/master/examples.py/Library/OpenGL/SpaceJunk.py)
-    $ processing-py.sh [examples.py/3D/Typography/KineticType.py](https://github.com/jdf/processing.py/tree/master/examples.py/3D/Typography/KineticType.py)
-    $ processing-py.sh [examples.py/3D/Textures/TextureCube.py](https://github.com/jdf/processing.py/tree/master/examples.py/3D/Textures/TextureCube.py)
+    $ processing-py.sh examples.py/Basics/Math/noisefield.py
+    $ processing-py.sh examples.py/Library/OpenGL/SpaceJunk.py
+    $ processing-py.sh examples.py/3D/Typography/KineticType.py
+    $ processing-py.sh [examples.py/3D/Textures/TextureCube.py
 
 ## Using Processing Libraries ##
 
