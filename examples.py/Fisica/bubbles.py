@@ -16,9 +16,6 @@ topMargin = 50
 bottomMargin = 300
 sideMargin = 100
 
-class Data(object):
-    pass
-
 def setup():
     global world
 

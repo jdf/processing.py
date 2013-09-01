@@ -37,7 +37,6 @@ def setup():
         box.setFill(120, 200, 190)
         world.add(box)
         steps.append(box)
-
     for i in range(1, stepCount):
         junta = FDistanceJoint(steps[i-1], steps[i])
         junta.setAnchor1(boxWidth/2, 0)
@@ -47,7 +46,6 @@ def setup():
         junta.setFill(0)
         junta.calculateLength()
         world.add(junta)
-
     left = FCircle(10)
     left.setStatic(True)
     left.setPosition(0, puenteY)
