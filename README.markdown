@@ -1,6 +1,6 @@
 # processing.py #
 
-Write Processing sketches in Python.
+Write real [Processing](http://processing.org/) sketches in Python.
 
   * Based on [Processing 2.0](http://processing.org/), and compatible with most [3rd party libraries](http://www.processing.org/reference/libraries/).
   * Source compatible with [Python 2.7.3](http://python.org).
@@ -9,13 +9,13 @@ Tested on Mac OS 10.8.3, Windows XP, Windows 7, and Ubuntu 12.10.
 
 ## Quick Start ##
 
-### Download Processing.py 0200 ###
+### Download Processing.py 0202 ###
 
-- [Mac OS X (83M)](http://py.processing.org/processing.py-0200-macosx.tgz)
-- [Windows x64 (74M)](http://py.processing.org/processing.py-0200-windows64.zip)
-- [Windows x32 (72M)](http://py.processing.org/processing.py-0200-windows32.zip)
-- [Linux x64 (68M)](http://py.processing.org/processing.py-0200-linux64.tgz)
-- [Linux x32 (69M)](http://py.processing.org/processing.py-0200-linux32.tgz)
+- [Mac OS X (83M)](http://py.processing.org/processing.py-0202-macosx.tgz)
+- [Windows x64 (74M)](http://py.processing.org/processing.py-0202-windows64.zip)
+- [Windows x32 (72M)](http://py.processing.org/processing.py-0202-windows32.zip)
+- [Linux x64 (68M)](http://py.processing.org/processing.py-0202-linux64.tgz)
+- [Linux x32 (69M)](http://py.processing.org/processing.py-0202-linux32.tgz)
 
 Then, paste this code into a file, e.g., `mysketch.py`.
 
@@ -25,11 +25,11 @@ Then, paste this code into a file, e.g., `mysketch.py`.
 	def draw():
 	    ellipse(mouseX, mouseY, 10, 10)
 
-Drag and drop your sketch onto one of these files according to your platform:
+Drag and drop your sketch onto one of these files, according to your platform:
 
 <img src="http://py.processing.org/howtolaunch.jpg"/>
 
-If that does not work for you, run the sketch either with the included launcher script (on linux and OS X):
+You can also run the sketch from the command line, either with the included launcher script:
 
     $ ./processing-py.sh path/to/mysketch.py
 
@@ -45,22 +45,21 @@ To learn Processing.py check out these resources:
   * The [Python 2.7 documentation](http://docs.python.org/2/index.html).
   * And of course the [Java 7 API documentation](http://docs.oracle.com/javase/7/docs/api/).
 
-In addition, we are a great fan of learning by doing, and a number of converted examples outline how to use Processing.py:
+Processing.py comes with many examples, most of which are exactly like the
+example sketches that come with Processing, but converted to Python.
 
-    $ processing-py.sh examples.py/Basics/Math/noisefield.py
-    $ processing-py.sh examples.py/Library/OpenGL/SpaceJunk.py
-    $ processing-py.sh examples.py/3D/Typography/KineticType.py
-    $ processing-py.sh examples.py/3D/Textures/TextureCube.py
-
-On Windows use `processing-py.bat` instead. On Mac OS X, use the `processing-py` app, or simply drag and drop an example script onto the app.
+    $ processing-py.sh [examples.py/Basics/Math/noisefield.py](https://github.com/jdf/processing.py/tree/master/examples.py/Basics/Math/noisefield.py)
+    $ processing-py.sh [examples.py/Library/OpenGL/SpaceJunk.py](https://github.com/jdf/processing.py/tree/master/examples.py/Library/OpenGL/SpaceJunk.py)
+    $ processing-py.sh [examples.py/3D/Typography/KineticType.py](https://github.com/jdf/processing.py/tree/master/examples.py/3D/Typography/KineticType.py)
+    $ processing-py.sh [examples.py/3D/Textures/TextureCube.py](https://github.com/jdf/processing.py/tree/master/examples.py/3D/Textures/TextureCube.py)
 
 ## Using Processing Libraries ##
 
-Processing.py is implemented in Java, and is meant to be compatible with the existing ecosystem of [Processing libraries](http://processing.org/reference/libraries/).
+Processing.py is implemented in Java, and is designed to be compatible with the existing ecosystem of [Processing libraries](http://processing.org/reference/libraries/).
 
-* Put processing extension libraries in the `libraries` subdirectory of your processing.py installation.
+* Put processing extension libraries in the `libraries` subdirectory of your processing.py installation. Processing.py will search every jar file and directory beneath that special directory, so you don't need to be too fussy about where things go. Just unzip Processing libraries right there.
 
-* Import them in one of the usual Python ways, as in these snippets:
+* Import the library in one of the usual Python ways, as in these snippets:
 
         from peasy import PeasyCam
         # or
@@ -70,12 +69,12 @@ Processing.py is implemented in Java, and is meant to be compatible with the exi
 
     Unfortunately, `from foo import *` is not supported.
 
-* In your `setup()` method
+* Then, in your `setup()` method:
 
         cam = PeasyCam(this, 200)
 
   Many libraries need a reference to "the current PApplet", and that's what
-  `this` is for.
+  `this` is for. Of course, there's no such thing as `this` in Python; it's just something that processing.py provides for you for compatibility with such libraries.
 
 ## Included Libraries ##
 
@@ -87,7 +86,11 @@ If you find that some Processing library doesn't work as expected with processin
 
 ## FAQ ##
 
-  * __How can I create a wrapper?__
+  * __How do I report bugs or request new features?__
+
+    Please report any issue in the [bug tracker](http://github.com/jdf/processing.py/issues).
+
+  * __How can I create a launcher for my sketch?__
 
     Add these lines near the top of your script:
 
@@ -114,13 +117,9 @@ If you find that some Processing library doesn't work as expected with processin
 
     In case you need other primitive values, please [let us know](http://github.com/jdf/processing.py/issues)!
 
-  * __I found a bug, what should I do?__
-
-    Please report any issue in the [bug tracker](http://github.com/jdf/processing.py/issues).
-
   * __Why was this project created?__
 
-    I (Jonathan) recently gave a talk about Processing to a group of rather bright 8th-graders,
+    I ([Jonathan](http://MrFeinberg.com/)) recently gave a talk about Processing to a group of rather bright 8th-graders,
     as part of a computer-programming summer camp they were attending at my office.
     Their curriculum up to that point had been in Python, which is an eminently
     sensible choice, given the
