@@ -51,7 +51,7 @@ example sketches that come with Processing, but converted to Python.
     $ processing-py.sh examples.py/Basics/Math/noisefield.py
     $ processing-py.sh examples.py/Library/OpenGL/SpaceJunk.py
     $ processing-py.sh examples.py/3D/Typography/KineticType.py
-    $ processing-py.sh [examples.py/3D/Textures/TextureCube.py
+    $ processing-py.sh examples.py/3D/Textures/TextureCube.py
 
 ## Using Processing Libraries ##
 
