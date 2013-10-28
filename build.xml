@@ -7,6 +7,9 @@
      work just fine on Linux. It is not expected to work at all on Windows.
 
      jdf
+
+     Run "ant make-all-distributions" to create release.
+
      ====================================================================== -->
 <project name="processing.py" default="jar">
   <description>Write Processing sketches in Python</description>
@@ -71,7 +74,7 @@
         <fileset dir="libraries/fisica">
           <include name="*.jar"/>
         </fileset>
-      </classpath>    	
+      </classpath>
     </javac>
     <copy todir="bin">
       <fileset dir="runtime/src" excludes="**/*.java"/>
