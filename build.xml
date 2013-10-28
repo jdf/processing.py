@@ -8,7 +8,9 @@
 
      jdf
 
-     Run "ant make-all-distributions" to create release.
+     Run
+      "ant make-all-distributions" to create release.
+      "ant –Dplatform=macosx make-distribution" to create a release for OSX.
 
      ====================================================================== -->
 <project name="processing.py" default="jar">
