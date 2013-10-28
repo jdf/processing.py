@@ -1,4 +1,4 @@
-@echo off 
+@echo off
 
 
 set "ROOT=%~dp0"
@@ -11,15 +11,15 @@ set JVM_ARGS=-Xmx1024m
 set "SCRIPTARGUMENT=%~1"
 
 if not "%SCRIPTARGUMENT%" == "" (
-	REM Check if we run the default the given script 	
-	set "DEFAULTSCRIPT=%SCRIPTARGUMENT%"	
-) 
+	REM Check if we run the default the given script
+	set "DEFAULTSCRIPT=%SCRIPTARGUMENT%"
+)
 
 
-IF exist "%ROOT%\JREs\jre7.win" ( 
+IF exist "%ROOT%\jre" (
 	REM Check if we should override default java
-	set "JAVA=%ROOT%\JREs\jre7.win\bin\javaw"
-) 
+	set "JAVA=%ROOT%\jre\bin\javaw"
+)
 
 
 REM msg "%username%" "%JAVA% not found!"
@@ -31,7 +31,7 @@ start "xxx" "%JAVA%" %JVM_ARGS% -splash:"%SPLASH%" -jar "%ROOT%\processing-py.ja
 
 if not %ERRORLEVEL% == 1 (
 	if not %ERRORLEVEL% == 0 (
-		echo "Unable to start Java"	
+		echo "Unable to start Java"
 		msg "%username%" "Unable to start Java"
 	)
 )
