@@ -5,7 +5,7 @@ Write real [Processing](http://processing.org/) sketches in Python.
   * Based on [Processing 2.0](http://processing.org/), and compatible with most [3rd party libraries](http://www.processing.org/reference/libraries/).
   * Source compatible with [Python 2.7.3](http://python.org).
 
-Tested on Mac OS 10.8.3, Windows XP, Windows 7, and Ubuntu 12.10.
+Tested on Mac OS 10.8 & 10.9, Windows XP, 7 & 8, and Ubuntu 12.10.
 
 ## Quick Start ##
 
