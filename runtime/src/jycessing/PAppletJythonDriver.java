@@ -15,21 +15,31 @@
  */
 package jycessing;
 
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.io.File;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
+
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
+import org.python.core.PyBoolean;
 import org.python.core.PyException;
+import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyJavaType;
 import org.python.core.PyObject;
 import org.python.core.PySet;
+import org.python.core.PyString;
 import org.python.core.PyStringMap;
 import org.python.core.PyType;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
-
-import fisica.FContact;
-import fisica.FContactResult;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -46,16 +56,8 @@ import processing.opengl.PGraphics2D;
 import processing.opengl.PGraphics3D;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PShader;
-
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.io.File;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashSet;
-import java.util.concurrent.CountDownLatch;
-import java.util.regex.Pattern;
+import fisica.FContact;
+import fisica.FContactResult;
 
 /**
  *
@@ -74,10 +76,14 @@ abstract public class PAppletJythonDriver extends PApplet {
 
   private final CountDownLatch finishedLatch = new CountDownLatch(1);
 
+  private enum Mode {
+    STATIC, DRAW_LOOP
+  }
+
   // A static-mode sketch must be interpreted from within the setup() method.
   // All others are interpreted during construction in order to harvest method
   // definitions, which we then invoke during the run loop.
-  private final boolean isStaticMode;
+  private final Mode mode;
 
   // The presence of either setup() or draw() indicates that this is not a
   // static sketch.
@@ -113,29 +119,18 @@ abstract public class PAppletJythonDriver extends PApplet {
     }
   }
 
-  protected void setFields() {
-    /*
-     * If key is "CODED", i.e., an arrow key or other non-printable, pass that
-     * value through as-is. If it's printable, convert it to a unicode string,
-     * so that the user can compare key == 'x' instead of key == ord('x').
-     */
-    builtins.__setitem__("key",
-        key == CODED ? new PyInteger(key) : new PyUnicode(Character.toString(key)));
-  }
-
   public PAppletJythonDriver(final InteractiveConsole interp, final String sketchPath,
                              final String programText) {
     this.programText = programText;
     this.pySketchPath = sketchPath;
     this.sketchPath = new File(sketchPath).getParent();
-    this.isStaticMode = !ACTIVE_METHOD_DEF.matcher(programText).find();
-    Runner.log("Mode: ", (isStaticMode ? "static" : "active"));
+    this.mode = ACTIVE_METHOD_DEF.matcher(programText).find() ? Mode.DRAW_LOOP : Mode.STATIC;
+    Runner.log("Mode: ", mode.name());
     this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
     this.interp = interp;
     initializeStatics(builtins);
     setSet();
     populateBuiltins();
-    setFields();
     builtins.__setitem__("this", Py.java2py(this));
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("exit", new PyObject() {
@@ -145,23 +140,10 @@ abstract public class PAppletJythonDriver extends PApplet {
         return Py.None;
       }
     });
-    builtins.__setitem__("PApplet", Py.java2py(PApplet.class));
-    builtins.__setitem__("PConstants", Py.java2py(PConstants.class));
-    builtins.__setitem__("PFont", Py.java2py(PFont.class));
-    builtins.__setitem__("PGraphics", Py.java2py(PGraphics.class));
-    builtins.__setitem__("PGraphics2D", Py.java2py(PGraphics2D.class));
-    builtins.__setitem__("PGraphics3D", Py.java2py(PGraphics3D.class));
-    builtins.__setitem__("PGraphicsJava2D", Py.java2py(PGraphicsJava2D.class));
-    builtins.__setitem__("PGraphicsOpenGL", Py.java2py(PGraphicsOpenGL.class));
-    builtins.__setitem__("PImage", Py.java2py(PImage.class));
-    builtins.__setitem__("PMatrix2D", Py.java2py(PMatrix2D.class));
-    builtins.__setitem__("PMatrix3D", Py.java2py(PMatrix3D.class));
-    builtins.__setitem__("PShader", Py.java2py(PShader.class));
-    builtins.__setitem__("PShape", Py.java2py(PShape.class));
-    builtins.__setitem__("PShapeSVG", Py.java2py(PShapeSVG.class));
-    builtins.__setitem__("PStyle", Py.java2py(PStyle.class));
+    exposeProcessingClasses();
+    wrapProcessingVariables();
 
-    if (!isStaticMode) {
+    if (mode == Mode.DRAW_LOOP) {
       // Executing the sketch will bind method names ("draw") to PyCode
       // objects (the sketch's draw method), which can then be invoked
       // during the run loop
@@ -198,6 +180,168 @@ abstract public class PAppletJythonDriver extends PApplet {
     });
   }
 
+  protected void exposeProcessingClasses() {
+    builtins.__setitem__("PApplet", Py.java2py(PApplet.class));
+    builtins.__setitem__("PConstants", Py.java2py(PConstants.class));
+    builtins.__setitem__("PFont", Py.java2py(PFont.class));
+    builtins.__setitem__("PGraphics", Py.java2py(PGraphics.class));
+    builtins.__setitem__("PGraphics2D", Py.java2py(PGraphics2D.class));
+    builtins.__setitem__("PGraphics3D", Py.java2py(PGraphics3D.class));
+    builtins.__setitem__("PGraphicsJava2D", Py.java2py(PGraphicsJava2D.class));
+    builtins.__setitem__("PGraphicsOpenGL", Py.java2py(PGraphicsOpenGL.class));
+    builtins.__setitem__("PImage", Py.java2py(PImage.class));
+    builtins.__setitem__("PMatrix2D", Py.java2py(PMatrix2D.class));
+    builtins.__setitem__("PMatrix3D", Py.java2py(PMatrix3D.class));
+    builtins.__setitem__("PShader", Py.java2py(PShader.class));
+    builtins.__setitem__("PShape", Py.java2py(PShape.class));
+    builtins.__setitem__("PShapeSVG", Py.java2py(PShapeSVG.class));
+    builtins.__setitem__("PStyle", Py.java2py(PStyle.class));
+  }
+
+  protected void wrapProcessingVariables() {
+    builtins.__setitem__("mouseX", new PyInteger(-1) {
+      @Override
+      public int getValue() {
+        return mouseX;
+      }
+    });
+    builtins.__setitem__("width", new PyInteger(-1) {
+      @Override
+      public int getValue() {
+        return width;
+      }
+    });
+    builtins.__setitem__("height", new PyInteger(-1) {
+      @Override
+      public int getValue() {
+        return height;
+      }
+    });
+    builtins.__setitem__("pmouseY", new PyInteger(-1) {
+      @Override
+      public int getValue() {
+        return pmouseY;
+      }
+    });
+    builtins.__setitem__("paused", new PyBoolean(false) {
+      @Override
+      public boolean getBooleanValue() {
+        return paused;
+      }
+    });
+    builtins.__setitem__("focused", new PyBoolean(false) {
+      @Override
+      public boolean getBooleanValue() {
+        return focused;
+      }
+    });
+    builtins.__setitem__("displayHeight", new PyInteger(-1) {
+      @Override
+      public int getValue() {
+        return displayHeight;
+      }
+    });
+    builtins.__setitem__("keyPressed", new PyBoolean(false) {
+      @Override
+      public boolean getBooleanValue() {
+        return keyPressed;
+      }
+    });
+    builtins.__setitem__("mousePressed", new PyBoolean(false) {
+      @Override
+      public boolean getBooleanValue() {
+        return mousePressed;
+      }
+    });
+    builtins.__setitem__("frameCount", new PyInteger(-1) {
+      @Override
+      public int getValue() {
+        return frameCount;
+      }
+    });
+    builtins.__setitem__("mouseButton", new PyInteger(-1) {
+      @Override
+      public int getValue() {
+        return mouseButton;
+      }
+    });
+    builtins.__setitem__("pmouseX", new PyInteger(-1) {
+      @Override
+      public int getValue() {
+        return pmouseX;
+      }
+    });
+    builtins.__setitem__("keyCode", new PyInteger(-1) {
+      @Override
+      public int getValue() {
+        return keyCode;
+      }
+    });
+    builtins.__setitem__("frameRate", new PyFloat(-1) {
+      @Override
+      public double getValue() {
+        return frameRate;
+      }
+
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        switch (args.length) {
+          default:
+            throw new RuntimeException("Can't call \"frameRate\" with " + args.length
+                + " parameters.");
+          case 1: {
+            frameRate((float)args[0].asDouble());
+            return Py.None;
+          }
+        }
+      }
+    });
+    builtins.__setitem__("displayWidth", new PyInteger(-1) {
+      @Override
+      public int getValue() {
+        return displayWidth;
+      }
+    });
+    builtins.__setitem__("mouseY", new PyInteger(-1) {
+      @Override
+      public int getValue() {
+        return mouseY;
+      }
+    });
+    /*
+     * If key is "CODED", i.e., an arrow key or other non-printable, pass that
+     * value through as-is. If it's printable, convert it to a unicode string,
+     * so that the user can compare key == 'x' instead of key == ord('x').
+     */
+    builtins.__setitem__("key", new PyObject() {
+      private char lastKey = (char)-1;
+      private PyObject cachedProxy = null;
+
+      private PyObject getProxy() {
+        if (key != lastKey || cachedProxy == null) {
+          cachedProxy = key == CODED ? new PyInteger(key) : new PyUnicode(Character.toString(key));
+          lastKey = key;
+        }
+        return cachedProxy;
+      }
+
+      @Override
+      public PyObject __eq__(PyObject other) {
+        return getProxy().__eq__(other);
+      }
+
+      @Override
+      public PyString __str__() {
+        return getProxy().__str__();
+      }
+
+      @Override
+      public PyUnicode __unicode__() {
+        return getProxy().__unicode__();
+      }
+    });
+  }
+
   @Override
   public void start() {
     // I want to quit on runtime exceptions.
@@ -205,7 +349,7 @@ abstract public class PAppletJythonDriver extends PApplet {
     Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
       public void uncaughtException(Thread t, Throwable e) {
         e.printStackTrace(System.err);
-        System.exit(-1);
+        finishedLatch.countDown();
       }
     });
     super.start();
@@ -241,7 +385,6 @@ abstract public class PAppletJythonDriver extends PApplet {
         invalidateMethodCache();
       }
 
-      //@Override
       @Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
         switch (args.length) {
@@ -305,19 +448,16 @@ abstract public class PAppletJythonDriver extends PApplet {
   @Override
   public void size(final int iwidth, final int iheight, final String irenderer, final String ipath) {
     super.size(iwidth, iheight, irenderer, ipath);
-    setFields();
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("frame", Py.java2py(frame));
   }
 
   @Override
   public void setup() {
-    // Put all of PApplet's globals into the Python context
-    setFields();
     builtins.__setitem__("frame", Py.java2py(frame));
 
     try {
-      if (isStaticMode) {
+      if (mode == Mode.STATIC) {
         // A static sketch gets called once, from this spot.
         Runner.log("Interpreting static-mode sketch.");
         interpretSketch();
@@ -337,8 +477,6 @@ abstract public class PAppletJythonDriver extends PApplet {
       Runner.log("Calling super.draw() in what I assume is a static-mode sketch.");
       super.draw();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       drawMeth.__call__();
     }
   }
@@ -354,8 +492,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     if (mouseClickedMeth == null) {
       super.mouseClicked();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       mouseClickedMeth.__call__();
     }
   }
@@ -365,8 +501,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     if (mouseMovedMeth == null) {
       super.mouseMoved();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       mouseMovedMeth.__call__();
     }
   }
@@ -376,8 +510,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     if (sketchFullScreenMeth == null) {
       return super.sketchFullScreen();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       return sketchFullScreenMeth.__call__().__nonzero__();
     }
   }
@@ -387,8 +519,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     if (sketchWidthMeth == null) {
       return super.sketchWidth();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       return sketchWidthMeth.__call__().asInt();
     }
   }
@@ -398,8 +528,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     if (sketchRendererMeth == null) {
       return super.sketchRenderer();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       return sketchRendererMeth.__call__().asString();
     }
   }
@@ -409,8 +537,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     if (sketchHeightMeth == null) {
       return super.sketchWidth();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       return sketchHeightMeth.__call__().asInt();
     }
   }
@@ -420,8 +546,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     if (mousePressedMeth == null) {
       super.mousePressed();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       mousePressedMeth.__call__();
     }
   }
@@ -431,8 +555,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     if (mouseReleasedMeth == null) {
       super.mouseReleased();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       mouseReleasedMeth.__call__();
     }
   }
@@ -442,8 +564,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     if (mouseDraggedMeth == null) {
       super.mouseDragged();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       mouseDraggedMeth.__call__();
     }
   }
@@ -453,8 +573,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     if (keyPressedMeth == null) {
       super.keyPressed();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       keyPressedMeth.__call__();
     }
   }
@@ -464,8 +582,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     if (keyReleasedMeth == null) {
       super.keyReleased();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       keyReleasedMeth.__call__();
     }
   }
@@ -475,8 +591,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     if (keyTypedMeth == null) {
       super.keyTyped();
     } else {
-      // Put all of PApplet's globals into the Python context
-      setFields();
       keyTypedMeth.__call__();
     }
   }

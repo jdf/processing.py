@@ -44,14 +44,4 @@ public class DriverImpl extends PAppletJythonDriver {
 	   ]]]*/
 	   /*[[[end]]]*/
 	}
-
-	@Override
-	protected void setFields() {
-       /*[[[cog
-       for b in p.field_bindings:
-           b.emit()
-       ]]]*/
-       /*[[[end]]] */
-       super.setFields();
-	}
 }

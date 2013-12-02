@@ -78,6 +78,7 @@ def draw():
     background(50, 64, 42)
     # basic lighting setup
     lights()
+
     # 2 rendering styles
     # wireframe or solid
     if isWireFrame:
@@ -87,6 +88,7 @@ def draw():
         noStroke()
         fill(150, 195, 125)
 
+    text("%s" % frameRate, 20, 40)
     #center and spin toroid
     translate(width / 2, height / 2, -100)
     rotateX(frameCount * PI / 150)
@@ -100,6 +102,7 @@ def draw():
             vertex(v[0], v[1], v[2])
         endShape()
 
+
 """
  left/right arrow keys control ellipse detail
  up/down arrow keys control segment detail.
@@ -110,7 +113,7 @@ def draw():
  """
 def keyPressed():
     global pts, segments, isHelix, isWireFrame, latheRadius, radius
-
+    gnarble()
     # clear the list of strips, to force a re-evaluation
     del strips[:]
 

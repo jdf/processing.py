@@ -281,8 +281,5 @@ class Binding(object):
 bindings = {}
 for m in WANTED_METHODS:
     bindings.setdefault(m.getName(), Binding(m.getName())).add_method(m)
-for f in WANTED_FIELDS:
-    bindings.setdefault(f.getName(), Binding(f.getName())).set_field(f)
 
 simple_method_bindings = [b for b in bindings.values() if not b.field]
-field_bindings = [b for b in bindings.values() if b.field]
