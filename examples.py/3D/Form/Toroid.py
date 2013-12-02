@@ -113,7 +113,7 @@ def draw():
  """
 def keyPressed():
     global pts, segments, isHelix, isWireFrame, latheRadius, radius
-    gnarble()
+    
     # clear the list of strips, to force a re-evaluation
     del strips[:]
 
