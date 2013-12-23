@@ -65,11 +65,10 @@
     </jar>
   </target>
 
-  <target name="build" depends="generate-driver,build-processing">
+  <target name="build" depends="build-processing">
     <mkdir dir="bin"/>
     <javac destdir="bin" includeantruntime="false">
       <src path="runtime/src"/>
-      <src path="runtime/generated"/>
       <classpath>
         <pathelement location="${jython}"/>
         <pathelement location="${corejar}"/>
@@ -109,27 +108,6 @@
     <ant dir="externals/processing/build" target="build"/>
   </target>
 
-  <target name="check-driver-required">
-    <uptodate property="driver-is-generated"
-              srcfile="buildtime/template/DriverImpl.java.cog"
-              targetfile="runtime/generated/jycessing/DriverImpl.java"/>
-  </target>
-  <target name="generate-driver"
-      depends="check-driver-required,build-processing"
-      unless="driver-is-generated"
-      description="Generate DriverImpl class">
-    <java
-        classpath="${jython}:${corejar}:${joglall}:${gluegenrt}"
-        classname="org.python.util.jython"
-        fork="true">
-      <arg value="buildtime/py/cog.py"/>
-      <arg value="-U"/>
-      <arg value="-o"/>
-      <arg value="runtime/generated/jycessing/DriverImpl.java"/>
-      <arg value="buildtime/template/DriverImpl.java.cog"/>
-    </java>
-  </target>
-
   <target name="clean">
     <ant dir="externals/processing/build" target="clean"/>
     <rm-rf target="bin"/>
@@ -139,9 +117,6 @@
     <delete file="processing-py.jar"/>
     <delete>
       <fileset dir="buildtime/py" includes="*.class"/>
-    </delete>
-    <delete>
-      <fileset dir="buildtime/lib/jython/Lib/cogapp" includes="*.class"/>
     </delete>
     <exec executable="find" failonerror="true">
       <arg line=". -name .DS_Store -depth -exec rm {} ;"/>

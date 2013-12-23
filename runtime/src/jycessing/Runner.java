@@ -381,11 +381,16 @@ public class Runner {
     // For error messages
     interp.set("__file__", sketchPath);
 
-    interp.exec(read(Runner.class.getResourceAsStream("core.py")));
     interp.exec(read(LaunchHelper.class.getResourceAsStream("launcher.py")));
+    interp.set("__interp__", interp);
+    interp.set("__path__", sketchPath);
+    interp.set("__source__", sketchSource);
+    interp.exec(read(Runner.class.getResourceAsStream("core.py")));
 
     // Bind the sketch to a PApplet
-    final PAppletJythonDriver applet = new DriverImpl(interp, sketchPath, sketchSource);
+    final PAppletJythonDriver applet =
+        (PAppletJythonDriver)interp.get("__papplet__").__tojava__(PAppletJythonDriver.class);
+    applet.findSketchMethods();
 
     // Hide the splash, if possible 
     final SplashScreen splash = SplashScreen.getSplashScreen();

@@ -43,19 +43,7 @@ import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
-import processing.core.PFont;
-import processing.core.PGraphics;
-import processing.core.PGraphicsJava2D;
 import processing.core.PImage;
-import processing.core.PMatrix2D;
-import processing.core.PMatrix3D;
-import processing.core.PShape;
-import processing.core.PShapeSVG;
-import processing.core.PStyle;
-import processing.opengl.PGraphics2D;
-import processing.opengl.PGraphics3D;
-import processing.opengl.PGraphicsOpenGL;
-import processing.opengl.PShader;
 import fisica.FContact;
 import fisica.FContactResult;
 
@@ -65,9 +53,7 @@ import fisica.FContactResult;
  *
  */
 @SuppressWarnings("serial")
-abstract public class PAppletJythonDriver extends PApplet {
-
-  abstract protected void populateBuiltins();
+public class PAppletJythonDriver extends PApplet {
 
   protected final PyStringMap builtins;
   protected final InteractiveConsole interp;
@@ -92,13 +78,12 @@ abstract public class PAppletJythonDriver extends PApplet {
 
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
-  private final PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth, mouseMovedMeth,
+  private PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth, mouseMovedMeth,
       mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth, initMeth,
       stopMeth, sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
 
   // Callbacks from the Fisica library.
-  private final PyObject contactStartedMeth, contactPersistedMeth, contactEndedMeth,
-      contactResultMeth;
+  private PyObject contactStartedMeth, contactPersistedMeth, contactEndedMeth, contactResultMeth;
 
   // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
   // the source file name, so that errors have the file name instead of
@@ -130,8 +115,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     this.interp = interp;
     initializeStatics(builtins);
     setSet();
-    populateBuiltins();
-    builtins.__setitem__("this", Py.java2py(this));
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("exit", new PyObject() {
       @Override
@@ -140,9 +123,17 @@ abstract public class PAppletJythonDriver extends PApplet {
         return Py.None;
       }
     });
-    exposeProcessingClasses();
     wrapProcessingVariables();
 
+    addComponentListener(new ComponentAdapter() {
+      @Override
+      public void componentHidden(final ComponentEvent e) {
+        finishedLatch.countDown();
+      }
+    });
+  }
+
+  public void findSketchMethods() {
     if (mode == Mode.DRAW_LOOP) {
       // Executing the sketch will bind method names ("draw") to PyCode
       // objects (the sketch's draw method), which can then be invoked
@@ -171,31 +162,6 @@ abstract public class PAppletJythonDriver extends PApplet {
     contactPersistedMeth = interp.get("contactPersisted");
     contactResultMeth = interp.get("contactResult");
     contactStartedMeth = interp.get("contactStarted");
-
-    addComponentListener(new ComponentAdapter() {
-      @Override
-      public void componentHidden(final ComponentEvent e) {
-        finishedLatch.countDown();
-      }
-    });
-  }
-
-  protected void exposeProcessingClasses() {
-    builtins.__setitem__("PApplet", Py.java2py(PApplet.class));
-    builtins.__setitem__("PConstants", Py.java2py(PConstants.class));
-    builtins.__setitem__("PFont", Py.java2py(PFont.class));
-    builtins.__setitem__("PGraphics", Py.java2py(PGraphics.class));
-    builtins.__setitem__("PGraphics2D", Py.java2py(PGraphics2D.class));
-    builtins.__setitem__("PGraphics3D", Py.java2py(PGraphics3D.class));
-    builtins.__setitem__("PGraphicsJava2D", Py.java2py(PGraphicsJava2D.class));
-    builtins.__setitem__("PGraphicsOpenGL", Py.java2py(PGraphicsOpenGL.class));
-    builtins.__setitem__("PImage", Py.java2py(PImage.class));
-    builtins.__setitem__("PMatrix2D", Py.java2py(PMatrix2D.class));
-    builtins.__setitem__("PMatrix3D", Py.java2py(PMatrix3D.class));
-    builtins.__setitem__("PShader", Py.java2py(PShader.class));
-    builtins.__setitem__("PShape", Py.java2py(PShape.class));
-    builtins.__setitem__("PShapeSVG", Py.java2py(PShapeSVG.class));
-    builtins.__setitem__("PStyle", Py.java2py(PStyle.class));
   }
 
   protected void wrapProcessingVariables() {
