@@ -1,7 +1,13 @@
+# We expose many Processing-related names as builtins, so that no imports
+# are necessary, even in auxilliary modules.
 import __builtin__
 
+# PAppletJythonDriver is a PApplet that knows how to interpret a Python
+# Processing sketch, and which delegates Processing callbacks (such as
+# setup(), draw(), keyPressed(), etc.) to the appropriate Python code.
 from jycessing import PAppletJythonDriver
 
+# Bring all of the core Processing classes by name into the builtin namespace.
 from processing.core import PApplet
 from processing.core import PConstants
 from processing.core import PFont
@@ -33,6 +39,8 @@ __builtin__.PApplet = PShapeOBJ
 __builtin__.PApplet = PShapeSVG
 __builtin__.PApplet = PStyle
 
+# PVector requires special handling, because it exposes the same method names
+# as static methods and instance methods.
 class PVector(object):
     @classmethod
     def __new__(cls, *args):
@@ -92,11 +100,20 @@ def __mul__(a, b):
         raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
     return PVector(a.x * b, a.y * b, a.z * b)
 
+# Now expose the funky PVector class as a builtin.
 __builtin__.PVector = PVector
 
+# Construct the PApplet.
 __papplet__ = PAppletJythonDriver(__interp__, __path__, __source__)
+# Make it available to sketches by the name "this", to better match existing
+# Java-based documentation for third-party libraries, and such.
 __builtin__.this = __papplet__
 
+
+# Expose all of the builtin Processing methods. Credit is due to
+# https://github.com/kazimuth/python-mode-processing for the
+# technique of exploiting Jython's bound methods, which is tidy
+# and simple.
 __builtin__.alpha = __papplet__.alpha
 __builtin__.ambient = __papplet__.ambient
 __builtin__.ambientLight = __papplet__.ambientLight
@@ -138,6 +155,7 @@ __builtin__.curvePoint = __papplet__.curvePoint
 __builtin__.curveTangent = __papplet__.curveTangent
 __builtin__.curveTightness = __papplet__.curveTightness
 __builtin__.curveVertex = __papplet__.curveVertex
+__builtin__.delay = __papplet__.delay
 __builtin__.directionalLight = __papplet__.directionalLight
 __builtin__.ellipse = __papplet__.ellipse
 __builtin__.ellipseMode = __papplet__.ellipseMode
@@ -147,9 +165,12 @@ __builtin__.endContour = __papplet__.endContour
 __builtin__.endRaw = __papplet__.endRaw
 __builtin__.endRecord = __papplet__.endRecord
 __builtin__.endShape = __papplet__.endShape
-__builtin__.exit = __papplet__.exit
+# We provide a special exit() method.
+#__builtin__.exit = __papplet__.exit
 __builtin__.fill = __papplet__.fill
-__builtin__.filter = __papplet__.filter
+
+# TODO: fix filter() !
+#__builtin__.filter = __papplet__.filter
 __builtin__.frameRate = __papplet__.frameRate
 __builtin__.frustum = __papplet__.frustum
 __builtin__.get = __papplet__.get
@@ -266,6 +287,8 @@ __builtin__.triangle = __papplet__.triangle
 __builtin__.updatePixels = __papplet__.updatePixels
 __builtin__.vertex = __papplet__.vertex
 
+# And these are PApplet static methods. Some are commented out to indicate
+# that we prefer or require Jython's implementation.
 __builtin__.abs = PApplet.abs
 __builtin__.acos = PApplet.acos
 __builtin__.append = PApplet.append
@@ -300,7 +323,7 @@ __builtin__.loadBytes = PApplet.loadBytes
 __builtin__.loadStrings = PApplet.loadStrings
 __builtin__.log = PApplet.log
 __builtin__.mag = PApplet.mag
-__builtin__.map = PApplet.map
+#__builtin__.map = PApplet.map
 __builtin__.match = PApplet.match
 __builtin__.matchAll = PApplet.matchAll
 #__builtin__.max = PApplet.max
@@ -317,7 +340,7 @@ __builtin__.pow = PApplet.pow
 __builtin__.println = PApplet.println
 __builtin__.radians = PApplet.radians
 __builtin__.reverse = PApplet.reverse
-__builtin__.round = PApplet.round
+#__builtin__.round = PApplet.round
 __builtin__.saveBytes = PApplet.saveBytes
 __builtin__.saveStream = PApplet.saveStream
 __builtin__.saveStrings = PApplet.saveStrings

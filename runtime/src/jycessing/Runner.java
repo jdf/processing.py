@@ -382,12 +382,24 @@ public class Runner {
     interp.set("__file__", sketchPath);
 
     interp.exec(read(LaunchHelper.class.getResourceAsStream("launcher.py")));
+
+    /*
+     * Here's what core.py does:
+     * Bring all of the core Processing classes into the python builtins namespace,
+     * so they'll be available, without qualification, from all modules.
+     * Construct a PAppletJythonDriver (which is a PApplet), then expose all of its
+     * bound methods (such as loadImage(), noSmooth(), noise(), etc.) in the builtins
+     * namespace.
+     * 
+     * We provide the Jython interpreter and sketch source code to the environment
+     * so that core.py can construct the PAppletJythonDriver with all the stuff it
+     * needs. 
+     */
     interp.set("__interp__", interp);
     interp.set("__path__", sketchPath);
     interp.set("__source__", sketchSource);
     interp.exec(read(Runner.class.getResourceAsStream("core.py")));
 
-    // Bind the sketch to a PApplet
     final PAppletJythonDriver applet =
         (PAppletJythonDriver)interp.get("__papplet__").__tojava__(PAppletJythonDriver.class);
     applet.findSketchMethods();
@@ -399,9 +411,11 @@ public class Runner {
     }
 
     try {
+      log("Running " + args[0]);
       PApplet.runSketch(args, applet);
       applet.await();
-      log("Applet is finished. Disposing window.");
+      log("Applet terminated.");
+      log("Disposing window.");
       ((Window)SwingUtilities.getRoot(applet)).dispose();
     } catch (final Throwable t) {
       Py.printException(t);

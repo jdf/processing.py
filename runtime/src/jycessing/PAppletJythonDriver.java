@@ -114,6 +114,7 @@ public class PAppletJythonDriver extends PApplet {
     this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
     this.interp = interp;
     initializeStatics(builtins);
+    setMap();
     setSet();
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("exit", new PyObject() {
@@ -373,6 +374,40 @@ public class PAppletJythonDriver extends PApplet {
               return Py.None;
             } else {
               return super.__call__(args, kws);
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /**
+   * Permit the punning use of set() by mucking with the builtin "set" Type.
+   * If you call it with 3 arguments, it acts like the Processing set(x, y,
+   * whatever) method. If you call it with 0 or 1 args, it constructs a Python
+   * set.
+   */
+  private void setMap() {
+    final PyObject builtinMap = builtins.__getitem__("map");
+    builtins.__setitem__("map", new PyObject() {
+
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        switch (args.length) {
+          default:
+            return builtinMap.__call__(args, kws);
+          case 5: {
+            final PyObject value = args[0];
+            final PyObject start1 = args[1];
+            final PyObject stop1 = args[2];
+            final PyObject start2 = args[3];
+            final PyObject stop2 = args[4];
+            if (value.isNumberType() && start1.isNumberType() && stop1.isNumberType()
+                && start2.isNumberType() && stop2.isNumberType()) {
+              return Py.newFloat(map((float)value.asDouble(), (float)start1.asDouble(),
+                  (float)stop1.asDouble(), (float)start2.asDouble(), (float)stop2.asDouble()));
+            } else {
+              return builtinMap.__call__(args, kws);
             }
           }
         }
