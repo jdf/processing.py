@@ -1,5 +1,5 @@
 [submodule "externals/processing"]
 	path = externals/processing
-	url = git@github.com:processing/processing.git
+	url = git@github.com:jdf/processing.git
         ignore = dirty
 

@@ -15,14 +15,6 @@
  */
 package jycessing;
 
-import org.python.core.Py;
-import org.python.core.PyString;
-import org.python.util.InteractiveConsole;
-import org.python.util.PythonInterpreter;
-
-import processing.core.PApplet;
-import processing.core.PConstants;
-
 import java.awt.SplashScreen;
 import java.awt.Window;
 import java.io.BufferedReader;
@@ -53,6 +45,14 @@ import javax.swing.SwingUtilities;
 
 import jycessing.annotations.PythonUsage;
 import jycessing.launcher.LaunchHelper;
+
+import org.python.core.Py;
+import org.python.core.PyString;
+import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
+
+import processing.core.PApplet;
+import processing.core.PConstants;
 
 public class Runner {
 
@@ -272,11 +272,6 @@ public class Runner {
       sketchPath = new File(getRuntimeRoot(), "Runtime/sketch.py").getAbsolutePath();
     }
 
-    // Sanity check in case parameter order is wrong
-    if (sketchPath.startsWith("--")) {
-      throw new RuntimeException("The last parameter MUST be the script to execute, not an option!");
-    }
-
     // Debug when using launcher
     if (Arrays.asList(args).contains("--redirect")) {
 
@@ -371,10 +366,6 @@ public class Runner {
     // tests
     interp.setOut(System.out);
 
-    // Tell PApplet to make its home there, so that it can find the data
-    // folder
-    System.setProperty("user.dir", sketchDir);
-
     // Add it to the Python library path for auxilliary modules
     Py.getSystemState().path.insert(0, new PyString(sketchDir));
 
@@ -410,9 +401,14 @@ public class Runner {
       splash.close();
     }
 
+    // Tell the applet where to load and save data files, etc.
+    final String[] massagedArgs = new String[args.length + 1];
+    System.arraycopy(args, 0, massagedArgs, 0, args.length);
+    massagedArgs[args.length] =
+        PApplet.ARGS_SKETCH_FOLDER + "=" + new File(sketchPath).getCanonicalFile().getParent();
+
     try {
-      log("Running " + args[0]);
-      PApplet.runSketch(args, applet);
+      PApplet.runSketch(massagedArgs, applet);
       applet.await();
       log("Applet terminated.");
       log("Disposing window.");

@@ -360,11 +360,4 @@ __builtin__.unbinary = PApplet.unbinary
 __builtin__.unhex = PApplet.unhex
 __builtin__.year = PApplet.year
 
-# Extra helper functions go here 
-def pwd(name = ""):
-    """Returns the script's path, or the path for some data close to the script."""
-    import java.lang.System as System
-    return System.getProperty("python.main.root") + "/" + name
-__builtin__.pwd = pwd
-
 del monkeypatch_method, PAppletJythonDriver

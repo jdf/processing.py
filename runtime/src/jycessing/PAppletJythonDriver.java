@@ -44,6 +44,7 @@ import org.python.util.InteractiveConsole;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
+import processing.opengl.PShader;
 import fisica.FContact;
 import fisica.FContactResult;
 
@@ -114,6 +115,7 @@ public class PAppletJythonDriver extends PApplet {
     this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
     this.interp = interp;
     initializeStatics(builtins);
+    setFilter();
     setMap();
     setSet();
     builtins.__setitem__("g", Py.java2py(g));
@@ -336,6 +338,8 @@ public class PAppletJythonDriver extends PApplet {
 
   public void await() throws InterruptedException {
     finishedLatch.await();
+    // Cause PApplet to dispose OpenGL and other resources:
+    finished = true;
   }
 
   /**
@@ -382,10 +386,8 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   /**
-   * Permit the punning use of set() by mucking with the builtin "set" Type.
-   * If you call it with 3 arguments, it acts like the Processing set(x, y,
-   * whatever) method. If you call it with 0 or 1 args, it constructs a Python
-   * set.
+   * Permit both the Processing map() (which is a linear interpolation function) and
+   * the Python map() (which is a list transformation).
    */
   private void setMap() {
     final PyObject builtinMap = builtins.__getitem__("map");
@@ -410,6 +412,39 @@ public class PAppletJythonDriver extends PApplet {
               return builtinMap.__call__(args, kws);
             }
           }
+        }
+      }
+    });
+  }
+
+  /**
+   * Permit both the Processing filter() (which does image processing) and the
+   * Python filter() (which does list comprehensions).
+   */
+  private void setFilter() {
+    final PyObject builtinFilter = builtins.__getitem__("filter");
+    builtins.__setitem__("filter", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        switch (args.length) {
+          case 1:
+            final PyObject value = args[0];
+            if (value.isNumberType()) {
+              filter(value.asInt());
+            } else {
+              filter(Py.tojava(value, PShader.class));
+            }
+            return Py.None;
+          case 2:
+            final PyObject a = args[0];
+            final PyObject b = args[1];
+            if (a.isNumberType()) {
+              filter(a.asInt(), (float)b.asDouble());
+              return Py.None;
+            }
+            //$FALL-THROUGH$
+          default:
+            return builtinFilter.__call__(args, kws);
         }
       }
     });

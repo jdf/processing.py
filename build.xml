@@ -367,7 +367,7 @@
   <target name="build-tests" depends="jar">
     <mkdir dir="testing/bin"/>
     <javac classpath="testing/library/junit-4.11.jar:processing-py.jar" destdir="testing/bin"
-    	includeantruntime="false">
+        includeantruntime="false" deprecation="true">
       <src path="testing/src"/>
     </javac>
   </target>

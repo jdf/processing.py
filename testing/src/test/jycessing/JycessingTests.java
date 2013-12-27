@@ -1,12 +1,13 @@
 package test.jycessing;
 
-import static junit.framework.Assert.assertEquals;
-
-import org.junit.Test;
-import jycessing.Runner;
+import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+
+import jycessing.Runner;
+
+import org.junit.Test;
 
 public class JycessingTests {
 
@@ -14,6 +15,7 @@ public class JycessingTests {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     final PrintStream saved = System.out;
     try {
+      System.err.println("Running " + testResource + " test.");
       System.setOut(new PrintStream(baos, true));
       Runner.runFromCommandLineArguments(new String[] { "testing/resources/test_" + testResource
           + ".py" });
@@ -28,6 +30,7 @@ public class JycessingTests {
     final PrintStream saved = System.out;
     try {
       System.setOut(new PrintStream(baos, true));
+      System.err.println("Running import " + module + " test.");
       final String testClass = module + "_test";
       final String bogusFileName = "<test " + module + ">";
       final String testText = "import " + module + "\nprint 'OK'\nexit()";
@@ -47,6 +50,11 @@ public class JycessingTests {
   @Test
   public void static_size() throws Exception {
     assertEquals("OK\n", run("static_size"));
+  }
+
+  @Test
+  public void filter_builtins() throws Exception {
+    assertEquals("OK\n", run("filter"));
   }
 
   @Test
