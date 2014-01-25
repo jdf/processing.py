@@ -2,4 +2,5 @@
 	path = externals/processing
 	url = git@github.com:processing/processing.git
         ignore = dirty
+        branch = master
 
