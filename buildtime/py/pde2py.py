@@ -5,14 +5,30 @@
 """
 from __future__ import with_statement
 
+import logging
+from optparse import OptionParser
 import os
 import re
 import shutil
 import sys
 
-src, dest = sys.argv[1:]
+def usage():
+    print >> sys.stderr, 'Usage: pde2py [-f|--force] srcdir destdir'
+    sys.exit(1)
+    
+parser = OptionParser()
+parser.add_option("-f", "--force",
+                  action="store_true", dest="force", default=False,
+                  help="don't print status messages to stdout")
+
+(opts, args) = parser.parse_args()
+
+if len(args) < 2:
+    usage()
+    
+src, dest = args
 if not (os.path.exists(src) and os.path.isdir(src)):
-    raise Exception("I expect the first argument to be the source directory.")
+    usage()
 if os.path.exists(dest):
     shutil.rmtree(dest)
 os.makedirs(dest)
@@ -20,10 +36,10 @@ os.makedirs(dest)
 def copy_dir(s, d):
     if not os.path.exists(d):
         os.mkdir(d)
-    for file in os.listdir(s):
-        if file[0] == '.':
+    for f in os.listdir(s):
+        if f[0] == '.':
             continue
-        copy(os.path.join(s, file), os.path.join(d, file))
+        copy(os.path.join(s, f), os.path.join(d, f))
 
 def copy_file(s, d, xform=None):
     with open(s, 'rb') as f:
@@ -31,7 +47,12 @@ def copy_file(s, d, xform=None):
     if xform:
         (d, text) = xform(d, text)
     if os.path.exists(d):
-        raise Exception("I refuse to overwrite %s." % d)
+        if opts.force:
+            logging.info('Overwriting %s.' % d)
+        else:
+            logging.warning('Not overwriting %s.' % d)
+    else:
+        logging.info('Writing %s.' % d)
     with open(d, 'wb') as f:
         f.write(text)
 
@@ -54,7 +75,7 @@ def xform_py(d, text):
     text = text.replace('new ', '')
     text = text.replace('true', 'True')
     text = text.replace('false', 'False')
-    text=text.replace('this.', 'self.')
+    text = text.replace('this.', 'self.')
     return (d, text)
 
 def copy(s, d):
