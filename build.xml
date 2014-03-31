@@ -92,6 +92,8 @@
         <arg value="update" />
         <arg value="--init" />
         <arg value="--recursive" />
+        <arg value="--depth" />
+        <arg value="1" />
       </args>
     </git>
   </target>
