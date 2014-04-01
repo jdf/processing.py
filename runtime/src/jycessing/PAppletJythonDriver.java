@@ -512,7 +512,7 @@ public class PAppletJythonDriver extends PApplet {
     if (drawMeth == null) {
       Runner.log("Calling super.draw() in what I assume is a static-mode sketch.");
       super.draw();
-    } else {
+    } else if (!finished) {
       drawMeth.__call__();
     }
   }

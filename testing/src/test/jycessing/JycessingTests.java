@@ -34,12 +34,16 @@ public class JycessingTests {
       final String testClass = module + "_test";
       final String bogusFileName = "<test " + module + ">";
       final String testText = "import " + module + "\nprint 'OK'\nexit()";
-      Runner.runSketch(new String[] { testClass }, bogusFileName, testText);
+      Runner.runSketch(Runner.getLibraries(), new String[] { testClass }, bogusFileName, testText);
       assertEquals("OK\n",
           new String(baos.toByteArray()).replaceAll("\r\n", "\n").replaceAll("\r", "\n"));
     } finally {
       System.setOut(saved);
     }
+  }
+
+  private static void expectOK(final String testName) throws Exception {
+    assertEquals("OK\n", run(testName));
   }
 
   @Test
@@ -49,12 +53,12 @@ public class JycessingTests {
 
   @Test
   public void static_size() throws Exception {
-    assertEquals("OK\n", run("static_size"));
+    expectOK("static_size");
   }
 
   @Test
   public void filter_builtins() throws Exception {
-    assertEquals("OK\n", run("filter"));
+    expectOK("filter");
   }
 
   @Test
@@ -69,7 +73,7 @@ public class JycessingTests {
 
   @Test
   public void md5() throws Exception {
-    assertEquals("bb649c83dd1ea5c9d9dec9a18df0ffe9\n", run("md5"));
+    expectOK("md5");
   }
 
   @Test
@@ -84,7 +88,7 @@ public class JycessingTests {
 
   @Test
   public void load_in_initializer() throws Exception {
-    assertEquals("OK\n", run("load_in_initializer"));
+    expectOK("load_in_initializer");
   }
 
   @Test
@@ -104,17 +108,17 @@ public class JycessingTests {
 
   @Test
   public void pvector() throws Exception {
-    assertEquals("OK\n", run("pvector"));
+    expectOK("pvector");
   }
 
   @Test
   public void loadPixels() throws Exception {
-    assertEquals("OK\n", run("loadPixels"));
+    expectOK("loadPixels");
   }
 
   @Test
   public void unicode() throws Exception {
-    assertEquals("OK\n", run("unicode"));
+    expectOK("unicode");
   }
 
   @Test
@@ -129,16 +133,21 @@ public class JycessingTests {
 
   @Test
   public void millis() throws Exception {
-    assertEquals("True\n", run("millis"));
+    expectOK("millis");
   }
 
   @Test
   public void imports() throws Exception {
-    assertEquals("OK!\n", run("import"));
+    expectOK("import");
   }
 
   @Test
   public void pvector_import() throws Exception {
-    assertEquals("OK!\n", run("pvector_in_imported_module"));
+    expectOK("pvector_in_imported_module");
+  }
+
+  @Test
+  public void exit_builtin() throws Exception {
+    expectOK("exit");
   }
 }

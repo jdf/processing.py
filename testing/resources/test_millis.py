@@ -1,5 +1,5 @@
 start = millis()
 delay(2)
-print millis() > 2
-# expect True
+assert millis() > 2
+print 'OK'
 exit()
