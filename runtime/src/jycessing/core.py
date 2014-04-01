@@ -165,8 +165,7 @@ __builtin__.endContour = __papplet__.endContour
 __builtin__.endRaw = __papplet__.endRaw
 __builtin__.endRecord = __papplet__.endRecord
 __builtin__.endShape = __papplet__.endShape
-# We provide a special exit() method.
-#__builtin__.exit = __papplet__.exit
+__builtin__.exit = __papplet__.exit
 __builtin__.fill = __papplet__.fill
 
 # TODO: fix filter() !

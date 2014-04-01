@@ -119,13 +119,6 @@ public class PAppletJythonDriver extends PApplet {
     setMap();
     setSet();
     builtins.__setitem__("g", Py.java2py(g));
-    builtins.__setitem__("exit", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        finishedLatch.countDown();
-        return Py.None;
-      }
-    });
     wrapProcessingVariables();
 
     addComponentListener(new ComponentAdapter() {
@@ -134,6 +127,11 @@ public class PAppletJythonDriver extends PApplet {
         finishedLatch.countDown();
       }
     });
+  }
+
+  @Override
+  protected void exitActual() {
+    finishedLatch.countDown();
   }
 
   public void findSketchMethods() {
