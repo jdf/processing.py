@@ -1,6 +1,6 @@
 font = loadFont("data/Cabal1-48.vlw")
 def setup():
     size(10, 10, P3D)
-    noLoop();
+    noLoop()
     print 'OK'
     exit()

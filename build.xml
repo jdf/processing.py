@@ -16,31 +16,21 @@
 <project name="processing.py" default="jar">
   <description>Write Processing sketches in Python</description>
 
+  <fail unless="processing"
+    message="You have to specify where to find processing with -Dprocessing=/path/to/processing"/>
+
   <!-- for <if> tag -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="buildtime/lib/java/ant-contrib.jar"/>
 
-  <property name="corejar" value="externals/processing/core/library/core.jar"/>
-  <property name="joglall" value="externals/processing/core/library/jogl-all.jar"/>
-  <property name="gluegenrt" value="externals/processing/core/library/gluegen-rt.jar"/>
+  <property name="corejar" value="${processing}/core/library/core.jar"/>
+  <property name="joglall" value="${processing}/core/library/jogl-all.jar"/>
+  <property name="gluegenrt" value="${processing}/core/library/gluegen-rt.jar"/>
   <property name="jython" value="buildtime/lib/jython/jython.jar"/>
 
   <!-- jycessing.buildnumber is the current version string -->
   <property file="runtime/src/jycessing/buildnumber.properties" prefix="jycessing"/>
 
   <taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="buildtime/lib/java/appbundler-1.0.jar"/>
-
-  <macrodef name="git">
-    <attribute name="command" />
-    <attribute name="dir" default="" />
-    <element name="args" optional="true" />
-    <sequential>
-      <echo message="git @{command}" />
-      <exec executable="git" dir="@{dir}">
-        <arg value="@{command}" />
-        <args/>
-      </exec>
-    </sequential>
-  </macrodef>
 
   <macrodef name="rm-rf">
     <attribute name="target"/>
@@ -85,31 +75,21 @@
     <chmod file="processing-py.app/Contents/MacOS/processing-py" perm="755"/>
   </target>
 
-  <target name="update-processing-submodule">
-    <echo message="Making sure processing submodule is up-to-date." />
-    <git command="submodule">
-      <args>
-        <arg value="update" />
-        <arg value="--init" />
-        <arg value="--recursive" />
-      </args>
-    </git>
-  </target>
-  <target name="check-processing-needs-build"
-    depends="update-processing-submodule">
+  <target name="check-processing-needs-build">
     <uptodate property="processing-is-uptodate"
-              srcfile="externals/processing/core/src/processing/core/PApplet.java"
-              targetfile="${corejar}"/>
+              targetfile="${corejar}">
+      <srcfiles dir="${processing}/core/src/processing/core"/>
+    </uptodate>
   </target>
   <target name="build-processing"
     depends="check-processing-needs-build"
     unless="processing-is-uptodate">
     <echo message="Building processing." />
-    <ant dir="externals/processing/build" target="build"/>
+    <ant dir="${processing}/build" target="build"/>
   </target>
 
   <target name="clean">
-    <ant dir="externals/processing/build" target="clean"/>
+    <ant dir="${processing}/build" target="clean"/>
     <rm-rf target="bin"/>
     <rm-rf target="dist"/>
     <rm-rf target=".cache"/>
@@ -275,7 +255,7 @@
           libraries that still have legacy OSX DLLs. Right now, that's
           only video.
         -->
-        <fileset dir="externals/processing/java/libraries/@{library}/library"
+        <fileset dir="${processing}/java/libraries/@{library}/library"
                  includes="*.txt,*.jar,${platform}/**,${platform}64/**"/>
       </copy>
     </sequential>
@@ -283,7 +263,7 @@
 
   <target name="check-for-platform-lib-cache">
     <uptodate property="platform-lib-cache-exists"
-              srcfile="externals/processing/core/library/gluegen-rt.jar"
+              srcfile="${processing}/core/library/gluegen-rt.jar"
               targetfile=".cache/libs/${platform}/opengl/gluegen-rt.jar"/>
   </target>
   <target name="platform-lib-cache"
@@ -294,7 +274,7 @@
     <mkdir dir="${cache}"/>
     <mkdir dir="${cache}/opengl"/>
     <copy todir="${cache}/opengl">
-      <fileset dir="externals/processing/core/library" includes="*.jar" excludes="core.jar"/>
+      <fileset dir="${processing}/core/library" includes="*.jar" excludes="core.jar"/>
     </copy>
     <copy-processing-library dir="${cache}" library="dxf"/>
     <copy-processing-library dir="${cache}" library="lwjgl"/>
@@ -379,7 +359,7 @@
         <pathelement location="processing-py.jar"/>
         <pathelement location="testing/library/junit-4.11.jar"/>
         <pathelement location="testing/library/hamcrest-core-1.3.jar"/>
-        <fileset dir="externals/processing/core/library">
+        <fileset dir="${processing}/core/library">
           <include name="*.jar"/>
           <exclude name="core.jar"/> <!-- It's already in the processing-py.jar. -->
         </fileset>

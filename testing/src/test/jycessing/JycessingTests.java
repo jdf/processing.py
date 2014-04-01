@@ -150,4 +150,10 @@ public class JycessingTests {
   public void exit_builtin() throws Exception {
     expectOK("exit");
   }
+
+  @Test
+  public void exit_builtin_twice() throws Exception {
+    expectOK("exit");
+    expectOK("exit");
+  }
 }
