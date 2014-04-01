@@ -290,14 +290,19 @@ public class Runner {
     VERBOSE = Boolean.getBoolean("verbose");
 
     final Properties buildnum = new Properties();
-    buildnum.load(Runner.class.getResourceAsStream("buildnumber.properties"));
+    final InputStream buildnumberStream =
+        Runner.class.getResourceAsStream("buildnumber.properties");
+    try {
+      buildnum.load(buildnumberStream);
+    } finally {
+      buildnumberStream.close();
+    }
     log("processing.py build ", buildnum.getProperty("buildnumber"));
 
     // This will throw an exception and die if the given file is not there
     // or not readable.
     final String sketchSource = read(new FileReader(sketchPath));
     runSketch(getLibraries(), args, sketchPath, sketchSource);
-
   }
 
   private static final Pattern JAR_RESOURCE = Pattern
