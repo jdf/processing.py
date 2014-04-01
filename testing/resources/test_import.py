@@ -1,4 +1,5 @@
 import imported_module
 
-imported_module.sayok()
+assert imported_module.return_twelve() == 12
+print 'OK'
 exit()

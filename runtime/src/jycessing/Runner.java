@@ -296,7 +296,7 @@ public class Runner {
     // This will throw an exception and die if the given file is not there
     // or not readable.
     final String sketchSource = read(new FileReader(sketchPath));
-    runSketch(args, sketchPath, sketchSource);
+    runSketch(getLibraries(), args, sketchPath, sketchSource);
 
   }
 
@@ -313,7 +313,7 @@ public class Runner {
    * @return
    */
   @PythonUsage(methodName = "getLibrariesDir")
-  public static File getLibrariesDir() {
+  public static File getLibraries() {
     final String propsResource;
     try {
       propsResource =
@@ -340,12 +340,11 @@ public class Runner {
     return new File("libraries");
   }
 
-  public static void runSketch(final String[] args, final String sketchPath,
+  public static void runSketch(final File libraries, final String[] args, final String sketchPath,
       final String sketchSource) throws Exception {
     // Recursively search the "libraries" directory for jar files and
     // directories containing dynamic libraries, adding them to the
     // classpath and the library path respectively.
-    final File libraries = getLibrariesDir();
     searchForExtraStuff(libraries);
 
     // Where is the sketch located?

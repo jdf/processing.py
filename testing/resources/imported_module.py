@@ -1,2 +1,2 @@
-def sayok():
-    print("OK!")
+def return_twelve():
+    return 12
