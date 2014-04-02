@@ -22,6 +22,7 @@
   <!-- for <if> tag -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="buildtime/lib/java/ant-contrib.jar"/>
 
+  <property name="appjar" value="${processing}/app/pde.jar"/>
   <property name="corejar" value="${processing}/core/library/core.jar"/>
   <property name="joglall" value="${processing}/core/library/jogl-all.jar"/>
   <property name="gluegenrt" value="${processing}/core/library/gluegen-rt.jar"/>
@@ -44,6 +45,31 @@
 
   <target name="newversion" depends="bump-version,clean,make-all-distributions"/>
 
+  <target name="modejar" depends="build">
+    <jar destfile="ProcessingDotPyMode.jar">
+      <fileset dir="bin" excludes="jycessing/build/**,test/**"/>
+      <zipgroupfileset file="${jython}"/>
+    </jar>
+  </target>
+
+  <target name="modedist" depends="modejar">
+    <delete dir="modedist" />
+    <property name="bundle" value="modedist/ProcessingDotPyMode"/>
+    <mkdir dir="${bundle}" />
+    <mkdir dir="${bundle}/mode" />
+
+    <copy todir="${bundle}/mode" file="ProcessingDotPyMode.jar"/>
+
+    <copy todir="${bundle}">
+      <fileset dir="mode/" />
+    </copy>
+
+    <replaceregexp file="${bundle}/mode.properties" flags="g"
+                 match="@@version@@" replace="${jycessing.buildnumber}" />
+    <replaceregexp file="${bundle}/mode.properties" flags="g"
+                 match="@@pretty-version@@" replace="${jycessing.buildnumber}" />
+  </target>
+	
   <target name="jar" depends="build">
     <jar destfile="processing-py.jar">
       <fileset dir="bin" excludes="jycessing/build/**,test/**"/>
@@ -62,6 +88,7 @@
       <classpath>
         <pathelement location="${jython}"/>
         <pathelement location="${corejar}"/>
+        <pathelement location="${pdejar}"/>
         <fileset dir="libraries/fisica">
           <include name="*.jar"/>
         </fileset>

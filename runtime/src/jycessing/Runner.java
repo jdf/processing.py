@@ -16,7 +16,6 @@
 package jycessing;
 
 import java.awt.SplashScreen;
-import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -40,8 +39,6 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.swing.SwingUtilities;
 
 import jycessing.annotations.PythonUsage;
 import jycessing.launcher.LaunchHelper;
@@ -70,7 +67,7 @@ public class Runner {
     }
   }
 
-  static boolean VERBOSE = false;
+  static boolean VERBOSE = true;
 
   static void log(final Object... objs) {
     if (!VERBOSE) {
@@ -302,7 +299,7 @@ public class Runner {
     // This will throw an exception and die if the given file is not there
     // or not readable.
     final String sketchSource = read(new FileReader(sketchPath));
-    runSketch(getLibraries(), args, sketchPath, sketchSource);
+    runSketchBlocking(getLibraries(), args, sketchPath, sketchSource);
   }
 
   private static final Pattern JAR_RESOURCE = Pattern
@@ -345,8 +342,8 @@ public class Runner {
     return new File("libraries");
   }
 
-  public static void runSketch(final File libraries, final String[] args, final String sketchPath,
-      final String sketchSource) throws Exception {
+  public static void runSketchBlocking(final File libraries, final String[] args,
+      final String sketchPath, final String sketchSource) throws Exception {
     // Recursively search the "libraries" directory for jar files and
     // directories containing dynamic libraries, adding them to the
     // classpath and the library path respectively.
@@ -412,11 +409,7 @@ public class Runner {
         PApplet.ARGS_SKETCH_FOLDER + "=" + new File(sketchPath).getCanonicalFile().getParent();
 
     try {
-      PApplet.runSketch(massagedArgs, applet);
-      applet.await();
-      log("Applet terminated.");
-      log("Disposing window.");
-      ((Window)SwingUtilities.getRoot(applet)).dispose();
+      applet.runAndBlock(massagedArgs);
     } catch (final Throwable t) {
       Py.printException(t);
     } finally {

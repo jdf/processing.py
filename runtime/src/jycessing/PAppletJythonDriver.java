@@ -15,6 +15,7 @@
  */
 package jycessing;
 
+import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
@@ -24,6 +25,8 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
+
+import javax.swing.SwingUtilities;
 
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
@@ -45,8 +48,6 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
 import processing.opengl.PShader;
-import fisica.FContact;
-import fisica.FContactResult;
 
 /**
  *
@@ -334,10 +335,16 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
-  public void await() throws InterruptedException {
-    finishedLatch.await();
-    // Cause PApplet to dispose OpenGL and other resources:
-    finished = true;
+  public void runAndBlock(final String[] args) throws InterruptedException {
+    PApplet.runSketch(args, this);
+    try {
+      finishedLatch.await();
+    } catch (InterruptedException interrupted) {
+      exit();
+      finishedLatch.await();
+    } finally {
+      ((Window)SwingUtilities.getRoot(this)).dispose();
+    }
   }
 
   /**
@@ -644,6 +651,7 @@ public class PAppletJythonDriver extends PApplet {
   /*
    * Fisica-related callbacks.
    */
+  /*
   public void contactStarted(final FContact c) {
     if (contactStartedMeth != null) {
       contactStartedMeth.__call__(Py.java2py(c));
@@ -667,4 +675,5 @@ public class PAppletJythonDriver extends PApplet {
       contactResultMeth.__call__(Py.java2py(c));
     }
   }
+  */
 }

@@ -34,7 +34,7 @@ public class JycessingTests {
       final String testClass = module + "_test";
       final String bogusFileName = "<test " + module + ">";
       final String testText = "import " + module + "\nprint 'OK'\nexit()";
-      Runner.runSketch(Runner.getLibraries(), new String[] { testClass }, bogusFileName, testText);
+      Runner.runSketchBlocking(Runner.getLibraries(), new String[] { testClass }, bogusFileName, testText);
       assertEquals("OK\n",
           new String(baos.toByteArray()).replaceAll("\r\n", "\n").replaceAll("\r", "\n"));
     } finally {

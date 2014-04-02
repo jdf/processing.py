@@ -6,6 +6,7 @@
 JREs/linux*
 JREs/macosx*
 JREs/windows*
+ProcessingDotPyMode.jar
 __pycache__
 bin
 build
@@ -17,6 +18,7 @@ examples.pde
 jython_processing_demo
 kinetic-type/
 line.pdf
+modedist
 processing-py.jar
 python-hack.jar
 runtime/generated/jycessing/*.java
