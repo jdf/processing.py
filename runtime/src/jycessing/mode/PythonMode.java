@@ -7,15 +7,15 @@ import processing.app.Editor;
 import processing.app.EditorState;
 import processing.app.Mode;
 
-public class ProcessingDotPyMode extends Mode {
+public class PythonMode extends Mode {
 
-  public ProcessingDotPyMode(final Base base, final File folder) {
+  public PythonMode(final Base base, final File folder) {
     super(base, folder);
   }
 
   @Override
   public String getTitle() {
-    return "Processing.py";
+    return "Python";
   }
 
   @Override

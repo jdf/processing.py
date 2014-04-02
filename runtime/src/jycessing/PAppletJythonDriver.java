@@ -84,9 +84,6 @@ public class PAppletJythonDriver extends PApplet {
       mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth, initMeth,
       stopMeth, sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
 
-  // Callbacks from the Fisica library.
-  private PyObject contactStartedMeth, contactPersistedMeth, contactEndedMeth, contactResultMeth;
-
   // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
   // the source file name, so that errors have the file name instead of
   // "<string>"
@@ -160,10 +157,6 @@ public class PAppletJythonDriver extends PApplet {
     sketchRendererMeth = interp.get("sketchRenderer");
     initMeth = interp.get("init");
     stopMeth = interp.get("stop");
-    contactEndedMeth = interp.get("contactEnded");
-    contactPersistedMeth = interp.get("contactPersisted");
-    contactResultMeth = interp.get("contactResult");
-    contactStartedMeth = interp.get("contactStarted");
   }
 
   protected void wrapProcessingVariables() {
@@ -340,6 +333,7 @@ public class PAppletJythonDriver extends PApplet {
     try {
       finishedLatch.await();
     } catch (InterruptedException interrupted) {
+      // Treat an interruption as a request to the applet to terminate.
       exit();
       finishedLatch.await();
     } finally {
@@ -647,33 +641,4 @@ public class PAppletJythonDriver extends PApplet {
       super.stop();
     }
   }
-
-  /*
-   * Fisica-related callbacks.
-   */
-  /*
-  public void contactStarted(final FContact c) {
-    if (contactStartedMeth != null) {
-      contactStartedMeth.__call__(Py.java2py(c));
-    }
-  }
-
-  public void contactPersisted(final FContact c) {
-    if (contactPersistedMeth != null) {
-      contactPersistedMeth.__call__(Py.java2py(c));
-    }
-  }
-
-  public void contactEnded(final FContact c) {
-    if (contactEndedMeth != null) {
-      contactEndedMeth.__call__(Py.java2py(c));
-    }
-  }
-
-  public void contactResult(final FContactResult c) {
-    if (contactResultMeth != null) {
-      contactResultMeth.__call__(Py.java2py(c));
-    }
-  }
-  */
 }

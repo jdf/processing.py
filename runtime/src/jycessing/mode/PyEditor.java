@@ -2,6 +2,8 @@ package jycessing.mode;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.PrintStream;
+import java.util.regex.Pattern;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -17,13 +19,10 @@ import processing.app.Formatter;
 import processing.app.Mode;
 import processing.app.Toolkit;
 
-/**
- * 
- */
 @SuppressWarnings("serial")
 public class PyEditor extends Editor {
 
-  final ProcessingDotPyMode pyMode;
+  final PythonMode pyMode;
   final PyKeyListener listener;
   Thread runner;
 
@@ -31,7 +30,7 @@ public class PyEditor extends Editor {
     super(base, path, state, mode);
 
     listener = new PyKeyListener(this, textarea);
-    pyMode = (ProcessingDotPyMode)mode;
+    pyMode = (PythonMode)mode;
   }
 
   @Override
@@ -42,7 +41,6 @@ public class PyEditor extends Editor {
   @Override
   public void internalCloseRunner() {
     if (runner != null) {
-      System.err.println("Interrupting runner.");
       runner.interrupt();
       runner = null;
     }
@@ -115,43 +113,84 @@ public class PyEditor extends Editor {
   }
 
   /**
-   * Handlers
+   * TODO(Adam Parrish): Create this!
    */
   public void handleExportApplication() {
     Base.showMessage("Sorry", "You can't do that yet.");
   }
 
-  public void handleRun() {
-    toolbar.activate(PyToolbar.RUN);
+  private enum RunMode {
+    WINDOWED {
+      @Override
+      public String[] args(String sketchPath, final int x, final int y) {
+        return new String[] { String.format("--editor-location=%d,%d", x, y), sketchPath };
+      }
+    },
+    PRESENTATION {
+      @Override
+      public String[] args(String sketchPath, final int x, final int y) {
+        return new String[] { "--present", "--external", sketchPath };
+      }
+    };
+    abstract public String[] args(final String sketchPath, final int x, final int y);
+  }
+
+  // Ignore __MOVE__.
+  // TODO(feinberg): Listen to __MOVE__.
+  private static class MoveCommandFilteringPrintStream extends PrintStream {
+    private static final Pattern IGNORE = Pattern.compile("^__MOVE__\\s+(.*)$");
+
+    public MoveCommandFilteringPrintStream(final PrintStream wrapped) {
+      super(wrapped);
+    }
+
+    @Override
+    public void println(String s) {
+      if (!IGNORE.matcher(s).matches()) {
+        super.print(s);
+      }
+    }
+  }
+
+  private void runSketch(final RunMode mode) {
     final String sketchPath = getSketch().getCurrentCode().getFile().getAbsolutePath();
+    if (runner != null) {
+      internalCloseRunner();
+    }
+    prepareRun();
     runner = new Thread(new Runnable() {
       @Override
       public void run() {
-        prepareRun();
-        final String[] args = new String[] { "--external", sketchPath };
         try {
-          Runner.runSketchBlocking(Base.getSketchbookLibrariesFolder(), args, sketchPath,
-              getSketch().getCurrentCode().getProgram());
+          final PrintStream syserr = System.err;
+          System.setErr(new MoveCommandFilteringPrintStream(syserr));
+          try {
+            Runner.runSketchBlocking(Base.getSketchbookLibrariesFolder(), mode.args(sketchPath,
+                getX(), getY()), sketchPath, getSketch().getCurrentCode().getProgram());
+          } finally {
+            System.setErr(syserr);
+          }
         } catch (PyException e) {
           System.err.println(e.getMessage());
           System.err.println(e.getCause());
         } catch (Exception e) {
           throw new RuntimeException(e);
+        } finally {
+          handleStop();
         }
       }
     }, "processing.py mode runner");
     runner.start();
   }
 
-  public void handlePresent() {
-    unimplemented("handlePresent");
+  public void handleRun() {
     toolbar.activate(PyToolbar.RUN);
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        prepareRun();
-      }
-    }).start();
+    runSketch(RunMode.WINDOWED);
+  }
+
+  public void handlePresent() {
+    toolbar.activate(PyToolbar.RUN);
+    runSketch(RunMode.PRESENTATION);
   }
 
   public void handleStop() {

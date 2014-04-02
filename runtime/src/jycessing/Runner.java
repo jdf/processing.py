@@ -67,7 +67,7 @@ public class Runner {
     }
   }
 
-  static boolean VERBOSE = true;
+  static boolean VERBOSE = false;
 
   static void log(final Object... objs) {
     if (!VERBOSE) {
