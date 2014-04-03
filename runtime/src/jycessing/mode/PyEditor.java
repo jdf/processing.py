@@ -2,14 +2,15 @@ package jycessing.mode;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.PrintStream;
 import java.util.regex.Pattern;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import org.python.core.PyException;
-
+import jycessing.PreparedPythonSketch;
+import jycessing.PythonSketchError;
 import jycessing.Runner;
 import processing.app.Base;
 import processing.app.Editor;
@@ -17,6 +18,8 @@ import processing.app.EditorState;
 import processing.app.EditorToolbar;
 import processing.app.Formatter;
 import processing.app.Mode;
+import processing.app.SketchCode;
+import processing.app.SketchException;
 import processing.app.Toolkit;
 
 @SuppressWarnings("serial")
@@ -154,33 +157,55 @@ public class PyEditor extends Editor {
 
   private void runSketch(final RunMode mode) {
     final String sketchPath = getSketch().getCurrentCode().getFile().getAbsolutePath();
-    if (runner != null) {
-      internalCloseRunner();
-    }
     prepareRun();
     runner = new Thread(new Runnable() {
       @Override
       public void run() {
         try {
+          final PreparedPythonSketch sketch =
+              Runner.prepareSketch(Base.getSketchbookLibrariesFolder(), mode.args(sketchPath,
+                  getX(), getY()), sketchPath, getSketch().getCurrentCode().getProgram());
           final PrintStream syserr = System.err;
           System.setErr(new MoveCommandFilteringPrintStream(syserr));
           try {
-            Runner.runSketchBlocking(Base.getSketchbookLibrariesFolder(), mode.args(sketchPath,
-                getX(), getY()), sketchPath, getSketch().getCurrentCode().getProgram());
+            sketch.runBlocking();
           } finally {
             System.setErr(syserr);
           }
-        } catch (PyException e) {
-          System.err.println(e.getMessage());
-          System.err.println(e.getCause());
+        } catch (PythonSketchError e) {
+          statusError(convertPythonSketchError(e));
         } catch (Exception e) {
-          throw new RuntimeException(e);
+          statusError(e);
         } finally {
           handleStop();
         }
       }
     }, "processing.py mode runner");
     runner.start();
+  }
+
+  private SketchException convertPythonSketchError(PythonSketchError e) {
+    if (e.file == null) {
+      return new SketchException(e.getMessage());
+    }
+    int fileIndex = -1;
+    final SketchCode[] codes = getSketch().getCode();
+    for (int i = 0; i < codes.length; i++) {
+      if (codes[i].getFile().getAbsoluteFile().equals(new File(e.file).getAbsoluteFile())) {
+        fileIndex = i;
+        break;
+      }
+    }
+    if (fileIndex < 0) {
+      return new SketchException(e.getMessage());
+    }
+    if (e.line < 0) {
+      return new SketchException(e.getMessage(), fileIndex, 0);
+    }
+    if (e.column < 0) {
+      return new SketchException(e.getMessage(), fileIndex, e.line);
+    }
+    return new SketchException(e.getMessage(), fileIndex, e.line, e.column);
   }
 
   public void handleRun() {

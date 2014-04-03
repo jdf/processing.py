@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
@@ -40,6 +41,8 @@ import org.python.core.PyObject;
 import org.python.core.PySet;
 import org.python.core.PyString;
 import org.python.core.PyStringMap;
+import org.python.core.PySyntaxError;
+import org.python.core.PyTuple;
 import org.python.core.PyType;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
@@ -87,7 +90,7 @@ public class PAppletJythonDriver extends PApplet {
   // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
   // the source file name, so that errors have the file name instead of
   // "<string>"
-  private void interpretSketch() {
+  private void interpretSketch() throws PythonSketchError {
     try {
       Py.setSystemState(interp.getSystemState());
       Py.exec(Py.compile_flags(programText, pySketchPath, CompileMode.exec, new CompilerFlags()),
@@ -98,8 +101,43 @@ public class PAppletJythonDriver extends PApplet {
       while (t.getCause() != null) {
         t = t.getCause();
       }
-      t.printStackTrace(System.err);
-      System.exit(-1);
+      generateSketchException(t);
+    }
+  }
+
+  private static void generateSketchException(Throwable t) throws PythonSketchError {
+    if (t instanceof PySyntaxError) {
+      final PySyntaxError e = (PySyntaxError)t;
+      final PyTuple tup = (PyTuple)e.value;
+      final String message = (String)tup.get(0);
+      final PyTuple context = (PyTuple)tup.get(1);
+      final String file = (String)context.get(0);
+      final int line = ((Integer)context.get(1)).intValue();
+      final int column = ((Integer)context.get(2)).intValue();
+      throw new PythonSketchError(message, file, line, column);
+    } else if (t instanceof PyException) {
+      final PyException e = (PyException)t;
+      final Pattern tbParse =
+          Pattern.compile("^\\s*File \"([^\"]+)\", line (\\d+)", Pattern.MULTILINE);
+      final Matcher m = tbParse.matcher(e.toString());
+      final String file;
+      final int line;
+      if (m.find()) {
+        file = m.group(1);
+        line = Integer.parseInt(m.group(2));
+      } else {
+        file = null;
+        line = -1;
+      }
+      if (((PyType)e.type).getName().equals("ImportError")) {
+        final Pattern importStar = Pattern.compile("import\\s+\\*");
+        if (importStar.matcher(e.toString()).find()) {
+          throw new PythonSketchError("import * does not work in this environment.", file, line);
+        }
+      }
+      throw new PythonSketchError(e.value.asString(), file, line);
+    } else {
+      throw new PythonSketchError(t.getMessage());
     }
   }
 
@@ -132,7 +170,7 @@ public class PAppletJythonDriver extends PApplet {
     finishedLatch.countDown();
   }
 
-  public void findSketchMethods() {
+  public void findSketchMethods() throws PythonSketchError {
     if (mode == Mode.DRAW_LOOP) {
       // Executing the sketch will bind method names ("draw") to PyCode
       // objects (the sketch's draw method), which can then be invoked
@@ -503,6 +541,8 @@ public class PAppletJythonDriver extends PApplet {
     } catch (final PyException e) {
       checkForRendererChangeException(e);
       throw e;
+    } catch (final PythonSketchError e) {
+      throw new RuntimeException(e);
     }
   }
 

@@ -67,6 +67,10 @@ public class Runner {
     }
   }
 
+  private static final String LAUNCHER_TEXT = readOrDie(LaunchHelper.class
+      .getResourceAsStream("launcher.py"));
+  private static final String CORE_TEXT = readOrDie(Runner.class.getResourceAsStream("core.py"));
+
   static boolean VERBOSE = false;
 
   static void log(final Object... objs) {
@@ -94,6 +98,14 @@ public class Runner {
     }
   }
 
+  private static String readOrDie(final InputStream in) {
+    try {
+      return read(in);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   private static String read(final InputStream in) throws IOException {
     return read(new InputStreamReader(in, "UTF-8"));
   }
@@ -111,17 +123,24 @@ public class Runner {
    * >this blog post</a>.
    *
    */
-  private static void addJar(final URL url) throws Exception {
-    final URLClassLoader classLoader = (URLClassLoader)ClassLoader.getSystemClassLoader();
-    for (final URL u : classLoader.getURLs()) {
-      if (u.equals(url)) {
-        return;
+  private static void addJar(final File jarFile) {
+    try {
+      final URL url = jarFile.toURI().toURL();
+      final URLClassLoader classLoader = (URLClassLoader)ClassLoader.getSystemClassLoader();
+      for (final URL u : classLoader.getURLs()) {
+        if (u.equals(url)) {
+          return;
+        }
       }
+      final Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+      method.setAccessible(true);
+      method.invoke(classLoader, new Object[] { url });
+      log("Added ", url, " to classpath.");
+    } catch (Exception e) {
+      System.err.println("While attempting to add " + jarFile.getAbsolutePath()
+          + " to the processing.py classloader: " + e.getClass().getSimpleName() + "--"
+          + e.getMessage());
     }
-    final Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-    method.setAccessible(true);
-    method.invoke(classLoader, new Object[] { url });
-    log("Added ", url, " to classpath.");
   }
 
   /**
@@ -134,20 +153,26 @@ public class Runner {
    * See <a href="http://forums.sun.com/thread.jspa?threadID=707176">this
    * thread</a>.
    */
-  private static void addLibraryPath(final String newPath) throws Exception {
-    final Field field = ClassLoader.class.getDeclaredField("usr_paths");
-    field.setAccessible(true);
-    final String[] paths = (String[])field.get(null);
-    for (final String path : paths) {
-      if (newPath.equals(path)) {
-        return;
+  private static void addLibraryPath(final String newPath) {
+    try {
+      final Field field = ClassLoader.class.getDeclaredField("usr_paths");
+      field.setAccessible(true);
+      final String[] paths = (String[])field.get(null);
+      for (final String path : paths) {
+        if (newPath.equals(path)) {
+          return;
+        }
       }
+      final String[] tmp = new String[paths.length + 1];
+      System.arraycopy(paths, 0, tmp, 0, paths.length);
+      tmp[paths.length] = newPath;
+      field.set(null, tmp);
+      log("Added ", newPath, " to java.library.path.");
+    } catch (Exception e) {
+      System.err.println("While attempting to add " + newPath
+          + " to the processing.py library search path: " + e.getClass().getSimpleName() + "--"
+          + e.getMessage());
     }
-    final String[] tmp = new String[paths.length + 1];
-    System.arraycopy(paths, 0, tmp, 0, paths.length);
-    tmp[paths.length] = newPath;
-    field.set(null, tmp);
-    log("Added ", newPath, " to java.library.path.");
   }
 
   /**
@@ -155,7 +180,7 @@ public class Runner {
    * containing dynamic libraries, adding them to the classpath and the
    * library path respectively.
    */
-  private static void searchForExtraStuff(final File dir) throws Exception {
+  private static void searchForExtraStuff(final File dir) {
     if (dir == null) {
       throw new IllegalArgumentException("null dir");
     }
@@ -186,7 +211,7 @@ public class Runner {
     });
     if (!(jars == null || jars.length == 0)) {
       for (final File jar : jars) {
-        addJar(jar.toURI().toURL());
+        addJar(jar);
       }
     } else {
       log("No JARs in ", dir);
@@ -299,7 +324,17 @@ public class Runner {
     // This will throw an exception and die if the given file is not there
     // or not readable.
     final String sketchSource = read(new FileReader(sketchPath));
-    runSketchBlocking(getLibraries(), args, sketchPath, sketchSource);
+
+    final PreparedPythonSketch sketch =
+        prepareSketch(getLibraries(), args, sketchPath, sketchSource);
+
+    // Hide the splash, if possible 
+    final SplashScreen splash = SplashScreen.getSplashScreen();
+    if (splash != null) {
+      splash.close();
+    }
+
+    sketch.runBlocking();
   }
 
   private static final Pattern JAR_RESOURCE = Pattern
@@ -343,20 +378,27 @@ public class Runner {
   }
 
   public static void runSketchBlocking(final File libraries, final String[] args,
-      final String sketchPath, final String sketchSource) throws Exception {
+      final String sketchPath, final String sketchSource) throws PythonSketchError {
+    prepareSketch(libraries, args, sketchPath, sketchSource).runBlocking();
+  }
+
+  public static PreparedPythonSketch prepareSketch(final File libraries, final String[] args,
+      final String sketchPath, final String sketchSource) throws PythonSketchError {
     // Recursively search the "libraries" directory for jar files and
     // directories containing dynamic libraries, adding them to the
     // classpath and the library path respectively.
     searchForExtraStuff(libraries);
 
     // Where is the sketch located?
-    final String sketchDir = new File(sketchPath).getCanonicalFile().getParent();
+    final String sketchDir = new File(sketchPath).getAbsoluteFile().getParent();
     final Properties props = new Properties();
 
     props.setProperty("python.path", libraries.getAbsolutePath() + File.pathSeparator + sketchDir);
-    props.setProperty("python.main", new File(sketchPath).getCanonicalFile().getAbsolutePath());
-    props.setProperty("python.main.root", new File(sketchPath).getCanonicalFile().getParentFile()
+    props.setProperty("python.main", new File(sketchPath).getAbsoluteFile().getAbsolutePath());
+    props.setProperty("python.main.root", new File(sketchPath).getAbsoluteFile().getParentFile()
         .getAbsolutePath());
+    props.setProperty("python.options.includeJavaStackInExceptions", "false");
+    props.setProperty("python.cachedir.skip", "true");
 
     PythonInterpreter.initialize(null, props, args);
 
@@ -373,7 +415,7 @@ public class Runner {
     // For error messages
     interp.set("__file__", sketchPath);
 
-    interp.exec(read(LaunchHelper.class.getResourceAsStream("launcher.py")));
+    interp.exec(LAUNCHER_TEXT);
 
     /*
      * Here's what core.py does:
@@ -390,31 +432,22 @@ public class Runner {
     interp.set("__interp__", interp);
     interp.set("__path__", sketchPath);
     interp.set("__source__", sketchSource);
-    interp.exec(read(Runner.class.getResourceAsStream("core.py")));
+    interp.exec(CORE_TEXT);
 
     final PAppletJythonDriver applet =
         (PAppletJythonDriver)interp.get("__papplet__").__tojava__(PAppletJythonDriver.class);
-    applet.findSketchMethods();
 
-    // Hide the splash, if possible 
-    final SplashScreen splash = SplashScreen.getSplashScreen();
-    if (splash != null) {
-      splash.close();
-    }
+    applet.findSketchMethods();
 
     // Tell the applet where to load and save data files, etc.
     final String[] massagedArgs = new String[args.length + 1];
     System.arraycopy(args, 0, massagedArgs, 0, args.length);
     massagedArgs[args.length] =
-        PApplet.ARGS_SKETCH_FOLDER + "=" + new File(sketchPath).getCanonicalFile().getParent();
+        PApplet.ARGS_SKETCH_FOLDER + "=" + new File(sketchPath).getAbsoluteFile().getParent();
 
-    try {
-      applet.runAndBlock(massagedArgs);
-    } catch (final Throwable t) {
-      Py.printException(t);
-    } finally {
-      log("Cleaning up interpreter.");
-      interp.cleanup();
-    }
+    final PreparedPythonSketch pythonSketch =
+        new PreparedPythonSketch(interp, applet, massagedArgs);
+
+    return pythonSketch;
   }
 }
