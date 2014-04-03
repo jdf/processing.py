@@ -20,6 +20,7 @@ kinetic-type/
 line.pdf
 modedist
 processing-py.jar
+processing-py-natives-*.jar
 python-hack.jar
 runtime/generated/jycessing/*.java
 runtime/src/.DS_Store

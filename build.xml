@@ -24,8 +24,6 @@
 
   <property name="appjar" value="${processing}/app/pde.jar"/>
   <property name="corejar" value="${processing}/core/library/core.jar"/>
-  <property name="joglall" value="${processing}/core/library/jogl-all.jar"/>
-  <property name="gluegenrt" value="${processing}/core/library/gluegen-rt.jar"/>
   <property name="jython" value="buildtime/lib/jython/jython.jar"/>
 
   <!-- jycessing.buildnumber is the current version string -->
@@ -71,13 +69,20 @@
   </target>
 	
   <target name="jar" depends="build">
+    <fail unless="platform" message="You have to specify a platform."/>
     <jar destfile="processing-py.jar">
       <fileset dir="bin" excludes="jycessing/build/**,test/**"/>
       <zipgroupfileset file="${jython}"/>
       <zipgroupfileset file="${corejar}"/>
+      <zipgroupfileset file="${processing}/core/library/gluegen-rt.jar"/>
+      <zipgroupfileset file="${processing}/core/library/jogl-all.jar"/>
       <manifest>
         <attribute name="Main-Class" value="jycessing.Runner"/>
       </manifest>
+    </jar>
+    <jar destfile="processing-py-natives-${gl.platform}.jar">
+      <zipgroupfileset file="${processing}/core/library/gluegen-rt-natives-${gl.platform}.jar"/>
+      <zipgroupfileset file="${processing}/core/library/jogl-all-natives-${gl.platform}.jar"/>
     </jar>
   </target>
 
@@ -121,7 +126,11 @@
     <rm-rf target="dist"/>
     <rm-rf target=".cache"/>
     <delete file="runtime/generated/jycessing/DriverImpl.java"/>
-    <delete file="processing-py.jar"/>
+    <delete file="processing-py-macosx.jar"/>
+    <delete file="processing-py-linux32.jar"/>
+    <delete file="processing-py-linux64.jar"/>
+    <delete file="processing-py-windows32.jar"/>
+    <delete file="processing-py-windows64.jar"/>
     <delete>
       <fileset dir="buildtime/py" includes="*.class"/>
     </delete>
@@ -177,6 +186,14 @@
           <property name="compression" value="tgz"/>
         </else>
       </if>
+      <local name="gl.platform"/>
+      <switch value="@{platform}">
+        <case value="macosx"><property name="gl.platform" value="macosx-universal"/></case>
+        <case value="linux32"><property name="gl.platform" value="linux-i586"/></case>
+        <case value="linux64"><property name="gl.platform" value="linux-amd64"/></case>
+        <case value="windows32"><property name="gl.platform" value="windows-i586"/></case>
+        <case value="windows64"><property name="gl.platform" value="windows-amd64"/></case>
+      </switch>
       <echo message="Executing target @{target} for platform @{platform}."/>
       <antcall target="@{target}">
         <param name="platform" value="@{platform}"/>
@@ -187,6 +204,7 @@
         <param name="jre.remote" value="http://processing.py.s3.amazonaws.com/jre-7u25-@{platform}.tgz"/>
         <param name="jre.local.dir" value="JREs/@{platform}"/>
         <param name="jre.local.compressed" value="JREs/@{platform}.tgz"/>
+        <param name="gl.platform" value="${gl.platform}"/>
       </antcall>
     </sequential>
   </macrodef>
@@ -212,6 +230,7 @@
     <echo message="  $${jre.remote} = ${jre.remote}"/>
     <echo message="  $${jre.local.dir} = ${jre.local.dir}"/>
     <echo message="  $${jre.local.compressed} = ${jre.local.compressed}"/>
+    <echo message="  $${gl.platform} = ${gl.platform}"/>
   </target>
   <target name="dump-all-platforms">
     <for-all-platforms target="dump-platform"/>
@@ -312,7 +331,7 @@
     <copy-processing-library dir="${cache}" library="video"/>
   </target>
 
-  <target name="make-one-distribution" depends="platform-lib-cache">
+  <target name="make-one-distribution" depends="jar,platform-lib-cache">
     <echo message="Building distribution for ${platform}" />
     <for-platform platform="${platform}" target="getjre"/>
     <rm-rf target="${dist.dir}"/>
@@ -333,18 +352,20 @@
     <symlink resource="${basedir}/${jre.local.dir}" link="${basedir}/${dist.jre}"/>
     <symlink resource="${basedir}/examples.py" link="${basedir}/${dist.dir}/examples.py"/>
     <symlink resource="${basedir}/processing-py.jar" link="${basedir}/${dist.dir}/processing-py.jar"/>
+    <symlink resource="${basedir}/processing-py-natives-${gl.platform}.jar"
+        link="${basedir}/${dist.dir}/processing-py-natives-${gl.platform}.jar"/>
 
     <compress from="${dist.name}" to="${dist.compressed}" dir="dist"/>
   </target>
 
-  <target name="make-all-distributions" depends="jar">
+  <target name="make-all-distributions">
     <for-all-platforms target="make-one-distribution"/>
   </target>
 
   <!--
     $ ant –Dplatform=macosx make-distribution
   -->
-  <target name="make-distribution" depends="jar">
+  <target name="make-distribution">
     <for-platform platform="${platform}" target="make-one-distribution"/>
   </target>
 
@@ -378,7 +399,7 @@
       <src path="testing/src"/>
     </javac>
   </target>
-  <target name="test" depends="build-tests">
+  <target name="runtest" depends="build-tests">
     <java classname="org.junit.runner.JUnitCore" fork="true">
       <arg value="test.jycessing.JycessingTests"/>
       <classpath>
@@ -386,12 +407,15 @@
         <pathelement location="processing-py.jar"/>
         <pathelement location="testing/library/junit-4.11.jar"/>
         <pathelement location="testing/library/hamcrest-core-1.3.jar"/>
-        <fileset dir="${processing}/core/library">
-          <include name="*.jar"/>
-          <exclude name="core.jar"/> <!-- It's already in the processing-py.jar. -->
-        </fileset>
       </classpath>
     </java>
+  </target>
+
+  <!--
+    $ ant –Dplatform=macosx test
+  -->
+  <target name="test">
+    <for-platform platform="${platform}" target="runtest"/>
   </target>
 
 </project>

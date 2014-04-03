@@ -29,14 +29,12 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -111,76 +109,11 @@ public class Runner {
   }
 
   /**
-   * Add a URL (referring to a jar file or class directory) to the current
-   * classloader. Of course, this is a filthy hack, which depends on an
-   * implementation detail (i.e., that the system classloader is a
-   * URLClassLoader). But it certainly works with all known Sun JVMs of recent
-   * vintage, and with OS X's JVMs.
-   *
-   * <p>
-   * See <a href=
-   * "http://robertmaldon.blogspot.com/2007/11/dynamically-add-to-eclipse-junit.html"
-   * >this blog post</a>.
-   *
-   */
-  private static void addJar(final File jarFile) {
-    try {
-      final URL url = jarFile.toURI().toURL();
-      final URLClassLoader classLoader = (URLClassLoader)ClassLoader.getSystemClassLoader();
-      for (final URL u : classLoader.getURLs()) {
-        if (u.equals(url)) {
-          return;
-        }
-      }
-      final Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-      method.setAccessible(true);
-      method.invoke(classLoader, new Object[] { url });
-      log("Added ", url, " to classpath.");
-    } catch (Exception e) {
-      System.err.println("While attempting to add " + jarFile.getAbsolutePath()
-          + " to the processing.py classloader: " + e.getClass().getSimpleName() + "--"
-          + e.getMessage());
-    }
-  }
-
-  /**
-   * Add the given path to the list of paths searched for DLLs (as in those
-   * loaded by loadLibrary). A hack, which depends on the presence of a
-   * particular field in ClassLoader. Known to work on all recent Sun JVMs and
-   * OS X.
-   *
-   * <p>
-   * See <a href="http://forums.sun.com/thread.jspa?threadID=707176">this
-   * thread</a>.
-   */
-  private static void addLibraryPath(final String newPath) {
-    try {
-      final Field field = ClassLoader.class.getDeclaredField("usr_paths");
-      field.setAccessible(true);
-      final String[] paths = (String[])field.get(null);
-      for (final String path : paths) {
-        if (newPath.equals(path)) {
-          return;
-        }
-      }
-      final String[] tmp = new String[paths.length + 1];
-      System.arraycopy(paths, 0, tmp, 0, paths.length);
-      tmp[paths.length] = newPath;
-      field.set(null, tmp);
-      log("Added ", newPath, " to java.library.path.");
-    } catch (Exception e) {
-      System.err.println("While attempting to add " + newPath
-          + " to the processing.py library search path: " + e.getClass().getSimpleName() + "--"
-          + e.getMessage());
-    }
-  }
-
-  /**
    * Recursively search the given directory for jar files and directories
    * containing dynamic libraries, adding them to the classpath and the
    * library path respectively.
    */
-  private static void searchForExtraStuff(final File dir) {
+  private static void searchForExtraStuff(final File dir, final Set<String> entries) {
     if (dir == null) {
       throw new IllegalArgumentException("null dir");
     }
@@ -199,7 +132,7 @@ public class Runner {
       }
     });
     if (dlls != null && dlls.length > 0) {
-      addLibraryPath(dir.getAbsolutePath());
+      entries.add(dir.getAbsolutePath());
     } else {
       log("No DLLs in ", dir);
     }
@@ -211,7 +144,7 @@ public class Runner {
     });
     if (!(jars == null || jars.length == 0)) {
       for (final File jar : jars) {
-        addJar(jar);
+        entries.add(jar.getAbsolutePath());
       }
     } else {
       log("No JARs in ", dir);
@@ -224,7 +157,7 @@ public class Runner {
     });
     if (!(dirs == null || dirs.length == 0)) {
       for (final File d : dirs) {
-        searchForExtraStuff(d);
+        searchForExtraStuff(d, entries);
       }
     } else {
       log("No dirs in ", dir);
@@ -338,9 +271,9 @@ public class Runner {
   }
 
   private static final Pattern JAR_RESOURCE = Pattern
-      .compile("jar:file:(.+?)/processing-py.jar!/jycessing/buildnumber.properties");
+      .compile("jar:file:(.+?)/processing-py\\.jar!/jycessing/buildnumber\\.properties");
   private static final Pattern FILE_RESOURCE = Pattern
-      .compile("file:(.+?)/bin/jycessing/buildnumber.properties");
+      .compile("file:(.+?)/bin/jycessing/buildnumber\\.properties");
 
   /**
    * Returns the library dir.
@@ -387,7 +320,8 @@ public class Runner {
     // Recursively search the "libraries" directory for jar files and
     // directories containing dynamic libraries, adding them to the
     // classpath and the library path respectively.
-    searchForExtraStuff(libraries);
+    final Set<String> libs = new HashSet<String>();
+    searchForExtraStuff(libraries, libs);
 
     // Where is the sketch located?
     final String sketchDir = new File(sketchPath).getAbsoluteFile().getParent();
@@ -414,6 +348,11 @@ public class Runner {
 
     // For error messages
     interp.set("__file__", sketchPath);
+
+    interp.exec("import sys\n");
+    for (final String lib : libs) {
+      interp.exec(String.format("sys.path.append(\"%s\")\n", lib));
+    }
 
     interp.exec(LAUNCHER_TEXT);
 
