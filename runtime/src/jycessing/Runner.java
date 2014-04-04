@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.Arrays;
@@ -43,6 +44,7 @@ import jycessing.launcher.LaunchHelper;
 
 import org.python.core.Py;
 import org.python.core.PyString;
+import org.python.core.PySystemState;
 import org.python.util.InteractiveConsole;
 import org.python.util.PythonInterpreter;
 
@@ -259,7 +261,7 @@ public class Runner {
     final String sketchSource = read(new FileReader(sketchPath));
 
     final PreparedPythonSketch sketch =
-        prepareSketch(getLibraries(), args, sketchPath, sketchSource);
+        prepareSketch(getLibraries(), LibraryPolicy.PROMISCUOUS, args, sketchPath, sketchSource);
 
     // Hide the splash, if possible 
     final SplashScreen splash = SplashScreen.getSplashScreen();
@@ -310,30 +312,65 @@ public class Runner {
     return new File("libraries");
   }
 
-  public static void runSketchBlocking(final File libraries, final String[] args,
-      final String sketchPath, final String sketchSource) throws PythonSketchError {
-    prepareSketch(libraries, args, sketchPath, sketchSource).runBlocking();
+  public static
+      void
+      runSketchBlocking(final File libraries, final LibraryPolicy libraryPolicy,
+          final String[] args, final String sketchPath, final String sketchSource)
+                                                                                  throws PythonSketchError {
+    prepareSketch(libraries, libraryPolicy, args, sketchPath, sketchSource).runBlocking();
   }
 
-  public static PreparedPythonSketch prepareSketch(final File libraries, final String[] args,
-      final String sketchPath, final String sketchSource) throws PythonSketchError {
-    // Recursively search the "libraries" directory for jar files and
-    // directories containing dynamic libraries, adding them to the
-    // classpath and the library path respectively.
-    final Set<String> libs = new HashSet<String>();
-    searchForExtraStuff(libraries, libs);
+  /**
+   * Specifies how to deal with the libraries directory.
+   */
+  public enum LibraryPolicy {
+    /**
+     * Preemptively put every jar file and directory under the library path on sys.path.
+     */
+    PROMISCUOUS,
 
+    /**
+     * Only put jar files and directories onto sys.path as called for by add_library.
+     */
+    SELECTIVE
+  }
+
+  /**
+   * TODO(feinberg): Turn this from a static method into a method on a configurable object.
+   * 
+   * @param libraries
+   * @param libraryPolicy
+   * @param args
+   * @param sketchPath
+   * @param sketchSource
+   * @return
+   * @throws PythonSketchError
+   */
+  public static PreparedPythonSketch prepareSketch(final File libraries,
+      final LibraryPolicy libraryPolicy, final String[] args, final String sketchPath,
+      final String sketchSource) throws PythonSketchError {
     // Where is the sketch located?
     final String sketchDir = new File(sketchPath).getAbsoluteFile().getParent();
     final Properties props = new Properties();
+
+    // Can be handy for class loading issues and the like.
+    // props.setProperty("python.verbose", "debug");
 
     props.setProperty("python.path", libraries.getAbsolutePath() + File.pathSeparator + sketchDir);
     props.setProperty("python.main", new File(sketchPath).getAbsoluteFile().getAbsolutePath());
     props.setProperty("python.main.root", new File(sketchPath).getAbsoluteFile().getParentFile()
         .getAbsolutePath());
     props.setProperty("python.options.includeJavaStackInExceptions", "false");
-    props.setProperty("python.cachedir.skip", "true");
 
+    // Try to permit the Python system state to be re-initialized.
+    // TODO: Is it possible to do any better?
+    try {
+      final Field inited = PySystemState.class.getDeclaredField("initialized");
+      inited.setAccessible(true);
+      inited.set(null, Boolean.FALSE);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     PythonInterpreter.initialize(null, props, args);
 
     Py.initPython();
@@ -343,15 +380,27 @@ public class Runner {
     // tests
     interp.setOut(System.out);
 
-    // Add it to the Python library path for auxilliary modules
+    // Add the sketch directory to the Python library path for auxilliary modules.
     Py.getSystemState().path.insert(0, new PyString(sketchDir));
 
-    // For error messages
+    // For moar useful error messages.
     interp.set("__file__", sketchPath);
 
     interp.exec("import sys\n");
-    for (final String lib : libs) {
-      interp.exec(String.format("sys.path.append(\"%s\")\n", lib));
+
+    // Add the add_library function to the sketch namespace.
+    final LibraryImporter libraryImporter = new LibraryImporter(libraries, interp);
+    libraryImporter.initialize();
+
+    if (libraryPolicy == LibraryPolicy.PROMISCUOUS) {
+      log("Promiscusouly adding all libraries in " + libraries);
+      // Recursively search the "libraries" directory for jar files and
+      // directories containing dynamic libraries.
+      final Set<String> libs = new HashSet<String>();
+      searchForExtraStuff(libraries, libs);
+      for (final String lib : libs) {
+        interp.exec(String.format("sys.path.append(\"%s\")\n", lib));
+      }
     }
 
     interp.exec(LAUNCHER_TEXT);
@@ -384,9 +433,6 @@ public class Runner {
     massagedArgs[args.length] =
         PApplet.ARGS_SKETCH_FOLDER + "=" + new File(sketchPath).getAbsoluteFile().getParent();
 
-    final PreparedPythonSketch pythonSketch =
-        new PreparedPythonSketch(interp, applet, massagedArgs);
-
-    return pythonSketch;
+    return new PreparedPythonSketch(interp, applet, massagedArgs);
   }
 }

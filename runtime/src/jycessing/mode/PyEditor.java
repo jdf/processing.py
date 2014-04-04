@@ -12,6 +12,7 @@ import javax.swing.JMenuItem;
 import jycessing.PreparedPythonSketch;
 import jycessing.PythonSketchError;
 import jycessing.Runner;
+import jycessing.Runner.LibraryPolicy;
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.EditorState;
@@ -150,7 +151,7 @@ public class PyEditor extends Editor {
     @Override
     public void println(String s) {
       if (!IGNORE.matcher(s).matches()) {
-        super.print(s);
+        super.println(s);
       }
     }
   }
@@ -163,8 +164,9 @@ public class PyEditor extends Editor {
       public void run() {
         try {
           final PreparedPythonSketch sketch =
-              Runner.prepareSketch(Base.getSketchbookLibrariesFolder(), mode.args(sketchPath,
-                  getX(), getY()), sketchPath, getSketch().getCurrentCode().getProgram());
+              Runner.prepareSketch(Base.getSketchbookLibrariesFolder(), LibraryPolicy.SELECTIVE,
+                  mode.args(sketchPath, getX(), getY()), sketchPath, getSketch().getCurrentCode()
+                      .getProgram());
           final PrintStream syserr = System.err;
           System.setErr(new MoveCommandFilteringPrintStream(syserr));
           try {
@@ -253,7 +255,15 @@ public class PyEditor extends Editor {
 
   @Override
   public void handleImportLibrary(final String jarPath) {
-    unimplemented("handleImportLibrary");
+    sketch.ensureExistence();
+    final String name = new File(jarPath).getParentFile().getParentFile().getName();
+    if (Pattern.compile("^add_library\\(\\s*'" + name + "'\\s*\\)\\s*$", Pattern.MULTILINE)
+        .matcher(getText()).find()) {
+      return;
+    }
+    setSelection(0, 0); // scroll to start
+    setSelectedText(String.format("add_library('%s')\n", name));
+    sketch.setModified(true);
   }
 
   private void unimplemented(final String what) {
