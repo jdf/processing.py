@@ -368,6 +368,7 @@ public class Runner {
       final Field inited = PySystemState.class.getDeclaredField("initialized");
       inited.setAccessible(true);
       inited.set(null, Boolean.FALSE);
+      PySystemState.registry = null;
     } catch (Exception e) {
       e.printStackTrace();
     }
