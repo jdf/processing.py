@@ -1,7 +1,6 @@
 package jycessing.mode;
 
 import java.io.File;
-
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.EditorState;
@@ -9,8 +8,12 @@ import processing.app.Mode;
 
 public class PythonMode extends Mode {
 
+  private final FormatServer formatServer;
+
   public PythonMode(final Base base, final File folder) {
     super(base, folder);
+    formatServer = new FormatServer(folder);
+    formatServer.startup();
   }
 
   @Override

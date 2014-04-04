@@ -9,19 +9,21 @@ import java.util.regex.Pattern;
 import processing.app.Editor;
 import processing.app.Sketch;
 import processing.app.syntax.JEditTextArea;
+import processing.mode.java.PdeKeyListener;
 
 /**
  * 
  */
-public class PyKeyListener extends processing.mode.java.PdeKeyListener {
-  PyEditor peditor;
-  JEditTextArea ptextarea;
+public class PyKeyListener extends PdeKeyListener {
+  final PyEditor peditor;
+  final JEditTextArea ptextarea;
 
   // ctrl-alt on windows & linux, cmd-alt on os x
   private static int CTRL_ALT = ActionEvent.ALT_MASK
       | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
-  private static final String TAB = "   ";
+  // 4 spaces per pep8
+  private static final String TAB = "    ";
 
   public PyKeyListener(final Editor editor, final JEditTextArea textarea) {
     super(editor, textarea);
@@ -30,8 +32,6 @@ public class PyKeyListener extends processing.mode.java.PdeKeyListener {
     ptextarea = textarea;
   }
 
-  /*
-   */
   @Override
   public boolean keyPressed(final KeyEvent event) {
     final char c = event.getKeyChar();
