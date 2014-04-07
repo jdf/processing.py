@@ -12,7 +12,7 @@ import processing.app.syntax.JEditTextArea;
 import processing.mode.java.PdeKeyListener;
 
 /**
- * 
+ * This class provides Pythonic handling of TAB, BACKSPACE, and ENTER keys.
  */
 public class PyKeyListener extends PdeKeyListener {
   final PyEditor peditor;
@@ -57,9 +57,16 @@ public class PyKeyListener extends PdeKeyListener {
       }
     }
 
+    final int thisLine = textArea.getCaretLine();
+    final int thisPos = textArea.getCaretPosition();
+
     switch (code) {
       case KeyEvent.VK_BACK_SPACE:
-        final LineInfo currentLine = new LineInfo(textArea.getCaretLine());
+        if (thisPos == textArea.getLineStartOffset(thisLine)) {
+          // Let the user backspace onto the previous line.
+          break;
+        }
+        final LineInfo currentLine = new LineInfo(thisLine);
         if (currentLine.caretInText) {
           // The caret is in the text; let the text editor handle this backspace.
           break;
@@ -74,7 +81,7 @@ public class PyKeyListener extends PdeKeyListener {
 
       case KeyEvent.VK_ENTER: // return
         final String text = textArea.getText(); // text
-        final int cursor = textArea.getCaretPosition();
+        final int cursor = thisPos;
         textArea.setSelectedText(getIndent(cursor, text));
         break;
     }
