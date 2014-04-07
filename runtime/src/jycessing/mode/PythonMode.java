@@ -1,12 +1,14 @@
 package jycessing.mode;
 
 import java.io.File;
+import java.io.IOException;
 
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.EditorState;
 import processing.app.Formatter;
 import processing.app.Mode;
+import processing.app.syntax.TokenMarker;
 
 public class PythonMode extends Mode {
 
@@ -45,5 +47,15 @@ public class PythonMode extends Mode {
 
   Formatter getFormatter() {
     return formatServer;
+  }
+
+  @Override
+  protected void loadKeywords(File keywordFile) throws IOException {
+    loadKeywords(keywordFile, "//");
+  }
+
+  @Override
+  public TokenMarker createTokenMarker() {
+    return new PythonTokenMarker();
   }
 }

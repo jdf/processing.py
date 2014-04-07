@@ -1,5 +1,5 @@
-# For an explanation of these tags, see Token.java 
-# trunk/processing/app/src/processing/app/syntax/Token.java
+// For an explanation of these tags, see Token.java 
+// trunk/processing/app/src/processing/app/syntax/Token.java
 
 ADD	LITERAL2	blend_
 ALIGN_CENTER	LITERAL2	
@@ -177,14 +177,14 @@ UP	LITERAL2	keyCode
 WAIT	LITERAL2	cursor_
 WHITESPACE	LITERAL2		
 
-# Python literals
+// Python literals
 None	LITERAL2
 True	LITERAL2
 False	LITERAL2
 Ellipsis	LITERAL2
 NotImplemented LITERAL2
 
-# Python keywords
+// Python keywords
 	
 and	KEYWORD1	
 as	KEYWORD1
@@ -203,7 +203,7 @@ or	KEYWORD1
 print	KEYWORD1
 
 
-# Datatypes
+// Datatypes
 
 Array	KEYWORD5	Array
 ArrayList	KEYWORD5	ArrayList
@@ -231,7 +231,7 @@ long	KEYWORD5	long
 short	KEYWORD5
 
 
-# Flow structure
+// Flow structure
 
 break	KEYWORD3
 continue	KEYWORD3
@@ -249,7 +249,7 @@ try	KEYWORD3	try
 while	KEYWORD3	while
 yield	KEYWORD3
 
-# These items are a part of Processing but, but pages don't generate
+// These items are a part of Processing but, but pages don't generate
 
 boolean	FUNCTION1	booleanconvert_
 byte	FUNCTION1	byteconvert_
@@ -289,12 +289,12 @@ toUpperCase	FUNCTION2	String_toUpperCase_
 length	KEYWORD2	String
 
 
-# Temporary additions 3 September 2012 as the reference is getting updated
+// Temporary additions 3 September 2012 as the reference is getting updated
 
 end	FUNCTION1
 addChild	FUNCTION1
 
-# Operators are without KEYWORDS
+// Operators are without KEYWORDS
 
 +=		addassign
 +		addition
@@ -303,7 +303,7 @@ addChild	FUNCTION1
 &		bitwiseAND
 |		bitwiseOR
 ,		comma
-//		comment
+#		comment
 ?		conditional
 {}		curlybraces
 --		decrement
@@ -332,7 +332,7 @@ addChild	FUNCTION1
 ;		semicolon
 -=		subtractassign
 
-# Suppressed from Generate to avoid conflicts with variables inside methods
+// Suppressed from Generate to avoid conflicts with variables inside methods
 
 width	KEYWORD4	width_
 height	KEYWORD4	height_
@@ -340,13 +340,6 @@ height	KEYWORD4	height_
 PVector	FUNCTION1	PVector
 ArrayList	FUNCTION1	ArrayList
 HashMap	FUNCTION1	HashMap
-
-
-# THE TEXT ABOVE IS HAND-WRITTEN AND FOUND IN THE FILE "keywords_base.txt"
-# THE TEXT BELOW IS AUTO-GENERATED
-#
-# SO DON'T 
-# TOUCH IT
 
 
 abs	FUNCTION1	abs_
