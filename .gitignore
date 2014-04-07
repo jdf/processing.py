@@ -6,7 +6,8 @@
 JREs/linux*
 JREs/macosx*
 JREs/windows*
-ProcessingDotPyMode.jar
+PythonMode*.jar
+PythonMode*.zip
 __pycache__
 bin
 build

@@ -25,6 +25,7 @@
   <property name="appjar" value="${processing}/app/pde.jar"/>
   <property name="corejar" value="${processing}/core/library/core.jar"/>
   <property name="jython" value="buildtime/lib/jython/jython.jar"/>
+  <property name="jython.license" value="buildtime/lib/jython/LICENSE.txt"/>
 
   <!-- jycessing.buildnumber is the current version string -->
   <property file="runtime/src/jycessing/buildnumber.properties" prefix="jycessing"/>
@@ -44,19 +45,21 @@
   <target name="newversion" depends="bump-version,clean,make-all-distributions"/>
 
   <target name="modejar" depends="build">
-    <jar destfile="ProcessingDotPyMode.jar">
+    <jar destfile="PythonMode.jar">
       <fileset dir="bin" excludes="jycessing/build/**,test/**"/>
-      <zipgroupfileset file="${jython}"/>
     </jar>
   </target>
 
   <target name="modedist" depends="modejar">
     <delete dir="modedist" />
-    <property name="bundle" value="modedist/ProcessingDotPyMode"/>
+    <property name="bundle" value="modedist/PythonMode"/>
     <mkdir dir="${bundle}" />
     <mkdir dir="${bundle}/mode" />
 
-    <copy todir="${bundle}/mode" file="ProcessingDotPyMode.jar"/>
+    <copy todir="${bundle}/mode" file="PythonMode.jar"/>
+    <copy todir="${bundle}" file="LICENSE.txt"/>
+    <copy todir="${bundle}/mode" file="${jython}"/>
+    <copy tofile="${bundle}/mode/LICENSE.jython" file="${jython.license}"/>
 
     <copy todir="${bundle}">
       <fileset dir="mode/" />
@@ -68,6 +71,20 @@
                  match="@@pretty-version@@" replace="${jycessing.buildnumber}" />
   </target>
 	
+  <target name="upload-mode" depends="modedist">
+    <zip destfile="PythonMode.zip" basedir="modedist" excludes="**/_DS.Store" />
+    <copy file="PythonMode.zip" tofile="PythonMode_${jycessing.buildnumber}.zip" />
+    <echo message="Pushing modedist to py.processing.org..." />
+    <exec executable="/bin/sh">
+      <arg value="-c"/>
+      <arg value="scp -i ~/.ssh/id_rsa-processing.org -r PythonMode.zip jdf@py.processing.org:/var/www/py" />
+    </exec>
+    <exec executable="/bin/sh">
+      <arg value="-c"/>
+      <arg value="scp -i ~/.ssh/id_rsa-processing.org -r PythonMode_${jycessing.buildnumber}.zip jdf@py.processing.org:/var/www/py" />
+    </exec>
+  </target>
+
   <target name="jar" depends="build">
     <fail unless="platform" message="You have to specify a platform."/>
     <jar destfile="processing-py.jar">

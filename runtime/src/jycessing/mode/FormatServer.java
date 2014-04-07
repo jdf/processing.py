@@ -45,7 +45,7 @@ public class FormatServer implements Formatter {
       return new ProcessBuilder("python", formatServerPath);
     }
     System.err.println("Native python not available for formatting.");
-    final String jython = new File(modeHome, "jython/jython.jar").getAbsolutePath();
+    final String jython = new File(modeHome, "mode/jython.jar").getAbsolutePath();
     return new ProcessBuilder(Base.getJavaPath(), "-jar", jython, formatServerPath);
   }
 
