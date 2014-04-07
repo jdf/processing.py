@@ -1,5 +1,5 @@
 import socket
-from struct import unpack
+from struct import pack, unpack
 import sys
 import autopep8
 
@@ -15,12 +15,16 @@ while True:
     try:
         buf = connection.recv(4)
         (size,) = unpack('>i', buf)
+        if size == -1:
+            print >>sys.stderr, 'Format server exiting.'
+            sys.exit(0)
         src = ''
         while len(src) < size:
             src += connection.recv(4096)
         src = src.decode('utf-8')
         reformatted = autopep8.fix_code(src)
         encoded = reformatted.encode('utf-8')
+        connection.sendall(pack('>i', len(encoded)))
         connection.sendall(encoded)
     finally:
         connection.close()

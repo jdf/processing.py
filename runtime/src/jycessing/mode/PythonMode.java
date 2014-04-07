@@ -1,9 +1,11 @@
 package jycessing.mode;
 
 import java.io.File;
+
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.EditorState;
+import processing.app.Formatter;
 import processing.app.Mode;
 
 public class PythonMode extends Mode {
@@ -41,4 +43,7 @@ public class PythonMode extends Mode {
     return new String[] {};
   }
 
+  Formatter getFormatter() {
+    return formatServer;
+  }
 }

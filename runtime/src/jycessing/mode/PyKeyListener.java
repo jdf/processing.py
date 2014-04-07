@@ -16,7 +16,7 @@ import processing.mode.java.PdeKeyListener;
  */
 public class PyKeyListener extends PdeKeyListener {
   final PyEditor peditor;
-  final JEditTextArea ptextarea;
+  final JEditTextArea textArea;
 
   // ctrl-alt on windows & linux, cmd-alt on os x
   private static int CTRL_ALT = ActionEvent.ALT_MASK
@@ -24,12 +24,13 @@ public class PyKeyListener extends PdeKeyListener {
 
   // 4 spaces per pep8
   private static final String TAB = "    ";
+  private static final int TAB_SIZE = TAB.length();
 
   public PyKeyListener(final Editor editor, final JEditTextArea textarea) {
     super(editor, textarea);
 
     peditor = (PyEditor)editor;
-    ptextarea = textarea;
+    textArea = textarea;
   }
 
   @Override
@@ -56,29 +57,128 @@ public class PyKeyListener extends PdeKeyListener {
       }
     }
 
-    // TODO handle ctrl-[up|down]; should move cursor to next empty line in
-    // that direction
+    switch (code) {
+      case KeyEvent.VK_BACK_SPACE:
+        final LineInfo currentLine = new LineInfo(textArea.getCaretLine());
+        if (currentLine.caretInText) {
+          // The caret is in the text; let the text editor handle this backspace.
+          break;
+        }
+        // The caret is not in the text; treat it as a request to unindent.
+        indent(-1);
+        return true;
 
-    // handle specific keypresses
-    switch (c) {
+      case KeyEvent.VK_TAB:
+        indent(event.isShiftDown() ? -1 : 1);
+        return true;
 
-      case 9: // tab; overriding with spaces
-        ptextarea.setSelectedText(TAB);
-        break;
-
-      case 10: // return
-      case 13: // also return
-        final String text = ptextarea.getText(); // text
-        final int cursor = ptextarea.getCaretPosition();
-        ptextarea.setSelectedText(getIndent(cursor, text));
+      case KeyEvent.VK_ENTER: // return
+        final String text = textArea.getText(); // text
+        final int cursor = textArea.getCaretPosition();
+        textArea.setSelectedText(getIndent(cursor, text));
         break;
     }
 
     return false;
   }
 
+  /**
+   * A line is some whitespace followed by a bunch of whatever.
+   */
+  private static final Pattern LINE = Pattern.compile("^(\\s*)(.*)$");
+
+  /**
+   * Everything we need to know about a line in the text editor.
+   */
+  private class LineInfo {
+    // Expressed in units of "python indents", not in number of spaces.
+    public final int indent;
+
+    // The text content after whatever indent.
+    public final String text;
+
+    // Whether or not the caret happens to be positioned in the text portion of the line.
+    public final boolean caretInText;
+
+    LineInfo(final int lineNumber) {
+      final Matcher m = LINE.matcher(textArea.getLineText(lineNumber));
+      if (!m.matches()) {
+        throw new AssertionError("How can a line have less than nothing in it?");
+      }
+      final String space = m.group(1);
+      text = m.group(2);
+      final int caretLinePos =
+          textArea.getCaretPosition() - textArea.getLineStartOffset(lineNumber);
+      caretInText = caretLinePos > space.length();
+      // Calculate the current indent measured in tab stops of TAB_SIZE spaces.
+      int currentIndent = 0;
+      int spaceCounter = 0;
+      for (int i = 0; i < space.length(); i++) {
+        spaceCounter++;
+        // A literal tab character advances to the next tab stop, as does the TAB_SIZEth space
+        // character in a row.
+        if (spaceCounter % TAB_SIZE == 0 || space.charAt(i) == '\t') {
+          currentIndent++;
+          spaceCounter = 0;
+        }
+      }
+      indent = currentIndent;
+    }
+  }
+
+  /**
+   * Maybe change the indent of the current line. If sign is positive, then increase the indent;
+   * otherwise, decrease it.
+   * <p>If the last non-comment, non-blank line ends with ":", then the maximum indent for the
+   * current line is one greater than the indent of that ":"-bearing line. Otherwise, the maximum
+   * indent is equal to the indent of the last non-comment line.
+   * <p>The minimum indent is 0.
+   * @param sign The direction in which to modify the indent of the current line.
+   */
+  private void indent(int sign) {
+    final int line = textArea.getCaretLine();
+    final LineInfo currentLine = new LineInfo(line);
+    final int currentCaret = textArea.getCaretPosition();
+    final int lineEndRelativePos = textArea.getLineStopOffset(line) - currentCaret;
+    final int newIndent;
+
+    if (sign > 0) {
+      // Find previous non-blank non-comment line.
+      LineInfo candidate = null;
+      for (int i = line - 1; i >= 0; i--) {
+        candidate = new LineInfo(i);
+        if (candidate.text.length() > 0 && !candidate.text.startsWith("#")) {
+          break;
+        }
+      }
+      if (candidate == null) {
+        newIndent = 0;
+      } else if (candidate.text.trim().endsWith(":")) {
+        newIndent = Math.min(candidate.indent + 1, currentLine.indent + 1);
+      } else {
+        newIndent = Math.min(candidate.indent, currentLine.indent + 1);
+      }
+    } else {
+      newIndent = Math.max(0, currentLine.indent - 1);
+    }
+    if (newIndent == currentLine.indent) {
+      return;
+    }
+    final StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < newIndent; i++) {
+      sb.append(TAB);
+    }
+    sb.append(currentLine.text);
+    textArea.select(textArea.getLineStartOffset(line), textArea.getLineStopOffset(line) - 1);
+    final String newLine = sb.toString();
+    textArea.setSelectedText(newLine);
+    textArea.selectNone();
+    textArea.setCaretPosition(Math.max(textArea.getLineStopOffset(line) - lineEndRelativePos,
+        textArea.getLineStartOffset(line)));
+  }
+
   private static Pattern findIndent = Pattern.compile("^((?: |\\t)*)");
-  private static Pattern incIndent = Pattern.compile(":( |\\t)*(#.*)?$"); // TODO
+  private static Pattern incIndent = Pattern.compile(":( |\\t)*(#.*)?$");
 
   String getIndent(final int cursor, final String text) {
     if (cursor <= 1) {
