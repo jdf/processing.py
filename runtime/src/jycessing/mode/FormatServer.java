@@ -52,7 +52,7 @@ public class FormatServer implements Formatter {
   /**
    * Starts the formatting server.
    */
-  public void startup() {
+  public void start() {
     final String serverpy = new File(modeHome, "formatter/format_server.py").getAbsolutePath();
     final ProcessBuilder pb = getPythonProcess(serverpy);
     pb.redirectErrorStream(true);

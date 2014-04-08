@@ -3,6 +3,7 @@ package jycessing.mode;
 import java.io.File;
 import java.io.IOException;
 
+import jycessing.mode.run.SketchServiceManager;
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.EditorState;
@@ -13,11 +14,14 @@ import processing.app.syntax.TokenMarker;
 public class PythonMode extends Mode {
 
   private final FormatServer formatServer;
+  private final SketchServiceManager sketchServiceManager;
 
   public PythonMode(final Base base, final File folder) {
     super(base, folder);
     formatServer = new FormatServer(folder);
-    formatServer.startup();
+    formatServer.start();
+    sketchServiceManager = new SketchServiceManager(this);
+    sketchServiceManager.start();
   }
 
   @Override
@@ -57,5 +61,17 @@ public class PythonMode extends Mode {
   @Override
   public TokenMarker createTokenMarker() {
     return new PythonTokenMarker();
+  }
+
+  public SketchServiceManager getSketchServiceManager() {
+    return sketchServiceManager;
+  }
+
+  public void handleSketchStopped() {
+    base.getActiveEditor().deactivateRun();
+  }
+
+  public void handleSketchException(Exception e) {
+    base.getActiveEditor().statusError(e);
   }
 }

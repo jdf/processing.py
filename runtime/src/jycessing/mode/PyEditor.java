@@ -3,16 +3,11 @@ package jycessing.mode;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.PrintStream;
 import java.util.regex.Pattern;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import jycessing.PreparedPythonSketch;
-import jycessing.PythonSketchError;
-import jycessing.Runner;
-import jycessing.Runner.LibraryPolicy;
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.EditorState;
@@ -44,9 +39,10 @@ public class PyEditor extends Editor {
 
   @Override
   public void internalCloseRunner() {
-    if (runner != null) {
-      runner.interrupt();
-      runner = null;
+    try {
+      pyMode.getSketchServiceManager().stopSketch();
+    } catch (SketchException e) {
+      statusError(e);
     }
   }
 
@@ -122,91 +118,25 @@ public class PyEditor extends Editor {
     Base.showMessage("Sorry", "You can't do that yet.");
   }
 
-  private enum RunMode {
-    WINDOWED {
-      @Override
-      public String[] args(String sketchPath, final int x, final int y) {
-        return new String[] { String.format("--editor-location=%d,%d", x, y), sketchPath };
-      }
-    },
-    PRESENTATION {
-      @Override
-      public String[] args(String sketchPath, final int x, final int y) {
-        return new String[] { "--present", "--external", sketchPath };
-      }
-    };
-    abstract public String[] args(final String sketchPath, final int x, final int y);
-  }
-
-  // Ignore __MOVE__.
-  // TODO(feinberg): Listen to __MOVE__.
-  private static class MoveCommandFilteringPrintStream extends PrintStream {
-    private static final Pattern IGNORE = Pattern.compile("^__MOVE__\\s+(.*)$");
-
-    public MoveCommandFilteringPrintStream(final PrintStream wrapped) {
-      super(wrapped);
-    }
-
-    @Override
-    public void println(String s) {
-      if (!IGNORE.matcher(s).matches()) {
-        super.println(s);
-      }
-    }
-  }
-
   private void runSketch(final RunMode mode) {
-    final String sketchPath = getSketch().getCurrentCode().getFile().getAbsolutePath();
     prepareRun();
-    runner = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          final PreparedPythonSketch sketch =
-              Runner.prepareSketch(Base.getSketchbookLibrariesFolder(), LibraryPolicy.SELECTIVE,
-                  mode.args(sketchPath, getX(), getY()), sketchPath, getSketch().getCurrentCode()
-                      .getProgram());
-          final PrintStream syserr = System.err;
-          System.setErr(new MoveCommandFilteringPrintStream(syserr));
-          try {
-            sketch.runBlocking();
-          } finally {
-            System.setErr(syserr);
-          }
-        } catch (PythonSketchError e) {
-          statusError(convertPythonSketchError(e));
-        } catch (Exception e) {
-          statusError(e);
-        } finally {
-          handleStop();
-        }
+    final SketchCode code = getSketch().getCurrentCode();
+    final String sketchPath = code.getFile().getAbsolutePath();
+    try {
+      final String[] codePaths = new String[sketch.getCodeCount()];
+      for (int i = 0; i < codePaths.length; i++) {
+        codePaths[i] = sketch.getCode(i).getFile().getAbsolutePath();
       }
-    }, "processing.py mode runner");
-    runner.start();
+      pyMode.getSketchServiceManager().runSketch(mode, Base.getSketchbookLibrariesFolder(),
+          new File(sketchPath).getAbsoluteFile(), code.getProgram(), codePaths, getX(), getY());
+    } catch (SketchException e) {
+      statusError(e);
+    }
   }
 
-  private SketchException convertPythonSketchError(PythonSketchError e) {
-    if (e.file == null) {
-      return new SketchException(e.getMessage());
-    }
-    int fileIndex = -1;
-    final SketchCode[] codes = getSketch().getCode();
-    for (int i = 0; i < codes.length; i++) {
-      if (codes[i].getFile().getAbsoluteFile().equals(new File(e.file).getAbsoluteFile())) {
-        fileIndex = i;
-        break;
-      }
-    }
-    if (fileIndex < 0) {
-      return new SketchException(e.getMessage());
-    }
-    if (e.line < 0) {
-      return new SketchException(e.getMessage(), fileIndex, 0);
-    }
-    if (e.column < 0) {
-      return new SketchException(e.getMessage(), fileIndex, e.line);
-    }
-    return new SketchException(e.getMessage(), fileIndex, e.line, e.column);
+  @Override
+  public void deactivateRun() {
+    restoreToolbar();
   }
 
   public void handleRun() {
@@ -222,6 +152,11 @@ public class PyEditor extends Editor {
   public void handleStop() {
     toolbar.activate(PyToolbar.STOP);
     internalCloseRunner();
+    restoreToolbar();
+  }
+
+  private void restoreToolbar() {
+    toolbar.deactivate(PyToolbar.SAVE);
     toolbar.deactivate(PyToolbar.STOP);
     toolbar.deactivate(PyToolbar.RUN);
     toFront();
@@ -230,26 +165,21 @@ public class PyEditor extends Editor {
   public void handleSave() {
     toolbar.activate(PyToolbar.SAVE);
     super.handleSave(true);
-    toolbar.deactivate(PyToolbar.SAVE);
+    restoreToolbar();
   }
 
   @Override
   public boolean handleSaveAs() {
     toolbar.activate(PyToolbar.SAVE);
     final boolean result = super.handleSaveAs();
-    toolbar.deactivate(PyToolbar.SAVE);
+    restoreToolbar();
     return result;
   }
 
   @Override
   public void statusError(final String what) { // sketch died for some reason
     super.statusError(what);
-    deactivateRun();
-  }
-
-  @Override
-  public void deactivateRun() {
-    toolbar.deactivate(PyToolbar.RUN);
+    restoreToolbar();
   }
 
   @Override
