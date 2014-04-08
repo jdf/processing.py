@@ -16,8 +16,7 @@
 <project name="processing.py" default="jar">
   <description>Write Processing sketches in Python</description>
 
-  <fail unless="processing"
-    message="You have to specify where to find processing with -Dprocessing=/path/to/processing"/>
+  <property name="processing" value="../processing"/>
 
   <!-- for <if> tag -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="buildtime/lib/java/ant-contrib.jar"/>
