@@ -71,9 +71,12 @@
                  match="@@pretty-version@@" replace="${jycessing.buildnumber}" />
   </target>
 	
-  <target name="upload-mode" depends="modedist">
+  <target name="zip-mode" depends="modedist">
     <zip destfile="PythonMode.zip" basedir="modedist" excludes="**/_DS.Store" />
     <copy file="PythonMode.zip" tofile="PythonMode_${jycessing.buildnumber}.zip" />
+  </target>
+
+  <target name="upload-mode" depends="zip-mode">
     <echo message="Pushing modedist to py.processing.org..." />
     <exec executable="/bin/sh">
       <arg value="-c"/>
