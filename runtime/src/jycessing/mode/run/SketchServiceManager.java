@@ -30,7 +30,9 @@ public class SketchServiceManager implements ModeService {
   }
 
   private static void log(final String msg) {
-    System.err.println(SketchServiceManager.class.getSimpleName() + ": " + msg);
+    if (Base.DEBUG) {
+      System.err.println(SketchServiceManager.class.getSimpleName() + ": " + msg);
+    }
   }
 
   private static final FilenameFilter JARS = new FilenameFilter() {

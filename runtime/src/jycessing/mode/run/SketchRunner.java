@@ -13,11 +13,14 @@ import jycessing.PythonSketchError;
 import jycessing.Runner;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.RunMode;
+import processing.app.Base;
 import processing.app.SketchException;
 
 public class SketchRunner implements SketchService {
   private static void log(final String msg) {
-    System.err.println(SketchRunner.class.getSimpleName() + ": " + msg);
+    if (Base.DEBUG) {
+      System.err.println(SketchRunner.class.getSimpleName() + ": " + msg);
+    }
   }
 
   private final ModeService modeService;
