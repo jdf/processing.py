@@ -16,13 +16,12 @@
 <project name="processing.py" default="jar">
   <description>Write Processing sketches in Python</description>
 
-  <fail unless="processing"
-    message="You have to specify where to find processing with -Dprocessing=/path/to/processing"/>
+  <property name="processing" value="../processing"/>
 
   <!-- for <if> tag -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="buildtime/lib/java/ant-contrib.jar"/>
 
-  <property name="appjar" value="${processing}/app/pde.jar"/>
+  <property name="pdejar" value="${processing}/app/pde.jar"/>
   <property name="corejar" value="${processing}/core/library/core.jar"/>
   <property name="jython" value="buildtime/lib/jython/jython.jar"/>
   <property name="jython.license" value="buildtime/lib/jython/LICENSE.txt"/>
@@ -71,9 +70,12 @@
                  match="@@pretty-version@@" replace="${jycessing.buildnumber}" />
   </target>
 	
-  <target name="upload-mode" depends="modedist">
+  <target name="zip-mode" depends="modedist">
     <zip destfile="PythonMode.zip" basedir="modedist" excludes="**/_DS.Store" />
     <copy file="PythonMode.zip" tofile="PythonMode_${jycessing.buildnumber}.zip" />
+  </target>
+
+  <target name="upload-mode" depends="zip-mode">
     <echo message="Pushing modedist to py.processing.org..." />
     <exec executable="/bin/sh">
       <arg value="-c"/>
@@ -103,7 +105,7 @@
     </jar>
   </target>
 
-  <target name="build" depends="build-processing">
+  <target name="build" depends="build-processing,build-pde">
     <mkdir dir="bin"/>
     <javac destdir="bin" includeantruntime="false">
       <src path="runtime/src"/>
@@ -122,6 +124,19 @@
     <!-- Update the internal launch script with the external one-->
     <copy tofile="processing-py.app/Contents/Resources/script" file="processing-py.sh"/>
     <chmod file="processing-py.app/Contents/MacOS/processing-py" perm="755"/>
+  </target>
+
+  <target name="check-pde-needs-build">
+    <uptodate property="pde-is-uptodate"
+              targetfile="${pdejar}">
+      <srcfiles dir="${processing}/app/src/processing/app"/>
+    </uptodate>
+  </target>
+  <target name="build-pde"
+    depends="check-pde-needs-build"
+    unless="pde-is-uptodate">
+    <echo message="Building pde." />
+    <ant dir="${processing}/build" target="build"/>
   </target>
 
   <target name="check-processing-needs-build">

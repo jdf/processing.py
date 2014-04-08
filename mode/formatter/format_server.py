@@ -13,7 +13,9 @@ print >>sys.stderr, 'Format server up on %s port %s' % server_address
 while True:
     connection, client_address = sock.accept()
     try:
-        buf = connection.recv(4)
+        buf = ''
+        while len(buf) < 4:
+            buf += connection.recv(4 - len(buf))
         (size,) = unpack('>i', buf)
         if size == -1:
             print >>sys.stderr, 'Format server exiting.'
