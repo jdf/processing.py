@@ -22,7 +22,7 @@
   <!-- for <if> tag -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="buildtime/lib/java/ant-contrib.jar"/>
 
-  <property name="appjar" value="${processing}/app/pde.jar"/>
+  <property name="pdejar" value="${processing}/app/pde.jar"/>
   <property name="corejar" value="${processing}/core/library/core.jar"/>
   <property name="jython" value="buildtime/lib/jython/jython.jar"/>
   <property name="jython.license" value="buildtime/lib/jython/LICENSE.txt"/>
@@ -103,7 +103,7 @@
     </jar>
   </target>
 
-  <target name="build" depends="build-processing">
+  <target name="build" depends="build-processing,build-pde">
     <mkdir dir="bin"/>
     <javac destdir="bin" includeantruntime="false">
       <src path="runtime/src"/>
@@ -122,6 +122,19 @@
     <!-- Update the internal launch script with the external one-->
     <copy tofile="processing-py.app/Contents/Resources/script" file="processing-py.sh"/>
     <chmod file="processing-py.app/Contents/MacOS/processing-py" perm="755"/>
+  </target>
+
+  <target name="check-pde-needs-build">
+    <uptodate property="pde-is-uptodate"
+              targetfile="${pdejar}">
+      <srcfiles dir="${processing}/app/src/processing/app"/>
+    </uptodate>
+  </target>
+  <target name="build-pde"
+    depends="check-pde-needs-build"
+    unless="pde-is-uptodate">
+    <echo message="Building pde." />
+    <ant dir="${processing}/build" target="build"/>
   </target>
 
   <target name="check-processing-needs-build">
