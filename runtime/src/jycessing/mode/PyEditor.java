@@ -121,7 +121,7 @@ public class PyEditor extends Editor {
 
   private void runSketch(final RunMode mode) {
     prepareRun();
-    final SketchCode code = getSketch().getCurrentCode();
+    final SketchCode code = getSketch().getCode(0);
     final String sketchPath = code.getFile().getAbsolutePath();
     try {
       final String[] codePaths = new String[sketch.getCodeCount()];

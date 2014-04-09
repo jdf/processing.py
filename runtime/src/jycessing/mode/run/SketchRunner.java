@@ -3,9 +3,7 @@ package jycessing.mode.run;
 import java.io.File;
 import java.io.PrintStream;
 import java.rmi.RemoteException;
-import java.util.regex.Pattern;
 
-import jycessing.PreparedPythonSketch;
 import jycessing.PythonSketchError;
 import jycessing.Runner;
 import jycessing.Runner.LibraryPolicy;
@@ -28,23 +26,6 @@ public class SketchRunner implements SketchService {
     this.modeService = modeService;
   }
 
-  // Ignore __MOVE__.
-  // TODO(feinberg): Listen to __MOVE__.
-  private static class MoveCommandFilteringPrintStream extends PrintStream {
-    private static final Pattern IGNORE = Pattern.compile("^__MOVE__\\s+(.*)$");
-
-    public MoveCommandFilteringPrintStream(final PrintStream wrapped) {
-      super(wrapped);
-    }
-
-    @Override
-    public void println(String s) {
-      if (!IGNORE.matcher(s).matches()) {
-        super.println(s);
-      }
-    }
-  }
-
   @Override
   public void startSketch(final SketchInfo info) {
     runner = new Thread(new Runnable() {
@@ -52,21 +33,31 @@ public class SketchRunner implements SketchService {
       public void run() {
         try {
           try {
-            final PreparedPythonSketch preparedSketch =
-                Runner.prepareSketch(info.libraries, LibraryPolicy.SELECTIVE,
+            final PrintStream syserr = System.err;
+            final PrintStream sysout = System.out;
+            System.setErr(new ForwardingPrintStream(modeService, Stream.ERR));
+            try {
+              System.setOut(new ForwardingPrintStream(modeService, Stream.OUT));
+              try {
+                Runner.runSketchBlocking(info.libraries, LibraryPolicy.SELECTIVE,
                     info.runMode.args(info.sketch.getAbsolutePath(), info.x, info.y),
                     info.sketch.getAbsolutePath(), info.code);
-            final PrintStream syserr = System.err;
-            System.setErr(new MoveCommandFilteringPrintStream(syserr));
-            try {
-              preparedSketch.runBlocking();
+              } finally {
+                System.setOut(sysout);
+              }
             } finally {
               System.setErr(syserr);
             }
           } catch (PythonSketchError e) {
+            System.err.println("Sketch runner caught " + e);
             modeService.handleSketchException(convertPythonSketchError(e, info.codePaths));
           } catch (Exception e) {
-            modeService.handleSketchException(e);
+            if (e.getCause() != null && e.getCause() instanceof PythonSketchError) {
+              modeService.handleSketchException(convertPythonSketchError(
+                  (PythonSketchError)e.getCause(), info.codePaths));
+            } else {
+              modeService.handleSketchException(e);
+            }
           } finally {
             modeService.handleSketchStopped();
           }
@@ -159,7 +150,9 @@ public class SketchRunner implements SketchService {
     }
     int fileIndex = -1;
     for (int i = 0; i < codePaths.length; i++) {
-      if (codePaths.equals(new File(e.file).getAbsoluteFile())) {
+      final String codePath = new File(codePaths[i]).getAbsolutePath();
+      final String exceptionFilePath = new File(e.file).getAbsolutePath();
+      if (codePath.equals(exceptionFilePath)) {
         fileIndex = i;
         break;
       }

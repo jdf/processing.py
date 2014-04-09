@@ -60,6 +60,8 @@ import processing.opengl.PShader;
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
 
+  private PythonSketchError terminalException = null;
+
   protected final PyStringMap builtins;
   protected final InteractiveConsole interp;
   private final String pySketchPath;
@@ -101,11 +103,14 @@ public class PAppletJythonDriver extends PApplet {
       while (t.getCause() != null) {
         t = t.getCause();
       }
-      generateSketchException(t);
+      throw toSketchException(t);
     }
   }
 
-  private static void generateSketchException(Throwable t) throws PythonSketchError {
+  private static PythonSketchError toSketchException(Throwable t) {
+    if (t instanceof PythonSketchError) {
+      return (PythonSketchError)t;
+    }
     if (t instanceof PySyntaxError) {
       final PySyntaxError e = (PySyntaxError)t;
       final PyTuple tup = (PyTuple)e.value;
@@ -114,31 +119,28 @@ public class PAppletJythonDriver extends PApplet {
       final String file = (String)context.get(0);
       final int line = ((Integer)context.get(1)).intValue();
       final int column = ((Integer)context.get(2)).intValue();
-      throw new PythonSketchError(message, file, line, column);
-    } else if (t instanceof PyException) {
+      return new PythonSketchError(message, file, line, column);
+    }
+    if (t instanceof PyException) {
       final PyException e = (PyException)t;
       final Pattern tbParse =
           Pattern.compile("^\\s*File \"([^\"]+)\", line (\\d+)", Pattern.MULTILINE);
       final Matcher m = tbParse.matcher(e.toString());
-      final String file;
-      final int line;
-      if (m.find()) {
+      String file = null;
+      int line = -1;
+      while (m.find()) {
         file = m.group(1);
-        line = Integer.parseInt(m.group(2));
-      } else {
-        file = null;
-        line = -1;
+        line = Integer.parseInt(m.group(2)) - 1;
       }
       if (((PyType)e.type).getName().equals("ImportError")) {
         final Pattern importStar = Pattern.compile("import\\s+\\*");
         if (importStar.matcher(e.toString()).find()) {
-          throw new PythonSketchError("import * does not work in this environment.", file, line);
+          return new PythonSketchError("import * does not work in this environment.", file, line);
         }
       }
-      throw new PythonSketchError(e.value.asString(), file, line);
-    } else {
-      throw new PythonSketchError(t.getMessage());
+      return new PythonSketchError(e.value.asString(), file, line);
     }
+    return new PythonSketchError(t.getMessage());
   }
 
   public PAppletJythonDriver(final InteractiveConsole interp, final String sketchPath,
@@ -347,7 +349,7 @@ public class PAppletJythonDriver extends PApplet {
     // Processing just sits there by default.
     Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
       public void uncaughtException(Thread t, Throwable e) {
-        e.printStackTrace(System.err);
+        terminalException = toSketchException(e);
         finishedLatch.countDown();
       }
     });
@@ -366,16 +368,23 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
-  public void runAndBlock(final String[] args) throws InterruptedException {
+  public void runAndBlock(final String[] args) throws PythonSketchError {
     PApplet.runSketch(args, this);
     try {
       finishedLatch.await();
     } catch (InterruptedException interrupted) {
       // Treat an interruption as a request to the applet to terminate.
       exit();
-      finishedLatch.await();
+      try {
+        finishedLatch.await();
+      } catch (InterruptedException e) {
+        // fallthrough
+      }
     } finally {
       ((Window)SwingUtilities.getRoot(this)).dispose();
+    }
+    if (terminalException != null) {
+      throw terminalException;
     }
   }
 
@@ -540,9 +549,11 @@ public class PAppletJythonDriver extends PApplet {
       }
     } catch (final PyException e) {
       checkForRendererChangeException(e);
-      throw e;
-    } catch (final PythonSketchError e) {
-      throw new RuntimeException(e);
+      terminalException = toSketchException(e);
+      exit();
+    } catch (final Exception e) {
+      terminalException = toSketchException(e);
+      exit();
     }
   }
 

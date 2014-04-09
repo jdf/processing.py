@@ -9,4 +9,8 @@ public interface ModeService extends Remote {
   void handleSketchStopped() throws RemoteException;
 
   void handleSketchException(Exception e) throws RemoteException;
+
+  void print(Stream stream, String s) throws RemoteException;
+
+  void println(Stream stream, String s) throws RemoteException;
 }

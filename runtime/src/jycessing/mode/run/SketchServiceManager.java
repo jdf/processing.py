@@ -8,9 +8,11 @@ import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
+
 import org.python.google.common.base.Joiner;
 
 import processing.app.Base;
@@ -70,7 +72,6 @@ public class SketchServiceManager implements ModeService {
     log("Starting sketch runner process.");
     final ProcessBuilder pb = createServerCommand();
     log("Running:\n" + Joiner.on(" ").join(pb.command()));
-    pb.inheritIO();
     try {
       sketchServiceProcess = pb.start();
     } catch (IOException e) {
@@ -202,6 +203,24 @@ public class SketchServiceManager implements ModeService {
     } catch (RemoteException e) {
       handleRemoteException(e);
     }
+  }
+
+  private static final Pattern IGNORE = Pattern.compile("^__MOVE__\\s+(.*)$");
+
+  @Override
+  public void print(Stream stream, String s) {
+    stream.getSystemStream().print(s);
+    stream.getSystemStream().flush();
+  }
+
+  @Override
+  public void println(Stream stream, String s) {
+    if (stream == Stream.ERR && IGNORE.matcher(s).matches()) {
+      // TODO(feinberg): Handle MOVE commands.
+      return;
+    }
+    stream.getSystemStream().println(s);
+    stream.getSystemStream().flush();
   }
 
   @Override

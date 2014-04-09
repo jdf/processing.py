@@ -1,6 +1,5 @@
 package jycessing;
 
-import org.python.core.Py;
 import org.python.util.InteractiveConsole;
 
 public class PreparedPythonSketch {
@@ -16,11 +15,11 @@ public class PreparedPythonSketch {
     this.args = args;
   }
 
-  public void runBlocking() {
+  public void runBlocking() throws PythonSketchError {
+    interp.setOut(System.out);
+    interp.setErr(System.err);
     try {
       applet.runAndBlock(args);
-    } catch (final Throwable t) {
-      Py.printException(t);
     } finally {
       interp.cleanup();
     }
