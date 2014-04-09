@@ -11,8 +11,6 @@ import java.util.List;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
-import jycessing.mode.RunMode;
-
 import org.python.google.common.base.Joiner;
 
 import processing.app.Base;
@@ -164,16 +162,13 @@ public class SketchServiceManager implements ModeService {
     startSketchServerProcess();
   }
 
-  public
-      void
-      runSketch(final PyEditor editor, final RunMode runMode, final File libraries,
-          final File sketch, final String code, final String[] codePaths, final int x, final int y)
-                                                                                                   throws SketchException {
+  public void runSketch(final PyEditor editor, final SketchInfo info) throws SketchException {
+    // Create a pending request in case of various failure modes.
     pendingSketchRequest = new Runnable() {
       @Override
       public void run() {
         try {
-          runSketch(editor, runMode, libraries, sketch, code, codePaths, x, y);
+          runSketch(editor, info);
         } catch (SketchException e) {
           editor.statusError(e);
         }
@@ -185,7 +180,8 @@ public class SketchServiceManager implements ModeService {
       return;
     }
     try {
-      sketchService.startSketch(runMode, libraries, sketch, code, codePaths, x, y);
+      sketchService.startSketch(info);
+      // If and only if we've successully request a sketch start, nuke the pending request.
       pendingSketchRequest = null;
       return;
     } catch (RemoteException e) {

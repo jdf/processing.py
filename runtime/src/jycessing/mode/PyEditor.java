@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import jycessing.mode.run.SketchInfo;
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.EditorState;
@@ -127,8 +128,11 @@ public class PyEditor extends Editor {
       for (int i = 0; i < codePaths.length; i++) {
         codePaths[i] = sketch.getCode(i).getFile().getAbsolutePath();
       }
-      pyMode.getSketchServiceManager().runSketch(this, mode, Base.getSketchbookLibrariesFolder(),
-          new File(sketchPath).getAbsoluteFile(), code.getProgram(), codePaths, getX(), getY());
+      final SketchInfo info =
+          new SketchInfo.Builder().runMode(mode).libraries(Base.getSketchbookLibrariesFolder())
+              .sketch(new File(sketchPath).getAbsoluteFile()).code(code.getProgram())
+              .codePaths(codePaths).x(getX()).y(getY()).build();
+      pyMode.getSketchServiceManager().runSketch(this, info);
     } catch (SketchException e) {
       statusError(e);
     }

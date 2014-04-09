@@ -10,7 +10,6 @@ import jycessing.PythonSketchError;
 import jycessing.Runner;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.PythonMode;
-import jycessing.mode.RunMode;
 import jycessing.mode.run.RMIUtils.RMIProblem;
 import processing.app.SketchException;
 
@@ -47,16 +46,16 @@ public class SketchRunner implements SketchService {
   }
 
   @Override
-  public void startSketch(final RunMode runMode, final File libraries, final File sketch,
-      final String code, final String[] codePaths, final int x, final int y) {
+  public void startSketch(final SketchInfo info) {
     runner = new Thread(new Runnable() {
       @Override
       public void run() {
         try {
           try {
             final PreparedPythonSketch preparedSketch =
-                Runner.prepareSketch(libraries, LibraryPolicy.SELECTIVE,
-                    runMode.args(sketch.getAbsolutePath(), x, y), sketch.getAbsolutePath(), code);
+                Runner.prepareSketch(info.libraries, LibraryPolicy.SELECTIVE,
+                    info.runMode.args(info.sketch.getAbsolutePath(), info.x, info.y),
+                    info.sketch.getAbsolutePath(), info.code);
             final PrintStream syserr = System.err;
             System.setErr(new MoveCommandFilteringPrintStream(syserr));
             try {
@@ -65,7 +64,7 @@ public class SketchRunner implements SketchService {
               System.setErr(syserr);
             }
           } catch (PythonSketchError e) {
-            modeService.handleSketchException(convertPythonSketchError(e, codePaths));
+            modeService.handleSketchException(convertPythonSketchError(e, info.codePaths));
           } catch (Exception e) {
             modeService.handleSketchException(e);
           } finally {
