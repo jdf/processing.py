@@ -3,22 +3,21 @@ package jycessing.mode.run;
 import java.io.File;
 import java.io.PrintStream;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.regex.Pattern;
 
 import jycessing.PreparedPythonSketch;
 import jycessing.PythonSketchError;
 import jycessing.Runner;
 import jycessing.Runner.LibraryPolicy;
+import jycessing.mode.PythonMode;
 import jycessing.mode.RunMode;
-import processing.app.Base;
+import jycessing.mode.run.RMIUtils.RMIProblem;
 import processing.app.SketchException;
 
 public class SketchRunner implements SketchService {
+
   private static void log(final String msg) {
-    if (Base.DEBUG) {
+    if (PythonMode.VERBOSE) {
       System.err.println(SketchRunner.class.getSimpleName() + ": " + msg);
     }
   }
@@ -100,19 +99,48 @@ public class SketchRunner implements SketchService {
   }
 
   public static void main(String[] args) {
+    // If env var SKETCH_RUNNER_FIRST=true then SketchRunner will wait for a ping from the Mode
+    // before registering itself as the sketch runner.
+    if (PythonMode.SKETCH_RUNNER_FIRST) {
+      waitForMode();
+    } else {
+      startSketchRunner();
+    }
+  }
+
+  private static class ModeWaiterImpl implements ModeWaiter {
+    @Override
+    public void modeReady(ModeService modeService) {
+      try {
+        launch(modeService);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  private static void waitForMode() {
     try {
-      log("Locating RMI registry.");
-      final Registry registry = LocateRegistry.getRegistry(SketchServiceManager.RMI_PORT);
-      log("Looking up ModeService in registry.");
-      final ModeService modeService =
-          (ModeService)registry.lookup(ModeService.class.getSimpleName());
-      final SketchRunner sketchRunner = new SketchRunner(modeService);
-      final SketchService stub = (SketchService)UnicastRemoteObject.exportObject(sketchRunner, 0);
-      log("Calling mode's handleReady().");
-      modeService.handleReady(stub);
+      RMIUtils.bind(new ModeWaiterImpl(), ModeWaiter.class);
+    } catch (RMIProblem e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static void startSketchRunner() {
+    try {
+      final ModeService modeService = RMIUtils.lookup(ModeService.class);
+      launch(modeService);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private static void launch(final ModeService modeService) throws RMIProblem, RemoteException {
+    final SketchRunner sketchRunner = new SketchRunner(modeService);
+    final SketchService stub = (SketchService)RMIUtils.export(sketchRunner);
+    log("Calling mode's handleReady().");
+    modeService.handleReady(stub);
   }
 
   private SketchException convertPythonSketchError(PythonSketchError e, final String[] codePaths) {

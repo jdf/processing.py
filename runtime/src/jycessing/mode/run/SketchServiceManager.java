@@ -5,9 +5,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,14 +19,8 @@ import processing.app.SketchException;
 
 public class SketchServiceManager implements ModeService {
 
-  static final int RMI_PORT = 8220;
-
-  static {
-    System.setProperty("sun.rmi.transport.tcp.responseTimeout", "2000");
-  }
-
   private static void log(final String msg) {
-    if (Base.DEBUG) {
+    if (PythonMode.VERBOSE) {
       System.err.println(SketchServiceManager.class.getSimpleName() + ": " + msg);
     }
   }
@@ -57,25 +48,18 @@ public class SketchServiceManager implements ModeService {
 
   public void start() {
     try {
-      log("Creating RMI registry.");
-      final Registry registry = LocateRegistry.createRegistry(RMI_PORT);
-      log("Binding ModeService to registry.");
-      registry.bind(ModeService.class.getSimpleName(), UnicastRemoteObject.exportObject(this, 0));
-      Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            log("Unbinding SketchService from registry.");
-            registry.unbind(ModeService.class.getSimpleName());
-          } catch (Exception e) {
-          }
-        }
-      }));
+      if (PythonMode.SKETCH_RUNNER_FIRST) {
+        final ModeService stub = (ModeService)RMIUtils.export(this);
+        final ModeWaiter modeWaiter = RMIUtils.lookup(ModeWaiter.class);
+        modeWaiter.modeReady(stub);
+      } else {
+        RMIUtils.bind(this, ModeService.class);
+        startSketchServerProcess();
+      }
     } catch (Exception e) {
       Base.showError("PythonMode Error", "Cannot start python sketch service.", e);
       return;
     }
-    startSketchServerProcess();
   }
 
   private void startSketchServerProcess() {
