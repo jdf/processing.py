@@ -127,7 +127,7 @@ public class PyEditor extends Editor {
       for (int i = 0; i < codePaths.length; i++) {
         codePaths[i] = sketch.getCode(i).getFile().getAbsolutePath();
       }
-      pyMode.getSketchServiceManager().runSketch(mode, Base.getSketchbookLibrariesFolder(),
+      pyMode.getSketchServiceManager().runSketch(this, mode, Base.getSketchbookLibrariesFolder(),
           new File(sketchPath).getAbsoluteFile(), code.getProgram(), codePaths, getX(), getY());
     } catch (SketchException e) {
       statusError(e);

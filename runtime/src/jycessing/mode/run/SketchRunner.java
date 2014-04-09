@@ -141,6 +141,17 @@ public class SketchRunner implements SketchService {
     final SketchService stub = (SketchService)RMIUtils.export(sketchRunner);
     log("Calling mode's handleReady().");
     modeService.handleReady(stub);
+    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+      @Override
+      public void run() {
+        log("Exiting; telling modeService.");
+        try {
+          modeService.handleSketchStopped();
+        } catch (RemoteException e) {
+          // nothing we can do about it now.
+        }
+      }
+    }));
   }
 
   private SketchException convertPythonSketchError(PythonSketchError e, final String[] codePaths) {

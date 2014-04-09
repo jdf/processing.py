@@ -3,11 +3,13 @@ package jycessing.mode.run;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
+import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import jycessing.mode.RunMode;
 
@@ -31,6 +33,10 @@ public class SketchServiceManager implements ModeService {
       return name.endsWith(".jar");
     }
   };
+
+  // If someone tries to run a sketch and, for some reason, there's no sketch runner,
+  // remember the request and honor it when the sketch runner exists.
+  private volatile Runnable pendingSketchRequest = null;
 
   private final PythonMode mode;
   private Process sketchServiceProcess;
@@ -93,6 +99,11 @@ public class SketchServiceManager implements ModeService {
     log("handleReady()");
     sketchService = service;
     log("Successfully bound SketchRunner stub.");
+    final Runnable req = pendingSketchRequest;
+    pendingSketchRequest = null;
+    if (req != null) {
+      req.run();
+    }
   }
 
   @Override
@@ -138,32 +149,62 @@ public class SketchServiceManager implements ModeService {
     return new ProcessBuilder(command);
   }
 
-  public void runSketch(RunMode runMode, File libraries, File sketch, String code,
-      String[] codePaths, int x, int y) throws SketchException {
+  private void handleRemoteException(final RemoteException e) throws SketchException {
+    final Throwable cause = e.getCause();
+    if (cause instanceof SocketTimeoutException || cause instanceof ConnectException) {
+      log("SketchRunner either hung or not there. Restarting it.");
+      restartServerProcess();
+    } else {
+      throw new SketchException(e.getMessage());
+    }
+  }
+
+  private void restartServerProcess() {
+    stop();
+    startSketchServerProcess();
+  }
+
+  public
+      void
+      runSketch(final PyEditor editor, final RunMode runMode, final File libraries,
+          final File sketch, final String code, final String[] codePaths, final int x, final int y)
+                                                                                                   throws SketchException {
+    pendingSketchRequest = new Runnable() {
+      @Override
+      public void run() {
+        try {
+          runSketch(editor, runMode, libraries, sketch, code, codePaths, x, y);
+        } catch (SketchException e) {
+          editor.statusError(e);
+        }
+      }
+    };
     if (sketchService == null) {
-      throw new SketchException("Sketch runner not running!");
+      log("Sketch service not running. Leaving pending request to run sketch.");
+      restartServerProcess();
+      return;
     }
     try {
       sketchService.startSketch(runMode, libraries, sketch, code, codePaths, x, y);
+      pendingSketchRequest = null;
+      return;
     } catch (RemoteException e) {
-      throw new SketchException(e.getMessage());
+      handleRemoteException(e);
+      log("Leaving pending request to run sketch.");
     }
   }
 
   public void stopSketch() throws SketchException {
     if (sketchService == null) {
-      throw new SketchException("Sketch runner not running!");
+      log("Sketch runner apparetly not running; can't stop sketch.");
+      handleSketchStopped();
+      restartServerProcess();
+      return;
     }
     try {
       sketchService.stopSketch();
     } catch (RemoteException e) {
-      if (e.getCause() instanceof SocketTimeoutException) {
-        log("Timed out.");
-        stop();
-        startSketchServerProcess();
-      } else {
-        throw new SketchException(e.getMessage());
-      }
+      handleRemoteException(e);
     }
   }
 
