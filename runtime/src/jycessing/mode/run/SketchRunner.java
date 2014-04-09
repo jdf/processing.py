@@ -75,6 +75,8 @@ public class SketchRunner implements SketchService {
         } catch (RemoteException e) {
           log(e.toString());
         }
+        // Exiting; no need to interrupt and join it later.
+        runner = null;
       }
     }, "processing.py mode runner");
     runner.start();
@@ -105,21 +107,9 @@ public class SketchRunner implements SketchService {
       final ModeService modeService =
           (ModeService)registry.lookup(ModeService.class.getSimpleName());
       final SketchRunner sketchRunner = new SketchRunner(modeService);
-      log("Binding SketchService to registry.");
-      registry.bind(SketchService.class.getSimpleName(),
-          UnicastRemoteObject.exportObject(sketchRunner, 0));
-      Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-        @Override
-        public void run() {
-          log("Unbinding SketchService from registry.");
-          try {
-            registry.unbind(SketchService.class.getSimpleName());
-          } catch (Exception e) {
-          }
-        }
-      }));
+      final SketchService stub = (SketchService)UnicastRemoteObject.exportObject(sketchRunner, 0);
       log("Calling mode's handleReady().");
-      modeService.handleReady();
+      modeService.handleReady(stub);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

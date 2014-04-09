@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -82,6 +81,7 @@ public class SketchServiceManager implements ModeService {
   private void startSketchServerProcess() {
     log("Starting sketch runner process.");
     final ProcessBuilder pb = createServerCommand();
+    log("Running:\n" + Joiner.on(" ").join(pb.command()));
     pb.inheritIO();
     try {
       sketchServiceProcess = pb.start();
@@ -105,15 +105,10 @@ public class SketchServiceManager implements ModeService {
   }
 
   @Override
-  public void handleReady() throws RemoteException {
+  public void handleReady(final SketchService service) {
     log("handleReady()");
-    final Registry registry = LocateRegistry.getRegistry(RMI_PORT);
-    try {
-      sketchService = (SketchService)registry.lookup(SketchService.class.getSimpleName());
-      log("Successfully bound SketchRunner stub.");
-    } catch (NotBoundException e) {
-      Base.showError("PythonMode Error", "Cannot find sketch runner in RMI registry.", e);
-    }
+    sketchService = service;
+    log("Successfully bound SketchRunner stub.");
   }
 
   @Override
