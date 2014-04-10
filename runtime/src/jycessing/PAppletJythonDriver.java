@@ -117,7 +117,7 @@ public class PAppletJythonDriver extends PApplet {
       final String message = (String)tup.get(0);
       final PyTuple context = (PyTuple)tup.get(1);
       final String file = (String)context.get(0);
-      final int line = ((Integer)context.get(1)).intValue();
+      final int line = ((Integer)context.get(1)).intValue() - 1;
       final int column = ((Integer)context.get(2)).intValue();
       return new PythonSketchError(message, file, line, column);
     }
@@ -138,7 +138,7 @@ public class PAppletJythonDriver extends PApplet {
           return new PythonSketchError("import * does not work in this environment.", file, line);
         }
       }
-      return new PythonSketchError(e.value.asString(), file, line);
+      return new PythonSketchError(Py.formatException(e.type, e.value), file, line);
     }
     return new PythonSketchError(t.getMessage());
   }
