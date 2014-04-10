@@ -30,7 +30,7 @@ public class PythonMode extends Mode {
 
   @Override
   public String getTitle() {
-    return "Python";
+    return "Python Mode";
   }
 
   @Override
@@ -40,12 +40,12 @@ public class PythonMode extends Mode {
 
   @Override
   public String getDefaultExtension() {
-    return "pde";
+    return "pyde";
   }
 
   @Override
   public String[] getExtensions() {
-    return new String[] { "pde", "py", "pyde" };
+    return new String[] { "pyde", "py" };
   }
 
   @Override
