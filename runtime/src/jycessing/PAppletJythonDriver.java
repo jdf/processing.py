@@ -692,4 +692,16 @@ public class PAppletJythonDriver extends PApplet {
       super.stop();
     }
   }
+
+  // These two functions are a workaround for a Jython bug that prevents the print statement
+  // from using the stdout and stderr set on the interpreter. See core.py.
+  public void printout(final Object o) {
+    System.out.print(String.valueOf(o));
+    System.out.flush();
+  }
+
+  public void printerr(final Object o) {
+    System.err.print(String.valueOf(o));
+    System.err.flush();
+  }
 }

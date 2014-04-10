@@ -360,3 +360,22 @@ __builtin__.unhex = PApplet.unhex
 __builtin__.year = PApplet.year
 
 del monkeypatch_method, PAppletJythonDriver
+
+# Due to a seeming bug in Jython, the print builtin ignores the the setting of
+# interp.setOut and interp.setErr.
+
+class FakeStdOut():
+    def __init__(self):
+        self.softspace = 0
+        
+    def write(self, s):
+        __papplet__.printout(s)
+sys.stdout = FakeStdOut()
+
+class FakeStdErr():
+    def __init__(self):
+        self.softspace = 0
+    def write(self, s):
+        __papplet__.printerr(s)
+sys.stderr = FakeStdErr()
+del FakeStdOut, FakeStdErr

@@ -16,8 +16,6 @@ public class PreparedPythonSketch {
   }
 
   public void runBlocking() throws PythonSketchError {
-    interp.setOut(System.out);
-    interp.setErr(System.err);
     try {
       applet.runAndBlock(args);
     } finally {
