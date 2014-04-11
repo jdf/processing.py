@@ -1,5 +1,5 @@
 #!/bin/bash
-export VERBOSE_PYTHON_MODE=true
+#export VERBOSE_PYTHON_MODE=true
 cd /Users/feinberg/processing/build && \
   #ant macosx-build && \
   cd ../../processing.py && \
