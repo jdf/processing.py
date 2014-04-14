@@ -7,7 +7,6 @@ public class SyntaxUtilities {
   /**
    * Checks if a subregion of a <code>Segment</code> is equal to a
    * string.
-   * @param ignoreCase True if case should be ignored, false otherwise
    * @param text The segment
    * @param offset The offset into the segment
    * @param match The string to match
@@ -29,7 +28,6 @@ public class SyntaxUtilities {
   /**
    * Checks if a subregion of a <code>Segment</code> is equal to a
    * character array.
-   * @param ignoreCase True if case should be ignored, false otherwise
    * @param text The segment
    * @param offset The offset into the segment
    * @param match The character array to match

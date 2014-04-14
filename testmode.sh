@@ -1,12 +1,20 @@
 #!/bin/bash
-export VERBOSE_PYTHON_MODE=true
-cd /Users/feinberg/processing/build && \
+#export VERBOSE_PYTHON_MODE=true
+
+PROCESSING=~/processing
+PROCESSINGPY=~/processing.py
+RUNPROCESSING=$PROCESSING/build/linux/work/processing
+#RUNPROCESSING=$PROCESSING/build/macosx/work/Processing.app/Contents/MacOS/Processing
+MODES=~/sketchbook/modes
+#MODES=/Users/feinberg/Documents/Processing/modes
+
+cd $PROCESSING/build && \
   #ant macosx-build && \
-  cd ../../processing.py && \
+  cd $PROCESSINGPY && \
   ant zip-mode && \
-  rm -rf /Users/feinberg/Documents/Processing/modes/PythonMode && \
-  cd /Users/feinberg/Documents/Processing/modes && \
-  unzip /Users/feinberg/processing.py/PythonMode.zip && \
+  cd $MODES && \
+  rm -rf PythonMode && \
+  unzip $PROCESSINGPY/PythonMode.zip && \
   cd /tmp && \
-  /Users/feinberg/processing/build/macosx/work/Processing.app/Contents/MacOS/Processing
+  $RUNPROCESSING
 

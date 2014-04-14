@@ -49,7 +49,7 @@ public class SketchRunner implements SketchService {
               System.setErr(syserr);
             }
           } catch (PythonSketchError e) {
-            System.err.println("Sketch runner caught " + e);
+            log("Sketch runner caught " + e);
             modeService.handleSketchException(convertPythonSketchError(e, info.codePaths));
           } catch (Exception e) {
             if (e.getCause() != null && e.getCause() instanceof PythonSketchError) {

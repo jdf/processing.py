@@ -67,8 +67,8 @@ public class Runner {
     }
   }
 
-  private static final String LAUNCHER_TEXT = readOrDie(LaunchHelper.class
-      .getResourceAsStream("launcher.py"));
+  private static final String LAUNCHER_TEXT =
+      readOrDie(LaunchHelper.class.getResourceAsStream("launcher.py"));
   private static final String CORE_TEXT = readOrDie(Runner.class.getResourceAsStream("core.py"));
 
   static boolean VERBOSE = false;
@@ -176,7 +176,7 @@ public class Runner {
    * 
    * Used from launcher.py
    * 
-   * @return
+   * @return the path of processing-py.jar.
    */
   @PythonUsage(methodName = "getMainJarFile")
   public static File getMainJarFile() {
@@ -193,7 +193,7 @@ public class Runner {
    * Returns the 'root' folder of this instance. Used when running with a
    * wrapper.
    * 
-   * @return
+   * @return the distribution root directory.
    */
   public static File getRuntimeRoot() {
     final File jar = getMainJarFile();
@@ -272,17 +272,17 @@ public class Runner {
     sketch.runBlocking();
   }
 
-  private static final Pattern JAR_RESOURCE = Pattern
-      .compile("jar:file:(.+?)/processing-py\\.jar!/jycessing/buildnumber\\.properties");
-  private static final Pattern FILE_RESOURCE = Pattern
-      .compile("file:(.+?)/bin/jycessing/buildnumber\\.properties");
+  private static final Pattern JAR_RESOURCE =
+      Pattern.compile("jar:file:(.+?)/processing-py\\.jar!/jycessing/buildnumber\\.properties");
+  private static final Pattern FILE_RESOURCE =
+      Pattern.compile("file:(.+?)/bin/jycessing/buildnumber\\.properties");
 
   /**
-   * Returns the library dir.
+   * Returns the library dir, when run as a command-line app.
    * 
    * Used from launcher.py
    * 
-   * @return
+   * @return the processing.py libraries directory.
    */
   @PythonUsage(methodName = "getLibrariesDir")
   public static File getLibraries() {
@@ -312,11 +312,9 @@ public class Runner {
     return new File("libraries");
   }
 
-  public static
-      void
-      runSketchBlocking(final File libraries, final LibraryPolicy libraryPolicy,
-          final String[] args, final String sketchPath, final String sketchSource)
-                                                                                  throws PythonSketchError {
+  public static void
+                runSketchBlocking(final File libraries, final LibraryPolicy libraryPolicy,
+                    final String[] args, final String sketchPath, final String sketchSource) throws PythonSketchError {
     prepareSketch(libraries, libraryPolicy, args, sketchPath, sketchSource).runBlocking();
   }
 
@@ -335,17 +333,6 @@ public class Runner {
     SELECTIVE
   }
 
-  /**
-   * TODO(feinberg): Turn this from a static method into a method on a configurable object.
-   * 
-   * @param libraries
-   * @param libraryPolicy
-   * @param args
-   * @param sketchPath
-   * @param sketchSource
-   * @return
-   * @throws PythonSketchError
-   */
   public static PreparedPythonSketch prepareSketch(final File libraries,
       final LibraryPolicy libraryPolicy, final String[] args, final String sketchPath,
       final String sketchSource) throws PythonSketchError {
@@ -358,8 +345,8 @@ public class Runner {
 
     props.setProperty("python.path", libraries.getAbsolutePath() + File.pathSeparator + sketchDir);
     props.setProperty("python.main", new File(sketchPath).getAbsoluteFile().getAbsolutePath());
-    props.setProperty("python.main.root", new File(sketchPath).getAbsoluteFile().getParentFile()
-        .getAbsolutePath());
+    props.setProperty("python.main.root",
+        new File(sketchPath).getAbsoluteFile().getParentFile().getAbsolutePath());
     props.setProperty("python.options.includeJavaStackInExceptions", "false");
 
     // Try to permit the Python system state to be re-initialized.

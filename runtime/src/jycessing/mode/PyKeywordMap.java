@@ -9,7 +9,6 @@ public class PyKeywordMap {
 
   /**
    * Creates a new <code>KeywordMap</code>.
-   * @param ignoreCase True if keys are case insensitive
    */
   public PyKeywordMap() {
     this(52);
@@ -17,7 +16,6 @@ public class PyKeywordMap {
 
   /**
    * Creates a new <code>KeywordMap</code>.
-   * @param ignoreCase True if the keys are case insensitive
    * @param mapLength The number of `buckets' to create.
    * A value of 52 will give good performance for most maps.
    */
