@@ -113,7 +113,7 @@ public class PyEditor extends Editor {
   }
 
   /**
-   * TODO(Adam Parrish): Create this!
+   * TODO(James Gilles): Create this!
    */
   public void handleExportApplication() {
     Base.showMessage("Sorry", "You can't do that yet.");
