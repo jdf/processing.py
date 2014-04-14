@@ -86,6 +86,7 @@ public class SketchServiceManager implements ModeService {
       log("Waiting for sketch runner process to exit.");
       try {
         sketchServiceProcess.waitFor();
+        log("Sketcher runner process exited normally.");
       } catch (InterruptedException e) {
         log("Interrupted while waiting for sketch runner to exit.");
       }

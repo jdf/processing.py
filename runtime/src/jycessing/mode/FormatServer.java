@@ -17,6 +17,12 @@ import processing.app.exec.StreamPump;
  */
 public class FormatServer implements Formatter {
 
+  private static void log(final String msg) {
+    if (PythonMode.VERBOSE) {
+      System.err.println(FormatServer.class.getSimpleName() + ": " + msg);
+    }
+  }
+
   private final File modeHome;
   private Process server;
 
@@ -41,10 +47,10 @@ public class FormatServer implements Formatter {
    */
   private ProcessBuilder getPythonProcess(final String formatServerPath) {
     if (nativePythonAvailable()) {
-      System.err.println("Native python available for formatting.");
+      log("Native python available for formatting.");
       return new ProcessBuilder("python", formatServerPath);
     }
-    System.err.println("Native python not available for formatting.");
+    log("Native python not available for formatting.");
     final String jython = new File(modeHome, "mode/jython.jar").getAbsolutePath();
     return new ProcessBuilder(Base.getJavaPath(), "-jar", jython, formatServerPath);
   }
@@ -60,7 +66,7 @@ public class FormatServer implements Formatter {
       @Override
       public void run() {
         try {
-          System.err.println("Starting up the format server.");
+          log("Starting up the format server.");
           server = pb.start();
           Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
@@ -121,7 +127,7 @@ public class FormatServer implements Formatter {
    * Tells the formatting server to shut down gracefully.
    */
   private void sendShutdown() {
-    System.err.println("Sending shutdown message to format server.");
+    log("Sending shutdown message to format server.");
     try {
       final Socket sock = new Socket("localhost", 10011);
       try {
