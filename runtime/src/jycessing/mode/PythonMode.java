@@ -14,8 +14,8 @@ import processing.app.syntax.TokenMarker;
 public class PythonMode extends Mode {
 
   public static final boolean VERBOSE = Boolean.parseBoolean(System.getenv("VERBOSE_PYTHON_MODE"));
-  public static final boolean SKETCH_RUNNER_FIRST = Boolean.parseBoolean(System
-      .getenv("SKETCH_RUNNER_FIRST"));
+  public static final boolean SKETCH_RUNNER_FIRST =
+      Boolean.parseBoolean(System.getenv("SKETCH_RUNNER_FIRST"));
 
   private final FormatServer formatServer;
   private final SketchServiceManager sketchServiceManager;
@@ -30,7 +30,7 @@ public class PythonMode extends Mode {
 
   @Override
   public String getTitle() {
-    return "Python Mode";
+    return "Python";
   }
 
   @Override
