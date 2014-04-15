@@ -3,23 +3,36 @@
      processing.py
      Write processing sketches in Python.
 
-     This build file has only been tested on mac osx, but is expected to
-     work just fine on Linux. It is not expected to work at all on Windows.
+     This ant build file contains targets both for "Python Mode" for the
+     Processing Development Environment and for the standalone processing.py
+     distribution.
 
-     jdf
+     This has been tested on Mac OSX and linux. It is not expected to work at
+     all on Windows.
+
+     -jdf
 
      Run
-      "ant make-all-distributions" to create release.
-      "ant –Dplatform=macosx make-distribution" to create a release for OSX.
+      ant test                                 - to run unit tests.
+      ant mode.zip                             - to create a Python Mode zip file.
+      ant make-all-distributions               - to create a processing.py release.
+      ant -Dplatform=macosx make-distribution  - to create the OSX processing.py release.
 
      ====================================================================== -->
-<project name="processing.py" default="jar">
+<project name="processing.py" default="mode.zip">
   <description>Write Processing sketches in Python</description>
 
+  <!--
+      You can specify the location of the Processing source code by passing
+      it to ant via -Dprocessing=/path/to/processing
+      By default, we'll look in a directory next to this one.
+  -->
   <property name="processing" value="../processing"/>
 
-  <!-- for <if> tag -->
-  <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="buildtime/lib/java/ant-contrib.jar"/>
+  <!-- for <if> and <foreach> tags. -->
+  <taskdef
+      resource="net/sf/antcontrib/antcontrib.properties"
+      classpath="buildtime/lib/java/ant-contrib.jar"/>
 
   <property name="pdejar" value="${processing}/app/pde.jar"/>
   <property name="corejar" value="${processing}/core/library/core.jar"/>
@@ -29,7 +42,9 @@
   <!-- jycessing.buildnumber is the current version string -->
   <property file="runtime/src/jycessing/buildnumber.properties" prefix="jycessing"/>
 
-  <taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="buildtime/lib/java/appbundler-1.0.jar"/>
+  <taskdef name="bundleapp"
+    classname="com.oracle.appbundler.AppBundlerTask"
+    classpath="buildtime/lib/java/appbundler-1.0.jar"/>
 
   <macrodef name="rm-rf">
     <attribute name="target"/>
@@ -43,19 +58,19 @@
 
   <target name="newversion" depends="bump-version,clean,make-all-distributions"/>
 
-  <target name="modejar" depends="build">
-    <jar destfile="PythonMode.jar">
+  <target name="mode.jar" depends="build">
+    <jar destfile="work/PythonMode.jar">
       <fileset dir="bin" excludes="jycessing/build/**,test/**"/>
     </jar>
   </target>
 
-  <target name="modedist" depends="modejar">
-    <delete dir="modedist" />
-    <property name="bundle" value="modedist/PythonMode"/>
+  <target name="mode.dist" depends="mode.jar">
+    <delete dir="work/modedist" />
+    <property name="bundle" value="work/modedist/PythonMode"/>
     <mkdir dir="${bundle}" />
     <mkdir dir="${bundle}/mode" />
 
-    <copy todir="${bundle}/mode" file="PythonMode.jar"/>
+    <copy todir="${bundle}/mode" file="work/PythonMode.jar"/>
     <copy todir="${bundle}" file="LICENSE.txt"/>
     <copy todir="${bundle}/mode" file="${jython}"/>
     <copy tofile="${bundle}/mode/LICENSE.jython" file="${jython.license}"/>
@@ -69,27 +84,26 @@
     <replaceregexp file="${bundle}/mode.properties" flags="g"
                  match="@@pretty-version@@" replace="${jycessing.buildnumber}" />
   </target>
-	
-  <target name="zip-mode" depends="modedist">
-    <zip destfile="PythonMode.zip" basedir="modedist" excludes="**/_DS.Store" />
-    <copy file="PythonMode.zip" tofile="PythonMode_${jycessing.buildnumber}.zip" />
+
+  <target name="mode.zip" depends="mode.dist">
+    <zip destfile="work/PythonMode.zip" basedir="work/modedist" excludes="**/_DS.Store" />
+    <copy file="work/PythonMode.zip" tofile="work/PythonMode_${jycessing.buildnumber}.zip" />
   </target>
 
-  <target name="upload-mode" depends="zip-mode">
+  <target name="mode.upload" depends="mode.zip">
     <echo message="Pushing modedist to py.processing.org..." />
     <exec executable="/bin/sh">
       <arg value="-c"/>
-      <arg value="scp -i ~/.ssh/id_rsa-processing.org -r PythonMode.zip jdf@py.processing.org:/var/www/py" />
+      <arg value="scp -i ~/.ssh/id_rsa-processing.org -r work/PythonMode.zip jdf@py.processing.org:/var/www/py" />
     </exec>
     <exec executable="/bin/sh">
       <arg value="-c"/>
-      <arg value="scp -i ~/.ssh/id_rsa-processing.org -r PythonMode_${jycessing.buildnumber}.zip jdf@py.processing.org:/var/www/py" />
+      <arg value="scp -i ~/.ssh/id_rsa-processing.org -r work/PythonMode_${jycessing.buildnumber}.zip jdf@py.processing.org:/var/www/py" />
     </exec>
   </target>
 
   <target name="jar" depends="build">
-    <fail unless="platform" message="You have to specify a platform."/>
-    <jar destfile="processing-py.jar">
+    <jar destfile="work/processing-py.jar">
       <fileset dir="bin" excludes="jycessing/build/**,test/**"/>
       <zipgroupfileset file="${jython}"/>
       <zipgroupfileset file="${corejar}"/>
@@ -99,9 +113,18 @@
         <attribute name="Main-Class" value="jycessing.Runner"/>
       </manifest>
     </jar>
-    <jar destfile="processing-py-natives-${gl.platform}.jar">
-      <zipgroupfileset file="${processing}/core/library/gluegen-rt-natives-${gl.platform}.jar"/>
-      <zipgroupfileset file="${processing}/core/library/jogl-all-natives-${gl.platform}.jar"/>
+    <foreach
+      list="macosx-universal,linux-i586,linux-amd64,windows-i586,windows-amd64"
+      param="natives.platform"
+      target="jar.natives"/>
+  </target>
+
+  <target name="jar.natives">
+    <jar destfile="work/processing-py-natives-${natives.platform}.jar">
+      <zipgroupfileset
+        file="${processing}/core/library/gluegen-rt-natives-${natives.platform}.jar"/>
+      <zipgroupfileset
+        file="${processing}/core/library/jogl-all-natives-${natives.platform}.jar"/>
     </jar>
   </target>
 
@@ -149,7 +172,7 @@
     depends="check-processing-needs-build"
     unless="processing-is-uptodate">
     <echo message="Building processing." />
-    <ant dir="${processing}/build" target="build"/>
+    <ant dir="${processing}/build" target="build" inheritAll="false"/>
   </target>
 
   <target name="clean">
@@ -157,12 +180,8 @@
     <rm-rf target="bin"/>
     <rm-rf target="dist"/>
     <rm-rf target=".cache"/>
+    <rm-rf target="work"/>
     <delete file="runtime/generated/jycessing/DriverImpl.java"/>
-    <delete file="processing-py-macosx.jar"/>
-    <delete file="processing-py-linux32.jar"/>
-    <delete file="processing-py-linux64.jar"/>
-    <delete file="processing-py-windows32.jar"/>
-    <delete file="processing-py-windows64.jar"/>
     <delete>
       <fileset dir="buildtime/py" includes="*.class"/>
     </delete>
@@ -383,8 +402,8 @@
         link="${basedir}/${dist.dir}/libraries/processing"/>
     <symlink resource="${basedir}/${jre.local.dir}" link="${basedir}/${dist.jre}"/>
     <symlink resource="${basedir}/examples.py" link="${basedir}/${dist.dir}/examples.py"/>
-    <symlink resource="${basedir}/processing-py.jar" link="${basedir}/${dist.dir}/processing-py.jar"/>
-    <symlink resource="${basedir}/processing-py-natives-${gl.platform}.jar"
+    <symlink resource="${basedir}/work/processing-py.jar" link="${basedir}/${dist.dir}/processing-py.jar"/>
+    <symlink resource="${basedir}/work/processing-py-natives-${gl.platform}.jar"
         link="${basedir}/${dist.dir}/processing-py-natives-${gl.platform}.jar"/>
 
     <compress from="${dist.name}" to="${dist.compressed}" dir="dist"/>
@@ -426,28 +445,23 @@
   -->
   <target name="build-tests" depends="jar">
     <mkdir dir="testing/bin"/>
-    <javac classpath="testing/library/junit-4.11.jar:processing-py.jar" destdir="testing/bin"
+    <javac
+        classpath="testing/library/junit-4.11.jar:work/processing-py.jar"
+        destdir="testing/bin"
         includeantruntime="false" deprecation="true">
       <src path="testing/src"/>
     </javac>
   </target>
-  <target name="runtest" depends="build-tests">
+  <target name="test" depends="build-tests">
     <java classname="org.junit.runner.JUnitCore" fork="true">
       <arg value="test.jycessing.JycessingTests"/>
       <classpath>
         <pathelement location="testing/bin"/>
-        <pathelement location="processing-py.jar"/>
+        <pathelement location="work/processing-py.jar"/>
         <pathelement location="testing/library/junit-4.11.jar"/>
         <pathelement location="testing/library/hamcrest-core-1.3.jar"/>
       </classpath>
     </java>
-  </target>
-
-  <!--
-    $ ant –Dplatform=macosx test
-  -->
-  <target name="test">
-    <for-platform platform="${platform}" target="runtest"/>
   </target>
 
 </project>

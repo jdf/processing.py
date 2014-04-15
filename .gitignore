@@ -6,8 +6,6 @@
 JREs/linux*
 JREs/macosx*
 JREs/windows*
-PythonMode*.jar
-PythonMode*.zip
 __pycache__
 bin
 build
@@ -20,12 +18,11 @@ jython_processing_demo
 kinetic-type/
 line.pdf
 modedist
-processing-py.jar
-processing-py-natives-*.jar
-python-hack.jar
+nohup.out
 runtime/generated/jycessing/*.java
 runtime/src/.DS_Store
 src.zip
 test.py
 testing/bin
+work
 zamples
