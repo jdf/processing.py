@@ -24,4 +24,18 @@ public class PythonSketchError extends Exception {
     this.line = line;
     this.column = column;
   }
+
+  @Override
+  public String toString() {
+    if (file == null) {
+      return getMessage();
+    }
+    if (line == -1) {
+      return getMessage() + " in " + file;
+    }
+    if (column == -1) {
+      return getMessage() + " at line " + line + " of " + file;
+    }
+    return getMessage() + " at " + line + ":" + column + " in " + file;
+  }
 }

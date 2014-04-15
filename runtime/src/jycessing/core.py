@@ -9,38 +9,88 @@ from jycessing import PAppletJythonDriver
 
 # Bring all of the core Processing classes by name into the builtin namespace.
 from processing.core import PApplet
-from processing.core import PConstants
-from processing.core import PFont
-from processing.core import PGraphics
-from processing.core import PGraphicsJava2D
-from processing.core import PGraphicsRetina2D
-from processing.core import PImage
-from processing.core import PMatrix
-from processing.core import PMatrix2D
-from processing.core import PMatrix3D
-from processing.core import PShape
-from processing.core import PShapeOBJ
-from processing.core import PShapeSVG
-from processing.core import PStyle
-from processing.core import PVector as __pvector__
-
 __builtin__.PApplet = PApplet
-__builtin__.PApplet = PConstants
-__builtin__.PApplet = PFont
-__builtin__.PApplet = PGraphics
-__builtin__.PApplet = PGraphicsJava2D
-__builtin__.PApplet = PGraphicsRetina2D
-__builtin__.PApplet = PImage
-__builtin__.PApplet = PMatrix
-__builtin__.PApplet = PMatrix2D
-__builtin__.PApplet = PMatrix3D
-__builtin__.PApplet = PShape
-__builtin__.PApplet = PShapeOBJ
-__builtin__.PApplet = PShapeSVG
-__builtin__.PApplet = PStyle
+
+from processing.core import PConstants
+__builtin__.PConstants = PConstants
+
+from processing.core import PFont
+__builtin__.PFont = PFont
+
+from processing.core import PGraphics
+__builtin__.PGraphics = PGraphics
+
+from processing.core import PGraphicsJava2D
+__builtin__.PGraphicsJava2D = PGraphicsJava2D
+
+from processing.core import PGraphicsRetina2D
+__builtin__.PGraphicsRetina2D = PGraphicsRetina2D
+
+from processing.core import PImage
+__builtin__.PImage = PImage
+
+from processing.core import PMatrix
+__builtin__.PMatrix = PMatrix
+
+from processing.core import PMatrix2D
+__builtin__.PMatrix2D = PMatrix2D
+
+from processing.core import PMatrix3D
+__builtin__.PMatrix3D = PMatrix3D
+
+from processing.core import PShape
+__builtin__.PShape = PShape
+
+from processing.core import PShapeOBJ
+__builtin__.PShapeOBJ = PShapeOBJ
+
+from processing.core import PShapeSVG
+__builtin__.PShapeSVG = PShapeSVG
+
+from processing.core import PStyle
+__builtin__.PStyle = PStyle
+
+from processing.opengl import FontTexture
+__builtin__.FontTexture = FontTexture
+
+from processing.opengl import FrameBuffer
+__builtin__.FrameBuffer = FrameBuffer
+
+from processing.opengl import LinePath
+__builtin__.LinePath = LinePath
+
+from processing.opengl import LineStroker
+__builtin__.LineStroker = LineStroker
+
+from processing.opengl import PGL
+__builtin__.PGL = PGL
+
+from processing.opengl import PGraphics2D
+__builtin__.PGraphics2D = PGraphics2D
+
+from processing.opengl import PGraphics3D
+__builtin__.PGraphics3D = PGraphics3D
+
+from processing.opengl import PGraphicsOpenGL
+__builtin__.PGraphicsOpenGL = PGraphicsOpenGL
+
+from processing.opengl import PJOGL
+__builtin__.PJOGL = PJOGL
+
+from processing.opengl import PShader
+__builtin__.PShader = PShader
+
+from processing.opengl import PShapeOpenGL
+__builtin__.PShapeOpenGL = PShapeOpenGL
+
+from processing.opengl import Texture
+__builtin__.Texture = Texture
+
+
 
 # PVector requires special handling, because it exposes the same method names
 # as static methods and instance methods.
+from processing.core import PVector as __pvector__
 class PVector(object):
     @classmethod
     def __new__(cls, *args):

@@ -11,10 +11,10 @@ MODES=~/sketchbook/modes
 cd $PROCESSING/build && \
   #ant macosx-build && \
   cd $PROCESSINGPY && \
-  ant zip-mode && \
+  ant mode.zip && \
   cd $MODES && \
   rm -rf PythonMode && \
-  unzip $PROCESSINGPY/PythonMode.zip && \
+  unzip $PROCESSINGPY/work/PythonMode.zip && \
   cd /tmp && \
   $RUNPROCESSING
 
