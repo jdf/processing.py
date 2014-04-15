@@ -44,8 +44,13 @@ public class PythonMode extends Mode {
   }
 
   @Override
+  public String getModuleExtension() {
+    return "py";
+  }
+
+  @Override
   public String[] getExtensions() {
-    return new String[] { "pyde", "py" };
+    return new String[] { getDefaultExtension(), getModuleExtension() };
   }
 
   @Override
