@@ -134,8 +134,13 @@ public class SketchServiceManager implements ModeService {
     for (final File jar : new File(Base.getContentFile("core"), "library").listFiles(JARS)) {
       cp.add(jar.getAbsolutePath());
     }
-    for (final File jar : mode.getContentFile("mode").listFiles(JARS)) {
-      cp.add(jar.getAbsolutePath());
+    final File[] libJars = mode.getContentFile("mode").listFiles(JARS);
+    if (libJars != null) {
+      for (final File jar : libJars) {
+        cp.add(jar.getAbsolutePath());
+      }
+    } else {
+      log("No library jars found; I assume we're running in Eclipse.");
     }
     command.add("-cp");
     command.add(Joiner.on(File.pathSeparator).join(cp));
