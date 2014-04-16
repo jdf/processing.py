@@ -160,7 +160,6 @@ public class PAppletJythonDriver extends PApplet {
     setMap();
     setSet();
     builtins.__setitem__("g", Py.java2py(g));
-    wrapProcessingVariables();
 
     addComponentListener(new ComponentAdapter() {
       @Override
@@ -219,90 +218,20 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   protected void wrapProcessingVariables() {
-    builtins.__setitem__("mouseX", new PyInteger(-1) {
-      @Override
-      public int getValue() {
-        return mouseX;
-      }
-    });
-    builtins.__setitem__("width", new PyInteger(-1) {
-      @Override
-      public int getValue() {
-        return width;
-      }
-    });
-    builtins.__setitem__("height", new PyInteger(-1) {
-      @Override
-      public int getValue() {
-        return height;
-      }
-    });
-    builtins.__setitem__("pmouseY", new PyInteger(-1) {
-      @Override
-      public int getValue() {
-        return pmouseY;
-      }
-    });
-    builtins.__setitem__("paused", new PyBoolean(false) {
-      @Override
-      public boolean getBooleanValue() {
-        return paused;
-      }
-    });
-    builtins.__setitem__("focused", new PyBoolean(false) {
-      @Override
-      public boolean getBooleanValue() {
-        return focused;
-      }
-    });
-    builtins.__setitem__("displayHeight", new PyInteger(-1) {
-      @Override
-      public int getValue() {
-        return displayHeight;
-      }
-    });
-    builtins.__setitem__("keyPressed", new PyBoolean(false) {
-      @Override
-      public boolean getBooleanValue() {
-        return keyPressed;
-      }
-    });
-    builtins.__setitem__("mousePressed", new PyBoolean(false) {
-      @Override
-      public boolean getBooleanValue() {
-        return mousePressed;
-      }
-    });
-    builtins.__setitem__("frameCount", new PyInteger(-1) {
-      @Override
-      public int getValue() {
-        return frameCount;
-      }
-    });
-    builtins.__setitem__("mouseButton", new PyInteger(-1) {
-      @Override
-      public int getValue() {
-        return mouseButton;
-      }
-    });
-    builtins.__setitem__("pmouseX", new PyInteger(-1) {
-      @Override
-      public int getValue() {
-        return pmouseX;
-      }
-    });
-    builtins.__setitem__("keyCode", new PyInteger(-1) {
-      @Override
-      public int getValue() {
-        return keyCode;
-      }
-    });
-    builtins.__setitem__("frameRate", new PyFloat(-1) {
-      @Override
-      public double getValue() {
-        return frameRate;
-      }
-
+    builtins.__setitem__("displayWidth", new PyInteger(displayWidth));
+    builtins.__setitem__("displayHeight", new PyInteger(displayHeight));
+    builtins.__setitem__("mouseX", new PyInteger(mouseX));
+    builtins.__setitem__("mouseY", new PyInteger(mouseY));
+    builtins.__setitem__("pmouseX", new PyInteger(pmouseX));
+    builtins.__setitem__("pmouseY", new PyInteger(pmouseY));
+    builtins.__setitem__("paused", Py.newBoolean(paused));
+    builtins.__setitem__("focused", Py.newBoolean(focused));
+    builtins.__setitem__("keyPressed", Py.newBoolean(keyPressed));
+    builtins.__setitem__("mousePressed", Py.newBoolean(mousePressed));
+    builtins.__setitem__("frameCount", new PyInteger(frameCount));
+    builtins.__setitem__("mouseButton", new PyInteger(mouseButton));
+    builtins.__setitem__("keyCode", new PyInteger(keyCode));
+    builtins.__setitem__("frameRate", new PyFloat(frameRate) {
       @Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
         switch (args.length) {
@@ -316,18 +245,7 @@ public class PAppletJythonDriver extends PApplet {
         }
       }
     });
-    builtins.__setitem__("displayWidth", new PyInteger(-1) {
-      @Override
-      public int getValue() {
-        return displayWidth;
-      }
-    });
-    builtins.__setitem__("mouseY", new PyInteger(-1) {
-      @Override
-      public int getValue() {
-        return mouseY;
-      }
-    });
+
     /*
      * If key is "CODED", i.e., an arrow key or other non-printable, pass that
      * value through as-is. If it's printable, convert it to a unicode string,
@@ -562,12 +480,14 @@ public class PAppletJythonDriver extends PApplet {
     super.size(iwidth, iheight, irenderer, ipath);
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("frame", Py.java2py(frame));
+    builtins.__setitem__("width", Py.newInteger(width));
+    builtins.__setitem__("height", Py.newInteger(height));
   }
 
   @Override
   public void setup() {
     builtins.__setitem__("frame", Py.java2py(frame));
-
+    wrapProcessingVariables();
     try {
       if (mode == Mode.STATIC) {
         // A static sketch gets called once, from this spot.
@@ -589,6 +509,7 @@ public class PAppletJythonDriver extends PApplet {
 
   @Override
   public void draw() {
+    wrapProcessingVariables();
     if (drawMeth == null) {
       Runner.log("Calling super.draw() in what I assume is a static-mode sketch.");
       super.draw();
