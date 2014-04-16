@@ -15,20 +15,6 @@
  */
 package jycessing;
 
-import java.awt.Window;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.io.File;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashSet;
-import java.util.concurrent.CountDownLatch;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.swing.SwingUtilities;
-
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
@@ -51,6 +37,20 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
 import processing.opengl.PShader;
+
+import java.awt.Window;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.io.File;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -80,8 +80,8 @@ public class PAppletJythonDriver extends PApplet {
 
   // The presence of either setup() or draw() indicates that this is not a
   // static sketch.
-  private static final Pattern ACTIVE_METHOD_DEF = Pattern.compile(
-      "^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
+  private static final Pattern ACTIVE_METHOD_DEF =
+      Pattern.compile("^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
 
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
@@ -147,7 +147,7 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   public PAppletJythonDriver(final InteractiveConsole interp, final String sketchPath,
-                             final String programText) {
+      final String programText) {
     this.programText = programText;
     this.pySketchPath = sketchPath;
     this.sketchPath = new File(sketchPath).getParent();
@@ -200,6 +200,22 @@ public class PAppletJythonDriver extends PApplet {
     sketchRendererMeth = interp.get("sketchRenderer");
     initMeth = interp.get("init");
     stopMeth = interp.get("stop");
+    if (mousePressedMeth != null) {
+      // The user defined a mousePressed() method, which will hide the magical
+      // Processing variable boolean mousePressed. We have to do some magic.
+      interp.getLocals().__setitem__("mousePressed", new PyBoolean(false) {
+        @Override
+        public boolean getBooleanValue() {
+          return mousePressed;
+        }
+
+        @Override
+        public PyObject __call__(final PyObject[] args, final String[] kws) {
+          return mousePressedMeth.__call__(args, kws);
+        }
+      });
+    }
+
   }
 
   protected void wrapProcessingVariables() {
@@ -291,8 +307,8 @@ public class PAppletJythonDriver extends PApplet {
       public PyObject __call__(final PyObject[] args, final String[] kws) {
         switch (args.length) {
           default:
-            throw new RuntimeException("Can't call \"frameRate\" with " + args.length
-                + " parameters.");
+            throw new RuntimeException(
+                "Can't call \"frameRate\" with " + args.length + " parameters.");
           case 1: {
             frameRate((float)args[0].asDouble());
             return Py.None;
@@ -330,7 +346,7 @@ public class PAppletJythonDriver extends PApplet {
       }
 
       @Override
-      public PyObject __eq__(PyObject other) {
+      public PyObject __eq__(final PyObject other) {
         return getProxy().__eq__(other);
       }
 
@@ -351,7 +367,7 @@ public class PAppletJythonDriver extends PApplet {
     // I want to quit on runtime exceptions.
     // Processing just sits there by default.
     Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-      public void uncaughtException(Thread t, Throwable e) {
+      public void uncaughtException(final Thread t, final Throwable e) {
         terminalException = toSketchException(e);
         finishedLatch.countDown();
       }
@@ -385,12 +401,12 @@ public class PAppletJythonDriver extends PApplet {
     }
     try {
       finishedLatch.await();
-    } catch (InterruptedException interrupted) {
+    } catch (final InterruptedException interrupted) {
       // Treat an interruption as a request to the applet to terminate.
       exit();
       try {
         finishedLatch.await();
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         // fallthrough
       }
     } finally {
@@ -501,7 +517,7 @@ public class PAppletJythonDriver extends PApplet {
               filter(a.asInt(), (float)b.asDouble());
               return Py.None;
             }
-            //$FALL-THROUGH$
+        //$FALL-THROUGH$
           default:
             return builtinFilter.__call__(args, kws);
         }
