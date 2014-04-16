@@ -217,20 +217,36 @@ public class PAppletJythonDriver extends PApplet {
 
   }
 
+  /*
+   * Most of the time we're wrapping small, positive integers (like the mouse
+   * position, the keyCode, and the frameCount). So we pre-allocate a bunch of
+   * them to avoid garbage collection.
+   */
+  private static final PyInteger[] CHEAP_INTS = new PyInteger[2000];
+  static {
+    for (int i = 0; i < CHEAP_INTS.length; i++) {
+      CHEAP_INTS[i] = Py.newInteger(i);
+    }
+  }
+
+  private static PyInteger pyint(final int i) {
+    return i >= 0 && i < CHEAP_INTS.length ? CHEAP_INTS[i] : Py.newInteger(i);
+  }
+
   protected void wrapProcessingVariables() {
-    builtins.__setitem__("displayWidth", new PyInteger(displayWidth));
-    builtins.__setitem__("displayHeight", new PyInteger(displayHeight));
-    builtins.__setitem__("mouseX", new PyInteger(mouseX));
-    builtins.__setitem__("mouseY", new PyInteger(mouseY));
-    builtins.__setitem__("pmouseX", new PyInteger(pmouseX));
-    builtins.__setitem__("pmouseY", new PyInteger(pmouseY));
+    builtins.__setitem__("displayWidth", pyint(displayWidth));
+    builtins.__setitem__("displayHeight", pyint(displayHeight));
+    builtins.__setitem__("mouseX", pyint(mouseX));
+    builtins.__setitem__("mouseY", pyint(mouseY));
+    builtins.__setitem__("pmouseX", pyint(pmouseX));
+    builtins.__setitem__("pmouseY", pyint(pmouseY));
     builtins.__setitem__("paused", Py.newBoolean(paused));
     builtins.__setitem__("focused", Py.newBoolean(focused));
     builtins.__setitem__("keyPressed", Py.newBoolean(keyPressed));
     builtins.__setitem__("mousePressed", Py.newBoolean(mousePressed));
-    builtins.__setitem__("frameCount", new PyInteger(frameCount));
-    builtins.__setitem__("mouseButton", new PyInteger(mouseButton));
-    builtins.__setitem__("keyCode", new PyInteger(keyCode));
+    builtins.__setitem__("frameCount", pyint(frameCount));
+    builtins.__setitem__("mouseButton", pyint(mouseButton));
+    builtins.__setitem__("keyCode", pyint(keyCode));
     builtins.__setitem__("frameRate", new PyFloat(frameRate) {
       @Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
