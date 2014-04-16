@@ -108,6 +108,9 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   private static PythonSketchError toSketchException(Throwable t) {
+    if (t instanceof RuntimeException && t.getCause() != null) {
+      t = t.getCause();
+    }
     if (t instanceof PythonSketchError) {
       return (PythonSketchError)t;
     }
@@ -528,7 +531,8 @@ public class PAppletJythonDriver extends PApplet {
    * sketch's world, particularly width and height.
    */
   @Override
-  public void size(final int iwidth, final int iheight, final String irenderer, final String ipath) {
+  public void size(final int iwidth, final int iheight, final String irenderer,
+      final String ipath) {
     super.size(iwidth, iheight, irenderer, ipath);
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("frame", Py.java2py(frame));
