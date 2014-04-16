@@ -82,6 +82,8 @@ def xform_py(d, text):
     text = text.replace('true', 'True')
     text = text.replace('false', 'False')
     text = text.replace('this.', 'self.')
+    text = text.replace('||', 'or')
+    text = text.replace('&&', 'and')
     return (d, text)
 
 

@@ -373,6 +373,16 @@ public class PAppletJythonDriver extends PApplet {
 
   public void runAndBlock(final String[] args) throws PythonSketchError {
     PApplet.runSketch(args, this);
+    // Thanks, aengelke, for the following sequence of commands, which are necessary to
+    // bring the applet window to the front.
+    {
+      frame.setVisible(false);
+      frame.setAlwaysOnTop(true);
+      frame.toFront();
+      frame.requestFocus();
+      frame.setVisible(true);
+      frame.setAlwaysOnTop(false);
+    }
     try {
       finishedLatch.await();
     } catch (InterruptedException interrupted) {
