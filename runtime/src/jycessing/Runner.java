@@ -339,9 +339,12 @@ public class Runner {
     final String sketchDir = new File(sketchPath).getAbsoluteFile().getParent();
     final Properties props = new Properties();
 
+
+    // Suppress sys-package-manager output.
+    props.setProperty("python.verbose", "error");
+
     // Can be handy for class loading issues and the like.
     // props.setProperty("python.verbose", "debug");
-    props.setProperty("python.verbose", "error");
 
     props.setProperty("python.path", libraries.getAbsolutePath() + File.pathSeparator + sketchDir);
     props.setProperty("python.main", new File(sketchPath).getAbsoluteFile().getAbsolutePath());

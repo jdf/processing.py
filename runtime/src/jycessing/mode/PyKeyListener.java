@@ -1,15 +1,15 @@
 package jycessing.mode;
 
+import processing.app.Editor;
+import processing.app.Sketch;
+import processing.app.syntax.JEditTextArea;
+import processing.mode.java.PdeKeyListener;
+
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import processing.app.Editor;
-import processing.app.Sketch;
-import processing.app.syntax.JEditTextArea;
-import processing.mode.java.PdeKeyListener;
 
 /**
  * This class provides Pythonic handling of TAB, BACKSPACE, and ENTER keys.
@@ -19,8 +19,8 @@ public class PyKeyListener extends PdeKeyListener {
   final JEditTextArea textArea;
 
   // ctrl-alt on windows & linux, cmd-alt on os x
-  private static int CTRL_ALT = ActionEvent.ALT_MASK
-      | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+  private static int CTRL_ALT =
+      ActionEvent.ALT_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
   // 4 spaces per pep8
   private static final String TAB = "    ";
@@ -41,8 +41,8 @@ public class PyKeyListener extends PdeKeyListener {
     final Sketch sketch = peditor.getSketch();
 
     // things that change the content of the text area
-    if ((code == KeyEvent.VK_BACK_SPACE) || (code == KeyEvent.VK_TAB)
-        || (code == KeyEvent.VK_ENTER) || ((c >= 32) && (c < 128))) {
+    if ((code == KeyEvent.VK_BACK_SPACE) || (code == KeyEvent.VK_TAB) || (code == KeyEvent.VK_ENTER)
+        || ((c >= 32) && (c < 128))) {
       sketch.setModified(true);
     }
 
@@ -75,6 +75,10 @@ public class PyKeyListener extends PdeKeyListener {
         indent(-1);
         return true;
 
+      case KeyEvent.VK_ESCAPE:
+        textArea.selectNone();
+        return true;
+
       case KeyEvent.VK_TAB:
         indent(event.isShiftDown() ? -1 : 1);
         return true;
@@ -98,6 +102,8 @@ public class PyKeyListener extends PdeKeyListener {
    * Everything we need to know about a line in the text editor.
    */
   private class LineInfo {
+    public final int lineNumber;
+
     // Expressed in units of "python indents", not in number of spaces.
     public final int indent;
 
@@ -108,6 +114,8 @@ public class PyKeyListener extends PdeKeyListener {
     public final boolean caretInText;
 
     LineInfo(final int lineNumber) {
+      this.lineNumber = lineNumber;
+
       final Matcher m = LINE.matcher(textArea.getLineText(lineNumber));
       if (!m.matches()) {
         throw new AssertionError("How can a line have less than nothing in it?");
@@ -131,6 +139,11 @@ public class PyKeyListener extends PdeKeyListener {
       }
       indent = currentIndent;
     }
+
+    @Override
+    public String toString() {
+      return String.format("<Line %d, indent %d, {%s}>", lineNumber, indent, text);
+    }
   }
 
   /**
@@ -142,17 +155,22 @@ public class PyKeyListener extends PdeKeyListener {
    * <p>The minimum indent is 0.
    * @param sign The direction in which to modify the indent of the current line.
    */
-  private void indent(int sign) {
-    final int line = textArea.getCaretLine();
-    final LineInfo currentLine = new LineInfo(line);
+  private void indent(final int sign) {
+    final int startLine = textArea.getSelectionStartLine();
+    final int stopLine = textArea.getSelectionStopLine();
+    final int selectionStart = textArea.getSelectionStart();
+    final int selectionStop = textArea.getSelectionStop();
+
+    final LineInfo currentLine = new LineInfo(startLine);
     final int currentCaret = textArea.getCaretPosition();
-    final int lineEndRelativePos = textArea.getLineStopOffset(line) - currentCaret;
+    final int startLineEndRelativePos = textArea.getLineStopOffset(startLine) - selectionStart;
+    final int stopLineEndRelativePos = textArea.getLineStopOffset(stopLine) - selectionStop;
     final int newIndent;
 
     if (sign > 0) {
       // Find previous non-blank non-comment line.
       LineInfo candidate = null;
-      for (int i = line - 1; i >= 0; i--) {
+      for (int i = startLine - 1; i >= 0; i--) {
         candidate = new LineInfo(i);
         if (candidate.text.length() > 0 && !candidate.text.startsWith("#")) {
           break;
@@ -171,6 +189,29 @@ public class PyKeyListener extends PdeKeyListener {
     if (newIndent == currentLine.indent) {
       return;
     }
+    final int deltaIndent = newIndent - currentLine.indent;
+    for (int i = startLine; i <= stopLine; i++) {
+      indentLineBy(i, deltaIndent);
+    }
+    textArea.setSelectionStart(
+        getAbsoluteCaretPositionRelativeToLineEnd(startLine, startLineEndRelativePos));
+    textArea.setSelectionEnd(
+        getAbsoluteCaretPositionRelativeToLineEnd(stopLine, stopLineEndRelativePos));
+  }
+
+  private int getAbsoluteCaretPositionRelativeToLineEnd(final int line,
+      final int lineEndRelativePosition) {
+    return Math.max(textArea.getLineStopOffset(line) - lineEndRelativePosition,
+        textArea.getLineStartOffset(line));
+  }
+
+  private void indentLineBy(final int line, final int deltaIndent) {
+    final LineInfo currentLine = new LineInfo(line);
+    final int newIndent = Math.max(0, currentLine.indent + deltaIndent);
+    if (newIndent == currentLine.indent) {
+      return;
+    }
+
     final StringBuilder sb = new StringBuilder();
     for (int i = 0; i < newIndent; i++) {
       sb.append(TAB);
@@ -180,8 +221,6 @@ public class PyKeyListener extends PdeKeyListener {
     final String newLine = sb.toString();
     textArea.setSelectedText(newLine);
     textArea.selectNone();
-    textArea.setCaretPosition(Math.max(textArea.getLineStopOffset(line) - lineEndRelativePos,
-        textArea.getLineStartOffset(line)));
   }
 
   private static Pattern findIndent = Pattern.compile("^((?: |\\t)*)");
