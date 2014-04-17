@@ -21,6 +21,7 @@ import org.python.core.Py;
 import org.python.core.PyBoolean;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
+import org.python.core.PyIndentationError;
 import org.python.core.PyInteger;
 import org.python.core.PyJavaType;
 import org.python.core.PyObject;
@@ -116,13 +117,11 @@ public class PAppletJythonDriver extends PApplet {
     }
     if (t instanceof PySyntaxError) {
       final PySyntaxError e = (PySyntaxError)t;
-      final PyTuple tup = (PyTuple)e.value;
-      final String message = (String)tup.get(0);
-      final PyTuple context = (PyTuple)tup.get(1);
-      final String file = (String)context.get(0);
-      final int line = ((Integer)context.get(1)).intValue() - 1;
-      final int column = ((Integer)context.get(2)).intValue();
-      return new PythonSketchError(message, file, line, column);
+      return extractSketchErrorFromPyExceptionValue((PyTuple)e.value);
+    }
+    if (t instanceof PyIndentationError) {
+      final PyIndentationError e = (PyIndentationError)t;
+      return extractSketchErrorFromPyExceptionValue((PyTuple)e.value);
     }
     if (t instanceof PyException) {
       final PyException e = (PyException)t;
@@ -144,6 +143,22 @@ public class PAppletJythonDriver extends PApplet {
       return new PythonSketchError(Py.formatException(e.type, e.value), file, line);
     }
     return new PythonSketchError(t.getMessage());
+  }
+
+  private static PythonSketchError extractSketchErrorFromPyExceptionValue(final PyTuple tup) {
+    final String message = maybeMakeFriendlyMessage((String)tup.get(0));
+    final PyTuple context = (PyTuple)tup.get(1);
+    final String file = (String)context.get(0);
+    final int line = ((Integer)context.get(1)).intValue() - 1;
+    final int column = ((Integer)context.get(2)).intValue();
+    return new PythonSketchError(message, file, line, column);
+  }
+
+  private static String maybeMakeFriendlyMessage(final String message) {
+    if (message.contains("expecting INDENT")) {
+      return "This line needs be indented.";
+    }
+    return message;
   }
 
   public PAppletJythonDriver(final InteractiveConsole interp, final String sketchPath,
