@@ -15,6 +15,17 @@
  */
 package jycessing;
 
+import org.python.core.Py;
+import org.python.core.PyString;
+import org.python.core.PySystemState;
+import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
+
+import jycessing.annotations.PythonUsage;
+import jycessing.launcher.LaunchHelper;
+import processing.core.PApplet;
+import processing.core.PConstants;
+
 import java.awt.SplashScreen;
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,18 +49,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import jycessing.annotations.PythonUsage;
-import jycessing.launcher.LaunchHelper;
-
-import org.python.core.Py;
-import org.python.core.PyString;
-import org.python.core.PySystemState;
-import org.python.util.InteractiveConsole;
-import org.python.util.PythonInterpreter;
-
-import processing.core.PApplet;
-import processing.core.PConstants;
 
 public class Runner {
 
@@ -101,7 +100,7 @@ public class Runner {
   private static String readOrDie(final InputStream in) {
     try {
       return read(in);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }
@@ -183,7 +182,7 @@ public class Runner {
     // On a Mac, when launched as an app, this will contain ".app/Contents/Java/processing-py.jar"
     try {
       return new File(Runner.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-    } catch (URISyntaxException e) {
+    } catch (final URISyntaxException e) {
       e.printStackTrace();
     }
     return null;
@@ -203,7 +202,7 @@ public class Runner {
       return getMainJarFile().getParentFile().getParentFile();
     }
 
-    // If we are on Windows 
+    // If we are on Windows
     return getMainJarFile().getParentFile();
   }
 
@@ -215,8 +214,8 @@ public class Runner {
    */
   public static void runFromCommandLineArguments(final String[] args) throws Exception {
 
-    // In case we have no args, throw Exception. Also, since we don't know which script 
-    // to run, we cannot redirect our input at this point. 
+    // In case we have no args, throw Exception. Also, since we don't know which script
+    // to run, we cannot redirect our input at this point.
     if (args.length < 1) {
       throw new RuntimeException("I need the path of your Python script as an argument.");
     }
@@ -263,7 +262,7 @@ public class Runner {
     final PreparedPythonSketch sketch =
         prepareSketch(getLibraries(), LibraryPolicy.PROMISCUOUS, args, sketchPath, sketchSource);
 
-    // Hide the splash, if possible 
+    // Hide the splash, if possible
     final SplashScreen splash = SplashScreen.getSplashScreen();
     if (splash != null) {
       splash.close();
@@ -290,7 +289,7 @@ public class Runner {
     try {
       propsResource =
           URLDecoder.decode(Runner.class.getResource("buildnumber.properties").toString(), "UTF-8");
-    } catch (UnsupportedEncodingException e) {
+    } catch (final UnsupportedEncodingException e) {
       throw new RuntimeException("Impossible: " + e);
     }
 
@@ -312,9 +311,9 @@ public class Runner {
     return new File("libraries");
   }
 
-  public static void
-                runSketchBlocking(final File libraries, final LibraryPolicy libraryPolicy,
-                    final String[] args, final String sketchPath, final String sketchSource) throws PythonSketchError {
+  public static void runSketchBlocking(final File libraries, final LibraryPolicy libraryPolicy,
+      final String[] args, final String sketchPath, final String sketchSource)
+      throws PythonSketchError {
     prepareSketch(libraries, libraryPolicy, args, sketchPath, sketchSource).runBlocking();
   }
 
@@ -342,6 +341,7 @@ public class Runner {
 
     // Can be handy for class loading issues and the like.
     // props.setProperty("python.verbose", "debug");
+    props.setProperty("python.verbose", "error");
 
     props.setProperty("python.path", libraries.getAbsolutePath() + File.pathSeparator + sketchDir);
     props.setProperty("python.main", new File(sketchPath).getAbsoluteFile().getAbsolutePath());
@@ -356,12 +356,11 @@ public class Runner {
       inited.setAccessible(true);
       inited.set(null, Boolean.FALSE);
       PySystemState.registry = null;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       e.printStackTrace();
     }
     PythonInterpreter.initialize(null, props, args);
 
-    Py.initPython();
     final InteractiveConsole interp = new InteractiveConsole();
 
     // This hack seems to be necessary in order to redirect stdout for unit

@@ -1,5 +1,11 @@
 package jycessing.mode.run;
 
+import jycessing.mode.PyEditor;
+import jycessing.mode.PythonMode;
+import processing.app.Base;
+import processing.app.Preferences;
+import processing.app.SketchException;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -9,15 +15,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import jycessing.mode.PyEditor;
-import jycessing.mode.PythonMode;
-
-import org.python.google.common.base.Joiner;
-
-import processing.app.Base;
-import processing.app.Preferences;
-import processing.app.SketchException;
 
 public class SketchServiceManager implements ModeService {
 
@@ -29,7 +26,7 @@ public class SketchServiceManager implements ModeService {
 
   private static final FilenameFilter JARS = new FilenameFilter() {
     @Override
-    public boolean accept(File dir, String name) {
+    public boolean accept(final File dir, final String name) {
       return name.endsWith(".jar");
     }
   };
@@ -62,7 +59,7 @@ public class SketchServiceManager implements ModeService {
         RMIUtils.bind(this, ModeService.class);
         startSketchServerProcess();
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       Base.showError("PythonMode Error", "Cannot start python sketch service.", e);
       return;
     }
@@ -71,10 +68,10 @@ public class SketchServiceManager implements ModeService {
   private void startSketchServerProcess() {
     log("Starting sketch runner process.");
     final ProcessBuilder pb = createServerCommand();
-    log("Running:\n" + Joiner.on(" ").join(pb.command()));
+    log("Running:\n" + pb.command());
     try {
       sketchServiceProcess = pb.start();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       Base.showError("PythonMode Error", "Cannot start python sketch runner.", e);
     }
   }
@@ -87,7 +84,7 @@ public class SketchServiceManager implements ModeService {
       try {
         sketchServiceProcess.waitFor();
         log("Sketcher runner process exited normally.");
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         log("Interrupted while waiting for sketch runner to exit.");
       }
       sketchServiceProcess = null;
@@ -139,11 +136,19 @@ public class SketchServiceManager implements ModeService {
       for (final File jar : libJars) {
         cp.add(jar.getAbsolutePath());
       }
+      cp.add(mode.getContentFile("mode/jython").getAbsolutePath()); // add unzipped jython
     } else {
       log("No library jars found; I assume we're running in Eclipse.");
     }
     command.add("-cp");
-    command.add(Joiner.on(File.pathSeparator).join(cp));
+    final StringBuilder sb = new StringBuilder();
+    for (final String element : cp) {
+      if (sb.length() > 0) {
+        sb.append(File.pathSeparatorChar);
+      }
+      sb.append(element);
+    }
+    command.add(sb.toString());
 
     // enable assertions
     command.add("-ea");
@@ -176,7 +181,7 @@ public class SketchServiceManager implements ModeService {
       public void run() {
         try {
           runSketch(editor, info);
-        } catch (SketchException e) {
+        } catch (final SketchException e) {
           editor.statusError(e);
         }
       }
@@ -191,7 +196,7 @@ public class SketchServiceManager implements ModeService {
       // If and only if we've successully request a sketch start, nuke the pending request.
       pendingSketchRequest = null;
       return;
-    } catch (RemoteException e) {
+    } catch (final RemoteException e) {
       handleRemoteException(e);
       log("Leaving pending request to run sketch.");
     }
@@ -206,7 +211,7 @@ public class SketchServiceManager implements ModeService {
     }
     try {
       sketchService.stopSketch();
-    } catch (RemoteException e) {
+    } catch (final RemoteException e) {
       handleRemoteException(e);
     }
   }
@@ -214,13 +219,13 @@ public class SketchServiceManager implements ModeService {
   private static final Pattern IGNORE = Pattern.compile("^__MOVE__\\s+(.*)$");
 
   @Override
-  public void print(Stream stream, String s) {
+  public void print(final Stream stream, final String s) {
     stream.getSystemStream().print(s);
     stream.getSystemStream().flush();
   }
 
   @Override
-  public void println(Stream stream, String s) {
+  public void println(final Stream stream, final String s) {
     if (stream == Stream.ERR && IGNORE.matcher(s).matches()) {
       // TODO(feinberg): Handle MOVE commands.
       return;
@@ -230,7 +235,7 @@ public class SketchServiceManager implements ModeService {
   }
 
   @Override
-  public void handleSketchException(Exception e) {
+  public void handleSketchException(final Exception e) {
     mode.handleSketchException(e);
   }
 }

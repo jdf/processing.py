@@ -72,7 +72,8 @@
 
     <copy todir="${bundle}/mode" file="work/PythonMode.jar"/>
     <copy todir="${bundle}" file="LICENSE.txt"/>
-    <copy todir="${bundle}/mode" file="${jython}"/>
+    <!-- <copy todir="${bundle}/mode" file="${jython}"/> -->
+    <unzip src="${jython}" dest="${bundle}/mode/jython"/>
     <copy tofile="${bundle}/mode/LICENSE.jython" file="${jython.license}"/>
 
     <copy todir="${bundle}">
