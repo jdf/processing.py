@@ -17,6 +17,7 @@ examples.pde
 jython_processing_demo
 kinetic-type/
 line.pdf
+mode/formatter/*.pyc
 modedist
 nohup.out
 runtime/generated/jycessing/*.java
