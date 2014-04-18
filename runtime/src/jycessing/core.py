@@ -227,7 +227,8 @@ __builtin__.hint = __papplet__.hint
 __builtin__.hue = __papplet__.hue
 __builtin__.image = __papplet__.image
 __builtin__.imageMode = __papplet__.imageMode
-__builtin__.lerpColor = __papplet__.lerpColor
+# We handle lerpColor by hand because there's an instance method and a static method.
+#__builtin__.lerpColor = __papplet__.lerpColor
 __builtin__.lightFalloff = __papplet__.lightFalloff
 __builtin__.lightSpecular = __papplet__.lightSpecular
 __builtin__.lights = __papplet__.lights
@@ -367,7 +368,6 @@ __builtin__.hex = PApplet.hex
 __builtin__.hour = PApplet.hour
 __builtin__.join = PApplet.join
 __builtin__.lerp = PApplet.lerp
-__builtin__.lerpColor = PApplet.lerpColor
 __builtin__.loadBytes = PApplet.loadBytes
 __builtin__.loadStrings = PApplet.loadStrings
 __builtin__.log = PApplet.log
