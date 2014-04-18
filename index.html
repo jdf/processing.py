@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Processing.py by jdf</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Processing.py</h1>
+        <p>Write Processing sketches in Python</p>
+
+        <p class="view"><a href="https://github.com/jdf/processing.py">View the Project on GitHub <small>jdf/processing.py</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/jdf/processing.py/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/jdf/processing.py/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/jdf/processing.py">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="processingpy" class="anchor" href="#processingpy"><span class="octicon octicon-link"></span></a>processing.py</h1>
+
+<p>Write real <a href="http://processing.org/">Processing</a> sketches in Python.</p>
+
+<ul>
+<li>Based on <a href="http://processing.org/">Processing 2.0</a>, and compatible with most <a href="http://www.processing.org/reference/libraries/">3rd party libraries</a>.</li>
+<li>Source compatible with <a href="http://python.org">Python 2.7.3</a>.</li>
+</ul><p>Tested on Mac OS 10.8 &amp; 10.9, Windows XP, 7 &amp; 8, and Ubuntu 12.10.</p>
+
+<h2>
+<a name="quick-start" class="anchor" href="#quick-start"><span class="octicon octicon-link"></span></a>Quick Start</h2>
+
+<h3>
+<a name="download-processingpy-0202" class="anchor" href="#download-processingpy-0202"><span class="octicon octicon-link"></span></a>Download Processing.py 0202</h3>
+
+<ul>
+<li><a href="http://py.processing.org/processing.py-0202-macosx.tgz">Mac OS X (83M)</a></li>
+<li><a href="http://py.processing.org/processing.py-0202-windows64.zip">Windows x64 (74M)</a></li>
+<li><a href="http://py.processing.org/processing.py-0202-windows32.zip">Windows x32 (72M)</a></li>
+<li><a href="http://py.processing.org/processing.py-0202-linux64.tgz">Linux x64 (68M)</a></li>
+<li><a href="http://py.processing.org/processing.py-0202-linux32.tgz">Linux x32 (69M)</a></li>
+</ul><p>Then, paste this code into a file, e.g., <code>mysketch.py</code>.</p>
+
+<pre><code>def setup():
+    size(600, 400)
+
+def draw():
+    ellipse(mouseX, mouseY, 10, 10)
+</code></pre>
+
+<p>Drag and drop your sketch onto one of these files, according to your platform:</p>
+
+<p><img src="http://py.processing.org/howtolaunch.jpg"></p>
+
+<p>You can also run the sketch from the command line, either with the included launcher script:</p>
+
+<pre><code>$ ./processing-py.sh path/to/mysketch.py
+</code></pre>
+
+<p>or using your own Java runtime environment:</p>
+
+<pre><code>$ java -jar processing-py.jar path/to/mysketch.py
+</code></pre>
+
+<h2>
+<a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>Documentation</h2>
+
+<p>To learn Processing.py check out these resources:</p>
+
+<ul>
+<li>Built-in <a href="http://processing.org/reference/">Processing 2.0 functions</a> for rendering and interaction.</li>
+<li>The <a href="http://docs.python.org/2/index.html">Python 2.7 documentation</a>.</li>
+<li>And of course the <a href="http://docs.oracle.com/javase/7/docs/api/">Java 7 API documentation</a>.</li>
+</ul><p>Processing.py comes with many <a href="https://github.com/jdf/processing.py/tree/master/examples.py">examples</a>, most of which are exactly like the
+example sketches that come with Processing, but converted to Python.</p>
+
+<pre><code>$ processing-py.sh examples.py/Basics/Math/noisefield.py
+$ processing-py.sh examples.py/Library/OpenGL/SpaceJunk.py
+$ processing-py.sh examples.py/3D/Typography/KineticType.py
+$ processing-py.sh examples.py/3D/Textures/TextureCube.py
+</code></pre>
+
+<h2>
+<a name="using-processing-libraries" class="anchor" href="#using-processing-libraries"><span class="octicon octicon-link"></span></a>Using Processing Libraries</h2>
+
+<p>Processing.py is implemented in Java, and is designed to be compatible with the existing ecosystem of <a href="http://processing.org/reference/libraries/">Processing libraries</a>.</p>
+
+<ul>
+<li><p>Put processing extension libraries in the <code>libraries</code> subdirectory of your processing.py installation. Processing.py will search every jar file and directory beneath that special directory, so you don't need to be too fussy about where things go. Just unzip Processing libraries right there.</p></li>
+<li>
+<p>Import the library in one of the usual Python ways, as in these snippets:</p>
+
+<pre><code>from peasy import PeasyCam
+# or
+import peasy.PeasyCam
+# or
+import peasy.PeasyCam as PeasyCam
+</code></pre>
+
+<p>Unfortunately, <code>from foo import *</code> is not supported.</p>
+</li>
+<li>
+<p>Then, in your <code>setup()</code> method:</p>
+
+<pre><code>cam = PeasyCam(this, 200)
+</code></pre>
+
+<p>Many libraries need a reference to "the current PApplet", and that's what
+<code>this</code> is for. Of course, there's no such thing as <code>this</code> in Python; it's just something that processing.py provides for you for compatibility with such libraries.</p>
+</li>
+</ul><h2>
+<a name="included-libraries" class="anchor" href="#included-libraries"><span class="octicon octicon-link"></span></a>Included Libraries</h2>
+
+<p>Some Processing libraries may not work with processing.py right out of the box. In particular, any library that uses Java reflection to call specially-named functions in your sketch will not work. However, we're happy to modify processing.py to work with any of the official Processing libraries. Here are the libraries that have required special handling in processing.py, and are included in the processing.py download:</p>
+
+<ul>
+<li>
+<a href="http://www.ricardmarxer.com/fisica/">Fisica</a>, by <a href="http://www.ricardmarxer.com/">Ricard Marxer</a>. Included under the terms of the LGPLv3, and with the kind cooperation of Mr. Marxer. See <a href="https://github.com/jdf/processing.py/tree/master/examples.py/Fisica">examples.py/Fisica</a> for examples.</li>
+</ul><p>If you find that some Processing library doesn't work as expected with processing.py, please let us know in the <a href="http://github.com/jdf/processing.py/issues">bug tracker</a>.</p>
+
+<h2>
+<a name="faq" class="anchor" href="#faq"><span class="octicon octicon-link"></span></a>FAQ</h2>
+
+<ul>
+<li>
+<p><strong>How do I report bugs or request new features?</strong></p>
+
+<p>Please report any issue in the <a href="http://github.com/jdf/processing.py/issues">bug tracker</a>.</p>
+</li>
+<li>
+<p><strong>How can I create a launcher for my sketch?</strong></p>
+
+<p>Add these lines near the top of your script:</p>
+
+<pre><code>import launcher
+launcher.create()
+</code></pre>
+</li>
+<li>
+<p><strong>How should I load data?</strong></p>
+
+<p>[Tentative] Along with the launcher, consider using <code>pwd()</code> for file paths. For a given argument it resolves the path for an object relative to the currently running script:</p>
+
+<pre><code>data = load(pwd("data.txt"))
+</code></pre>
+
+<p>In that case, processing.py will try to search <code>data.txt</code> always where your script resides.</p>
+</li>
+<li>
+<p><strong>How can I use Ani, or any other library that modifies fields?</strong></p>
+
+<p>Some libraries such as <a href="http://www.looksgood.de/libraries/Ani/">Ani</a> require you to specify a variable name for animation. Unfortunately they cannot access Python variables directly (and Java's built in classes are immutable).</p>
+
+<p>To solve this problem we instead create a mutable <code>PrimitiveFloat</code> object. This object has a field <code>.value</code>, which you can use for these purposes.</p>
+
+<pre><code>import jycessing.primitives.PrimitiveFloat as Float
+x = Float(100.0)
+Ani.to(x, 200, "value", 50);  # "value" is the name of the Float's internal field
+</code></pre>
+
+<p>In case you need other primitive values, please <a href="http://github.com/jdf/processing.py/issues">let us know</a>!</p>
+</li>
+<li>
+<p><strong>Why was this project created?</strong></p>
+
+<p>I (<a href="http://MrFeinberg.com/">Jonathan</a>) recently gave a talk about Processing to a group of rather bright 8th-graders,
+as part of a computer-programming summer camp they were attending at my office.
+Their curriculum up to that point had been in Python, which is an eminently
+sensible choice, given the
+<a href="http://en.wikipedia.org/wiki/ABC_%28programming_language%29">pedagogical roots</a>
+of the language.</p>
+
+<p>The kids were really turned on by the demos--I showed them the
+<a href="http://whiteglovetracking.com/">white glove</a>, and
+<a href="http://flong.com/">Golan Levin</a>'s
+<a href="http://www.flong.com/storage/experience/newyear/newyear10/">New Year's cards</a>--but
+they were bogged down by Processing's C-like syntax, which really seems arcane
+and unnecessarily complex when you're used to Python.</p>
+
+<p>I shared my experience with Processing creators
+<a href="http://benfry.com/">Ben Fry</a> and <a href="http://reas.com/">Casey Reas</a>, and they
+told me that, indeed, the original Processing was a fork of
+<a href="http://dbn.media.mit.edu/">"Design By Numbers"</a>, with Python and Scheme
+support hacked in. Support for a multi-lingual programming
+environment was always part of the plan, so they were enthusiastic
+about any new attempt at the problem.</p>
+
+<p>I was able to hack up a proof of concept in a couple of hours, and have
+managed to create something worth sharing in a couple of weeks. I was only
+able to do it at all thanks to the brilliant and beautiful
+<a href="http://www.jython.org/">Jython</a> project.</p>
+
+<p>At the time of Processing's first public release, August of 2001,
+Jython was too young a project to be used in this way. But now, having done
+absolutely no work to profile and optimize, I can get hundreds of frames
+per second of 3D graphics on my linux box. So, kudos to the Processing
+project, and kudos to Jython!</p>
+</li>
+</ul><h2>
+<a name="credits" class="anchor" href="#credits"><span class="octicon octicon-link"></span></a>Credits</h2>
+
+<p>Written by <a href="http://mrfeinberg.com">Jonathan Feinberg</a> &lt;<a href="mailto:jdf@pobox.com">jdf@pobox.com</a>&gt;
+Launcher &amp; many improvements by <a href="http://xr.io">Ralf Biedert</a> &lt;<a href="mailto:rb@xr.io">rb@xr.io</a>&gt;</p>
+
+<p>Also, <a href="http://www.yourkit.com">YourKit, LLC</a> was so kind to sponsor a license for their excellent <a href="http://www.yourkit.com/java/profiler/index.jsp">YourKit Java Profiler</a>. Thank you very much!</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/jdf">jdf</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
