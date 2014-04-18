@@ -147,15 +147,15 @@ public class PyKeyListener extends PdeKeyListener {
   }
 
   /**
-   * Maybe change the indent of the current line. If sign is positive, then increase the indent;
-   * otherwise, decrease it.
+   * Maybe change the indent of the current selection. If sign is positive, then increase the
+   * indent; otherwise, decrease it.
    * <p>If the last non-comment, non-blank line ends with ":", then the maximum indent for the
    * current line is one greater than the indent of that ":"-bearing line. Otherwise, the maximum
    * indent is equal to the indent of the last non-comment line.
    * <p>The minimum indent is 0.
    * @param sign The direction in which to modify the indent of the current line.
    */
-  private void indent(final int sign) {
+  public void indent(final int sign) {
     final int startLine = textArea.getSelectionStartLine();
     final int stopLine = textArea.getSelectionStopLine();
     final int selectionStart = textArea.getSelectionStart();

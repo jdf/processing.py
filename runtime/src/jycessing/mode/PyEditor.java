@@ -1,13 +1,5 @@
 package jycessing.mode;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.regex.Pattern;
-
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-
 import jycessing.mode.run.SketchInfo;
 import processing.app.Base;
 import processing.app.Editor;
@@ -19,17 +11,26 @@ import processing.app.SketchCode;
 import processing.app.SketchException;
 import processing.app.Toolkit;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.regex.Pattern;
+
+import javax.swing.AbstractAction;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+
 @SuppressWarnings("serial")
 public class PyEditor extends Editor {
 
   final PythonMode pyMode;
-  final PyKeyListener listener;
+  final PyKeyListener keyListener;
   Thread runner;
 
   protected PyEditor(final Base base, final String path, final EditorState state, final Mode mode) {
     super(base, path, state, mode);
 
-    listener = new PyKeyListener(this, textarea);
+    keyListener = new PyKeyListener(this, textarea);
     pyMode = (PythonMode)mode;
   }
 
@@ -42,7 +43,7 @@ public class PyEditor extends Editor {
   public void internalCloseRunner() {
     try {
       pyMode.getSketchServiceManager().stopSketch();
-    } catch (SketchException e) {
+    } catch (final SketchException e) {
       statusError(e);
     }
   }
@@ -60,15 +61,24 @@ public class PyEditor extends Editor {
         handleExportApplication();
       }
     });
-    return buildFileMenu(new JMenuItem[] { exportApplication });
+    return buildFileMenu(new JMenuItem[] {exportApplication});
   }
 
   @Override
   public JMenu buildHelpMenu() {
     final JMenu menu = new JMenu("Help");
-    final JMenuItem item = new JMenuItem("Patches welcome");
-    item.setEnabled(false);
-    menu.add(item);
+    menu.add(new JMenuItem(new AbstractAction("Report a bug in Python Mode") {
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        Base.openURL("http://github.com/jdf/processing.py-bugs/issues");
+      }
+    }));
+    menu.add(new JMenuItem(new AbstractAction("Contribute to Python Mode") {
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        Base.openURL("http://github.com/jdf/processing.py");
+      }
+    }));
     return menu;
   }
 
@@ -99,7 +109,7 @@ public class PyEditor extends Editor {
       }
     });
 
-    return buildSketchMenu(new JMenuItem[] { runItem, presentItem, stopItem });
+    return buildSketchMenu(new JMenuItem[] {runItem, presentItem, stopItem});
   }
 
   @Override
@@ -128,12 +138,17 @@ public class PyEditor extends Editor {
       for (int i = 0; i < codePaths.length; i++) {
         codePaths[i] = sketch.getCode(i).getFile().getAbsolutePath();
       }
-      final SketchInfo info =
-          new SketchInfo.Builder().runMode(mode).libraries(Base.getSketchbookLibrariesFolder())
-              .sketch(new File(sketchPath).getAbsoluteFile()).code(code.getProgram())
-              .codePaths(codePaths).x(getX()).y(getY()).build();
+      final SketchInfo info = new SketchInfo.Builder()
+          .runMode(mode)
+          .libraries(Base.getSketchbookLibrariesFolder())
+          .sketch(new File(sketchPath).getAbsoluteFile())
+          .code(code.getProgram())
+          .codePaths(codePaths)
+          .x(getX())
+          .y(getY())
+          .build();
       pyMode.getSketchServiceManager().runSketch(this, info);
-    } catch (SketchException e) {
+    } catch (final SketchException e) {
       statusError(e);
     }
   }
@@ -197,5 +212,10 @@ public class PyEditor extends Editor {
     setSelection(0, 0); // scroll to start
     setSelectedText(String.format("add_library('%s')\n", name));
     sketch.setModified(true);
+  }
+
+  @Override
+  public void handleIndentOutdent(final boolean increase) {
+    keyListener.indent(increase ? 1 : -1);
   }
 }

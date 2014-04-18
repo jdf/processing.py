@@ -112,7 +112,8 @@
   </target>
 
   <target name="mode.zip" depends="mode.dist">
-    <zip destfile="work/PythonMode.zip" basedir="work/modedist" excludes="**/_DS.Store" />
+    <zip destfile="work/PythonMode.zip" basedir="work/modedist"
+        excludes="PythonMode.txt,**/_DS.Store" />
     <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>
     <copy file="work/PythonMode.zip" tofile="work/PythonMode_${jycessing.build.number}.zip" />
   </target>
