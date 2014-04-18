@@ -39,9 +39,6 @@
   <property name="jython" value="buildtime/lib/jython/jython.jar"/>
   <property name="jython.license" value="buildtime/lib/jython/LICENSE.txt"/>
 
-  <!-- jycessing.buildnumber is the current version string -->
-  <property file="runtime/src/jycessing/buildnumber.properties" prefix="jycessing"/>
-
   <taskdef name="bundleapp"
     classname="com.oracle.appbundler.AppBundlerTask"
     classpath="buildtime/lib/java/appbundler-1.0.jar"/>
@@ -55,9 +52,27 @@
       </exec>
     </sequential>
   </macrodef>
+  
+  <macrodef name="push">
+    <attribute name="srcfile"/>
+    <sequential>
+        <echo message="Pushing @{srcfile} to py.processing.org..." />
+        <exec executable="/bin/sh" failonerror="true">
+        <arg value="-c"/>
+        <arg value="scp -i ~/.ssh/id_rsa-processing.org -r @{srcfile} jdf@py.processing.org:/var/www/py" />
+      </exec>
+    </sequential>
+  </macrodef>
 
-  <target name="newversion" depends="bump-version,clean,make-all-distributions"/>
-
+  <target name="bumpversion">
+    <propertyfile
+        file="runtime/src/jycessing/build.properties"
+        comment="Python mode build number">
+      <entry key="build.date" type="date" value="now"/>
+      <entry key="build.number" type="int" default="0300" operation="+" pattern="0000"/>
+    </propertyfile>
+  </target>
+    
   <target name="mode.jar" depends="build">
     <jar destfile="work/PythonMode.jar">
       <fileset dir="bin" excludes="jycessing/build/**,test/**"/>
@@ -80,27 +95,33 @@
       <fileset dir="mode/" />
     </copy>
 
+    <zip destfile="${bundle}/src.zip" basedir="."
+        includes="runtime/src/**,testing/src/**,testing/resources/**"
+        excludes="**/_DS.Store" />
+
+    <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>
+    
     <replaceregexp file="${bundle}/mode.properties" flags="g"
-                 match="@@version@@" replace="${jycessing.buildnumber}" />
+      match="@@version@@" replace="${jycessing.build.number}" />
     <replaceregexp file="${bundle}/mode.properties" flags="g"
-                 match="@@pretty-version@@" replace="${jycessing.buildnumber}" />
+      match="@@pretty-version@@"
+      replace="Build ${jycessing.build.number}, built ${jycessing.build.date}" />
+    
+    <copy tofile="work/modedist/PythonMode.txt" file="${bundle}/mode.properties"/>
+    
   </target>
 
   <target name="mode.zip" depends="mode.dist">
     <zip destfile="work/PythonMode.zip" basedir="work/modedist" excludes="**/_DS.Store" />
-    <copy file="work/PythonMode.zip" tofile="work/PythonMode_${jycessing.buildnumber}.zip" />
+    <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>
+    <copy file="work/PythonMode.zip" tofile="work/PythonMode_${jycessing.build.number}.zip" />
   </target>
 
   <target name="mode.upload" depends="mode.zip">
-    <echo message="Pushing modedist to py.processing.org..." />
-    <exec executable="/bin/sh">
-      <arg value="-c"/>
-      <arg value="scp -i ~/.ssh/id_rsa-processing.org -r work/PythonMode.zip jdf@py.processing.org:/var/www/py" />
-    </exec>
-    <exec executable="/bin/sh">
-      <arg value="-c"/>
-      <arg value="scp -i ~/.ssh/id_rsa-processing.org -r work/PythonMode_${jycessing.buildnumber}.zip jdf@py.processing.org:/var/www/py" />
-    </exec>
+    <push srcfile="work/PythonMode.zip"/>
+    <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>
+    <push srcfile="work/PythonMode_${jycessing.build.number}.zip"/>
+    <push srcfile="work/modedist/PythonMode.txt"/>
   </target>
 
   <target name="jar" depends="build">
@@ -129,7 +150,7 @@
     </jar>
   </target>
 
-  <target name="build" depends="build-processing,build-pde">
+  <target name="build" depends="build-processing,build-pde">      
     <mkdir dir="bin"/>
     <javac destdir="bin" includeantruntime="false">
       <src path="runtime/src"/>
@@ -189,12 +210,6 @@
     <exec executable="find" failonerror="true">
       <arg line=". -name .DS_Store -depth -exec rm {} ;"/>
     </exec>
-  </target>
-
-  <target name="bump-version">
-    <propertyfile file="runtime/src/jycessing/buildnumber.properties">
-      <entry key="buildnumber" type="int" operation="+" pattern="0000" default="0000"/>
-    </propertyfile>
   </target>
 
   <!--
@@ -422,11 +437,7 @@
   </target>
 
   <target name="upload-one-distribution">
-    <echo message="Pushing ${dist.compressed} to py.processing.org..." />
-    <exec executable="/bin/sh">
-      <arg value="-c"/>
-      <arg value="scp -i ~/.ssh/id_rsa-processing.org dist/${dist.compressed} jdf@py.processing.org:/var/www/py" />
-    </exec>
+    <push srcfile="dist/${dist.compressed}"/>
   </target>
 
   <target name="upload-all-distributions">

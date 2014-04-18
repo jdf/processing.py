@@ -52,6 +52,8 @@ import java.util.regex.Pattern;
 
 public class Runner {
 
+  private static final String BUILD_PROPERTIES = "build.properties";
+
   private static final String ARCH;
   static {
     final int archBits = Integer.parseInt(System.getProperty("sun.arch.data.model"));
@@ -246,14 +248,13 @@ public class Runner {
     VERBOSE = Boolean.getBoolean("verbose");
 
     final Properties buildnum = new Properties();
-    final InputStream buildnumberStream =
-        Runner.class.getResourceAsStream("buildnumber.properties");
+    final InputStream buildnumberStream = Runner.class.getResourceAsStream(BUILD_PROPERTIES);
     try {
       buildnum.load(buildnumberStream);
     } finally {
       buildnumberStream.close();
     }
-    log("processing.py build ", buildnum.getProperty("buildnumber"));
+    log("processing.py build ", buildnum.getProperty("build.number"));
 
     // This will throw an exception and die if the given file is not there
     // or not readable.
@@ -271,10 +272,10 @@ public class Runner {
     sketch.runBlocking();
   }
 
-  private static final Pattern JAR_RESOURCE =
-      Pattern.compile("jar:file:(.+?)/processing-py\\.jar!/jycessing/buildnumber\\.properties");
+  private static final Pattern JAR_RESOURCE = Pattern.compile(
+      "jar:file:(.+?)/processing-py\\.jar!/jycessing/" + Pattern.quote(BUILD_PROPERTIES));
   private static final Pattern FILE_RESOURCE =
-      Pattern.compile("file:(.+?)/bin/jycessing/buildnumber\\.properties");
+      Pattern.compile("file:(.+?)/bin/jycessing/" + Pattern.quote(BUILD_PROPERTIES));
 
   /**
    * Returns the library dir, when run as a command-line app.
@@ -288,7 +289,7 @@ public class Runner {
     final String propsResource;
     try {
       propsResource =
-          URLDecoder.decode(Runner.class.getResource("buildnumber.properties").toString(), "UTF-8");
+          URLDecoder.decode(Runner.class.getResource(BUILD_PROPERTIES).toString(), "UTF-8");
     } catch (final UnsupportedEncodingException e) {
       throw new RuntimeException("Impossible: " + e);
     }
