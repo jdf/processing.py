@@ -15,17 +15,6 @@
  */
 package jycessing;
 
-import org.python.core.Py;
-import org.python.core.PyString;
-import org.python.core.PySystemState;
-import org.python.util.InteractiveConsole;
-import org.python.util.PythonInterpreter;
-
-import jycessing.annotations.PythonUsage;
-import jycessing.launcher.LaunchHelper;
-import processing.core.PApplet;
-import processing.core.PConstants;
-
 import java.awt.SplashScreen;
 import java.io.BufferedReader;
 import java.io.File;
@@ -50,6 +39,19 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jycessing.annotations.PythonUsage;
+import jycessing.launcher.LaunchHelper;
+import jycessing.mode.RunMode;
+import jycessing.mode.run.SketchInfo;
+
+import org.python.core.Py;
+import org.python.core.PySystemState;
+import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
+
+import processing.core.PApplet;
+import processing.core.PConstants;
+
 public class Runner {
 
   private static final String BUILD_PROPERTIES = "build.properties";
@@ -68,8 +70,8 @@ public class Runner {
     }
   }
 
-  private static final String LAUNCHER_TEXT =
-      readOrDie(LaunchHelper.class.getResourceAsStream("launcher.py"));
+  private static final String LAUNCHER_TEXT = readOrDie(LaunchHelper.class
+      .getResourceAsStream("launcher.py"));
   private static final String CORE_TEXT = readOrDie(Runner.class.getResourceAsStream("core.py"));
 
   static boolean VERBOSE = false;
@@ -260,8 +262,14 @@ public class Runner {
     // or not readable.
     final String sketchSource = read(new FileReader(sketchPath));
 
-    final PreparedPythonSketch sketch =
-        prepareSketch(getLibraries(), LibraryPolicy.PROMISCUOUS, args, sketchPath, sketchSource);
+    final SketchInfo info =
+        new SketchInfo.Builder()
+            .libraries(getLibraries())
+            .libraryPolicy(LibraryPolicy.PROMISCUOUS)
+            .runMode(
+                Arrays.asList(args).contains("--present") ? RunMode.PRESENTATION : RunMode.WINDOWED)
+            .sketch(new File(sketchPath)).code(sketchSource).build();
+    final PreparedPythonSketch sketch = prepareSketch(info);
 
     // Hide the splash, if possible
     final SplashScreen splash = SplashScreen.getSplashScreen();
@@ -272,10 +280,10 @@ public class Runner {
     sketch.runBlocking();
   }
 
-  private static final Pattern JAR_RESOURCE = Pattern.compile(
-      "jar:file:(.+?)/processing-py\\.jar!/jycessing/" + Pattern.quote(BUILD_PROPERTIES));
-  private static final Pattern FILE_RESOURCE =
-      Pattern.compile("file:(.+?)/bin/jycessing/" + Pattern.quote(BUILD_PROPERTIES));
+  private static final Pattern JAR_RESOURCE = Pattern
+      .compile("jar:file:(.+?)/processing-py\\.jar!/jycessing/" + Pattern.quote(BUILD_PROPERTIES));
+  private static final Pattern FILE_RESOURCE = Pattern.compile("file:(.+?)/bin/jycessing/"
+      + Pattern.quote(BUILD_PROPERTIES));
 
   /**
    * Returns the library dir, when run as a command-line app.
@@ -312,10 +320,8 @@ public class Runner {
     return new File("libraries");
   }
 
-  public static void runSketchBlocking(final File libraries, final LibraryPolicy libraryPolicy,
-      final String[] args, final String sketchPath, final String sketchSource)
-      throws PythonSketchError {
-    prepareSketch(libraries, libraryPolicy, args, sketchPath, sketchSource).runBlocking();
+  public static void runSketchBlocking(final SketchInfo info) throws PythonSketchError {
+    prepareSketch(info).runBlocking();
   }
 
   /**
@@ -333,13 +339,10 @@ public class Runner {
     SELECTIVE
   }
 
-  public static PreparedPythonSketch prepareSketch(final File libraries,
-      final LibraryPolicy libraryPolicy, final String[] args, final String sketchPath,
-      final String sketchSource) throws PythonSketchError {
+  public static PreparedPythonSketch prepareSketch(final SketchInfo info) throws PythonSketchError {
     // Where is the sketch located?
-    final String sketchDir = new File(sketchPath).getAbsoluteFile().getParent();
+    // final File sketchDir = info.sketch.getAbsoluteFile().getParentFile();
     final Properties props = new Properties();
-
 
     // Suppress sys-package-manager output.
     props.setProperty("python.verbose", "error");
@@ -347,10 +350,19 @@ public class Runner {
     // Can be handy for class loading issues and the like.
     // props.setProperty("python.verbose", "debug");
 
-    props.setProperty("python.path", libraries.getAbsolutePath() + File.pathSeparator + sketchDir);
-    props.setProperty("python.main", new File(sketchPath).getAbsoluteFile().getAbsolutePath());
-    props.setProperty("python.main.root",
-        new File(sketchPath).getAbsoluteFile().getParentFile().getAbsolutePath());
+    final StringBuilder pythonPath = new StringBuilder();
+    if (info.jythonHome != null) {
+      pythonPath.append(info.jythonHome.getAbsolutePath()).append(File.pathSeparator);
+    }
+    pythonPath.append(info.libraries.getAbsolutePath());
+    final String sketchDirPath = info.sketch.getParentFile().getAbsolutePath();
+    pythonPath.append(File.pathSeparator).append(sketchDirPath);
+
+    props.setProperty("python.path", pythonPath.toString());
+    props.setProperty("python.main", info.sketch.getAbsolutePath());
+    if (info.sketch != null) {
+      props.setProperty("python.main.root", sketchDirPath);
+    }
     props.setProperty("python.options.includeJavaStackInExceptions", "false");
 
     // Try to permit the Python system state to be re-initialized.
@@ -363,6 +375,7 @@ public class Runner {
     } catch (final Exception e) {
       e.printStackTrace();
     }
+    final String[] args = info.runMode.args(info.sketch.getAbsolutePath(), info.x, info.y);
     PythonInterpreter.initialize(null, props, args);
 
     final InteractiveConsole interp = new InteractiveConsole();
@@ -372,23 +385,23 @@ public class Runner {
     interp.setOut(System.out);
 
     // Add the sketch directory to the Python library path for auxilliary modules.
-    Py.getSystemState().path.insert(0, new PyString(sketchDir));
+    Py.getSystemState().path.insert(0, Py.newString(sketchDirPath));
 
     // For moar useful error messages.
-    interp.set("__file__", sketchPath);
+    interp.set("__file__", info.sketch.getAbsolutePath());
 
     interp.exec("import sys\n");
 
     // Add the add_library function to the sketch namespace.
-    final LibraryImporter libraryImporter = new LibraryImporter(libraries, interp);
+    final LibraryImporter libraryImporter = new LibraryImporter(info.libraries, interp);
     libraryImporter.initialize();
 
-    if (libraryPolicy == LibraryPolicy.PROMISCUOUS) {
-      log("Promiscusouly adding all libraries in " + libraries);
+    if (info.libraryPolicy == LibraryPolicy.PROMISCUOUS) {
+      log("Promiscusouly adding all libraries in " + info.libraries);
       // Recursively search the "libraries" directory for jar files and
       // directories containing dynamic libraries.
       final Set<String> libs = new HashSet<String>();
-      searchForExtraStuff(libraries, libs);
+      searchForExtraStuff(info.libraries, libs);
       for (final String lib : libs) {
         interp.exec(String.format("sys.path.append(\"%s\")\n", lib));
       }
@@ -409,8 +422,8 @@ public class Runner {
      * needs. 
      */
     interp.set("__interp__", interp);
-    interp.set("__path__", sketchPath);
-    interp.set("__source__", sketchSource);
+    interp.set("__path__", info.sketch.getAbsolutePath());
+    interp.set("__source__", info.code);
     interp.exec(CORE_TEXT);
 
     final PAppletJythonDriver applet =
@@ -421,8 +434,7 @@ public class Runner {
     // Tell the applet where to load and save data files, etc.
     final String[] massagedArgs = new String[args.length + 1];
     System.arraycopy(args, 0, massagedArgs, 0, args.length);
-    massagedArgs[args.length] =
-        PApplet.ARGS_SKETCH_FOLDER + "=" + new File(sketchPath).getAbsoluteFile().getParent();
+    massagedArgs[args.length] = PApplet.ARGS_SKETCH_FOLDER + "=" + sketchDirPath;
 
     return new PreparedPythonSketch(interp, applet, massagedArgs);
   }

@@ -1,5 +1,15 @@
 package jycessing.mode;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.regex.Pattern;
+
+import javax.swing.AbstractAction;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+
+import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.run.SketchInfo;
 import processing.app.Base;
 import processing.app.Editor;
@@ -10,15 +20,6 @@ import processing.app.Mode;
 import processing.app.SketchCode;
 import processing.app.SketchException;
 import processing.app.Toolkit;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.regex.Pattern;
-
-import javax.swing.AbstractAction;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 
 @SuppressWarnings("serial")
 public class PyEditor extends Editor {
@@ -138,15 +139,11 @@ public class PyEditor extends Editor {
       for (int i = 0; i < codePaths.length; i++) {
         codePaths[i] = sketch.getCode(i).getFile().getAbsolutePath();
       }
-      final SketchInfo info = new SketchInfo.Builder()
-          .runMode(mode)
-          .libraries(Base.getSketchbookLibrariesFolder())
-          .sketch(new File(sketchPath).getAbsoluteFile())
-          .code(code.getProgram())
-          .codePaths(codePaths)
-          .x(getX())
-          .y(getY())
-          .build();
+      final SketchInfo info =
+          new SketchInfo.Builder().runMode(mode).libraries(Base.getSketchbookLibrariesFolder())
+              .sketch(new File(sketchPath).getAbsoluteFile()).code(code.getProgram())
+              .codePaths(codePaths).x(getX()).y(getY()).libraryPolicy(LibraryPolicy.SELECTIVE)
+              .jythonHome(pyMode.getContentFile("mode/jython/Lib")).build();
       pyMode.getSketchServiceManager().runSketch(this, info);
     } catch (final SketchException e) {
       statusError(e);

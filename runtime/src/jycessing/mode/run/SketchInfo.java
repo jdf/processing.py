@@ -3,20 +3,27 @@ package jycessing.mode.run;
 import java.io.File;
 import java.io.Serializable;
 
+import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.RunMode;
 
 public class SketchInfo implements Serializable {
 
   public final RunMode runMode;
   public final File libraries;
+
+  // One of the following two should be set,
   public final File sketch;
+
   public final String code;
   public final String[] codePaths;
   public final int x;
   public final int y;
+  public final LibraryPolicy libraryPolicy;
+  public final File jythonHome;
 
-  private SketchInfo(RunMode runMode, File libraries, File sketch, String code, String[] codePaths,
-                     int x, int y) {
+  private SketchInfo(final RunMode runMode, final File libraries, final File sketch,
+      final String code, final String[] codePaths, final int x, final int y,
+      final LibraryPolicy libraryPolicy, final File jythonHome) {
     this.runMode = runMode;
     this.libraries = libraries;
     this.sketch = sketch;
@@ -24,6 +31,8 @@ public class SketchInfo implements Serializable {
     this.codePaths = codePaths;
     this.x = x;
     this.y = y;
+    this.libraryPolicy = libraryPolicy;
+    this.jythonHome = jythonHome;
   }
 
   public static class Builder {
@@ -34,9 +43,12 @@ public class SketchInfo implements Serializable {
     private String[] codePaths;
     private int x = -1;
     private int y = -1;
+    private LibraryPolicy libraryPolicy;
+    private File jythonHome;
 
     public SketchInfo build() {
-      return new SketchInfo(runMode, libraries, sketch, code, codePaths, x, y);
+      return new SketchInfo(runMode, libraries, sketch, code, codePaths, x, y, libraryPolicy,
+          jythonHome);
     }
 
     public Builder runMode(final RunMode runMode) {
@@ -71,6 +83,16 @@ public class SketchInfo implements Serializable {
 
     public Builder y(final int y) {
       this.y = y;
+      return this;
+    }
+
+    public Builder libraryPolicy(final LibraryPolicy libraryPolicy) {
+      this.libraryPolicy = libraryPolicy;
+      return this;
+    }
+
+    public Builder jythonHome(final File jythonHome) {
+      this.jythonHome = jythonHome;
       return this;
     }
   }
