@@ -18,7 +18,6 @@ import jycessing.mode.run.SketchInfo;
 import org.junit.Test;
 
 public class JycessingTests {
-
   private static String run(final String testResource) throws Exception {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     final PrintStream saved = System.out;
@@ -27,9 +26,8 @@ public class JycessingTests {
       final Path source = Paths.get("testing/resources/test_" + testResource + ".py");
       final String sourceText = new String(Files.readAllBytes(source), "utf-8");
       final SketchInfo info =
-          new SketchInfo.Builder().libraries(Runner.getLibraries())
-              .libraryPolicy(LibraryPolicy.SELECTIVE).code(sourceText).sketch(source.toFile())
-              .runMode(RunMode.UNIT_TEST).build();
+          new SketchInfo.Builder().libraryPolicy(LibraryPolicy.SELECTIVE).code(sourceText)
+              .sketch(source.toFile()).runMode(RunMode.UNIT_TEST).build();
       System.setOut(new PrintStream(baos, true));
       Runner.runSketchBlocking(info);
       return new String(baos.toByteArray()).replaceAll("\r\n", "\n").replaceAll("\r", "\n");
@@ -51,9 +49,8 @@ public class JycessingTests {
         System.setOut(new PrintStream(baos, true));
         System.err.println("Running import " + module + " test.");
         final SketchInfo info =
-            new SketchInfo.Builder().libraries(Runner.getLibraries())
-                .libraryPolicy(LibraryPolicy.SELECTIVE).code(testText).sketch(src.toFile())
-                .runMode(RunMode.UNIT_TEST).build();
+            new SketchInfo.Builder().libraryPolicy(LibraryPolicy.SELECTIVE).code(testText)
+                .sketch(src.toFile()).runMode(RunMode.UNIT_TEST).build();
         Runner.runSketchBlocking(info);
         assertEquals("OK\n",
             new String(baos.toByteArray()).replaceAll("\r\n", "\n").replaceAll("\r", "\n"));
@@ -69,6 +66,7 @@ public class JycessingTests {
   private static void expectOK(final String testName) throws Exception {
     assertEquals("OK\n", run(testName));
   }
+
 
   @Test
   public void inherit_str() throws Exception {
@@ -179,5 +177,15 @@ public class JycessingTests {
   public void exit_builtin_twice() throws Exception {
     expectOK("exit");
     expectOK("exit");
+  }
+
+  @Test
+  public void csv() throws Exception {
+    // We do it twice because this exposed a critical bug in the
+    // re-initialization code (namely, that Py.None had different
+    // values on successive runs, but something was holding on to
+    // the old value.
+    testImport("csv");
+    testImport("csv");
   }
 }

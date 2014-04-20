@@ -143,7 +143,7 @@ public class PyEditor extends Editor {
           new SketchInfo.Builder().runMode(mode).libraries(Base.getSketchbookLibrariesFolder())
               .sketch(new File(sketchPath).getAbsoluteFile()).code(code.getProgram())
               .codePaths(codePaths).x(getX()).y(getY()).libraryPolicy(LibraryPolicy.SELECTIVE)
-              .jythonHome(pyMode.getContentFile("mode/jython/Lib")).build();
+              .build();
       pyMode.getSketchServiceManager().runSketch(this, info);
     } catch (final SketchException e) {
       statusError(e);

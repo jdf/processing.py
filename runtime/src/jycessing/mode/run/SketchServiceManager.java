@@ -1,11 +1,5 @@
 package jycessing.mode.run;
 
-import jycessing.mode.PyEditor;
-import jycessing.mode.PythonMode;
-import processing.app.Base;
-import processing.app.Preferences;
-import processing.app.SketchException;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -15,6 +9,12 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import jycessing.mode.PyEditor;
+import jycessing.mode.PythonMode;
+import processing.app.Base;
+import processing.app.Preferences;
+import processing.app.SketchException;
 
 public class SketchServiceManager implements ModeService {
 
@@ -143,7 +143,6 @@ public class SketchServiceManager implements ModeService {
       for (final File jar : libJars) {
         cp.add(jar.getAbsolutePath());
       }
-      cp.add(mode.getContentFile("mode/jython").getAbsolutePath()); // add unzipped jython
     } else {
       log("No library jars found; I assume we're running in Eclipse.");
     }

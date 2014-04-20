@@ -29,7 +29,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.Arrays;
@@ -45,6 +44,9 @@ import jycessing.mode.RunMode;
 import jycessing.mode.run.SketchInfo;
 
 import org.python.core.Py;
+import org.python.core.PyList;
+import org.python.core.PyObject;
+import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
 import org.python.util.InteractiveConsole;
 import org.python.util.PythonInterpreter;
@@ -269,15 +271,12 @@ public class Runner {
             .runMode(
                 Arrays.asList(args).contains("--present") ? RunMode.PRESENTATION : RunMode.WINDOWED)
             .sketch(new File(sketchPath)).code(sketchSource).build();
-    final PreparedPythonSketch sketch = prepareSketch(info);
-
     // Hide the splash, if possible
     final SplashScreen splash = SplashScreen.getSplashScreen();
     if (splash != null) {
       splash.close();
     }
-
-    sketch.runBlocking();
+    runSketchBlocking(info);
   }
 
   private static final Pattern JAR_RESOURCE = Pattern
@@ -320,10 +319,6 @@ public class Runner {
     return new File("libraries");
   }
 
-  public static void runSketchBlocking(final SketchInfo info) throws PythonSketchError {
-    prepareSketch(info).runBlocking();
-  }
-
   /**
    * Specifies how to deal with the libraries directory.
    */
@@ -339,9 +334,7 @@ public class Runner {
     SELECTIVE
   }
 
-  public static PreparedPythonSketch prepareSketch(final SketchInfo info) throws PythonSketchError {
-    // Where is the sketch located?
-    // final File sketchDir = info.sketch.getAbsoluteFile().getParentFile();
+  public static void runSketchBlocking(final SketchInfo info) throws PythonSketchError {
     final Properties props = new Properties();
 
     // Suppress sys-package-manager output.
@@ -351,91 +344,90 @@ public class Runner {
     // props.setProperty("python.verbose", "debug");
 
     final StringBuilder pythonPath = new StringBuilder();
-    if (info.jythonHome != null) {
-      pythonPath.append(info.jythonHome.getAbsolutePath()).append(File.pathSeparator);
+    if (info.libraries != null) {
+      pythonPath.append(info.libraries.getAbsolutePath());
     }
-    pythonPath.append(info.libraries.getAbsolutePath());
     final String sketchDirPath = info.sketch.getParentFile().getAbsolutePath();
     pythonPath.append(File.pathSeparator).append(sketchDirPath);
 
     props.setProperty("python.path", pythonPath.toString());
     props.setProperty("python.main", info.sketch.getAbsolutePath());
-    if (info.sketch != null) {
-      props.setProperty("python.main.root", sketchDirPath);
-    }
-    props.setProperty("python.options.includeJavaStackInExceptions", "false");
+    props.setProperty("python.main.root", sketchDirPath);
 
-    // Try to permit the Python system state to be re-initialized.
-    // TODO: Is it possible to do any better?
-    try {
-      final Field inited = PySystemState.class.getDeclaredField("initialized");
-      inited.setAccessible(true);
-      inited.set(null, Boolean.FALSE);
-      PySystemState.registry = null;
-    } catch (final Exception e) {
-      e.printStackTrace();
-    }
     final String[] args = info.runMode.args(info.sketch.getAbsolutePath(), info.x, info.y);
     PythonInterpreter.initialize(null, props, args);
 
-    final InteractiveConsole interp = new InteractiveConsole();
+    final PySystemState sys = Py.getSystemState();
+    final PyStringMap originalModules = ((PyStringMap)sys.modules).copy();
+    final PyList originalPath = new PyList((PyObject)sys.path);
+    try {
+      final InteractiveConsole interp = new InteractiveConsole();
 
-    // This hack seems to be necessary in order to redirect stdout for unit
-    // tests
-    interp.setOut(System.out);
+      // This hack seems to be necessary in order to redirect stdout for unit
+      // tests
+      interp.setOut(System.out);
 
-    // Add the sketch directory to the Python library path for auxilliary modules.
-    Py.getSystemState().path.insert(0, Py.newString(sketchDirPath));
+      // Add the sketch directory to the Python library path for auxilliary modules.
+      sys.path.insert(0, Py.newString(sketchDirPath));
 
-    // For moar useful error messages.
-    interp.set("__file__", info.sketch.getAbsolutePath());
+      // For moar useful error messages.
+      interp.set("__file__", info.sketch.getAbsolutePath());
 
-    interp.exec("import sys\n");
+      interp.exec("import sys\n");
 
-    // Add the add_library function to the sketch namespace.
-    final LibraryImporter libraryImporter = new LibraryImporter(info.libraries, interp);
-    libraryImporter.initialize();
+      // Add the add_library function to the sketch namespace.
+      if (info.libraries != null) {
+        final LibraryImporter libraryImporter = new LibraryImporter(info.libraries, interp);
+        libraryImporter.initialize();
 
-    if (info.libraryPolicy == LibraryPolicy.PROMISCUOUS) {
-      log("Promiscusouly adding all libraries in " + info.libraries);
-      // Recursively search the "libraries" directory for jar files and
-      // directories containing dynamic libraries.
-      final Set<String> libs = new HashSet<String>();
-      searchForExtraStuff(info.libraries, libs);
-      for (final String lib : libs) {
-        interp.exec(String.format("sys.path.append(\"%s\")\n", lib));
+        if (info.libraryPolicy == LibraryPolicy.PROMISCUOUS) {
+          log("Promiscusouly adding all libraries in " + info.libraries);
+          // Recursively search the "libraries" directory for jar files and
+          // directories containing dynamic libraries.
+          final Set<String> libs = new HashSet<String>();
+          searchForExtraStuff(info.libraries, libs);
+          for (final String lib : libs) {
+            interp.exec(String.format("sys.path.append(\"%s\")\n", lib));
+          }
+        }
       }
+
+      interp.exec(LAUNCHER_TEXT);
+
+      /*
+       * Here's what core.py does:
+       * Bring all of the core Processing classes into the python builtins namespace,
+       * so they'll be available, without qualification, from all modules.
+       * Construct a PAppletJythonDriver (which is a PApplet), then expose all of its
+       * bound methods (such as loadImage(), noSmooth(), noise(), etc.) in the builtins
+       * namespace.
+       * 
+       * We provide the Jython interpreter and sketch source code to the environment
+       * so that core.py can construct the PAppletJythonDriver with all the stuff it
+       * needs. 
+       */
+      interp.set("__interp__", interp);
+      interp.set("__path__", info.sketch.getAbsolutePath());
+      interp.set("__source__", info.code);
+      interp.exec(CORE_TEXT);
+
+      final PAppletJythonDriver applet =
+          (PAppletJythonDriver)interp.get("__papplet__").__tojava__(PAppletJythonDriver.class);
+
+      applet.findSketchMethods();
+
+      // Tell the applet where to load and save data files, etc.
+      final String[] massagedArgs = new String[args.length + 1];
+      System.arraycopy(args, 0, massagedArgs, 0, args.length);
+      massagedArgs[args.length] = PApplet.ARGS_SKETCH_FOLDER + "=" + sketchDirPath;
+
+      final PreparedPythonSketch preparedPythonSketch =
+          new PreparedPythonSketch(interp, applet, massagedArgs);
+      preparedPythonSketch.runBlocking();
+    } finally {
+      sys.modules = originalModules;
+      sys.path.clear();
+      sys.path.addAll(originalPath);
     }
-
-    interp.exec(LAUNCHER_TEXT);
-
-    /*
-     * Here's what core.py does:
-     * Bring all of the core Processing classes into the python builtins namespace,
-     * so they'll be available, without qualification, from all modules.
-     * Construct a PAppletJythonDriver (which is a PApplet), then expose all of its
-     * bound methods (such as loadImage(), noSmooth(), noise(), etc.) in the builtins
-     * namespace.
-     * 
-     * We provide the Jython interpreter and sketch source code to the environment
-     * so that core.py can construct the PAppletJythonDriver with all the stuff it
-     * needs. 
-     */
-    interp.set("__interp__", interp);
-    interp.set("__path__", info.sketch.getAbsolutePath());
-    interp.set("__source__", info.code);
-    interp.exec(CORE_TEXT);
-
-    final PAppletJythonDriver applet =
-        (PAppletJythonDriver)interp.get("__papplet__").__tojava__(PAppletJythonDriver.class);
-
-    applet.findSketchMethods();
-
-    // Tell the applet where to load and save data files, etc.
-    final String[] massagedArgs = new String[args.length + 1];
-    System.arraycopy(args, 0, massagedArgs, 0, args.length);
-    massagedArgs[args.length] = PApplet.ARGS_SKETCH_FOLDER + "=" + sketchDirPath;
-
-    return new PreparedPythonSketch(interp, applet, massagedArgs);
   }
 }

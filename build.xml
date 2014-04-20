@@ -83,12 +83,11 @@
     <delete dir="work/modedist" />
     <property name="bundle" value="work/modedist/PythonMode"/>
     <mkdir dir="${bundle}" />
-    <mkdir dir="${bundle}/mode" />
-
-    <copy todir="${bundle}/mode" file="work/PythonMode.jar"/>
     <copy todir="${bundle}" file="LICENSE.txt"/>
-    <!-- <copy todir="${bundle}/mode" file="${jython}"/> -->
-    <unzip src="${jython}" dest="${bundle}/mode/jython"/>
+
+   	<mkdir dir="${bundle}/mode" />
+    <copy todir="${bundle}/mode" file="work/PythonMode.jar"/>
+    <copy todir="${bundle}/mode" file="${jython}"/>
     <copy tofile="${bundle}/mode/LICENSE.jython" file="${jython.license}"/>
 
     <copy todir="${bundle}">
@@ -108,7 +107,6 @@
       replace="Build ${jycessing.build.number}, built ${jycessing.build.date}" />
     
     <copy tofile="work/modedist/PythonMode.txt" file="${bundle}/mode.properties"/>
-    
   </target>
 
   <target name="mode.zip" depends="mode.dist">
@@ -465,7 +463,7 @@
       <src path="testing/src"/>
     </javac>
   </target>
-  <target name="test" depends="build-tests">
+  <target name="test.standalone" depends="build-tests">
     <java classname="org.junit.runner.JUnitCore" fork="true">
       <arg value="test.jycessing.JycessingTests"/>
       <classpath>
@@ -476,5 +474,21 @@
       </classpath>
     </java>
   </target>
+  <target name="test.mode" depends="build-tests">
+    <java classname="org.junit.runner.JUnitCore" fork="true">
+      <arg value="test.jycessing.JycessingTests"/>
+      <classpath>
+        <pathelement location="testing/bin"/>
+        <pathelement location="${corejar}"/>
+        <pathelement location="${processing}/core/library/gluegen-rt.jar"/>
+        <pathelement location="${processing}/core/library/jogl-all.jar"/>
+        <pathelement location="work/PythonMode.jar"/>
+        <pathelement location="${jython}"/>
+        <pathelement location="testing/library/junit-4.11.jar"/>
+        <pathelement location="testing/library/hamcrest-core-1.3.jar"/>
+      </classpath>
+    </java>
+  </target>
+  <target name="test" depends="test.mode,test.standalone"/>
 
 </project>
