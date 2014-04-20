@@ -106,11 +106,11 @@ class PVector(object):
 
     @classmethod
     def mult(cls, a, b, dest=None):
-        return __pvector__.mult(a, b, dest)
+        return __pvector__.mult(a, float(b), dest)
 
     @classmethod
     def div(cls, a, b, dest=None):
-        return __pvector__.div(a, b, dest)
+        return __pvector__.div(a, float(b), dest)
 
     @classmethod
     def cross(cls, a, b, dest=None):
@@ -158,32 +158,32 @@ def __iadd__(a, b):
 def __mul__(a, b):
     if isinstance(b, __pvector__):
         raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
-    return __pvector__.mult(a, b, None)
+    return __pvector__.mult(a, float(b), None)
 
 @monkeypatch_method(__pvector__)
 def __rmul__(a, b):
     if isinstance(b, __pvector__):
         raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
-    return __pvector__.mult(a, b, None)
+    return __pvector__.mult(a, float(b), None)
 
 @monkeypatch_method(__pvector__)
 def __imul__(a, b):
     if isinstance(b, __pvector__):
         raise TypeError("The *= operator can only be used to multiply a PVector by a scalar")
-    a.mult(b)
+    a.mult(float(b))
     return a
 
 @monkeypatch_method(__pvector__)
 def __div__(a, b):
     if isinstance(b, __pvector__):
         raise TypeError("The / operator can only be used to divide a PVector by a scalar")
-    return __pvector__.div(a, b, None)
+    return __pvector__.div(a, float(b), None)
 
 @monkeypatch_method(__pvector__)
 def __idiv__(a, b):
     if isinstance(b, __pvector__):
         raise TypeError("The /= operator can only be used to divide a PVector by a scalar")
-    a.div(b)
+    a.div(float(b))
     return a
 
 del __sub__, __isub__, __add__, __iadd__, __mul__, __rmul__, __imul__, __div__, __idiv__
