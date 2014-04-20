@@ -159,9 +159,6 @@
         <pathelement location="${jython}"/>
         <pathelement location="${corejar}"/>
         <pathelement location="${pdejar}"/>
-        <fileset dir="libraries/fisica">
-          <include name="*.jar"/>
-        </fileset>
       </classpath>
     </javac>
     <copy todir="bin">
