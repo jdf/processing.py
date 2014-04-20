@@ -12,7 +12,6 @@ assert a == c
 a.add(b)
 assert a == PVector(31.0, 41.0, 57.0)
 
-
 try:
     print a * b
     raise AssertionError("That shouldn't have happened.")
@@ -45,6 +44,15 @@ d = a.get()
 d /= 5.0
 assert d == a / 5.0
 
+assert b * 5 == b * 5.0
+assert b / 5 == b / 5.0
+d = b.get()
+d *= 391
+assert d == b * 391.0
+d = b.get()
+d /= 10203
+assert d == b / 10203.0
+
 d = a.get()
 d += a + a
 assert d == a + a + a
@@ -64,7 +72,6 @@ y = copy.deepcopy(x)
 assert x == y
 x[0].sub(PVector(100, 100, 100))
 assert x != y
-
 
 
 print 'OK'
