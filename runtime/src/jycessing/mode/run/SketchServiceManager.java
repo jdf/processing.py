@@ -1,11 +1,5 @@
 package jycessing.mode.run;
 
-import jycessing.mode.PyEditor;
-import jycessing.mode.PythonMode;
-import processing.app.Base;
-import processing.app.Preferences;
-import processing.app.SketchException;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -15,6 +9,12 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import jycessing.mode.PyEditor;
+import jycessing.mode.PythonMode;
+import processing.app.Base;
+import processing.app.Preferences;
+import processing.app.SketchException;
 
 public class SketchServiceManager implements ModeService {
 
@@ -38,18 +38,14 @@ public class SketchServiceManager implements ModeService {
   private final PythonMode mode;
   private Process sketchServiceProcess;
   private SketchService sketchService;
+  private volatile boolean started = false;
 
   public SketchServiceManager(final PythonMode mode) {
     this.mode = mode;
-    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-      @Override
-      public void run() {
-        stop();
-      }
-    }));
   }
 
   public void start() {
+    started = true;
     try {
       if (PythonMode.SKETCH_RUNNER_FIRST) {
         final ModeService stub = (ModeService)RMIUtils.export(this);
@@ -58,11 +54,22 @@ public class SketchServiceManager implements ModeService {
       } else {
         RMIUtils.bind(this, ModeService.class);
         startSketchServerProcess();
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+          @Override
+          public void run() {
+            started = false;
+            stop();
+          }
+        }));
       }
     } catch (final Exception e) {
       Base.showError("PythonMode Error", "Cannot start python sketch service.", e);
       return;
     }
+  }
+
+  public boolean isStarted() {
+    return started;
   }
 
   private void startSketchServerProcess() {
@@ -136,7 +143,6 @@ public class SketchServiceManager implements ModeService {
       for (final File jar : libJars) {
         cp.add(jar.getAbsolutePath());
       }
-      cp.add(mode.getContentFile("mode/jython").getAbsolutePath()); // add unzipped jython
     } else {
       log("No library jars found; I assume we're running in Eclipse.");
     }

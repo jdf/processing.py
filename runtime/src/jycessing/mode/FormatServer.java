@@ -1,14 +1,14 @@
 package jycessing.mode;
 
+import processing.app.Base;
+import processing.app.Formatter;
+import processing.app.exec.StreamPump;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
-
-import processing.app.Base;
-import processing.app.Formatter;
-import processing.app.exec.StreamPump;
 
 /**
  * This class manages running and communicating with a server that knows how to pretty-print
@@ -25,6 +25,7 @@ public class FormatServer implements Formatter {
 
   private final File modeHome;
   private Process server;
+  private volatile boolean started = false;
 
   public FormatServer(final File modeHome) {
     this.modeHome = modeHome;
@@ -33,7 +34,7 @@ public class FormatServer implements Formatter {
   private static boolean nativePythonAvailable() {
     try {
       return Runtime.getRuntime().exec("python --version").waitFor() == 0;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return false;
     }
   }
@@ -59,6 +60,7 @@ public class FormatServer implements Formatter {
    * Starts the formatting server.
    */
   public void start() {
+    started = true;
     final String serverpy = new File(modeHome, "formatter/format_server.py").getAbsolutePath();
     final ProcessBuilder pb = getPythonProcess(serverpy);
     pb.redirectErrorStream(true);
@@ -71,16 +73,21 @@ public class FormatServer implements Formatter {
           Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
+              started = false;
               shutdown();
             }
           }));
           new StreamPump(server.getInputStream(), "Format Server Output").addTarget(System.err)
               .start();
-        } catch (Exception e) {
+        } catch (final Exception e) {
           throw new RuntimeException(pb.toString(), e);
         }
       }
     }, "FormatServerStarter").start();
+  }
+
+  public boolean isStarted() {
+    return started;
   }
 
   /**
@@ -93,7 +100,7 @@ public class FormatServer implements Formatter {
   }
 
   @Override
-  public String format(String text) {
+  public String format(final String text) {
     try {
       // Connect to format server.
       final Socket sock = new Socket("localhost", 10011);
@@ -117,7 +124,7 @@ public class FormatServer implements Formatter {
       } finally {
         sock.close();
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       System.err.println(e);
       return text;
     }
@@ -138,7 +145,7 @@ public class FormatServer implements Formatter {
       } finally {
         sock.close();
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       System.err.println(e);
     }
   }

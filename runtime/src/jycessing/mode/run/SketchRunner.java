@@ -6,7 +6,6 @@ import java.rmi.RemoteException;
 
 import jycessing.PythonSketchError;
 import jycessing.Runner;
-import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.PythonMode;
 import jycessing.mode.run.RMIUtils.RMIProblem;
 import processing.app.SketchException;
@@ -39,19 +38,17 @@ public class SketchRunner implements SketchService {
             try {
               System.setOut(new ForwardingPrintStream(modeService, Stream.OUT));
               try {
-                Runner.runSketchBlocking(info.libraries, LibraryPolicy.SELECTIVE,
-                    info.runMode.args(info.sketch.getAbsolutePath(), info.x, info.y),
-                    info.sketch.getAbsolutePath(), info.code);
+                Runner.runSketchBlocking(info);
               } finally {
                 System.setOut(sysout);
               }
             } finally {
               System.setErr(syserr);
             }
-          } catch (PythonSketchError e) {
+          } catch (final PythonSketchError e) {
             log("Sketch runner caught " + e);
             modeService.handleSketchException(convertPythonSketchError(e, info.codePaths));
-          } catch (Exception e) {
+          } catch (final Exception e) {
             if (e.getCause() != null && e.getCause() instanceof PythonSketchError) {
               modeService.handleSketchException(convertPythonSketchError(
                   (PythonSketchError)e.getCause(), info.codePaths));
@@ -61,7 +58,7 @@ public class SketchRunner implements SketchService {
           } finally {
             modeService.handleSketchStopped();
           }
-        } catch (RemoteException e) {
+        } catch (final RemoteException e) {
           log(e.toString());
         }
         // Exiting; no need to interrupt and join it later.
@@ -81,14 +78,14 @@ public class SketchRunner implements SketchService {
         log("Joining runner thread.");
         runner.join();
         log("Runner thread terminated normally.");
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         log("Interrupted while joined to runner thread.");
       }
       runner = null;
     }
   }
 
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     // If env var SKETCH_RUNNER_FIRST=true then SketchRunner will wait for a ping from the Mode
     // before registering itself as the sketch runner.
     if (PythonMode.SKETCH_RUNNER_FIRST) {
@@ -100,10 +97,10 @@ public class SketchRunner implements SketchService {
 
   private static class ModeWaiterImpl implements ModeWaiter {
     @Override
-    public void modeReady(ModeService modeService) {
+    public void modeReady(final ModeService modeService) {
       try {
         launch(modeService);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         throw new RuntimeException(e);
       }
     }
@@ -112,7 +109,7 @@ public class SketchRunner implements SketchService {
   private static void waitForMode() {
     try {
       RMIUtils.bind(new ModeWaiterImpl(), ModeWaiter.class);
-    } catch (RMIProblem e) {
+    } catch (final RMIProblem e) {
       throw new RuntimeException(e);
     }
   }
@@ -121,7 +118,7 @@ public class SketchRunner implements SketchService {
     try {
       final ModeService modeService = RMIUtils.lookup(ModeService.class);
       launch(modeService);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -137,14 +134,15 @@ public class SketchRunner implements SketchService {
         log("Exiting; telling modeService.");
         try {
           modeService.handleSketchStopped();
-        } catch (RemoteException e) {
+        } catch (final RemoteException e) {
           // nothing we can do about it now.
         }
       }
     }));
   }
 
-  private SketchException convertPythonSketchError(PythonSketchError e, final String[] codePaths) {
+  private SketchException convertPythonSketchError(final PythonSketchError e,
+      final String[] codePaths) {
     if (e.file == null) {
       return new SketchException(e.getMessage());
     }

@@ -106,11 +106,11 @@ class PVector(object):
 
     @classmethod
     def mult(cls, a, b, dest=None):
-        return __pvector__.mult(a, b, dest)
+        return __pvector__.mult(a, float(b), dest)
 
     @classmethod
     def div(cls, a, b, dest=None):
-        return __pvector__.div(a, b, dest)
+        return __pvector__.div(a, float(b), dest)
 
     @classmethod
     def cross(cls, a, b, dest=None):
@@ -138,17 +138,55 @@ def monkeypatch_method(cls):
 
 @monkeypatch_method(__pvector__)
 def __sub__(a, b):
-    return PVector(a.x - b.x, a.y - b.y, a.z - b.z)
+    return __pvector__.sub(a, b, None)
+
+@monkeypatch_method(__pvector__)
+def __isub__(a, b):
+    a.sub(b)
+    return a
 
 @monkeypatch_method(__pvector__)
 def __add__(a, b):
-    return PVector(a.x + b.x, a.y + b.y, a.z + b.z)
+    return __pvector__.add(a, b, None)
+
+@monkeypatch_method(__pvector__)
+def __iadd__(a, b):
+    a.add(b)
+    return a
 
 @monkeypatch_method(__pvector__)
 def __mul__(a, b):
     if isinstance(b, __pvector__):
         raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
-    return PVector(a.x * b, a.y * b, a.z * b)
+    return __pvector__.mult(a, float(b), None)
+
+@monkeypatch_method(__pvector__)
+def __rmul__(a, b):
+    if isinstance(b, __pvector__):
+        raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
+    return __pvector__.mult(a, float(b), None)
+
+@monkeypatch_method(__pvector__)
+def __imul__(a, b):
+    if isinstance(b, __pvector__):
+        raise TypeError("The *= operator can only be used to multiply a PVector by a scalar")
+    a.mult(float(b))
+    return a
+
+@monkeypatch_method(__pvector__)
+def __div__(a, b):
+    if isinstance(b, __pvector__):
+        raise TypeError("The / operator can only be used to divide a PVector by a scalar")
+    return __pvector__.div(a, float(b), None)
+
+@monkeypatch_method(__pvector__)
+def __idiv__(a, b):
+    if isinstance(b, __pvector__):
+        raise TypeError("The /= operator can only be used to divide a PVector by a scalar")
+    a.div(float(b))
+    return a
+
+del __sub__, __isub__, __add__, __iadd__, __mul__, __rmul__, __imul__, __div__, __idiv__
 
 # Now expose the funky PVector class as a builtin.
 __builtin__.PVector = PVector
@@ -227,7 +265,8 @@ __builtin__.hint = __papplet__.hint
 __builtin__.hue = __papplet__.hue
 __builtin__.image = __papplet__.image
 __builtin__.imageMode = __papplet__.imageMode
-__builtin__.lerpColor = __papplet__.lerpColor
+# We handle lerpColor by hand because there's an instance method and a static method.
+#__builtin__.lerpColor = __papplet__.lerpColor
 __builtin__.lightFalloff = __papplet__.lightFalloff
 __builtin__.lightSpecular = __papplet__.lightSpecular
 __builtin__.lights = __papplet__.lights
@@ -286,6 +325,7 @@ __builtin__.resetShader = __papplet__.resetShader
 __builtin__.rotate = __papplet__.rotate
 __builtin__.rotateX = __papplet__.rotateX
 __builtin__.rotateY = __papplet__.rotateY
+__builtin__.rotateZ = __papplet__.rotateZ
 __builtin__.saturation = __papplet__.saturation
 __builtin__.save = __papplet__.save
 __builtin__.saveBytes = __papplet__.saveBytes
@@ -367,7 +407,6 @@ __builtin__.hex = PApplet.hex
 __builtin__.hour = PApplet.hour
 __builtin__.join = PApplet.join
 __builtin__.lerp = PApplet.lerp
-__builtin__.lerpColor = PApplet.lerpColor
 __builtin__.loadBytes = PApplet.loadBytes
 __builtin__.loadStrings = PApplet.loadStrings
 __builtin__.log = PApplet.log

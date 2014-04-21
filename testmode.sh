@@ -9,7 +9,7 @@ MODES=~/sketchbook/modes
 #MODES=/Users/feinberg/Documents/Processing/modes
 
 cd $PROCESSING/build && \
-  #ant macosx-build && \
+  #ant && \
   cd $PROCESSINGPY && \
   ant mode.zip && \
   cd $MODES && \

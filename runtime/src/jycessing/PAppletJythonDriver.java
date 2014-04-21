@@ -15,6 +15,20 @@
  */
 package jycessing;
 
+import java.awt.Window;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.io.File;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.SwingUtilities;
+
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
@@ -38,20 +52,6 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
 import processing.opengl.PShader;
-
-import java.awt.Window;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.io.File;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashSet;
-import java.util.concurrent.CountDownLatch;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.swing.SwingUtilities;
 
 /**
  *
@@ -81,8 +81,8 @@ public class PAppletJythonDriver extends PApplet {
 
   // The presence of either setup() or draw() indicates that this is not a
   // static sketch.
-  private static final Pattern ACTIVE_METHOD_DEF =
-      Pattern.compile("^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
+  private static final Pattern ACTIVE_METHOD_DEF = Pattern.compile(
+      "^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
 
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
@@ -174,6 +174,7 @@ public class PAppletJythonDriver extends PApplet {
     setFilter();
     setMap();
     setSet();
+    setLerpColor();
     builtins.__setitem__("g", Py.java2py(g));
 
     addComponentListener(new ComponentAdapter() {
@@ -267,8 +268,8 @@ public class PAppletJythonDriver extends PApplet {
       public PyObject __call__(final PyObject[] args, final String[] kws) {
         switch (args.length) {
           default:
-            throw new RuntimeException(
-                "Can't call \"frameRate\" with " + args.length + " parameters.");
+            throw new RuntimeException("Can't call \"frameRate\" with " + args.length
+                + " parameters.");
           case 1: {
             frameRate((float)args[0].asDouble());
             return Py.None;
@@ -466,9 +467,32 @@ public class PAppletJythonDriver extends PApplet {
               filter(a.asInt(), (float)b.asDouble());
               return Py.None;
             }
-        //$FALL-THROUGH$
+            //$FALL-THROUGH$
           default:
             return builtinFilter.__call__(args, kws);
+        }
+      }
+    });
+  }
+
+  /**
+   * Permit both the instance method lerpColor and the static method lerpColor.
+   */
+  private void setLerpColor() {
+    builtins.__setitem__("lerpColor", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        switch (args.length) {
+          case 3:
+            return Py.newInteger(lerpColor(args[0].asInt(), args[1].asInt(),
+                (float)args[2].asDouble()));
+          case 4:
+            return Py.newInteger(lerpColor(args[0].asInt(), args[1].asInt(),
+                (float)args[2].asDouble(), args[3].asInt()));
+            //$FALL-THROUGH$
+          default:
+            throw new RuntimeException("lerpColor takes either 3 or 4 arguments, but I got "
+                + args.length + ".");
         }
       }
     });
@@ -506,8 +530,7 @@ public class PAppletJythonDriver extends PApplet {
    * sketch's world, particularly width and height.
    */
   @Override
-  public void size(final int iwidth, final int iheight, final String irenderer,
-      final String ipath) {
+  public void size(final int iwidth, final int iheight, final String irenderer, final String ipath) {
     super.size(iwidth, iheight, irenderer, ipath);
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("frame", Py.java2py(frame));

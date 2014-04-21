@@ -2,24 +2,34 @@ package test.jycessing;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 import jycessing.Runner;
 import jycessing.Runner.LibraryPolicy;
+import jycessing.mode.RunMode;
+import jycessing.mode.run.SketchInfo;
 
 import org.junit.Test;
 
 public class JycessingTests {
-
   private static String run(final String testResource) throws Exception {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     final PrintStream saved = System.out;
     try {
       System.err.println("Running " + testResource + " test.");
+      final Path source = Paths.get("testing/resources/test_" + testResource + ".py");
+      final String sourceText = new String(Files.readAllBytes(source), "utf-8");
+      final SketchInfo info =
+          new SketchInfo.Builder().libraryPolicy(LibraryPolicy.SELECTIVE).code(sourceText)
+              .sketch(source.toFile()).runMode(RunMode.UNIT_TEST).build();
       System.setOut(new PrintStream(baos, true));
-      Runner.runFromCommandLineArguments(new String[] { "testing/resources/test_" + testResource
-          + ".py" });
+      Runner.runSketchBlocking(info);
       return new String(baos.toByteArray()).replaceAll("\r\n", "\n").replaceAll("\r", "\n");
     } finally {
       System.setOut(saved);
@@ -27,26 +37,36 @@ public class JycessingTests {
   }
 
   private static void testImport(final String module) throws Exception {
-    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    final PrintStream saved = System.out;
+    final Path tmp = Files.createTempDirectory("jycessing");
+    final Path src = Paths.get(tmp.toString(), "test_import_" + module + ".pyde");
     try {
-      System.setOut(new PrintStream(baos, true));
-      System.err.println("Running import " + module + " test.");
-      final String testClass = module + "_test";
-      final String bogusFileName = "<test " + module + ">";
       final String testText = "import " + module + "\nprint 'OK'\nexit()";
-      Runner.runSketchBlocking(Runner.getLibraries(), LibraryPolicy.SELECTIVE,
-          new String[] { testClass }, bogusFileName, testText);
-      assertEquals("OK\n",
-          new String(baos.toByteArray()).replaceAll("\r\n", "\n").replaceAll("\r", "\n"));
+      Files.copy(new ByteArrayInputStream(testText.getBytes()), src,
+          StandardCopyOption.REPLACE_EXISTING);
+      final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      final PrintStream saved = System.out;
+      try {
+        System.setOut(new PrintStream(baos, true));
+        System.err.println("Running import " + module + " test.");
+        final SketchInfo info =
+            new SketchInfo.Builder().libraryPolicy(LibraryPolicy.SELECTIVE).code(testText)
+                .sketch(src.toFile()).runMode(RunMode.UNIT_TEST).build();
+        Runner.runSketchBlocking(info);
+        assertEquals("OK\n",
+            new String(baos.toByteArray()).replaceAll("\r\n", "\n").replaceAll("\r", "\n"));
+      } finally {
+        System.setOut(saved);
+      }
     } finally {
-      System.setOut(saved);
+      Files.delete(src);
+      Files.delete(tmp);
     }
   }
 
   private static void expectOK(final String testName) throws Exception {
     assertEquals("OK\n", run(testName));
   }
+
 
   @Test
   public void inherit_str() throws Exception {
@@ -157,5 +177,15 @@ public class JycessingTests {
   public void exit_builtin_twice() throws Exception {
     expectOK("exit");
     expectOK("exit");
+  }
+
+  @Test
+  public void csv() throws Exception {
+    // We do it twice because this exposed a critical bug in the
+    // re-initialization code (namely, that Py.None had different
+    // values on successive runs, but something was holding on to
+    // the old value.
+    testImport("csv");
+    testImport("csv");
   }
 }

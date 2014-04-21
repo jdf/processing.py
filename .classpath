@@ -4,10 +4,8 @@
 	<classpathentry kind="src" path="testing/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="buildtime/lib/jython/jython.jar" sourcepath="buildtime/lib/jython/jython-2.5.3-sources.jar"/>
-	<classpathentry kind="lib" path="libraries/fisica/fisica.jar"/>
-	<classpathentry kind="lib" path="libraries/fisica/JBox2D-2.0.1-b250-Library.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/processing-app"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/processing-core"/>
+	<classpathentry kind="lib" path="buildtime/lib/jython/jython.jar" sourcepath="buildtime/lib/jython/jython-2.7-b1-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
