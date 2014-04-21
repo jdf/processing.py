@@ -325,6 +325,7 @@ __builtin__.resetShader = __papplet__.resetShader
 __builtin__.rotate = __papplet__.rotate
 __builtin__.rotateX = __papplet__.rotateX
 __builtin__.rotateY = __papplet__.rotateY
+__builtin__.rotateZ = __papplet__.rotateZ
 __builtin__.saturation = __papplet__.saturation
 __builtin__.save = __papplet__.save
 __builtin__.saveBytes = __papplet__.saveBytes
