@@ -106,11 +106,11 @@ class PVector(object):
 
     @classmethod
     def mult(cls, a, b, dest=None):
-        return __pvector__.mult(a, b, dest)
+        return __pvector__.mult(a, float(b), dest)
 
     @classmethod
     def div(cls, a, b, dest=None):
-        return __pvector__.div(a, b, dest)
+        return __pvector__.div(a, float(b), dest)
 
     @classmethod
     def cross(cls, a, b, dest=None):
@@ -138,17 +138,55 @@ def monkeypatch_method(cls):
 
 @monkeypatch_method(__pvector__)
 def __sub__(a, b):
-    return PVector(a.x - b.x, a.y - b.y, a.z - b.z)
+    return __pvector__.sub(a, b, None)
+
+@monkeypatch_method(__pvector__)
+def __isub__(a, b):
+    a.sub(b)
+    return a
 
 @monkeypatch_method(__pvector__)
 def __add__(a, b):
-    return PVector(a.x + b.x, a.y + b.y, a.z + b.z)
+    return __pvector__.add(a, b, None)
+
+@monkeypatch_method(__pvector__)
+def __iadd__(a, b):
+    a.add(b)
+    return a
 
 @monkeypatch_method(__pvector__)
 def __mul__(a, b):
     if isinstance(b, __pvector__):
         raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
-    return PVector(a.x * b, a.y * b, a.z * b)
+    return __pvector__.mult(a, float(b), None)
+
+@monkeypatch_method(__pvector__)
+def __rmul__(a, b):
+    if isinstance(b, __pvector__):
+        raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
+    return __pvector__.mult(a, float(b), None)
+
+@monkeypatch_method(__pvector__)
+def __imul__(a, b):
+    if isinstance(b, __pvector__):
+        raise TypeError("The *= operator can only be used to multiply a PVector by a scalar")
+    a.mult(float(b))
+    return a
+
+@monkeypatch_method(__pvector__)
+def __div__(a, b):
+    if isinstance(b, __pvector__):
+        raise TypeError("The / operator can only be used to divide a PVector by a scalar")
+    return __pvector__.div(a, float(b), None)
+
+@monkeypatch_method(__pvector__)
+def __idiv__(a, b):
+    if isinstance(b, __pvector__):
+        raise TypeError("The /= operator can only be used to divide a PVector by a scalar")
+    a.div(float(b))
+    return a
+
+del __sub__, __isub__, __add__, __iadd__, __mul__, __rmul__, __imul__, __div__, __idiv__
 
 # Now expose the funky PVector class as a builtin.
 __builtin__.PVector = PVector
