@@ -305,6 +305,7 @@ __builtin__.point = __papplet__.point
 __builtin__.pointLight = __papplet__.pointLight
 __builtin__.popMatrix = __papplet__.popMatrix
 __builtin__.popStyle = __papplet__.popStyle
+__builtin__.printArray = __papplet__.printArray
 __builtin__.printCamera = __papplet__.printCamera
 __builtin__.printMatrix = __papplet__.printMatrix
 __builtin__.printProjection = __papplet__.printProjection

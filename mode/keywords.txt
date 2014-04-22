@@ -639,6 +639,7 @@ pow	FUNCTION1	pow_
 print	FUNCTION1	print_
 printCamera	FUNCTION1	printCamera_
 println	FUNCTION1	println_
+printArray	FUNCTION1	printArray_
 printMatrix	FUNCTION1	printMatrix_
 printProjection	FUNCTION1	printProjection_
 PShader	KEYWORD5	PShader
