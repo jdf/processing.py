@@ -514,13 +514,16 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
-  private void checkForRendererChangeException(final Throwable t) {
-    if (t.getCause() instanceof RendererChangeException) {
-      // This is an expected condition. PApplet uses an exception
-      // to signal a change to the rendering context, so we unwrap
-      // the Python exception to extract the signal, and pass it
-      // up the stack.
-      throw (RendererChangeException)t.getCause();
+  private void checkForRendererChangeException(Throwable t) {
+    // This is an expected condition. PApplet uses an exception
+    // to signal a change to the rendering context, so we unwrap
+    // the Python exception to extract the signal, and pass it
+    // up the stack.
+    while (t != null) {
+      if (t instanceof RendererChangeException) {
+        throw (RendererChangeException)t;
+      }
+      t = t.getCause();
     }
   }
 
@@ -556,6 +559,7 @@ public class PAppletJythonDriver extends PApplet {
       terminalException = toSketchException(e);
       exit();
     } catch (final Exception e) {
+      checkForRendererChangeException(e);
       terminalException = toSketchException(e);
       exit();
     }
