@@ -6,7 +6,7 @@
  * The beginDraw() method is necessary to prepare for drawing and endDraw() is
  * necessary to finish. Use this class if you need to draw into an off-screen 
  * graphics buffer or to maintain two contexts with different properties.
- """
+"""
 
 
 def setup():
