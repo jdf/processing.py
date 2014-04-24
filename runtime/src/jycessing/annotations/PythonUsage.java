@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  * @author Ralf Biedert <rb@xr.io>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.METHOD, ElementType.FIELD, ElementType.TYPE })
+@Target(value = {ElementType.METHOD, ElementType.FIELD, ElementType.TYPE})
 public @interface PythonUsage {
   /**
    * The original method name. Must match with the actual method name. 

@@ -28,19 +28,18 @@ public class RMIUtils {
     }
   }
 
-  private RMIUtils() {
-  }
+  private RMIUtils() {}
 
   public static Registry registry() throws RemoteException {
     try {
       return LocateRegistry.createRegistry(RMI_PORT);
-    } catch (RemoteException e) {
+    } catch (final RemoteException e) {
     }
     return LocateRegistry.getRegistry(RMI_PORT);
   }
 
-  public static void
-      bind(final Remote remote, final Class<? extends Remote> remoteInterface) throws RMIProblem {
+  public static void bind(final Remote remote, final Class<? extends Remote> remoteInterface)
+      throws RMIProblem {
     final String registryKey = remoteInterface.getSimpleName();
     log("Binding instance of " + remote.getClass().getName() + " to registry as " + registryKey);
     try {
@@ -52,11 +51,11 @@ public class RMIUtils {
           try {
             log("Unbinding " + registryKey + " from registry.");
             registry().unbind(registryKey);
-          } catch (Exception e) {
+          } catch (final Exception e) {
           }
         }
       }));
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new RMIProblem(e);
     }
   }
@@ -64,7 +63,7 @@ public class RMIUtils {
   public static Remote export(final Remote remote) throws RMIProblem {
     try {
       return UnicastRemoteObject.exportObject(remote, 0);
-    } catch (RemoteException e) {
+    } catch (final RemoteException e) {
       throw new RMIProblem(e);
     }
   }
@@ -74,7 +73,7 @@ public class RMIUtils {
     try {
       log("Looking up ModeService in registry.");
       return (T)registry().lookup(klass.getSimpleName());
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new RMIProblem(e);
     }
   }

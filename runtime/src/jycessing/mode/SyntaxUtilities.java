@@ -11,9 +11,9 @@ public class SyntaxUtilities {
    * @param offset The offset into the segment
    * @param match The string to match
    */
-  public static boolean regionMatches(Segment text, int offset, String match) {
-    int length = offset + match.length();
-    char[] textArray = text.array;
+  public static boolean regionMatches(final Segment text, final int offset, final String match) {
+    final int length = offset + match.length();
+    final char[] textArray = text.array;
     if (length > text.offset + text.count) {
       return false;
     }
@@ -32,9 +32,9 @@ public class SyntaxUtilities {
    * @param offset The offset into the segment
    * @param match The character array to match
    */
-  public static boolean regionMatches(Segment text, int offset, char[] match) {
-    int length = offset + match.length;
-    char[] textArray = text.array;
+  public static boolean regionMatches(final Segment text, final int offset, final char[] match) {
+    final int length = offset + match.length;
+    final char[] textArray = text.array;
     if (length > text.offset + text.count) {
       return false;
     }

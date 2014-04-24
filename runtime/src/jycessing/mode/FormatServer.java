@@ -1,14 +1,14 @@
 package jycessing.mode;
 
-import processing.app.Base;
-import processing.app.Formatter;
-import processing.app.exec.StreamPump;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+
+import processing.app.Base;
+import processing.app.Formatter;
+import processing.app.exec.StreamPump;
 
 /**
  * This class manages running and communicating with a server that knows how to pretty-print

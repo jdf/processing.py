@@ -317,6 +317,7 @@ public class PAppletJythonDriver extends PApplet {
     // I want to quit on runtime exceptions.
     // Processing just sits there by default.
     Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+      @Override
       public void uncaughtException(final Thread t, final Throwable e) {
         terminalException = toSketchException(e);
         finishedLatch.countDown();

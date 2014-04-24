@@ -19,11 +19,11 @@ public class LaunchHelper {
    * @param path
    * @throws IOException
    */
-  public static void copyTo(String name, String path) throws IOException {
+  public static void copyTo(final String name, final String path) throws IOException {
     final InputStream in = LaunchHelper.class.getResourceAsStream(name);
     final OutputStream out = new FileOutputStream(path);
 
-    byte[] buffer = new byte[128 * 1024];
+    final byte[] buffer = new byte[128 * 1024];
     int len;
     while ((len = in.read(buffer)) != -1) {
       out.write(buffer, 0, len);

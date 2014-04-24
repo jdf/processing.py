@@ -5,7 +5,7 @@ import java.io.PrintStream;
 
 public abstract class WrappedPrintStream extends PrintStream {
 
-  public WrappedPrintStream(OutputStream out) {
+  public WrappedPrintStream(final OutputStream out) {
     super(out);
   }
 
@@ -14,57 +14,57 @@ public abstract class WrappedPrintStream extends PrintStream {
   public abstract void doPrintln(String s);
 
   @Override
-  public void print(String s) {
+  public void print(final String s) {
     doPrint(s);
   }
 
   @Override
-  public void println(String s) {
+  public void println(final String s) {
     doPrintln(s);
   }
 
   @Override
-  public void print(boolean b) {
+  public void print(final boolean b) {
     print(String.valueOf(b));
   }
 
   @Override
-  public void print(char c) {
+  public void print(final char c) {
     print(String.valueOf(c));
   }
 
   @Override
-  public void print(char[] s) {
+  public void print(final char[] s) {
     print(String.valueOf(s));
   }
 
   @Override
-  public void print(double d) {
+  public void print(final double d) {
     print(String.valueOf(d));
   }
 
   @Override
-  public void print(float f) {
+  public void print(final float f) {
     print(String.valueOf(f));
   }
 
   @Override
-  public void print(int i) {
+  public void print(final int i) {
     print(String.valueOf(i));
   }
 
   @Override
-  public void print(long l) {
+  public void print(final long l) {
     print(String.valueOf(l));
   }
 
   @Override
-  public void print(Object obj) {
+  public void print(final Object obj) {
     print(String.valueOf(obj));
   }
 
   @Override
-  public void println(boolean x) {
+  public void println(final boolean x) {
     println(String.valueOf(x));
   }
 
@@ -74,37 +74,37 @@ public abstract class WrappedPrintStream extends PrintStream {
   }
 
   @Override
-  public void println(char x) {
+  public void println(final char x) {
     println(String.valueOf(x));
   }
 
   @Override
-  public void println(char[] x) {
+  public void println(final char[] x) {
     println(String.valueOf(x));
   }
 
   @Override
-  public void println(double x) {
+  public void println(final double x) {
     println(String.valueOf(x));
   }
 
   @Override
-  public void println(float x) {
+  public void println(final float x) {
     println(String.valueOf(x));
   }
 
   @Override
-  public void println(int x) {
+  public void println(final int x) {
     println(String.valueOf(x));
   }
 
   @Override
-  public void println(long x) {
+  public void println(final long x) {
     println(String.valueOf(x));
   }
 
   @Override
-  public void println(Object x) {
+  public void println(final Object x) {
     println(String.valueOf(x));
   }
 

@@ -1,5 +1,8 @@
 package jycessing.mode;
 
+import java.io.File;
+import java.io.IOException;
+
 import jycessing.mode.run.SketchRunner;
 import jycessing.mode.run.SketchServiceManager;
 import processing.app.Base;
@@ -8,9 +11,6 @@ import processing.app.EditorState;
 import processing.app.Formatter;
 import processing.app.Mode;
 import processing.app.syntax.TokenMarker;
-
-import java.io.File;
-import java.io.IOException;
 
 public class PythonMode extends Mode {
 
@@ -25,8 +25,8 @@ public class PythonMode extends Mode {
    * {@link PythonMode} expects that the {@link SketchRunner} is already running and waiting
    * to be communicated with (as when you're debugging it in Eclipse, for example).
    */
-  public static final boolean SKETCH_RUNNER_FIRST =
-      Boolean.parseBoolean(System.getenv("SKETCH_RUNNER_FIRST"));
+  public static final boolean SKETCH_RUNNER_FIRST = Boolean.parseBoolean(System
+      .getenv("SKETCH_RUNNER_FIRST"));
 
   private final FormatServer formatServer;
   private final SketchServiceManager sketchServiceManager;

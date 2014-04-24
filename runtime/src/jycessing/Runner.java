@@ -134,6 +134,7 @@ public class Runner {
     log("Searching: ", dir);
 
     final File[] dlls = dir.listFiles(new FilenameFilter() {
+      @Override
       public boolean accept(final File dir, final String name) {
         return name.matches("^.+\\.(so|dll|jnilib|dylib)$");
       }
@@ -145,6 +146,7 @@ public class Runner {
     }
 
     final File[] jars = dir.listFiles(new FilenameFilter() {
+      @Override
       public boolean accept(final File dir, final String name) {
         return name.matches("^.+\\.jar$");
       }
@@ -158,6 +160,7 @@ public class Runner {
     }
 
     final File[] dirs = dir.listFiles(new FileFilter() {
+      @Override
       public boolean accept(final File f) {
         return f.isDirectory() && f.getName().charAt(0) != '.';
       }

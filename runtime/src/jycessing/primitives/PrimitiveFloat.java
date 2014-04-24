@@ -9,7 +9,7 @@ import jycessing.annotations.PythonUsage;
  */
 @PythonUsage(methodName = "PrimitiveFloat")
 public class PrimitiveFloat {
-  public PrimitiveFloat(float value) {
+  public PrimitiveFloat(final float value) {
     this.value = value;
   }
 

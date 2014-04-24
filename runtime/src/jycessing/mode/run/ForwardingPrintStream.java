@@ -12,19 +12,19 @@ public class ForwardingPrintStream extends WrappedPrintStream {
   }
 
   @Override
-  public void doPrintln(String s) {
+  public void doPrintln(final String s) {
     try {
       modeService.println(stream, s);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       super.println(s);
     }
   }
 
   @Override
-  public void doPrint(String s) {
+  public void doPrint(final String s) {
     try {
       modeService.print(stream, s);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       super.print(s);
     }
   }

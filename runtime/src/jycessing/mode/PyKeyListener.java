@@ -1,15 +1,15 @@
 package jycessing.mode;
 
-import processing.app.Editor;
-import processing.app.Sketch;
-import processing.app.syntax.JEditTextArea;
-import processing.mode.java.PdeKeyListener;
-
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import processing.app.Editor;
+import processing.app.Sketch;
+import processing.app.syntax.JEditTextArea;
+import processing.mode.java.PdeKeyListener;
 
 /**
  * This class provides Pythonic handling of TAB, BACKSPACE, and ENTER keys.
@@ -19,8 +19,8 @@ public class PyKeyListener extends PdeKeyListener {
   final JEditTextArea textArea;
 
   // ctrl-alt on windows & linux, cmd-alt on os x
-  private static int CTRL_ALT =
-      ActionEvent.ALT_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+  private static int CTRL_ALT = ActionEvent.ALT_MASK
+      | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
   // 4 spaces per pep8
   private static final String TAB = "    ";
@@ -41,8 +41,8 @@ public class PyKeyListener extends PdeKeyListener {
     final Sketch sketch = peditor.getSketch();
 
     // things that change the content of the text area
-    if ((code == KeyEvent.VK_BACK_SPACE) || (code == KeyEvent.VK_TAB) || (code == KeyEvent.VK_ENTER)
-        || ((c >= 32) && (c < 128))) {
+    if ((code == KeyEvent.VK_BACK_SPACE) || (code == KeyEvent.VK_TAB)
+        || (code == KeyEvent.VK_ENTER) || ((c >= 32) && (c < 128))) {
       sketch.setModified(true);
     }
 
@@ -193,10 +193,10 @@ public class PyKeyListener extends PdeKeyListener {
     for (int i = startLine; i <= stopLine; i++) {
       indentLineBy(i, deltaIndent);
     }
-    textArea.setSelectionStart(
-        getAbsoluteCaretPositionRelativeToLineEnd(startLine, startLineEndRelativePos));
-    textArea.setSelectionEnd(
-        getAbsoluteCaretPositionRelativeToLineEnd(stopLine, stopLineEndRelativePos));
+    textArea.setSelectionStart(getAbsoluteCaretPositionRelativeToLineEnd(startLine,
+        startLineEndRelativePos));
+    textArea.setSelectionEnd(getAbsoluteCaretPositionRelativeToLineEnd(stopLine,
+        stopLineEndRelativePos));
   }
 
   private int getAbsoluteCaretPositionRelativeToLineEnd(final int line,
