@@ -182,6 +182,7 @@ public class PyEditor extends Editor {
     toolbar.activate(PyToolbar.SAVE);
     super.handleSave(true);
     restoreToolbar();
+    recolor();
   }
 
   @Override
@@ -209,10 +210,21 @@ public class PyEditor extends Editor {
     setSelection(0, 0); // scroll to start
     setSelectedText(String.format("add_library('%s')\n", name));
     sketch.setModified(true);
+    recolor();
   }
 
   @Override
   public void handleIndentOutdent(final boolean increase) {
     keyListener.indent(increase ? 1 : -1);
+  }
+
+  @Override
+  public void handleAutoFormat() {
+    super.handleAutoFormat();
+    recolor();
+  }
+
+  private void recolor() {
+    textarea.getDocument().tokenizeLines();
   }
 }
