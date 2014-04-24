@@ -20,9 +20,9 @@ public class PythonTokenMarker extends TokenMarker {
   }
 
   @Override
-  public void addColoring(String keyword, String coloring) {
+  public void addColoring(final String keyword, final String coloring) {
     // KEYWORD1 -> 0, KEYWORD2 -> 1, etc
-    int num = coloring.charAt(coloring.length() - 1) - '1';
+    final int num = coloring.charAt(coloring.length() - 1) - '1';
     int id = 0;
     boolean paren = false;
     switch (coloring.charAt(0)) {
@@ -41,18 +41,18 @@ public class PythonTokenMarker extends TokenMarker {
   }
 
   @Override
-  public byte markTokensImpl(byte token, Segment line, int lineIndex) {
-    char[] array = line.array;
-    int offset = line.offset;
+  public byte markTokensImpl(byte token, final Segment line, final int lineIndex) {
+    final char[] array = line.array;
+    final int offset = line.offset;
     lastOffset = offset;
     lastKeyword = offset;
-    int length = line.count + offset;
+    final int length = line.count + offset;
     boolean backslash = false;
 
     loop: for (int i = offset; i < length; i++) {
-      int i1 = (i + 1);
+      final int i1 = (i + 1);
 
-      char c = array[i];
+      final char c = array[i];
       if (c == '\\') {
         backslash = !backslash;
         continue;
@@ -130,7 +130,7 @@ public class PythonTokenMarker extends TokenMarker {
           if (backslash) {
             backslash = false;
           } else if (SyntaxUtilities.regionMatches(line, i, "\"\"\"")) {
-            addToken((i += 4) - lastOffset, Token.LITERAL1);
+            addToken((i += 3) - lastOffset, Token.LITERAL1);
             token = Token.NULL;
             lastOffset = lastKeyword = i;
           }
@@ -139,7 +139,7 @@ public class PythonTokenMarker extends TokenMarker {
           if (backslash) {
             backslash = false;
           } else if (SyntaxUtilities.regionMatches(line, i, "'''")) {
-            addToken((i += 4) - lastOffset, Token.LITERAL1);
+            addToken((i += 3) - lastOffset, Token.LITERAL1);
             token = Token.NULL;
             lastOffset = lastKeyword = i;
           }
@@ -200,11 +200,11 @@ public class PythonTokenMarker extends TokenMarker {
     return pyKeywords;
   }
 
-  private boolean doKeyword(Segment line, int i, char c) {
-    int i1 = i + 1;
+  private boolean doKeyword(final Segment line, final int i, final char c) {
+    final int i1 = i + 1;
 
-    int len = i - lastKeyword;
-    byte id = keywords.lookup(line, lastKeyword, len);
+    final int len = i - lastKeyword;
+    final byte id = keywords.lookup(line, lastKeyword, len);
     if (id != Token.NULL) {
       if (lastKeyword != lastOffset) {
         addToken(lastKeyword - lastOffset, Token.NULL);
