@@ -37,17 +37,18 @@ public class PyKeyListener extends PdeKeyListener {
   public boolean keyPressed(final KeyEvent event) {
     final char c = event.getKeyChar();
     final int code = event.getKeyCode();
+    final int mods = event.getModifiers();
 
     final Sketch sketch = peditor.getSketch();
 
     // things that change the content of the text area
     if ((code == KeyEvent.VK_BACK_SPACE) || (code == KeyEvent.VK_TAB)
-        || (code == KeyEvent.VK_ENTER) || ((c >= 32) && (c < 128))) {
+        || (code == KeyEvent.VK_ENTER) || (mods == 0 && c >= 32 && c < 128)) {
       sketch.setModified(true);
     }
 
     // ctrl-alt-[arrow] switches sketch tab
-    if ((event.getModifiers() & CTRL_ALT) == CTRL_ALT) {
+    if ((mods & CTRL_ALT) == CTRL_ALT) {
       if (code == KeyEvent.VK_LEFT) {
         sketch.handlePrevCode();
         return true;
@@ -186,9 +187,6 @@ public class PyKeyListener extends PdeKeyListener {
     } else {
       newIndent = Math.max(0, currentLine.indent - 1);
     }
-    if (newIndent == currentLine.indent) {
-      return;
-    }
     final int deltaIndent = newIndent - currentLine.indent;
     for (int i = startLine; i <= stopLine; i++) {
       indentLineBy(i, deltaIndent);
@@ -208,9 +206,6 @@ public class PyKeyListener extends PdeKeyListener {
   private void indentLineBy(final int line, final int deltaIndent) {
     final LineInfo currentLine = new LineInfo(line);
     final int newIndent = Math.max(0, currentLine.indent + deltaIndent);
-    if (newIndent == currentLine.indent) {
-      return;
-    }
 
     final StringBuilder sb = new StringBuilder();
     for (int i = 0; i < newIndent; i++) {
