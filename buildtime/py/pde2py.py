@@ -20,7 +20,7 @@ def usage():
 parser = OptionParser()
 parser.add_option("-f", "--force",
                   action="store_true", dest="force", default=False,
-                  help="don't print status messages to stdout")
+                  help="overwrite existing files")
 
 (opts, args) = parser.parse_args()
 
@@ -60,12 +60,18 @@ def copy_file(s, d, xform=None):
         f.write(text)
 
 
-def xform_py(d, text):
-    d = re.sub(r'^(.+?).pde$', r'\1.py', d)
+def xform_py(d, text, ext="pyde"):
+    d = re.sub(r'^(.+?).pde$', r'\1.' + ext, d)
     text = text.replace('//', '#')
     text = text.replace('  ', '    ')
     text = re.sub(r'(?m)^(\s*)(?:void|int|float|String)\s+([a-zA-Z0-9]+)\s*\(([^\)]*)\)',
                   r'\1def \2(\3):',
+                  text)
+    text = re.sub(r'(?:int|float|String|double|Object)\s+([a-zA-Z0-9]+)\s*([,\)])',
+                  r'\1\2',
+                  text)
+    text = re.sub(r'(?:int|float|String|double|Object)\s+([a-zA-Z0-9]+)\s*=',
+                  r'\1 =',
                   text)
     text = re.sub(
         r'(?m)^\s*(?:abstract\s+)?class\s+(\S+)\s*$', r'class \1:', text)
@@ -73,11 +79,15 @@ def xform_py(d, text):
         r'(?m)^\s*(?:abstract\s+)?class\s+(\S+)\s*extends\s*(\S+)\s*$', r'class \1(\2):', text)
     text = re.sub(r'(?m)^(\s*)(?:void|int|float|String)\s+', r'\1', text)
     text = re.sub(r'[{};]', '', text)
+    text = re.sub(r'for *\((?: *int *)?(\w+) *= *0 *; * \1 *< *([^;]+); *\1\+\+ *\)', r'for \1 in range(\2):', text)
+    text = re.sub(r'for *\((?: *int *)?(\w+) *= *(\d+) *; * \1 *< *([^;]+); *\1\+\+ *\)', r'for \1 in range(\2, \3):', text)
+    text = re.sub(r'for *\((?: *int *)?(\w+) *= *(\d+) *; * \1 *< *([^;]+); *\1 *\+= *([^\)]+)\)', r'for \1 in range(\2, \3, \4):', text)
     text = re.sub(r'\n\n+', '\n', text)
     text = re.sub(r'(?m)^(\s*)if\s*\((.+?)\)\s*$', r'\1if \2:', text)
     text = re.sub(r'(?m)^(\s*)else\s+if\s*\((.+?)\)\s*$', r'\1elif \2:', text)
     text = re.sub(r'(?m)^(\s*)else\s*$', r'\1else:', text)
-    text = re.sub(r'/\*+|\*+/', '"""', text)
+    text = re.sub(r'/\*+| *\*+/', '"""', text)
+    text = re.sub(r'(?m)^ *\* *', '', text)
     text = text.replace('new ', '')
     text = text.replace('true', 'True')
     text = text.replace('false', 'False')
