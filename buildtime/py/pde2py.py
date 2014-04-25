@@ -64,7 +64,7 @@ def xform_py(d, text, ext="pyde"):
     d = re.sub(r'^(.+?).pde$', r'\1.' + ext, d)
     text = text.replace('//', '#')
     text = text.replace('  ', '    ')
-    text = re.sub(r'(?m)^(\s*)(?:void|int|float|String)\s+([a-zA-Z0-9]+)\s*\(([^\)]*)\)',
+    text = re.sub(r'(?m)^(\s*)(?:public *)?(?:void|int|float|String)\s+([a-zA-Z0-9]+)\s*\(([^\)]*)\)',
                   r'\1def \2(\3):',
                   text)
     text = re.sub(r'(?:int|float|String|double|Object)\s+([a-zA-Z0-9]+)\s*([,\)])',
