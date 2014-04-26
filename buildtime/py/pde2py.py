@@ -5,7 +5,6 @@
 """
 from __future__ import with_statement
 
-import logging
 from optparse import OptionParser
 import os
 import re
@@ -30,9 +29,8 @@ if len(args) < 2:
 src, dest = args
 if not (os.path.exists(src) and os.path.isdir(src)):
     usage()
-if os.path.exists(dest):
-    shutil.rmtree(dest)
-os.makedirs(dest)
+if not os.path.exists(dest):
+    os.makedirs(dest)
 
 
 def copy_dir(s, d):
@@ -51,11 +49,13 @@ def copy_file(s, d, xform=None):
         (d, text) = xform(d, text)
     if os.path.exists(d):
         if opts.force:
-            logging.info('Overwriting %s.' % d)
+            print >> sys.stderr, 'Overwriting %s.' % d
         else:
-            logging.warning('Not overwriting %s.' % d)
+            print >> sys.stderr, 'Not overwriting %s.' % d
+            return
     else:
-        logging.info('Writing %s.' % d)
+        print >> sys.stderr, 'Writing %s.' % d
+
     with open(d, 'wb') as f:
         f.write(text)
 
