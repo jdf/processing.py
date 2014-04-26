@@ -52,7 +52,7 @@
       </exec>
     </sequential>
   </macrodef>
-  
+
   <macrodef name="push">
     <attribute name="srcfile"/>
     <sequential>
@@ -72,7 +72,7 @@
       <entry key="build.number" type="int" default="0300" operation="+" pattern="0000"/>
     </propertyfile>
   </target>
-    
+
   <target name="mode.jar" depends="build">
     <jar destfile="work/PythonMode.jar">
       <fileset dir="bin" excludes="jycessing/build/**,test/**"/>
@@ -99,13 +99,13 @@
         excludes="**/_DS.Store" />
 
     <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>
-    
+
     <replaceregexp file="${bundle}/mode.properties" flags="g"
       match="@@version@@" replace="${jycessing.build.number}" />
     <replaceregexp file="${bundle}/mode.properties" flags="g"
       match="@@pretty-version@@"
       replace="Build ${jycessing.build.number}, built ${jycessing.build.date}" />
-    
+
     <copy tofile="work/modedist/PythonMode.txt" file="${bundle}/mode.properties"/>
   </target>
 
@@ -149,7 +149,7 @@
     </jar>
   </target>
 
-  <target name="build" depends="build-processing,build-pde">      
+  <target name="build" depends="build-processing,build-pde">
     <mkdir dir="bin"/>
     <javac destdir="bin" includeantruntime="false">
       <src path="runtime/src"/>
@@ -238,7 +238,8 @@
     <element name="actions" implicit="true"/>
     <sequential>
       <local name="dist.name"/>
-      <property name="dist.name" value="processing.py-${jycessing.buildnumber}-@{platform}"/>
+      <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>
+      <property name="dist.name" value="processing.py-${jycessing.build.number}-@{platform}"/>
       <local name="compression"/>
       <if>
         <matches pattern="^windows.*$" string="@{platform}"/>
