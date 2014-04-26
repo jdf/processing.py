@@ -128,6 +128,18 @@ class PVector(object):
     def angleBetween(cls, a, b):
         return __pvector__.angleBetween(a, b)
 
+    @classmethod
+    def random2D(cls):
+        return __pvector__.random2D()
+
+    @classmethod
+    def random3D(cls):
+        return __pvector__.random3D()
+
+    @classmethod
+    def fromAngle(cls, a, target=None):
+        return __pvector__.fromAngle(a, target)
+
 # Thanks, Guido!
 # http://mail.python.org/pipermail/python-dev/2008-January/076194.html
 def monkeypatch_method(cls):
@@ -185,6 +197,10 @@ def __idiv__(a, b):
         raise TypeError("The /= operator can only be used to divide a PVector by a scalar")
     a.div(float(b))
     return a
+
+@monkeypatch_method(__pvector__)
+def __magSq__(a):
+    return __pvector__.magSq(a)
 
 del __sub__, __isub__, __add__, __iadd__, __mul__, __rmul__, __imul__, __div__, __idiv__
 
