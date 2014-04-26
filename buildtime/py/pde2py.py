@@ -62,7 +62,7 @@ def copy_file(s, d, xform=None):
 
 def xform_py(d, text, ext="pyde"):
     d = re.sub(r'^(.+?).pde$', r'\1.' + ext, d)
-    text = text.replace('//', '#')
+    text = text.replace('(?<!:)//', '#')
     text = text.replace('  ', '    ')
     text = re.sub(r'(?m)^(\s*)(?:public *)?(?:void|int|float|String)\s+([a-zA-Z0-9]+)\s*\(([^\)]*)\)',
                   r'\1def \2(\3):',
@@ -77,11 +77,11 @@ def xform_py(d, text, ext="pyde"):
         r'(?m)^\s*(?:abstract\s+)?class\s+(\S+)\s*$', r'class \1:', text)
     text = re.sub(
         r'(?m)^\s*(?:abstract\s+)?class\s+(\S+)\s*extends\s*(\S+)\s*$', r'class \1(\2):', text)
-    text = re.sub(r'(?m)^(\s*)(?:void|int|float|String)\s+', r'\1', text)
-    text = re.sub(r'[{};]', '', text)
     text = re.sub(r'for *\((?: *int *)?(\w+) *= *0 *; * \1 *< *([^;]+); *\1\+\+ *\)', r'for \1 in range(\2):', text)
     text = re.sub(r'for *\((?: *int *)?(\w+) *= *(\d+) *; * \1 *< *([^;]+); *\1\+\+ *\)', r'for \1 in range(\2, \3):', text)
     text = re.sub(r'for *\((?: *int *)?(\w+) *= *(\d+) *; * \1 *< *([^;]+); *\1 *\+= *([^\)]+)\)', r'for \1 in range(\2, \3, \4):', text)
+    text = re.sub(r'(?m)^(\s*)(?:void|int|float|String)\s+', r'\1', text)
+    text = re.sub(r'[{};]', '', text)
     text = re.sub(r'\n\n+', '\n', text)
     text = re.sub(r'(?m)^(\s*)if\s*\((.+?)\)\s*$', r'\1if \2:', text)
     text = re.sub(r'(?m)^(\s*)else\s+if\s*\((.+?)\)\s*$', r'\1elif \2:', text)
