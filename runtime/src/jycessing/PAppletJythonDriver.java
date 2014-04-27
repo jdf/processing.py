@@ -131,7 +131,12 @@ public class PAppletJythonDriver extends PApplet {
       String file = null;
       int line = -1;
       while (m.find()) {
-        file = m.group(1);
+        final String fileName = m.group(1);
+        // Ignore stack elements that come from exec()ing code in the interpreter from Java.
+        if (fileName.equals("<string>")) {
+          continue;
+        }
+        file = fileName;
         line = Integer.parseInt(m.group(2)) - 1;
       }
       if (((PyType)e.type).getName().equals("ImportError")) {

@@ -79,8 +79,11 @@ class LibraryImporter {
     }
     loadedLibs.add(libName);
 
-    final File libClassDir =
-        new File(String.format("%s/%s/library", libdir.getAbsolutePath(), libName));
+    final File libDir = new File(String.format("%s/%s", libdir.getAbsolutePath(), libName));
+    if (!libDir.exists()) {
+      interp.exec("raise Exception('This sketch requires the \"" + libName + "\" library.')");
+    }
+    final File libClassDir = new File(libDir, "library");
 
     appendToSysPath(libClassDir);
 
