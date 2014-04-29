@@ -179,10 +179,13 @@ public class PyKeyListener extends PdeKeyListener {
       }
       if (candidate == null) {
         newIndent = 0;
-      } else if (candidate.text.trim().endsWith(":")) {
-        newIndent = Math.min(candidate.indent + 1, currentLine.indent + 1);
       } else {
-        newIndent = Math.min(candidate.indent, currentLine.indent + 1);
+        final String trimmed = candidate.text.trim();
+        if (trimmed.endsWith(":") || trimmed.endsWith("(")) {
+          newIndent = Math.min(candidate.indent + 1, currentLine.indent + 1);
+        } else {
+          newIndent = Math.min(candidate.indent, currentLine.indent + 1);
+        }
       }
     } else {
       newIndent = Math.max(0, currentLine.indent - 1);
@@ -219,7 +222,7 @@ public class PyKeyListener extends PdeKeyListener {
   }
 
   private static Pattern findIndent = Pattern.compile("^((?: |\\t)*)");
-  private static Pattern incIndent = Pattern.compile(":( |\\t)*(#.*)?$");
+  private static Pattern incIndent = Pattern.compile("[:\\(]( |\\t)*(#.*)?$");
 
   String getIndent(final int cursor, final String text) {
     if (cursor <= 1) {
