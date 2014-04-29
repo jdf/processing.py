@@ -202,7 +202,7 @@ def __idiv__(a, b):
 def __magSq__(a):
     return __pvector__.magSq(a)
 
-del __sub__, __isub__, __add__, __iadd__, __mul__, __rmul__, __imul__, __div__, __idiv__
+del __sub__, __isub__, __add__, __iadd__, __mul__, __rmul__, __imul__, __div__, __idiv__, __magSq__
 
 # Now expose the funky PVector class as a builtin.
 __builtin__.PVector = PVector
@@ -272,7 +272,7 @@ __builtin__.endShape = __papplet__.endShape
 __builtin__.exit = __papplet__.exit
 __builtin__.fill = __papplet__.fill
 
-# TODO: fix filter() !
+# We handle filter() by hand to permit both P5's filter() and Python's filter().
 #__builtin__.filter = __papplet__.filter
 __builtin__.frameRate = __papplet__.frameRate
 __builtin__.frustum = __papplet__.frustum
@@ -428,6 +428,7 @@ __builtin__.loadBytes = PApplet.loadBytes
 __builtin__.loadStrings = PApplet.loadStrings
 __builtin__.log = PApplet.log
 __builtin__.mag = PApplet.mag
+# We permit both Python and P5's map()s.
 #__builtin__.map = PApplet.map
 __builtin__.match = PApplet.match
 __builtin__.matchAll = PApplet.matchAll
@@ -481,3 +482,7 @@ class FakeStdErr():
 sys.stderr = FakeStdErr()
 
 del FakeStdOut, FakeStdErr
+
+# Create a namespace for sketch globals, and make it available to modules.
+class sketch: pass
+__builtin__.sketch = sketch

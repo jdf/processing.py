@@ -363,6 +363,8 @@ public class Runner {
     final PySystemState sys = Py.getSystemState();
     final PyStringMap originalModules = ((PyStringMap)sys.modules).copy();
     final PyList originalPath = new PyList((PyObject)sys.path);
+    final PyStringMap builtins = (PyStringMap)sys.getBuiltins();
+    final PyStringMap originalBuiltins = builtins.copy();
     try {
       final InteractiveConsole interp = new InteractiveConsole();
 
@@ -431,6 +433,10 @@ public class Runner {
       sys.modules = originalModules;
       sys.path.clear();
       sys.path.addAll(originalPath);
+      builtins.clear();
+      for (final PyObject k : originalBuiltins.keys().asIterable()) {
+        builtins.__setitem__(k, originalBuiltins.get(k));
+      }
     }
   }
 }
