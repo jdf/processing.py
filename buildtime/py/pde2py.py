@@ -60,10 +60,17 @@ def copy_file(s, d, xform=None):
         f.write(text)
 
 
-def xform_py(d, text, ext="pyde"):
-    d = re.sub(r'^(.+?).pde$', r'\1.' + ext, d)
-    text = text.replace('(?<!:)//', '#')
+def to_python_case(name):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+
+def xform_py(d, text):
+    text = re.sub('(?<!:)//', '#', text)
     text = text.replace('  ', '    ')
+    text = re.sub(r'for *\((?: *int *)?(\w+) *= *0 *; * \1 *< *([^;]+); *\1\+\+ *\)', r'for \1 in range(\2):', text)
+    text = re.sub(r'for *\((?: *int *)?(\w+) *= *(\d+) *; * \1 *< *([^;]+); *\1\+\+ *\)', r'for \1 in range(\2, \3):', text)
+    text = re.sub(r'for *\((?: *int *)?(\w+) *= *(\d+) *; * \1 *< *([^;]+); *\1 *\+= *([^\)]+)\)', r'for \1 in range(\2, \3, \4):', text)
     text = re.sub(r'(?m)^(\s*)(?:public *)?(?:void|int|float|String)\s+([a-zA-Z0-9]+)\s*\(([^\)]*)\)',
                   r'\1def \2(\3):',
                   text)
@@ -74,14 +81,11 @@ def xform_py(d, text, ext="pyde"):
                   r'\1 =',
                   text)
     text = re.sub(
-        r'(?m)^\s*(?:abstract\s+)?class\s+(\S+)\s*$', r'class \1:', text)
+        r'(?:abstract +)?class +(\w+)', r'class \1(object):', text)
     text = re.sub(
         r'(?m)^\s*(?:abstract\s+)?class\s+(\S+)\s*extends\s*(\S+)\s*$', r'class \1(\2):', text)
-    text = re.sub(r'for *\((?: *int *)?(\w+) *= *0 *; * \1 *< *([^;]+); *\1\+\+ *\)', r'for \1 in range(\2):', text)
-    text = re.sub(r'for *\((?: *int *)?(\w+) *= *(\d+) *; * \1 *< *([^;]+); *\1\+\+ *\)', r'for \1 in range(\2, \3):', text)
-    text = re.sub(r'for *\((?: *int *)?(\w+) *= *(\d+) *; * \1 *< *([^;]+); *\1 *\+= *([^\)]+)\)', r'for \1 in range(\2, \3, \4):', text)
     text = re.sub(r'(?m)^(\s*)(?:void|int|float|String)\s+', r'\1', text)
-    text = re.sub(r'[{};]', '', text)
+    text = re.sub(r'[{};] *', '', text)
     text = re.sub(r'\n\n+', '\n', text)
     text = re.sub(r'(?m)^(\s*)if\s*\((.+?)\)\s*$', r'\1if \2:', text)
     text = re.sub(r'(?m)^(\s*)else\s+if\s*\((.+?)\)\s*$', r'\1elif \2:', text)
@@ -94,6 +98,20 @@ def xform_py(d, text, ext="pyde"):
     text = text.replace('this.', 'self.')
     text = text.replace('||', 'or')
     text = text.replace('&&', 'and')
+    text = re.sub(r'(\w+)\+\+', r'\1 += 1', text)
+    text = re.sub(r'(\w+)--', r'\1 -= 1', text)
+    text = re.sub(r'(\w+)\.length\b', r'len(\1)', text)
+
+    parent = os.path.dirname(d)
+    parent_name = os.path.basename(parent)
+    name, ext = os.path.splitext(os.path.basename(d))
+    if name == parent_name:
+        newext = '.pyde'
+    else:
+        newext = '.py'
+        name = to_python_case(name)
+
+    d = parent + '/' + name + newext
     return (d, text)
 
 
