@@ -15,7 +15,7 @@ import processing.mode.java.PdeKeyListener;
  * This class provides Pythonic handling of TAB, BACKSPACE, and ENTER keys.
  */
 public class PyKeyListener extends PdeKeyListener {
-  final PyEditor peditor;
+  final PyEditor pyEditor;
   final JEditTextArea textArea;
 
   // ctrl-alt on windows & linux, cmd-alt on os x
@@ -29,7 +29,7 @@ public class PyKeyListener extends PdeKeyListener {
   public PyKeyListener(final Editor editor, final JEditTextArea textarea) {
     super(editor, textarea);
 
-    peditor = (PyEditor)editor;
+    pyEditor = (PyEditor)editor;
     textArea = textarea;
   }
 
@@ -39,7 +39,7 @@ public class PyKeyListener extends PdeKeyListener {
     final int code = event.getKeyCode();
     final int mods = event.getModifiers();
 
-    final Sketch sketch = peditor.getSketch();
+    final Sketch sketch = pyEditor.getSketch();
 
     // things that change the content of the text area
     if ((code == KeyEvent.VK_BACK_SPACE) || (code == KeyEvent.VK_TAB)
@@ -78,6 +78,7 @@ public class PyKeyListener extends PdeKeyListener {
 
       case KeyEvent.VK_ESCAPE:
         textArea.selectNone();
+        pyEditor.handleStop();
         return true;
 
       case KeyEvent.VK_TAB:
