@@ -20,9 +20,37 @@ public class SketchRunner implements SketchService {
 
   private final ModeService modeService;
   private Thread runner = null;
+  private volatile boolean shutdownWasRequested = false;
 
   public SketchRunner(final ModeService modeService) {
     this.modeService = modeService;
+    try {
+      OSXAdapter.setQuitHandler(this, this.getClass().getMethod("cancelQuit"));
+    } catch (final Exception e) {
+      System.err.println(e.getMessage());
+    }
+  }
+
+  public boolean cancelQuit() {
+    if (shutdownWasRequested) {
+      log("Permitting quit.");
+      return true;
+    }
+    log("Cancelling quit, but stopping sketch.");
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        stopSketch();
+      }
+    }).start();
+    return false;
+  }
+
+  @Override
+  public void shutdown() {
+    shutdownWasRequested = true;
+    log("Calling system.exit(0)");
+    System.exit(0);
   }
 
   @Override

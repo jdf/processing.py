@@ -54,14 +54,16 @@ public class SketchServiceManager implements ModeService {
       } else {
         RMIUtils.bind(this, ModeService.class);
         startSketchServerProcess();
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-          @Override
-          public void run() {
-            started = false;
-            stop();
-          }
-        }));
       }
+      log("Installing PythonMode shutdown hook.");
+      Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+        @Override
+        public void run() {
+          log("Running PythonMode shutdown hook.");
+          started = false;
+          stop();
+        }
+      }));
     } catch (final Exception e) {
       Base.showError("PythonMode Error", "Cannot start python sketch service.", e);
       return;
@@ -84,6 +86,13 @@ public class SketchServiceManager implements ModeService {
   }
 
   public void stop() {
+    if (sketchService != null) {
+      log("Telling sketch runner to shutdown.");
+      try {
+        sketchService.shutdown();
+      } catch (final RemoteException e) {
+      }
+    }
     if (sketchServiceProcess != null) {
       log("Killing sketch runner process.");
       sketchServiceProcess.destroy();
