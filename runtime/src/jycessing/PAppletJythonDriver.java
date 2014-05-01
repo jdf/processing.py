@@ -22,13 +22,16 @@ import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
 
+import org.python.antlr.ast.Global;
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
@@ -181,6 +184,27 @@ public class PAppletJythonDriver extends PApplet {
     setSet();
     setLerpColor();
     builtins.__setitem__("g", Py.java2py(g));
+    // There's a bug in ast.Global that makes it impossible to construct a valid Global
+    // using the constructor that takes a list of names. This crazy thing is a workaround
+    // for that.
+    builtins.__setitem__("__global__", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject names) {
+        final List<String> newNames = new ArrayList<String>();
+        for (final Object o : names.asIterable()) {
+          newNames.add(o.toString());
+        }
+        final Global glowball = new Global();
+        try {
+          final Field namesField = Global.class.getDeclaredField("names");
+          namesField.setAccessible(true);
+          namesField.set(glowball, newNames);
+          return glowball;
+        } catch (final Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    });
 
     addComponentListener(new ComponentAdapter() {
       @Override

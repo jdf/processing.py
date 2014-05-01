@@ -1,24 +1,38 @@
 import ast
 import astpp
-
+from java.lang import String as JString
 expr = """
 x = 0
 y = []
 z = set()
 a, b = 4, 5
 j, (k, m) = 2, (3, 4)
-def foo():
-    global x, y
+def foo(a):
     notglob = 12
     x += 1
     print x
-    if 23 > 21:
+    if 23 < 21:
         a = x
     else:
         b -= x
         
 def bar(x = 2):
+    global y, e
     pass
+
+print b
+foo(12)
+print b
+
+def setup():
+    size(400, 400)
+    smooth()
+    
+def draw():
+    x = (x + 10) % width
+    background(0)
+    noStroke()
+    ellipse(x, 100, 20, 20)
 """
 
 p = ast.parse(expr)
@@ -28,7 +42,7 @@ print astpp.dump(p)
 
 class NameAccumulator(object):
 
-    def __init__(self, names = None):
+    def __init__(self, names=None):
         if names is None:
             self.names = set()
         else:
@@ -43,56 +57,58 @@ class NameAccumulator(object):
         else:
             raise tuple_or_name
 
-globals = set()
-acc = NameAccumulator(globals)
+acc = NameAccumulator()
 for node in p.body:
     if isinstance(node, ast.Assign):
         for t in node.targets:
             acc.visit(t)
-print globals
+globals = acc.names
 
 
 class FindFunctionAssignments(ast.NodeVisitor):
 
     def __init__(self):
-        self.assigned_names = set()
-        self.acc = NameAccumulator(self.assigned_names)
+        self.acc = NameAccumulator()
 
     def visit_Assign(self, node):
         for t in node.targets:
-            acc.visit(t)
+            self.acc.visit(t)
 
     def visit_AugAssign(self, node):
-        acc.visit(node.target)
+        self.acc.visit(node.target)
 
     def find(self, func):
         self.visit(func)
-        return self.assigned_names
+        return self.acc.names
 
 class Func(object):
 
     def __init__(self, func):
         self.node = func
         self.args = set(name.id for name in func.args.args)
-        self.global_refs = FindFunctionAssignments().find(func)
-        
+        self.assigned_names = FindFunctionAssignments().find(func)
+
+    def append_globals_statement(self):
+        needed = self.assigned_names.difference(
+            self.args).intersection(globals)
+        glowball = __global__(needed)
+        self.node.body.insert(0, glowball)
+        print needed
+
     def __repr__(self):
-        return '<function %s with args %s referring to globals %s>' % (self.node.name, self.args, self.global_refs)
+        return '<function %s with args %s assigning to %s>' % (self.node.name, self.args, self.assigned_names)
 
 
-class FindFuncs(ast.NodeVisitor):
+funcs = []
+for node in p.body:
+    if isinstance(node, ast.FunctionDef):
+        Func(node).append_globals_statement()
 
-    def __init__(self):
-        self.funcs = []
 
-    def visit_FunctionDef(self, func):
-        self.funcs.append(Func(func))
+print '\n\n\n\nAFTER'
+print astpp.dump(p)
 
-    def get_funcs(self, module):
-        self.visit(module)
-        return self.funcs
-
-funcs = FindFuncs().get_funcs(p)
-print funcs
-exit()
+fixed = ast.fix_missing_locations(p)
+codeobj = compile(p, __file__, mode='exec')
+exec(codeobj)
 
