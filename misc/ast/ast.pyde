@@ -1,15 +1,19 @@
 import ast
 
+
 class NameAccumulator(ast.NodeVisitor):
+
     """
     NameAccumulator walks an AST "target" node, recursively gathering the 'id'
     properties of all of the Names it finds.
     """
+
     def __init__(self):
         self.names = set()
 
     def visit_Name(self, name):
         self.names.add(name.id)
+
 
 def get_module_globals(module):
     """
@@ -22,13 +26,15 @@ def get_module_globals(module):
             for t in node.targets:
                 acc.visit(t)
     return acc.names
-    
+
 
 class FindFunctionAssignments(ast.NodeVisitor):
+
     """
-    Finds assignments in a function body, and accumlates the names of the
-    assigned-to entities.
+    Finds assignments in a function body, and accumulates the
+    names of the assigned-to entities.
     """
+
     def __init__(self):
         self.acc = NameAccumulator()
 
@@ -43,18 +49,19 @@ class FindFunctionAssignments(ast.NodeVisitor):
         self.visit(func)
         return self.acc.names
 
+
 def insert_global_statements(module):
     """
     Finds all of the function definitions in a module, and inserts global
     statements in those that assign to names that are the same as existing
     module globals.
-    
+
     For example, insert_global_statements will transform the AST for
-    
+
       x = 0
       def draw():
           x = (x + 1) % width
-    
+
     into the AST for
 
       x = 0
@@ -69,7 +76,7 @@ def insert_global_statements(module):
             globals = get_module_globals(module)
             needed = assigned_names.difference(args).intersection(globals)
             node.body.insert(0, __global__(needed))
-    
+
 source = """
 x = 0
 
@@ -85,7 +92,8 @@ def draw():
 """
 module = ast.parse(source)
 insert_global_statements(module)
-#fixed = ast.fix_missing_locations(p)
+# Is this desirable?
+# fixed = ast.fix_missing_locations(p)
 codeobj = compile(module, __file__, mode='exec')
 exec(codeobj)
 
