@@ -3,26 +3,7 @@ import astpp
 from java.lang import String as JString
 expr = """
 x = 0
-y = []
-z = set()
-a, b = 4, 5
 j, (k, m) = 2, (3, 4)
-def foo(a):
-    notglob = 12
-    x += 1
-    print x
-    if 23 < 21:
-        a = x
-    else:
-        b -= x
-        
-def bar(x = 2):
-    global y, e
-    pass
-
-print b
-foo(12)
-print b
 
 def setup():
     size(400, 400)
@@ -35,38 +16,33 @@ def draw():
     ellipse(x, 100, 20, 20)
 """
 
-p = ast.parse(expr)
-print 'BEFORE'
-print astpp.dump(p)
+class NameAccumulator(ast.NodeVisitor):
+    """
+    NameAccumulator walks an AST "target" node, recursively gathering the 'id'
+    properties of all of the Names it finds.
+    """
+    def __init__(self):
+        self.names = set()
 
+    def visit_Name(self, name):
+        self.names.add(name.id)
 
-class NameAccumulator(object):
-
-    def __init__(self, names=None):
-        if names is None:
-            self.names = set()
-        else:
-            self.names = names
-
-    def visit(self, tuple_or_name):
-        if hasattr(tuple_or_name, 'elts'):
-            for elt in tuple_or_name.elts:
-                self.visit(elt)
-        elif hasattr(tuple_or_name, 'id'):
-            self.names.add(tuple_or_name.id)
-        else:
-            raise tuple_or_name
-
-acc = NameAccumulator()
-for node in p.body:
-    if isinstance(node, ast.Assign):
-        for t in node.targets:
-            acc.visit(t)
-globals = acc.names
-
+def get_module_globals(module):
+    """
+    Examine all of the top-level nodes in the module, and remember the names
+    of all variables assigned to.
+    """
+    acc = NameAccumulator()
+    for node in module.body:
+        if isinstance(node, ast.Assign):
+            for t in node.targets:
+                acc.visit(t)
+    return acc.names
+    
 
 class FindFunctionAssignments(ast.NodeVisitor):
-
+    """
+    """
     def __init__(self):
         self.acc = NameAccumulator()
 
@@ -81,34 +57,24 @@ class FindFunctionAssignments(ast.NodeVisitor):
         self.visit(func)
         return self.acc.names
 
-class Func(object):
+def insert_globals_statement(func):
+    args = set(name.id for name in func.args.args)
+    assigned_names = FindFunctionAssignments().find(func)
+    globals = get_module_globals(module)
+    needed = assigned_names.difference(args).intersection(globals)
+    func.body.insert(0, __global__(needed))
 
-    def __init__(self, func):
-        self.node = func
-        self.args = set(name.id for name in func.args.args)
-        self.assigned_names = FindFunctionAssignments().find(func)
+def insert_global_statements(module):
+    for node in module.body:
+        if isinstance(node, ast.FunctionDef):
+            insert_globals_statement(node)
+    
+module = ast.parse(expr)
+insert_global_statements(module)
 
-    def append_globals_statement(self):
-        needed = self.assigned_names.difference(
-            self.args).intersection(globals)
-        glowball = __global__(needed)
-        self.node.body.insert(0, glowball)
-        print needed
+#print astpp.dump(p)
 
-    def __repr__(self):
-        return '<function %s with args %s assigning to %s>' % (self.node.name, self.args, self.assigned_names)
-
-
-funcs = []
-for node in p.body:
-    if isinstance(node, ast.FunctionDef):
-        Func(node).append_globals_statement()
-
-
-print '\n\n\n\nAFTER'
-print astpp.dump(p)
-
-fixed = ast.fix_missing_locations(p)
-codeobj = compile(p, __file__, mode='exec')
+#fixed = ast.fix_missing_locations(p)
+codeobj = compile(module, __file__, mode='exec')
 exec(codeobj)
 
