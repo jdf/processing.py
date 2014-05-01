@@ -350,9 +350,9 @@ public class PAppletJythonDriver extends PApplet {
     {
       frame.setVisible(false);
       frame.setAlwaysOnTop(true);
-      frame.toFront();
-      frame.requestFocus();
+      frame.setAutoRequestFocus(true);
       frame.setVisible(true);
+      frame.toFront();
       frame.setAlwaysOnTop(false);
     }
     try {
@@ -380,6 +380,7 @@ public class PAppletJythonDriver extends PApplet {
    * set.
    */
   private void setSet() {
+    final PyType originalSet = (PyType)builtins.__getitem__("set");
     builtins.__setitem__("set", new PyType(PyType.TYPE) {
       {
         builtin = true;
@@ -391,7 +392,7 @@ public class PAppletJythonDriver extends PApplet {
       public PyObject __call__(final PyObject[] args, final String[] kws) {
         switch (args.length) {
           default:
-            return super.__call__(args, kws);
+            return originalSet.__call__(args, kws);
           case 3: {
             final PyObject x = args[0];
             final PyType tx = x.getType();

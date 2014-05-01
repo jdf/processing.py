@@ -169,6 +169,7 @@ public class PyEditor extends Editor {
     toolbar.activate(PyToolbar.STOP);
     internalCloseRunner();
     restoreToolbar();
+    requestFocus();
   }
 
   private void restoreToolbar() {
