@@ -47,6 +47,18 @@ public class PyKeyListener extends PdeKeyListener {
       sketch.setModified(true);
     }
 
+    if (event.isMetaDown() && code == KeyEvent.VK_UP) {
+      textArea.setCaretPosition(0);
+      textArea.scrollToCaret();
+      return true;
+    }
+
+    if (event.isMetaDown() && code == KeyEvent.VK_DOWN) {
+      textArea.setCaretPosition(textArea.getDocumentLength());
+      textArea.scrollToCaret();
+      return true;
+    }
+
     // ctrl-alt-[arrow] switches sketch tab
     if ((mods & CTRL_ALT) == CTRL_ALT) {
       if (code == KeyEvent.VK_LEFT) {

@@ -225,6 +225,24 @@ public class PyEditor extends Editor {
     recolor();
   }
 
+  @Override
+  public void handlePaste() {
+    super.handlePaste();
+    recolor();
+  }
+
+  @Override
+  public void handleCut() {
+    super.handleCut();
+    recolor();
+  }
+
+  @Override
+  protected void handleCommentUncomment() {
+    super.handleCommentUncomment();
+    recolor();
+  }
+
   private void recolor() {
     textarea.getDocument().tokenizeLines();
   }
