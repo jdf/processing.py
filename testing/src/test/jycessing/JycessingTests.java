@@ -41,7 +41,7 @@ public class JycessingTests {
     final Path src = Paths.get(tmp.toString(), "test_import_" + module + ".pyde");
     try {
       final String testText = "import " + module + "\nprint 'OK'\nexit()";
-      Files.copy(new ByteArrayInputStream(testText.getBytes()), src,
+      Files.copy(new ByteArrayInputStream(testText.getBytes("utf-8")), src,
           StandardCopyOption.REPLACE_EXISTING);
       final ByteArrayOutputStream baos = new ByteArrayOutputStream();
       final PrintStream saved = System.out;
@@ -187,5 +187,17 @@ public class JycessingTests {
     // the old value.
     testImport("csv");
     testImport("csv");
+  }
+
+
+  @Test
+  public void autoglobal() throws Exception {
+    /*
+     * Python Mode changes the semantics of Python by treating the main
+     * module (the "sketch" file) as a special case in which any reference
+     * to an existing global (module local) is treated as global, so that
+     * you can mutate a global without the "global" keyword. 
+     */
+    expectOK("autoglobal");
   }
 }

@@ -16,7 +16,6 @@
 package jycessing;
 
 import java.awt.SplashScreen;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
@@ -25,9 +24,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -72,9 +69,10 @@ public class Runner {
     }
   }
 
-  private static final String LAUNCHER_TEXT = readOrDie(LaunchHelper.class
+  private static final String LAUNCHER_TEXT = IOUtil.readOrDie(LaunchHelper.class
       .getResourceAsStream("launcher.py"));
-  private static final String CORE_TEXT = readOrDie(Runner.class.getResourceAsStream("core.py"));
+  private static final String CORE_TEXT = IOUtil.readOrDie(Runner.class
+      .getResourceAsStream("core.py"));
 
   static boolean VERBOSE = false;
 
@@ -86,33 +84,6 @@ public class Runner {
       System.err.print(String.valueOf(o));
     }
     System.err.println();
-  }
-
-  // Slurp the given Reader into a String.
-  private static String read(final Reader r) throws IOException {
-    final BufferedReader reader = new BufferedReader(r);
-    final StringBuilder sb = new StringBuilder(1024);
-    String line;
-    try {
-      while ((line = reader.readLine()) != null) {
-        sb.append(line).append("\n");
-      }
-      return sb.toString();
-    } finally {
-      reader.close();
-    }
-  }
-
-  private static String readOrDie(final InputStream in) {
-    try {
-      return read(in);
-    } catch (final IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private static String read(final InputStream in) throws IOException {
-    return read(new InputStreamReader(in, "UTF-8"));
   }
 
   /**
@@ -265,7 +236,7 @@ public class Runner {
 
     // This will throw an exception and die if the given file is not there
     // or not readable.
-    final String sketchSource = read(new FileReader(sketchPath));
+    final String sketchSource = IOUtil.read(new FileReader(sketchPath));
 
     final SketchInfo info =
         new SketchInfo.Builder()

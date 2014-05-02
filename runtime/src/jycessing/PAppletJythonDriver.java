@@ -36,6 +36,7 @@ import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
 import org.python.core.PyBoolean;
+import org.python.core.PyCode;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyIndentationError;
@@ -63,6 +64,9 @@ import processing.opengl.PShader;
  */
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
+
+  private static final String GLOBAL_STATEMENT_TEXT = IOUtil.readOrDie(PAppletJythonDriver.class
+      .getResourceAsStream("add_global_statements.py"));
 
   private PythonSketchError terminalException = null;
 
@@ -99,8 +103,11 @@ public class PAppletJythonDriver extends PApplet {
   private void interpretSketch() throws PythonSketchError {
     try {
       Py.setSystemState(interp.getSystemState());
-      Py.exec(Py.compile_flags(programText, pySketchPath, CompileMode.exec, new CompilerFlags()),
-          interp.getLocals(), null);
+      interp.set("__processing_source__", programText);
+      final PyCode code =
+          Py.compile_flags(GLOBAL_STATEMENT_TEXT, pySketchPath, CompileMode.exec,
+              new CompilerFlags());
+      Py.exec(code, interp.getLocals(), null);
       Py.flushLine();
     } catch (Throwable t) {
       checkForRendererChangeException(t);
