@@ -20,7 +20,6 @@ def draw():
     if not mousePressed:
         lights()
 
-    global spin
     spin += 0.01
 
     pushMatrix()

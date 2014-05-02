@@ -1,10 +1,10 @@
 """
- * Hue. 
- * 
- * Hue is the color reflected from or transmitted through an object 
- * and is typically referred to as the name of the color (red, blue, yellow, etc.) 
- * Move the cursor vertically over each bar to alter its hue. 
- """
+Hue. 
+
+Hue is the color reflected from or transmitted through an object 
+and is typically referred to as the name of the color (red, blue, yellow, etc.) 
+Move the cursor vertically over each bar to alter its hue. 
+"""
 
 barWidth = 20
 

@@ -1,9 +1,9 @@
 """
- * Wave Gradient 
- * by Ira Greenberg.    
- * 
- * Generate a gradient along a sin() wave.
- """
+Wave Gradient 
+by Ira Greenberg.    
+
+Generate a gradient along a sin() wave.
+"""
 amplitude = 30
 fillGap = 2.5
 

@@ -18,7 +18,6 @@ def setup():
     size(640, 360)    # Size should be the first statement
     stroke(255)       # Set stroke color to white
     noLoop()
-    global y
     y = height * 0.5
 
 
@@ -29,7 +28,6 @@ def draw():
     sequence and after the last line is read, the first
     line is run again.
     """
-    global y
     background(0)     # Set the background to black
     line(0, y, width, y)
     y = y - 1

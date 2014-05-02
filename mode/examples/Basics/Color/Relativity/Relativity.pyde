@@ -1,10 +1,10 @@
 """
- * Relativity. 
- * 
- * Each color is perceived in relation to other colors. The top and bottom 
- * bars each contain the same component colors, but a different display order 
- * causes individual colors to appear differently. 
- """
+Relativity. 
+
+Each color is perceived in relation to other colors. The top and bottom 
+bars each contain the same component colors, but a different display order 
+causes individual colors to appear differently. 
+"""
 
 a = color(165, 167, 20)
 b = color(77, 86, 59)

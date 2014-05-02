@@ -6,6 +6,7 @@ In this example, draw() is executed once every time
 the mouse is clicked. 
 """
 
+y = 180
 
 def setup():
     """ 
@@ -15,8 +16,6 @@ def setup():
     size(640, 360)    # Size should be the first statement
     stroke(255)         # Set line drawing color to white
     noLoop()
-    global y
-    y = height * 0.5
 
 
 def draw():
@@ -27,7 +26,6 @@ def draw():
     line is executed again.
     """
     background(0)     # Set the background to black
-    global y
     y = y - 4
     if (y < 0):
         y = height

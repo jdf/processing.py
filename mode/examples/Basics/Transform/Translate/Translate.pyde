@@ -19,9 +19,7 @@ def setup():
 def draw():
     background(102)
 
-    global x
     x = x + 0.8
-
     if x > width + dim:
         x = -dim
 

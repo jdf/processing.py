@@ -26,7 +26,6 @@ def draw():
     # is half-way in between, etc.
 
     # Here we are moving 5% of the way to the mouse location each frame
-    global x, y
     x = lerp(x, mouseX, 0.05)
     y = lerp(y, mouseY, 0.05)
 

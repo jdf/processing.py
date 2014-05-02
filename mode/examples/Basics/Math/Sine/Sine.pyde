@@ -6,7 +6,6 @@ Smoothly scaling size with the sin() function.
 
 angle = 0
 
-
 def setup():
     size(640, 360)
     global diameter
@@ -17,7 +16,6 @@ def setup():
 
 
 def draw():
-    global angle
     background(0)
     d1 = 10 + (sin(angle) * diameter / 2) + diameter / 2
     d2 = 10 + (sin(angle + PI / 2) * diameter / 2) + diameter / 2
@@ -28,4 +26,3 @@ def draw():
     ellipse(width, height / 2, d3, d3)
 
     angle += 0.02
-

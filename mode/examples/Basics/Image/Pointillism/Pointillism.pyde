@@ -10,7 +10,6 @@
 smallPoint = 4
 largePoint = 40
 
-
 def setup():
     size(640, 360)
     global img

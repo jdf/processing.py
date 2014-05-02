@@ -5,19 +5,18 @@ Writing "a += 1" is equivalent to "a = a + 1".
 Writing "a -= 1" is equivalent to "a = a - 1".
 """
 
+a = 0
+b = 0
+direction = True
 
 def setup():
     size(640, 360)
     colorMode(RGB, width)
-    global a, b, direction
-    a = 0
     b = width
-    direction = True
     frameRate(30)
 
 
 def draw():
-    global a, b, direction
     a += 1
     if a > width:
         a = 0

@@ -12,6 +12,7 @@ is identical to the statement scale(PI/2).
 angle = 0
 jitter = 0
 
+
 def setup():
     size(640, 360)
     noStroke()
@@ -21,7 +22,6 @@ def setup():
 
 def draw():
     background(51)
-    global jitter, angle
     # during even-numbered seconds (0, 2, 4, 6...)
     if second() % 2 == 0:
         jitter = random(-0.1, 0.1)

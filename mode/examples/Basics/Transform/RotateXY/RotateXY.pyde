@@ -21,7 +21,6 @@ def setup():
 def draw():
     background(126)
 
-    global a
     a += 0.005
     if a > TWO_PI:
         a = 0.0

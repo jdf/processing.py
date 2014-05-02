@@ -1,9 +1,9 @@
 """
- * Simple Linear Gradient 
- * 
- * The lerpColor() function is useful for interpolating
- * between two colors.
- """
+Simple Linear Gradient 
+
+The lerpColor() function is useful for interpolating
+between two colors.
+"""
 # Constants
 Y_AXIS = 1
 X_AXIS = 2

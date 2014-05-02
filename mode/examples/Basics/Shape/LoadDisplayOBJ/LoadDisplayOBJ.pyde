@@ -21,7 +21,6 @@ def draw():
 
     translate(width / 2, height / 2 + 100, -200)
     rotateZ(PI)
-    global ry
     rotateY(ry)
     shape(rocket)
 

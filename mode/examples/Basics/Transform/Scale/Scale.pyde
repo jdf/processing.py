@@ -19,7 +19,6 @@ def setup():
 
 def draw():
     background(102)
-    global a
     a = a + 0.04
     s = cos(a) * 2
 

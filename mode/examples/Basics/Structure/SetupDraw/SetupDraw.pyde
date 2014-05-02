@@ -25,7 +25,6 @@ def draw():
     line is executed again.
     """
     background(0)     # Set the background to black
-    global y
     y = y - 1
     if y < 0:
         y = height

@@ -12,8 +12,6 @@ def setup():
 
 
 def draw():
-    global yoff
-
     background(51)
     fill(255)
     # We are going to draw a polygon out of the wave points

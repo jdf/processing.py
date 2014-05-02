@@ -23,7 +23,6 @@ def draw():
 
     # Get a noise value based on xoff and scale it according to the window's
     # width
-    global xoff
     n = noise(xoff) * width
 
     # With each cycle, increment xoff

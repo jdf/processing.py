@@ -1,10 +1,10 @@
 """
- * Brightness 
- * by Rusty Robison. 
- * 
- * Brightness is the relative lightness or darkness of a color.
- * Move the cursor vertically over each bar to alter its brightness. 
- """
+Brightness 
+by Rusty Robison. 
+
+Brightness is the relative lightness or darkness of a color.
+Move the cursor vertically over each bar to alter its brightness. 
+"""
 
 barWidth = 20
 lastBar = -1
@@ -18,7 +18,6 @@ def setup():
 
 
 def draw():
-    global lastBar
     whichBar = mouseX / barWidth
     if whichBar != lastBar:
         barX = whichBar * barWidth

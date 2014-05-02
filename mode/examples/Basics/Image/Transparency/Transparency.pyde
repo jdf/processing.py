@@ -19,7 +19,6 @@ def setup():
 def draw():
     image(img, 0, 0)    # Display at full opacity
     dx = (mouseX - img.width / 2) - offset
-    global offset
     offset += dx * easing
     tint(255, 127)    # Display at half opacity
     image(img, offset, 0)

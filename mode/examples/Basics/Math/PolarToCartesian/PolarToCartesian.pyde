@@ -7,16 +7,16 @@ x = rcos(theta)
 y = rsin(theta)
 """
 
+r = 0
+
+# Angle and angular velocity, accleration
+theta = 0
+theta_vel = 0
+theta_acc = 0.0001
+
 def setup():
     size(640, 360)
-    
-    global r, theta, theta_vel, theta_acc
-    # Initialize all values
     r = height * 0.45
-    # Angle and angular velocity, accleration
-    theta = 0
-    theta_vel = 0
-    theta_acc = 0.0001
 
 
 def draw():
@@ -25,8 +25,6 @@ def draw():
 
     # Translate the origin point to the center of the screen
     translate(width / 2, height / 2)
-
-    global r, theta, theta_vel, theta_acc
 
     # Convert polar to cartesian
     x = r * cos(theta)

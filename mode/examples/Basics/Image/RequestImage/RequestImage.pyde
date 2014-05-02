@@ -54,8 +54,8 @@ def drawImages():
 
 loaderX, loaderY = 0, 0
 theta = 0
+
 def runLoaderAni():
-    global loaderX, loaderY, theta
     # Only run when images are loading
     if not checkLoadStates():
         ellipse(loaderX, loaderY, 10, 10)
