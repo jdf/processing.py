@@ -78,7 +78,7 @@ def insert_global_statements(module):
             if needed:
                 node.body.insert(0, __global__(needed))
 
-module = ast.parse(__processing_source__ + "\n\n")
+module = ast.parse(__processing_source__ + "\n\n", filename=__file__)
 insert_global_statements(module)
 
 # Is this desirable?
