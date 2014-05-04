@@ -76,3 +76,4 @@ def draw():
     for c in obstacle.getContacts():
         line(c.getBody1().getX(), c.getBody1().getY(),
              c.getBody2().getX(), c.getBody2().getY())
+
