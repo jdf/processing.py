@@ -339,10 +339,6 @@ public class Runner {
     try {
       final InteractiveConsole interp = new InteractiveConsole();
 
-      // This hack seems to be necessary in order to redirect stdout for unit
-      // tests
-      interp.setOut(System.out);
-
       // Add the sketch directory to the Python library path for auxilliary modules.
       sys.path.insert(0, Py.newString(sketchDirPath));
 
