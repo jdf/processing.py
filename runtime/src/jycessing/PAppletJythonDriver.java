@@ -274,7 +274,7 @@ public class PAppletJythonDriver extends PApplet {
    * position, the keyCode, and the frameCount). So we pre-allocate a bunch of
    * them to avoid garbage collection.
    */
-  private static final PyInteger[] CHEAP_INTS = new PyInteger[2000];
+  private static final PyInteger[] CHEAP_INTS = new PyInteger[20000];
   static {
     for (int i = 0; i < CHEAP_INTS.length; i++) {
       CHEAP_INTS[i] = Py.newInteger(i);
