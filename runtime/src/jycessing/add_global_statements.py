@@ -17,7 +17,7 @@ class NameAccumulator(ast.NodeVisitor):
 
 def get_module_globals(module):
     """
-    Examine all of the top-level nodes in the module, and remember the names
+    Examines all of the top-level nodes in the module, and returns the names
     of all variables assigned to.
     """
     acc = NameAccumulator()
@@ -81,8 +81,11 @@ def insert_global_statements(module):
 module = ast.parse(__processing_source__ + "\n\n", filename=__file__)
 insert_global_statements(module)
 
-# Is this desirable?
+# This doesn't seem to be necessary for compilation. A nice result is
+# that line numbers in the original source code are not affected by
+# the inserted global statements.
 # module = ast.fix_missing_locations(module)
+
 codeobj = compile(module, __file__, mode='exec')
 exec(codeobj)
 
