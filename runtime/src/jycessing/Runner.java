@@ -392,10 +392,11 @@ public class Runner {
       final String[] massagedArgs = new String[args.length + 1];
       System.arraycopy(args, 0, massagedArgs, 0, args.length);
       massagedArgs[args.length] = PApplet.ARGS_SKETCH_FOLDER + "=" + sketchDirPath;
-
-      final PreparedPythonSketch preparedPythonSketch =
-          new PreparedPythonSketch(interp, applet, massagedArgs);
-      preparedPythonSketch.runBlocking();
+      try {
+        applet.runAndBlock(massagedArgs);
+      } finally {
+        interp.cleanup();
+      }
     } finally {
       sys.modules = originalModules;
       sys.path.clear();
