@@ -328,7 +328,7 @@ public class Runner {
     props.setProperty("python.main", info.sketch.getAbsolutePath());
     props.setProperty("python.main.root", sketchDirPath);
 
-    final String[] args = info.runMode.args(info.sketch.getAbsolutePath(), info.x, info.y);
+    final String[] args = info.runMode.args(info.sketch.getParentFile().getName(), info.x, info.y);
     PythonInterpreter.initialize(null, props, args);
 
     final PySystemState sys = Py.getSystemState();
