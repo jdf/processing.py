@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import socket
 from struct import pack, unpack
 import sys
@@ -9,18 +11,18 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ('localhost', 10011)
 sock.bind(server_address)
 sock.listen(1)
-print >>sys.stderr, 'Format server up on %s port %s' % server_address
+print('Format server up on %s port %s' % server_address, file=sys.stderr)
 while True:
     connection, client_address = sock.accept()
     try:
-        buf = ''
+        buf = b''
         while len(buf) < 4:
             buf += connection.recv(4 - len(buf))
         (size,) = unpack('>i', buf)
         if size == -1:
-            print >>sys.stderr, 'Format server exiting.'
+            print('Format server exiting.', file=sys.stderr)
             sys.exit(0)
-        src = ''
+        src = b''
         while len(src) < size:
             src += connection.recv(4096)
         src = src.decode('utf-8')
