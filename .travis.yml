@@ -1,0 +1,12 @@
+env: DB=postgres
+
+language: java
+
+before_install:
+  - git clone https://github.com/processing/processing
+  - cd processing/build
+  - ant
+  - cd ../..
+
+script: ant -Dprocessing=processing test
+
