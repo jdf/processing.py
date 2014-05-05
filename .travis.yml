@@ -1,4 +1,4 @@
-env: DB=postgres
+env: DISPLAY=:99.0
 
 language: java
 
@@ -7,6 +7,7 @@ before_install:
   - cd processing/build
   - ant
   - cd ../..
+  - "sh -e /etc/init.d/xvfb start"
 
 script: ant -Dprocessing=processing test
 
