@@ -7,6 +7,8 @@ Write real [Processing](http://processing.org/) sketches in Python.
 
 Tested on Mac OS 10.8 & 10.9, Windows XP, 7 & 8, and Ubuntu 12.10.
 
+[![Build Status](https://travis-ci.org/jdf/processing.py.svg?branch=master)](https://travis-ci.org/jdf/processing.py)
+
 ## Quick Start ##
 
 ### Download Processing.py 0202 ###
