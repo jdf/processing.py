@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -34,14 +35,14 @@ class LibraryImporter {
     }
   }
 
-  private final File libdir;
+  private final List<File> libdirs;
   private final InteractiveConsole interp;
   private final Set<String> loadedLibs = new HashSet<String>();
 
   private boolean didAddLibraries = false;
 
-  public LibraryImporter(final File libdir, final InteractiveConsole interp) {
-    this.libdir = libdir;
+  public LibraryImporter(final List<File> libdirs, final InteractiveConsole interp) {
+    this.libdirs = libdirs;
     this.interp = interp;
   }
 
@@ -79,11 +80,17 @@ class LibraryImporter {
     }
     loadedLibs.add(libName);
 
-    final File libDir = new File(String.format("%s/%s", libdir.getAbsolutePath(), libName));
-    if (!libDir.exists()) {
+    File libNameDir = null;
+    for (final File libDir : libdirs) {
+      libNameDir = new File(String.format("%s/%s", libDir.getAbsolutePath(), libName));
+      if (libNameDir.exists()) {
+        break;
+      }
+    }
+    if (libNameDir == null || !libNameDir.exists()) {
       interp.exec("raise Exception('This sketch requires the \"" + libName + "\" library.')");
     }
-    final File libClassDir = new File(libDir, "library");
+    final File libClassDir = new File(libNameDir, "library");
 
     appendToSysPath(libClassDir);
 

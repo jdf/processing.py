@@ -2,6 +2,9 @@ package jycessing.mode.run;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.RunMode;
@@ -9,7 +12,7 @@ import jycessing.mode.RunMode;
 public class SketchInfo implements Serializable {
 
   public final RunMode runMode;
-  public final File libraries;
+  public final List<File> libraryDirs;
 
   // One of the following two should be set,
   public final File sketch;
@@ -20,11 +23,11 @@ public class SketchInfo implements Serializable {
   public final int y;
   public final LibraryPolicy libraryPolicy;
 
-  private SketchInfo(final RunMode runMode, final File libraries, final File sketch,
+  private SketchInfo(final RunMode runMode, final List<File> libDirs, final File sketch,
       final String code, final String[] codePaths, final int x, final int y,
       final LibraryPolicy libraryPolicy) {
     this.runMode = runMode;
-    this.libraries = libraries;
+    this.libraryDirs = Collections.unmodifiableList(libDirs);
     this.sketch = sketch;
     this.code = code;
     this.codePaths = codePaths;
@@ -35,7 +38,7 @@ public class SketchInfo implements Serializable {
 
   public static class Builder {
     private RunMode runMode;
-    private File libraries;
+    private final List<File> libDirs = new ArrayList<File>();
     private File sketch;
     private String code;
     private String[] codePaths;
@@ -44,7 +47,7 @@ public class SketchInfo implements Serializable {
     private LibraryPolicy libraryPolicy;
 
     public SketchInfo build() {
-      return new SketchInfo(runMode, libraries, sketch, code, codePaths, x, y, libraryPolicy);
+      return new SketchInfo(runMode, libDirs, sketch, code, codePaths, x, y, libraryPolicy);
     }
 
     public Builder runMode(final RunMode runMode) {
@@ -52,8 +55,8 @@ public class SketchInfo implements Serializable {
       return this;
     }
 
-    public Builder libraries(final File libraries) {
-      this.libraries = libraries;
+    public Builder addLibraryDir(final File dir) {
+      libDirs.add(dir);
       return this;
     }
 

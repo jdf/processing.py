@@ -169,7 +169,9 @@ public class PyEditor extends Editor {
         codePaths[i] = sketch.getCode(i).getFile().getAbsolutePath();
       }
       final SketchInfo info =
-          new SketchInfo.Builder().runMode(mode).libraries(Base.getSketchbookLibrariesFolder())
+          new SketchInfo.Builder().runMode(mode)
+              .addLibraryDir(Base.getContentFile("modes/java/libraries"))
+              .addLibraryDir(Base.getSketchbookLibrariesFolder())
               .sketch(new File(sketchPath).getAbsoluteFile()).code(code.getProgram())
               .codePaths(codePaths).x(getX()).y(getY()).libraryPolicy(LibraryPolicy.SELECTIVE)
               .build();

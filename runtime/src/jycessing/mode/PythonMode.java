@@ -35,6 +35,11 @@ public class PythonMode extends Mode {
     super(base, folder);
     formatServer = new FormatServer(folder);
     sketchServiceManager = new SketchServiceManager(this);
+    /*
+     * Since we're compatible with Java mode's libraries, we just hijack
+     * their libraries folder.
+     */
+    librariesFolder = Base.getContentFile("modes/java/libraries");
   }
 
   @Override
@@ -100,4 +105,5 @@ public class PythonMode extends Mode {
   public void handleSketchException(final Exception e) {
     base.getActiveEditor().statusError(e);
   }
+
 }

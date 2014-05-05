@@ -241,7 +241,7 @@ public class Runner {
 
     final SketchInfo info =
         new SketchInfo.Builder()
-            .libraries(getLibraries())
+            .addLibraryDir(getLibraries())
             .libraryPolicy(LibraryPolicy.PROMISCUOUS)
             .runMode(
                 Arrays.asList(args).contains("--present") ? RunMode.PRESENTATION : RunMode.WINDOWED)
@@ -319,8 +319,8 @@ public class Runner {
     // props.setProperty("python.verbose", "debug");
 
     final StringBuilder pythonPath = new StringBuilder();
-    if (info.libraries != null) {
-      pythonPath.append(info.libraries.getAbsolutePath());
+    for (final File dir : info.libraryDirs) {
+      pythonPath.append(dir.getAbsolutePath());
     }
     final String sketchDirPath = info.sketch.getParentFile().getAbsolutePath();
     pythonPath.append(File.pathSeparator).append(sketchDirPath);
@@ -349,16 +349,18 @@ public class Runner {
       interp.exec("import sys\n");
 
       // Add the add_library function to the sketch namespace.
-      if (info.libraries != null) {
-        final LibraryImporter libraryImporter = new LibraryImporter(info.libraries, interp);
+      if (info.libraryDirs != null) {
+        final LibraryImporter libraryImporter = new LibraryImporter(info.libraryDirs, interp);
         libraryImporter.initialize();
 
         if (info.libraryPolicy == LibraryPolicy.PROMISCUOUS) {
-          log("Promiscusouly adding all libraries in " + info.libraries);
+          log("Promiscusouly adding all libraries in " + info.libraryDirs);
           // Recursively search the "libraries" directory for jar files and
           // directories containing dynamic libraries.
           final Set<String> libs = new HashSet<String>();
-          searchForExtraStuff(info.libraries, libs);
+          for (final File dir : info.libraryDirs) {
+            searchForExtraStuff(dir, libs);
+          }
           for (final String lib : libs) {
             interp.exec(String.format("sys.path.append(\"%s\")\n", lib));
           }
