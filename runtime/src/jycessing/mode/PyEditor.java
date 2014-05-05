@@ -2,6 +2,10 @@ package jycessing.mode;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.util.regex.Pattern;
 
@@ -27,12 +31,37 @@ public class PyEditor extends Editor {
   final PythonMode pyMode;
   final PyKeyListener keyListener;
   Thread runner;
+  boolean didAddHorizontalScrollListener = false;
 
   protected PyEditor(final Base base, final String path, final EditorState state, final Mode mode) {
     super(base, path, state, mode);
 
     keyListener = new PyKeyListener(this, textarea);
     pyMode = (PythonMode)mode;
+    // Provide horizontal scrolling.
+    addComponentListener(new ComponentAdapter() {
+      @Override
+      public void componentResized(final ComponentEvent e) {
+        if (!didAddHorizontalScrollListener) {
+          textarea.addMouseWheelListener(createHorizontalScrollListener());
+          didAddHorizontalScrollListener = true;
+        }
+      }
+
+    });
+  }
+
+  private MouseWheelListener createHorizontalScrollListener() {
+    return new MouseWheelListener() {
+      @Override
+      public void mouseWheelMoved(final MouseWheelEvent e) {
+        if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL && e.isShiftDown()) {
+          final int current = textarea.getHorizontalScrollPosition();
+          final int delta = e.getUnitsToScroll() * 6;
+          textarea.setHorizontalScrollPosition(Math.max(0, current + delta));
+        }
+      }
+    };
   }
 
   @Override
