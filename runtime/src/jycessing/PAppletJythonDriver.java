@@ -18,6 +18,8 @@ package jycessing;
 import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
@@ -380,6 +382,12 @@ public class PAppletJythonDriver extends PApplet {
       frame.toFront();
       frame.setAlwaysOnTop(false);
     }
+    frame.addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(final WindowEvent e) {
+        exit();
+      }
+    });
     try {
       finishedLatch.await();
     } catch (final InterruptedException interrupted) {
