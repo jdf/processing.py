@@ -202,14 +202,8 @@ public class PAppletJythonDriver extends PApplet {
           newNames.add(o.toString());
         }
         final Global glowball = new Global();
-        try {
-          final Field namesField = Global.class.getDeclaredField("names");
-          namesField.setAccessible(true);
-          namesField.set(glowball, newNames);
-          return glowball;
-        } catch (final Exception e) {
-          throw new RuntimeException(e);
-        }
+        ReflectionUtil.setObject(glowball, "names", newNames);
+        return glowball;
       }
     });
 

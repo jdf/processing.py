@@ -45,6 +45,7 @@ import org.python.core.PyList;
 import org.python.core.PyObject;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
+import org.python.core.codecs;
 import org.python.util.InteractiveConsole;
 import org.python.util.PythonInterpreter;
 
@@ -405,6 +406,19 @@ public class Runner {
       for (final PyObject k : originalBuiltins.keys().asIterable()) {
         builtins.__setitem__(k, originalBuiltins.get(k));
       }
+      resetCodecsModule();
     }
+  }
+
+  /**
+   * The urllib module unit tests exposed a bug in how the codecs module
+   * is mangled when the world is reset around it. This hack forces it to
+   * reinitialize.
+   */
+  private static void resetCodecsModule() {
+    ReflectionUtil.setObjectStatic(codecs.class, "searchPath", null);
+    ReflectionUtil.setObjectStatic(codecs.class, "searchCache", null);
+    ReflectionUtil.setObjectStatic(codecs.class, "errorHandlers", null);
+    ReflectionUtil.setBooleanStatic(codecs.class, "import_encodings_called", false);
   }
 }
