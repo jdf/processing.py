@@ -472,7 +472,7 @@
       </classpath>
     </java>
   </target>
-  <target name="test.mode" depends="build-tests">
+  <target name="test.mode" depends="build-tests,mode.jar">
     <java classname="org.junit.runner.JUnitCore" fork="true">
       <arg value="test.jycessing.JycessingTests"/>
       <classpath>

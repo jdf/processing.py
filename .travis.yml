@@ -3,7 +3,7 @@ env: DISPLAY=:99.0
 language: java
 
 before_install:
-  - git clone https://github.com/processing/processing
+  - git clone --depth=1 https://github.com/processing/processing
   - cd processing/build
   - ant
   - cd ../..
