@@ -462,19 +462,23 @@
     </javac>
   </target>
   <target name="test.standalone" depends="build-tests">
-    <java classname="org.junit.runner.JUnitCore" fork="true">
-      <arg value="test.jycessing.JycessingTests"/>
+    <junit fork="true">
+      <test name="test.jycessing.JycessingTests">
+          <formatter type="plain" usefile="false"/>
+      </test>
       <classpath>
         <pathelement location="testing/bin"/>
         <pathelement location="work/processing-py.jar"/>
         <pathelement location="testing/library/junit-4.11.jar"/>
         <pathelement location="testing/library/hamcrest-core-1.3.jar"/>
       </classpath>
-    </java>
+    </junit>
   </target>
   <target name="test.mode" depends="build-tests,mode.jar">
-    <java classname="org.junit.runner.JUnitCore" fork="true">
-      <arg value="test.jycessing.JycessingTests"/>
+      <junit fork="true" printsummary="true">
+	  <test name="test.jycessing.JycessingTests">
+          <formatter type="plain" usefile="false"/>
+	  </test> 
       <classpath>
         <pathelement location="testing/bin"/>
         <pathelement location="${corejar}"/>
@@ -485,7 +489,7 @@
         <pathelement location="testing/library/junit-4.11.jar"/>
         <pathelement location="testing/library/hamcrest-core-1.3.jar"/>
       </classpath>
-    </java>
+    </junit>
   </target>
   <target name="test" depends="test.mode,test.standalone"/>
 
