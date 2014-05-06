@@ -6,7 +6,10 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
@@ -15,6 +18,8 @@ import javax.swing.JMenuItem;
 
 import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.run.SketchInfo;
+import jycessing.mode.run.SketchServiceManager;
+import jycessing.mode.run.SketchServiceProcess;
 import processing.app.Base;
 import processing.app.Editor;
 import processing.app.EditorState;
@@ -28,14 +33,16 @@ import processing.app.Toolkit;
 @SuppressWarnings("serial")
 public class PyEditor extends Editor {
 
-  final PythonMode pyMode;
-  final PyKeyListener keyListener;
-  Thread runner;
-  boolean didAddHorizontalScrollListener = false;
+  private final String id;
+  private final PythonMode pyMode;
+  private final PyKeyListener keyListener;
+  private final SketchServiceProcess sketchService;
+  private boolean didAddHorizontalScrollListener = false;
 
   protected PyEditor(final Base base, final String path, final EditorState state, final Mode mode) {
     super(base, path, state, mode);
 
+    id = UUID.randomUUID().toString();
     keyListener = new PyKeyListener(this, textarea);
     pyMode = (PythonMode)mode;
     // Provide horizontal scrolling.
@@ -47,8 +54,28 @@ public class PyEditor extends Editor {
           didAddHorizontalScrollListener = true;
         }
       }
-
     });
+    final SketchServiceManager sketchServiceManager = pyMode.getSketchServiceManager();
+    sketchService = sketchServiceManager.createSketchService(this);
+    final Thread cleanup = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        sketchService.stop();
+        sketchServiceManager.releaseSketchService(PyEditor.this);
+      }
+    });
+    Runtime.getRuntime().addShutdownHook(cleanup);
+    addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(final WindowEvent e) {
+        cleanup.run();
+        Runtime.getRuntime().removeShutdownHook(cleanup);
+      }
+    });
+  }
+
+  public String getId() {
+    return id;
   }
 
   private MouseWheelListener createHorizontalScrollListener() {
@@ -72,7 +99,7 @@ public class PyEditor extends Editor {
   @Override
   public void internalCloseRunner() {
     try {
-      pyMode.getSketchServiceManager().stopSketch();
+      sketchService.stopSketch();
     } catch (final SketchException e) {
       statusError(e);
     }
@@ -175,7 +202,7 @@ public class PyEditor extends Editor {
               .sketch(new File(sketchPath).getAbsoluteFile()).code(code.getProgram())
               .codePaths(codePaths).x(getX()).y(getY()).libraryPolicy(LibraryPolicy.SELECTIVE)
               .build();
-      pyMode.getSketchServiceManager().runSketch(this, info);
+      sketchService.runSketch(info);
     } catch (final SketchException e) {
       statusError(e);
     }
@@ -276,5 +303,13 @@ public class PyEditor extends Editor {
 
   private void recolor() {
     textarea.getDocument().tokenizeLines();
+  }
+
+  public void printOut(final String msg) {
+    console.message(msg, false);
+  }
+
+  public void printErr(final String msg) {
+    console.message(msg, true);
   }
 }

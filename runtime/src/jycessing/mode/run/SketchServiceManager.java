@@ -1,51 +1,47 @@
 package jycessing.mode.run;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.Base;
-import processing.app.Preferences;
-import processing.app.SketchException;
 
 public class SketchServiceManager implements ModeService {
+  private static final String DEBUG_SKETCH_RUNNER_KEY = "$SKETCHRUNNER$";
 
+  @SuppressWarnings("unused")
   private static void log(final String msg) {
     if (PythonMode.VERBOSE) {
       System.err.println(SketchServiceManager.class.getSimpleName() + ": " + msg);
     }
   }
 
-  private static final FilenameFilter JARS = new FilenameFilter() {
-    @Override
-    public boolean accept(final File dir, final String name) {
-      return name.endsWith(".jar");
-    }
-  };
-
-  // If someone tries to run a sketch and, for some reason, there's no sketch runner,
-  // remember the request and honor it when the sketch runner exists.
-  private volatile Runnable pendingSketchRequest = null;
-
   private final PythonMode mode;
-  private Process sketchServiceProcess;
-  private SketchService sketchService;
-  private volatile boolean started = false;
+  private final Map<String, SketchServiceProcess> sketchServices =
+      new HashMap<String, SketchServiceProcess>();
+  private volatile boolean isStarted = false;
 
   public SketchServiceManager(final PythonMode mode) {
     this.mode = mode;
   }
 
+  public SketchServiceProcess createSketchService(final PyEditor editor) {
+    final SketchServiceProcess p = new SketchServiceProcess(mode, editor);
+    sketchServices.put(editor.getId(), p);
+    return p;
+  }
+
+  public void releaseSketchService(final PyEditor editor) {
+    sketchServices.remove(editor.getId());
+  }
+
+  public boolean isStarted() {
+    return isStarted;
+  }
+
   public void start() {
-    started = true;
+    isStarted = true;
     try {
       if (PythonMode.SKETCH_RUNNER_FIRST) {
         final ModeService stub = (ModeService)RMIUtils.export(this);
@@ -53,204 +49,49 @@ public class SketchServiceManager implements ModeService {
         modeWaiter.modeReady(stub);
       } else {
         RMIUtils.bind(this, ModeService.class);
-        startSketchServerProcess();
       }
-      log("Installing PythonMode shutdown hook.");
-      Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-        @Override
-        public void run() {
-          log("Running PythonMode shutdown hook.");
-          started = false;
-          stop();
-        }
-      }));
     } catch (final Exception e) {
       Base.showError("PythonMode Error", "Cannot start python sketch service.", e);
       return;
     }
   }
 
-  public boolean isStarted() {
-    return started;
-  }
 
-  private void startSketchServerProcess() {
-    log("Starting sketch runner process.");
-    final ProcessBuilder pb = createServerCommand();
-    log("Running:\n" + pb.command());
-    try {
-      sketchServiceProcess = pb.start();
-    } catch (final IOException e) {
-      Base.showError("PythonMode Error", "Cannot start python sketch runner.", e);
+  private SketchServiceProcess processFor(final String editorId) {
+    if (PythonMode.SKETCH_RUNNER_FIRST) {
+      return sketchServices.get(DEBUG_SKETCH_RUNNER_KEY);
     }
-  }
 
-  public void stop() {
-    if (sketchService != null) {
-      log("Telling sketch runner to shutdown.");
-      try {
-        sketchService.shutdown();
-      } catch (final RemoteException e) {
-      }
+    final SketchServiceProcess p = sketchServices.get(editorId);
+    if (p == null) {
+      throw new RuntimeException("I somehow got a message from the sketch runner for " + editorId
+          + " but don't have an active service process for it!");
     }
-    if (sketchServiceProcess != null) {
-      log("Killing sketch runner process.");
-      sketchServiceProcess.destroy();
-      log("Waiting for sketch runner process to exit.");
-      try {
-        sketchServiceProcess.waitFor();
-        log("Sketcher runner process exited normally.");
-      } catch (final InterruptedException e) {
-        log("Interrupted while waiting for sketch runner to exit.");
-      }
-      sketchServiceProcess = null;
-    }
+    return p;
   }
 
   @Override
-  public void handleReady(final SketchService service) {
-    log("handleReady()");
-    sketchService = service;
-    log("Successfully bound SketchRunner stub.");
-    final Runnable req = pendingSketchRequest;
-    pendingSketchRequest = null;
-    if (req != null) {
-      req.run();
-    }
+  public void handleReady(final String editorId, final SketchService service) {
+    processFor(editorId).handleReady(service);
   }
 
   @Override
-  public void handleSketchStopped() {
-    log("Sketch stopped.");
-    mode.handleSketchStopped();
-  }
-
-  private ProcessBuilder createServerCommand() {
-    final ArrayList<String> command = new ArrayList<String>();
-
-    command.add(Base.getJavaPath());
-
-    if (Preferences.getBoolean("run.options.memory")) {
-      command.add("-Xms" + Preferences.get("run.options.memory.initial") + "m");
-      command.add("-Xmx" + Preferences.get("run.options.memory.maximum") + "m");
-    }
-
-    if (Base.isMacOS()) {
-      // Suppress dock icon.
-      command.add("-Dapple.awt.UIElement=true");
-    }
-
-    command.add("-Djava.library.path=" + System.getProperty("java.library.path"));
-
-    final List<String> cp = new ArrayList<String>();
-    cp.add(System.getProperty("java.class.path"));
-    for (final File jar : new File(Base.getContentFile("core"), "library").listFiles(JARS)) {
-      cp.add(jar.getAbsolutePath());
-    }
-    final File[] libJars = mode.getContentFile("mode").listFiles(JARS);
-    if (libJars != null) {
-      for (final File jar : libJars) {
-        cp.add(jar.getAbsolutePath());
-      }
-    } else {
-      log("No library jars found; I assume we're running in Eclipse.");
-    }
-    command.add("-cp");
-    final StringBuilder sb = new StringBuilder();
-    for (final String element : cp) {
-      if (sb.length() > 0) {
-        sb.append(File.pathSeparatorChar);
-      }
-      sb.append(element);
-    }
-    command.add(sb.toString());
-
-    // enable assertions
-    command.add("-ea");
-
-    // Run the SketchRunner main.
-    command.add(SketchRunner.class.getName());
-
-    return new ProcessBuilder(command);
-  }
-
-  private void handleRemoteException(final RemoteException e) throws SketchException {
-    final Throwable cause = e.getCause();
-    if (cause instanceof SocketTimeoutException || cause instanceof ConnectException) {
-      log("SketchRunner either hung or not there. Restarting it.");
-      restartServerProcess();
-    } else {
-      throw new SketchException(e.getMessage());
-    }
-  }
-
-  private void restartServerProcess() {
-    stop();
-    startSketchServerProcess();
-  }
-
-  public void runSketch(final PyEditor editor, final SketchInfo info) throws SketchException {
-    // Create a pending request in case of various failure modes.
-    pendingSketchRequest = new Runnable() {
-      @Override
-      public void run() {
-        try {
-          runSketch(editor, info);
-        } catch (final SketchException e) {
-          editor.statusError(e);
-        }
-      }
-    };
-    if (sketchService == null) {
-      log("Sketch service not running. Leaving pending request to run sketch.");
-      restartServerProcess();
-      return;
-    }
-    try {
-      sketchService.startSketch(info);
-      // If and only if we've successully request a sketch start, nuke the pending request.
-      pendingSketchRequest = null;
-      return;
-    } catch (final RemoteException e) {
-      handleRemoteException(e);
-      log("Leaving pending request to run sketch.");
-    }
-  }
-
-  public void stopSketch() throws SketchException {
-    if (sketchService == null) {
-      log("Sketch runner apparetly not running; can't stop sketch.");
-      handleSketchStopped();
-      restartServerProcess();
-      return;
-    }
-    try {
-      sketchService.stopSketch();
-    } catch (final RemoteException e) {
-      handleRemoteException(e);
-    }
-  }
-
-  private static final Pattern IGNORE = Pattern.compile("^__MOVE__\\s+(.*)$");
-
-  @Override
-  public void print(final Stream stream, final String s) {
-    stream.getSystemStream().print(s);
-    stream.getSystemStream().flush();
+  public void handleSketchException(final String editorId, final Exception e) {
+    processFor(editorId).handleSketchException(e);
   }
 
   @Override
-  public void println(final Stream stream, final String s) {
-    if (stream == Stream.ERR && IGNORE.matcher(s).matches()) {
-      // TODO(feinberg): Handle MOVE commands.
-      return;
-    }
-    stream.getSystemStream().println(s);
-    stream.getSystemStream().flush();
+  public void handleSketchStopped(final String editorId) {
+    processFor(editorId).handleSketchStopped();
   }
 
   @Override
-  public void handleSketchException(final Exception e) {
-    mode.handleSketchException(e);
+  public void print(final String editorId, final Stream stream, final String s) {
+    processFor(editorId).print(stream, s);
+  }
+
+  @Override
+  public void println(final String editorId, final Stream stream, final String s) {
+    processFor(editorId).println(stream, s);
   }
 }

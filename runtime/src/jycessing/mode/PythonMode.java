@@ -98,12 +98,4 @@ public class PythonMode extends Mode {
     return sketchServiceManager;
   }
 
-  public void handleSketchStopped() {
-    base.getActiveEditor().deactivateRun();
-  }
-
-  public void handleSketchException(final Exception e) {
-    base.getActiveEditor().statusError(e);
-  }
-
 }

@@ -18,11 +18,13 @@ public class SketchRunner implements SketchService {
     }
   }
 
+  private final String id;
   private final ModeService modeService;
   private Thread runner = null;
   private volatile boolean shutdownWasRequested = false;
 
-  public SketchRunner(final ModeService modeService) {
+  public SketchRunner(final String id, final ModeService modeService) {
+    this.id = id;
     this.modeService = modeService;
     try {
       OSXAdapter.setQuitHandler(this, this.getClass().getMethod("cancelQuit"));
@@ -62,9 +64,9 @@ public class SketchRunner implements SketchService {
           try {
             final PrintStream syserr = System.err;
             final PrintStream sysout = System.out;
-            System.setErr(new ForwardingPrintStream(modeService, Stream.ERR));
+            System.setErr(new ForwardingPrintStream(id, modeService, Stream.ERR));
             try {
-              System.setOut(new ForwardingPrintStream(modeService, Stream.OUT));
+              System.setOut(new ForwardingPrintStream(id, modeService, Stream.OUT));
               try {
                 Runner.runSketchBlocking(info);
               } finally {
@@ -75,16 +77,16 @@ public class SketchRunner implements SketchService {
             }
           } catch (final PythonSketchError e) {
             log("Sketch runner caught " + e);
-            modeService.handleSketchException(convertPythonSketchError(e, info.codePaths));
+            modeService.handleSketchException(id, convertPythonSketchError(e, info.codePaths));
           } catch (final Exception e) {
             if (e.getCause() != null && e.getCause() instanceof PythonSketchError) {
-              modeService.handleSketchException(convertPythonSketchError(
-                  (PythonSketchError)e.getCause(), info.codePaths));
+              modeService.handleSketchException(id,
+                  convertPythonSketchError((PythonSketchError)e.getCause(), info.codePaths));
             } else {
-              modeService.handleSketchException(e);
+              modeService.handleSketchException(id, e);
             }
           } finally {
-            modeService.handleSketchStopped();
+            modeService.handleSketchStopped(id);
           }
         } catch (final RemoteException e) {
           log(e.toString());
@@ -114,54 +116,64 @@ public class SketchRunner implements SketchService {
   }
 
   public static void main(final String[] args) {
+    final String id = args[0];
     // If env var SKETCH_RUNNER_FIRST=true then SketchRunner will wait for a ping from the Mode
     // before registering itself as the sketch runner.
     if (PythonMode.SKETCH_RUNNER_FIRST) {
-      waitForMode();
+      waitForMode(id);
     } else {
-      startSketchRunner();
+      startSketchRunner(id);
     }
   }
 
   private static class ModeWaiterImpl implements ModeWaiter {
+    final String id;
+
+
+    public ModeWaiterImpl(final String id) {
+      this.id = id;
+    }
+
+
     @Override
     public void modeReady(final ModeService modeService) {
       try {
-        launch(modeService);
+        launch(id, modeService);
       } catch (final Exception e) {
         throw new RuntimeException(e);
       }
     }
   }
 
-  private static void waitForMode() {
+  private static void waitForMode(final String id) {
     try {
-      RMIUtils.bind(new ModeWaiterImpl(), ModeWaiter.class);
+      RMIUtils.bind(new ModeWaiterImpl(id), ModeWaiter.class);
     } catch (final RMIProblem e) {
       throw new RuntimeException(e);
     }
   }
 
-  private static void startSketchRunner() {
+  private static void startSketchRunner(final String id) {
     try {
       final ModeService modeService = RMIUtils.lookup(ModeService.class);
-      launch(modeService);
+      launch(id, modeService);
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  private static void launch(final ModeService modeService) throws RMIProblem, RemoteException {
-    final SketchRunner sketchRunner = new SketchRunner(modeService);
+  private static void launch(final String id, final ModeService modeService) throws RMIProblem,
+      RemoteException {
+    final SketchRunner sketchRunner = new SketchRunner(id, modeService);
     final SketchService stub = (SketchService)RMIUtils.export(sketchRunner);
     log("Calling mode's handleReady().");
-    modeService.handleReady(stub);
+    modeService.handleReady(id, stub);
     Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
       @Override
       public void run() {
         log("Exiting; telling modeService.");
         try {
-          modeService.handleSketchStopped();
+          modeService.handleSketchStopped(id);
         } catch (final RemoteException e) {
           // nothing we can do about it now.
         }
