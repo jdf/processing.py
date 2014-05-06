@@ -71,6 +71,8 @@
       <entry key="build.date" type="date" value="now"/>
       <entry key="build.number" type="int" default="0300" operation="+" pattern="0000"/>
     </propertyfile>
+    <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>  	
+  	<echo message="Bumped to version ${jycessing.build.number}."></echo>
   </target>
 
   <target name="mode.jar" depends="build">
@@ -121,6 +123,7 @@
     <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>
     <push srcfile="work/PythonMode_${jycessing.build.number}.zip"/>
     <push srcfile="work/modedist/PythonMode.txt"/>
+  	<echo message="Uploaded build ${jycessing.build.number}"></echo>
   </target>
 
   <target name="jar" depends="build">
