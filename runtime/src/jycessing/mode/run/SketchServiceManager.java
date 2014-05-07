@@ -32,8 +32,11 @@ public class SketchServiceManager implements ModeService {
     return p;
   }
 
-  public void releaseSketchService(final PyEditor editor) {
-    sketchServices.remove(editor.getId());
+  public void destroySketchService(final PyEditor editor) {
+    final SketchServiceProcess process = sketchServices.remove(editor.getId());
+    if (process != null) {
+      process.shutdown();
+    }
   }
 
   public boolean isStarted() {

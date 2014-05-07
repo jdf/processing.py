@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import jycessing.mode.run.SketchRunner;
+import jycessing.mode.run.SketchService;
 import jycessing.mode.run.SketchServiceManager;
 import processing.app.Base;
 import processing.app.Editor;
@@ -28,7 +29,17 @@ public class PythonMode extends Mode {
   public static final boolean SKETCH_RUNNER_FIRST = Boolean.parseBoolean(System
       .getenv("SKETCH_RUNNER_FIRST"));
 
+  /**
+   * Python auto-formatting is handled by a server. {@link FormatServer} handles
+   * the lifecycle of, and communication with, that server.
+   */
   private final FormatServer formatServer;
+
+  /**
+   * Sketches are run in external JVM processes. The {@link SketchServiceManager} handles
+   * the creation and destruction of those processes, and routes communication between
+   * {@link PyEditor}s and their affiliated {@link SketchService}s.
+   */
   private final SketchServiceManager sketchServiceManager;
 
   public PythonMode(final Base base, final File folder) {
@@ -38,6 +49,8 @@ public class PythonMode extends Mode {
     /*
      * Since we're compatible with Java mode's libraries, we just hijack
      * their libraries folder.
+     * WARNING: this depends on an implementation detail in {@link Mode},
+     * and not on any API. May break in the future.
      */
     librariesFolder = Base.getContentFile("modes/java/libraries");
   }

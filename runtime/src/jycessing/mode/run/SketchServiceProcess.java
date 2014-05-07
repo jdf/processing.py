@@ -135,7 +135,7 @@ public class SketchServiceProcess {
 
 
   private void restartServerProcess() {
-    stop();
+    shutdown();
     start();
   }
 
@@ -183,7 +183,7 @@ public class SketchServiceProcess {
   }
 
 
-  public void stop() {
+  public void shutdown() {
     if (sketchService != null) {
       log("Telling sketch runner to shutdown.");
       try {

@@ -27,13 +27,25 @@ public class SketchRunner implements SketchService {
     this.id = id;
     this.modeService = modeService;
     try {
-      OSXAdapter.setQuitHandler(this, this.getClass().getMethod("cancelQuit"));
+      OSXAdapter.setQuitHandler(this, this.getClass().getMethod("preventUserQuit"));
     } catch (final Exception e) {
       System.err.println(e.getMessage());
     }
   }
 
-  public boolean cancelQuit() {
+  /**
+   * On Mac, even though this app has no menu, there's still a
+   * built-in cmd-Q handler that, by default, quits the app.
+   * Because starting up the {@link SketchRunner} is expensive,
+   * we'd prefer to leave the app running.
+   * <p>This function responds to a user cmd-Q by stopping the
+   * currently running sketch, and rejecting the attempt to quit.
+   * <p>But if we've received a shutdown request from the
+   * {@link SketchServiceProcess} on the PDE VM, then we permit
+   * the quit to proceed.
+   * @return true iff the SketchRunner should quit.
+   */
+  public boolean preventUserQuit() {
     if (shutdownWasRequested) {
       log("Permitting quit.");
       return true;

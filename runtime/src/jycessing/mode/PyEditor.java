@@ -2,8 +2,6 @@ package jycessing.mode;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
@@ -18,6 +16,7 @@ import javax.swing.JMenuItem;
 
 import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.run.SketchInfo;
+import jycessing.mode.run.SketchService;
 import jycessing.mode.run.SketchServiceManager;
 import jycessing.mode.run.SketchServiceProcess;
 import processing.app.Base;
@@ -33,11 +32,15 @@ import processing.app.Toolkit;
 @SuppressWarnings("serial")
 public class PyEditor extends Editor {
 
+  /**
+   * Every PyEditor has a UUID that the {@link SketchServiceManager} uses to
+   * route events from the {@link SketchService} to its owning editor.
+   */
   private final String id;
+
   private final PythonMode pyMode;
   private final PyKeyListener keyListener;
   private final SketchServiceProcess sketchService;
-  private boolean didAddHorizontalScrollListener = false;
 
   protected PyEditor(final Base base, final String path, final EditorState state, final Mode mode) {
     super(base, path, state, mode);
@@ -45,23 +48,20 @@ public class PyEditor extends Editor {
     id = UUID.randomUUID().toString();
     keyListener = new PyKeyListener(this, textarea);
     pyMode = (PythonMode)mode;
+
     // Provide horizontal scrolling.
-    addComponentListener(new ComponentAdapter() {
-      @Override
-      public void componentResized(final ComponentEvent e) {
-        if (!didAddHorizontalScrollListener) {
-          textarea.addMouseWheelListener(createHorizontalScrollListener());
-          didAddHorizontalScrollListener = true;
-        }
-      }
-    });
+    textarea.addMouseWheelListener(createHorizontalScrollListener());
+
+    // Create a sketch service affiliated with this editor.
     final SketchServiceManager sketchServiceManager = pyMode.getSketchServiceManager();
     sketchService = sketchServiceManager.createSketchService(this);
+
+    // Ensure that the sketch service gets properly destroyed when either the
+    // JVM terminates or this editor closes, whichever comes first.
     final Thread cleanup = new Thread(new Runnable() {
       @Override
       public void run() {
-        sketchService.stop();
-        sketchServiceManager.releaseSketchService(PyEditor.this);
+        sketchServiceManager.destroySketchService(PyEditor.this);
       }
     });
     Runtime.getRuntime().addShutdownHook(cleanup);
@@ -85,7 +85,7 @@ public class PyEditor extends Editor {
         if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL && e.isShiftDown()) {
           final int current = textarea.getHorizontalScrollPosition();
           final int delta = e.getUnitsToScroll() * 6;
-          textarea.setHorizontalScrollPosition(Math.max(0, current + delta));
+          textarea.setHorizontalScrollPosition(current + delta);
         }
       }
     };
