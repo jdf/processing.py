@@ -197,6 +197,7 @@ public class PythonTokenMarker extends TokenMarker {
       pyKeywords.add("raise", Token.KEYWORD1);
       pyKeywords.add("range", Token.KEYWORD3);
       pyKeywords.add("return", Token.KEYWORD1);
+      pyKeywords.add("self", Token.KEYWORD2);
       pyKeywords.add("try", Token.KEYWORD1);
       pyKeywords.add("while", Token.KEYWORD3);
     }
