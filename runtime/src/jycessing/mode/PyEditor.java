@@ -252,6 +252,7 @@ public class PyEditor extends Editor {
 
   private void runSketch(final RunMode mode) {
     prepareRun();
+    toolbar.activate(PyToolbar.RUN);
     final String sketchPath;
     if (sketch.isModified()) {
       log("Sketch is modified; must copy it to temp dir.");
@@ -278,8 +279,8 @@ public class PyEditor extends Editor {
               .addLibraryDir(Base.getContentFile("modes/java/libraries"))
               .addLibraryDir(Base.getSketchbookLibrariesFolder())
               .sketch(new File(sketchPath).getAbsoluteFile()).code(sketch.getCode(0).getProgram())
-              .codeFileNames(codeFileNames).x(getX()).y(getY()).libraryPolicy(LibraryPolicy.SELECTIVE)
-              .build();
+              .codeFileNames(codeFileNames).x(getX()).y(getY())
+              .libraryPolicy(LibraryPolicy.SELECTIVE).build();
       sketchService.runSketch(info);
     } catch (final SketchException e) {
       statusError(e);
@@ -293,12 +294,10 @@ public class PyEditor extends Editor {
   }
 
   public void handleRun() {
-    toolbar.activate(PyToolbar.RUN);
     runSketch(RunMode.WINDOWED);
   }
 
   public void handlePresent() {
-    toolbar.activate(PyToolbar.RUN);
     runSketch(RunMode.PRESENTATION);
   }
 
