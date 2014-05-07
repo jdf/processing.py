@@ -17,37 +17,46 @@ public class SketchInfo implements Serializable {
   // One of the following two should be set,
   public final File sketch;
 
+  public final String sketchName;
   public final String code;
-  public final String[] codePaths;
+  public final String[] codeFileNames;
   public final int x;
   public final int y;
   public final LibraryPolicy libraryPolicy;
 
-  private SketchInfo(final RunMode runMode, final List<File> libDirs, final File sketch,
-      final String code, final String[] codePaths, final int x, final int y,
+  private SketchInfo(final String sketchName, final RunMode runMode, final List<File> libDirs,
+      final File sketch, final String code, final String[] codeFileNames, final int x, final int y,
       final LibraryPolicy libraryPolicy) {
+    this.sketchName = sketchName;
     this.runMode = runMode;
     this.libraryDirs = Collections.unmodifiableList(libDirs);
     this.sketch = sketch;
     this.code = code;
-    this.codePaths = codePaths;
+    this.codeFileNames = codeFileNames;
     this.x = x;
     this.y = y;
     this.libraryPolicy = libraryPolicy;
   }
 
   public static class Builder {
+    private String sketchName;
     private RunMode runMode;
     private final List<File> libDirs = new ArrayList<File>();
     private File sketch;
     private String code;
-    private String[] codePaths;
+    private String[] codeFileNames;
     private int x = -1;
     private int y = -1;
     private LibraryPolicy libraryPolicy;
 
     public SketchInfo build() {
-      return new SketchInfo(runMode, libDirs, sketch, code, codePaths, x, y, libraryPolicy);
+      return new SketchInfo(sketchName, runMode, libDirs, sketch, code, codeFileNames, x, y,
+          libraryPolicy);
+    }
+
+    public Builder sketchName(final String sketchName) {
+      this.sketchName = sketchName;
+      return this;
     }
 
     public Builder runMode(final RunMode runMode) {
@@ -70,8 +79,8 @@ public class SketchInfo implements Serializable {
       return this;
     }
 
-    public Builder codePaths(final String[] codePaths) {
-      this.codePaths = codePaths;
+    public Builder codeFileNames(final String[] codeFileNames) {
+      this.codeFileNames = codeFileNames;
       return this;
     }
 

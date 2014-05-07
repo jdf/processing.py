@@ -1,6 +1,5 @@
 package jycessing.mode.run;
 
-import java.io.File;
 import java.io.PrintStream;
 import java.rmi.RemoteException;
 
@@ -89,11 +88,11 @@ public class SketchRunner implements SketchService {
             }
           } catch (final PythonSketchError e) {
             log("Sketch runner caught " + e);
-            modeService.handleSketchException(id, convertPythonSketchError(e, info.codePaths));
+            modeService.handleSketchException(id, convertPythonSketchError(e, info.codeFileNames));
           } catch (final Exception e) {
             if (e.getCause() != null && e.getCause() instanceof PythonSketchError) {
               modeService.handleSketchException(id,
-                  convertPythonSketchError((PythonSketchError)e.getCause(), info.codePaths));
+                  convertPythonSketchError((PythonSketchError)e.getCause(), info.codeFileNames));
             } else {
               modeService.handleSketchException(id, e);
             }
@@ -194,15 +193,13 @@ public class SketchRunner implements SketchService {
   }
 
   private SketchException convertPythonSketchError(final PythonSketchError e,
-      final String[] codePaths) {
-    if (e.file == null) {
+      final String[] fileNames) {
+    if (e.fileName == null) {
       return new SketchException(e.getMessage());
     }
     int fileIndex = -1;
-    for (int i = 0; i < codePaths.length; i++) {
-      final String codePath = new File(codePaths[i]).getAbsolutePath();
-      final String exceptionFilePath = new File(e.file).getAbsolutePath();
-      if (codePath.equals(exceptionFilePath)) {
+    for (int i = 0; i < fileNames.length; i++) {
+      if (fileNames[i].equals(e.fileName)) {
         fileIndex = i;
         break;
       }

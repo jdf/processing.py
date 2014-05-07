@@ -149,6 +149,10 @@ public class PAppletJythonDriver extends PApplet {
           continue;
         }
         file = fileName;
+        // Throw away the path.
+        if (new File(file).exists()) {
+          file = new File(file).getName();
+        }
         line = Integer.parseInt(m.group(2)) - 1;
       }
       if (((PyType)e.type).getName().equals("ImportError")) {
@@ -165,7 +169,7 @@ public class PAppletJythonDriver extends PApplet {
   private static PythonSketchError extractSketchErrorFromPyExceptionValue(final PyTuple tup) {
     final String message = maybeMakeFriendlyMessage((String)tup.get(0));
     final PyTuple context = (PyTuple)tup.get(1);
-    final String file = (String)context.get(0);
+    final String file = new File((String)context.get(0)).getName();
     final int line = ((Integer)context.get(1)).intValue() - 1;
     final int column = ((Integer)context.get(2)).intValue();
     return new PythonSketchError(message, file, line, column);

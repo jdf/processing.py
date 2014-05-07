@@ -7,6 +7,11 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -14,6 +19,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import jycessing.IOUtil;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.run.SketchInfo;
 import jycessing.mode.run.SketchService;
@@ -32,6 +38,13 @@ import processing.app.Toolkit;
 @SuppressWarnings("serial")
 public class PyEditor extends Editor {
 
+  @SuppressWarnings("unused")
+  private static void log(final String msg) {
+    if (PythonMode.VERBOSE) {
+      System.err.println(PyEditor.class.getSimpleName() + ": " + msg);
+    }
+  }
+
   /**
    * Every PyEditor has a UUID that the {@link SketchServiceManager} uses to
    * route events from the {@link SketchService} to its owning editor.
@@ -41,6 +54,14 @@ public class PyEditor extends Editor {
   private final PythonMode pyMode;
   private final PyKeyListener keyListener;
   private final SketchServiceProcess sketchService;
+
+  /**
+   * If the user runs a dirty sketch, we create a temp dir containing the
+   * modified state of the sketch and run it from there. We keep track
+   * of it in this variable in order to delete it when done running.
+   */
+  private Path tempSketch;
+
 
   protected PyEditor(final Base base, final String path, final EditorState state, final Mode mode) {
     super(base, path, state, mode);
@@ -102,6 +123,24 @@ public class PyEditor extends Editor {
       sketchService.stopSketch();
     } catch (final SketchException e) {
       statusError(e);
+    } finally {
+      cleanupTempSketch();
+    }
+  }
+
+  private void cleanupTempSketch() {
+    if (tempSketch != null) {
+      if (tempSketch.toFile().exists()) {
+        try {
+          log("Deleting " + tempSketch);
+          IOUtil.rm(tempSketch);
+          log("Deleted " + tempSketch);
+          assert (!tempSketch.toFile().exists());
+        } catch (final IOException e) {
+          System.err.println(e);
+        }
+      }
+      tempSketch = null;
     }
   }
 
@@ -186,21 +225,60 @@ public class PyEditor extends Editor {
     Base.showMessage("Sorry", "You can't do that yet.");
   }
 
+  /**
+   * Save the current state of the sketch into a temp dir, and return
+   * the created directory.
+   * @return a new directory containing a saved version of the current
+   * (presumably modified) sketch.
+   * @throws IOException 
+   */
+  private Path createTempSketch() throws IOException {
+    final Path tmp = Files.createTempDirectory(sketch.getName());
+    for (final SketchCode code : sketch.getCode()) {
+      Files.write(tmp.resolve(code.getFileName()), code.getProgram().getBytes("utf-8"));
+    }
+    final Path sketchFolder = sketch.getFolder().toPath();
+    try (final DirectoryStream<Path> stream = Files.newDirectoryStream(sketchFolder)) {
+      for (final Path entry : stream) {
+        if (!mode.canEdit(entry.toFile())) {
+          IOUtil.copy(entry, tmp);
+        }
+      }
+    } catch (final DirectoryIteratorException ex) {
+      throw ex.getCause();
+    }
+    return tmp;
+  }
+
   private void runSketch(final RunMode mode) {
     prepareRun();
-    final SketchCode code = getSketch().getCode(0);
-    final String sketchPath = code.getFile().getAbsolutePath();
+    final String sketchPath;
+    if (sketch.isModified()) {
+      log("Sketch is modified; must copy it to temp dir.");
+      final String sketchMainFileName = sketch.getCode(0).getFile().getName();
+      try {
+        tempSketch = createTempSketch();
+        sketchPath = tempSketch.resolve(sketchMainFileName).toString();
+      } catch (final IOException e) {
+        Base.showError("Sketchy Behavior", "I can't copy your unsaved work\n"
+            + "to a temp directory.", e);
+        return;
+      }
+    } else {
+      sketchPath = sketch.getCode(0).getFile().getAbsolutePath();
+    }
+
     try {
-      final String[] codePaths = new String[sketch.getCodeCount()];
-      for (int i = 0; i < codePaths.length; i++) {
-        codePaths[i] = sketch.getCode(i).getFile().getAbsolutePath();
+      final String[] codeFileNames = new String[sketch.getCodeCount()];
+      for (int i = 0; i < codeFileNames.length; i++) {
+        codeFileNames[i] = sketch.getCode(i).getFile().getName();
       }
       final SketchInfo info =
-          new SketchInfo.Builder().runMode(mode)
+          new SketchInfo.Builder().sketchName(sketch.getName()).runMode(mode)
               .addLibraryDir(Base.getContentFile("modes/java/libraries"))
               .addLibraryDir(Base.getSketchbookLibrariesFolder())
-              .sketch(new File(sketchPath).getAbsoluteFile()).code(code.getProgram())
-              .codePaths(codePaths).x(getX()).y(getY()).libraryPolicy(LibraryPolicy.SELECTIVE)
+              .sketch(new File(sketchPath).getAbsoluteFile()).code(sketch.getCode(0).getProgram())
+              .codeFileNames(codeFileNames).x(getX()).y(getY()).libraryPolicy(LibraryPolicy.SELECTIVE)
               .build();
       sketchService.runSketch(info);
     } catch (final SketchException e) {
@@ -211,6 +289,7 @@ public class PyEditor extends Editor {
   @Override
   public void deactivateRun() {
     restoreToolbar();
+    cleanupTempSketch();
   }
 
   public void handleRun() {
