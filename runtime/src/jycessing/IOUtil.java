@@ -2,11 +2,10 @@ package jycessing;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.nio.charset.Charset;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -17,28 +16,22 @@ import java.util.EnumSet;
 
 public class IOUtil {
 
-  // Slurp the given Reader into a String.
-  public static String read(final Reader r) throws IOException {
-    try (final BufferedReader reader = new BufferedReader(r)) {
-      final StringBuilder sb = new StringBuilder(1024);
-      String line;
-      while ((line = reader.readLine()) != null) {
-        sb.append(line).append("\n");
-      }
-      return sb.toString();
-    }
-  }
+  private static final Charset UTF8 = Charset.forName("utf-8");
 
-  public static String readOrDie(final InputStream in) {
+  public static String readTextOrDie(final InputStream in) {
     try {
-      return read(in);
+      return readText(in);
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  public static String read(final InputStream in) throws IOException {
-    return read(new InputStreamReader(in, "UTF-8"));
+  public static String readText(final InputStream in) throws IOException {
+    return new String(readFully(in), UTF8);
+  }
+
+  public static String readText(final Path path) throws IOException {
+    return new String(Files.readAllBytes(path), UTF8);
   }
 
   /**
@@ -71,5 +64,16 @@ public class IOUtil {
     final Path dest = Files.isDirectory(target) ? target.resolve(src.getFileName()) : target;
     final EnumSet<FileVisitOption> doNotResolveLinks = EnumSet.noneOf(FileVisitOption.class);
     Files.walkFileTree(src, doNotResolveLinks, Integer.MAX_VALUE, new TreeCopier(src, dest));
+  }
+
+  public static byte[] readFully(final InputStream in) throws IOException {
+    try (final ByteArrayOutputStream bytes = new ByteArrayOutputStream(1024)) {
+      final byte[] buf = new byte[1024];
+      int n;
+      while ((n = in.read(buf)) != -1) {
+        bytes.write(buf, 0, n);
+      }
+      return bytes.toByteArray();
+    }
   }
 }

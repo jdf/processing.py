@@ -96,8 +96,7 @@ class LibraryImporter {
 
     final String jarPath = String.format("%s/%s.jar", libClassDir.getAbsolutePath(), libName);
 
-    try {
-      final ZipFile file = new ZipFile(jarPath);
+    try (final ZipFile file = new ZipFile(jarPath)) {
       final Enumeration<? extends ZipEntry> entries = file.entries();
       while (entries.hasMoreElements()) {
         final ZipEntry entry = entries.nextElement();
@@ -127,7 +126,6 @@ class LibraryImporter {
         log(importStatement);
         interp.exec(importStatement);
       }
-      file.close();
     } catch (final IOException e) {
       throw new RuntimeException("While trying to add " + libName + " library:", e);
     }

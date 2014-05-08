@@ -101,29 +101,23 @@ public class FormatServer implements Formatter {
 
   @Override
   public String format(final String text) {
-    try {
-      // Connect to format server.
-      final Socket sock = new Socket("localhost", 10011);
-      try {
+    // Connect to format server.
+    try (final Socket sock = new Socket("localhost", 10011);
         final DataOutputStream out = new DataOutputStream(sock.getOutputStream());
-        final DataInputStream in = new DataInputStream(sock.getInputStream());
+        final DataInputStream in = new DataInputStream(sock.getInputStream());) {
+      final byte[] encoded = text.getBytes("utf-8");
+      // Send big-endian encoded integer representing length of utf-8 encoded source code.
+      out.writeInt(encoded.length);
+      // Send bytes of utf-8 encoded source code.
+      out.write(encoded);
+      out.flush();
 
-        final byte[] encoded = text.getBytes("utf-8");
-        // Send big-endian encoded integer representing length of utf-8 encoded source code.
-        out.writeInt(encoded.length);
-        // Send bytes of utf-8 encoded source code.
-        out.write(encoded);
-        out.flush();
-
-        // Read length of result.
-        final int resultLength = in.readInt();
-        // Read utf-8 encoded string.
-        final byte[] buf = new byte[resultLength];
-        in.readFully(buf);
-        return new String(buf, "utf-8");
-      } finally {
-        sock.close();
-      }
+      // Read length of result.
+      final int resultLength = in.readInt();
+      // Read utf-8 encoded string.
+      final byte[] buf = new byte[resultLength];
+      in.readFully(buf);
+      return new String(buf, "utf-8");
     } catch (final IOException e) {
       System.err.println(e);
       return text;
@@ -135,16 +129,11 @@ public class FormatServer implements Formatter {
    */
   private void sendShutdown() {
     log("Sending shutdown message to format server.");
-    try {
-      final Socket sock = new Socket("localhost", 10011);
-      try {
-        final DataOutputStream out = new DataOutputStream(sock.getOutputStream());
-        // -1 is a sentinel value meaning "die".
-        out.writeInt(-1);
-        out.flush();
-      } finally {
-        sock.close();
-      }
+    try (final Socket sock = new Socket("localhost", 10011);
+        final DataOutputStream out = new DataOutputStream(sock.getOutputStream());) {
+      // -1 is a sentinel value meaning "die".
+      out.writeInt(-1);
+      out.flush();
     } catch (final IOException e) {
       System.err.println(e);
     }

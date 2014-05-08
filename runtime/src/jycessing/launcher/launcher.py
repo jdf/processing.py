@@ -83,7 +83,7 @@ class __launcher(object):
             os.mkdir(pdir)
 
             # Copy archive
-            LaunchHelper.copyTo("launcher." + platform + ".zip", tmpfile)
+            LaunchHelper.copyResourceTo("launcher." + platform + ".zip", tmpfile)
             
             # Unzip
             z = zipfile.ZipFile(tmpfile, "r")

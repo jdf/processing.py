@@ -1,9 +1,11 @@
 package jycessing.launcher;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import jycessing.IOUtil;
 
 /**
  * Launch and deployment service for various platforms.
@@ -19,17 +21,9 @@ public class LaunchHelper {
    * @param path
    * @throws IOException
    */
-  public static void copyTo(final String name, final String path) throws IOException {
-    final InputStream in = LaunchHelper.class.getResourceAsStream(name);
-    final OutputStream out = new FileOutputStream(path);
-
-    final byte[] buffer = new byte[128 * 1024];
-    int len;
-    while ((len = in.read(buffer)) != -1) {
-      out.write(buffer, 0, len);
+  public static void copyResourceTo(final String name, final Path path) throws IOException {
+    try (InputStream in = LaunchHelper.class.getResourceAsStream(name)) {
+      Files.write(path, IOUtil.readFully(LaunchHelper.class.getResourceAsStream(name)));
     }
-
-    out.close();
-    in.close();
   }
 }

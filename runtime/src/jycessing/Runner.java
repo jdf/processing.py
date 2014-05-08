@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,9 +69,9 @@ public class Runner {
     }
   }
 
-  private static final String LAUNCHER_TEXT = IOUtil.readOrDie(LaunchHelper.class
+  private static final String LAUNCHER_TEXT = IOUtil.readTextOrDie(LaunchHelper.class
       .getResourceAsStream("launcher.py"));
-  private static final String CORE_TEXT = IOUtil.readOrDie(Runner.class
+  private static final String CORE_TEXT = IOUtil.readTextOrDie(Runner.class
       .getResourceAsStream("core.py"));
 
   static boolean VERBOSE = false;
@@ -227,17 +226,14 @@ public class Runner {
     VERBOSE = Boolean.getBoolean("verbose");
 
     final Properties buildnum = new Properties();
-    final InputStream buildnumberStream = Runner.class.getResourceAsStream(BUILD_PROPERTIES);
-    try {
+    try (InputStream buildnumberStream = Runner.class.getResourceAsStream(BUILD_PROPERTIES)) {
       buildnum.load(buildnumberStream);
-    } finally {
-      buildnumberStream.close();
     }
     log("processing.py build ", buildnum.getProperty("build.number"));
 
     // This will throw an exception and die if the given file is not there
     // or not readable.
-    final String sketchSource = IOUtil.read(new FileReader(sketchPath));
+    final String sketchSource = IOUtil.readText(new File(sketchPath).toPath());
 
     final SketchInfo info =
         new SketchInfo.Builder()
@@ -329,7 +325,7 @@ public class Runner {
     props.setProperty("python.main", info.sketch.getAbsolutePath());
     props.setProperty("python.main.root", sketchDirPath);
 
-    final String[] args = info.runMode.args(info.sketchName, info.x, info.y);
+    final String[] args = info.runMode.args(info);
     PythonInterpreter.initialize(null, props, args);
 
     final PySystemState sys = Py.getSystemState();
@@ -391,12 +387,8 @@ public class Runner {
 
       applet.findSketchMethods();
 
-      // Tell the applet where to load and save data files, etc.
-      final String[] massagedArgs = new String[args.length + 1];
-      System.arraycopy(args, 0, massagedArgs, 0, args.length);
-      massagedArgs[args.length] = PApplet.ARGS_SKETCH_FOLDER + "=" + sketchDirPath;
       try {
-        applet.runAndBlock(massagedArgs);
+        applet.runAndBlock(args);
       } finally {
         interp.cleanup();
       }
