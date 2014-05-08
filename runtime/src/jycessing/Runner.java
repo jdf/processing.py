@@ -353,7 +353,7 @@ public class Runner {
           log("Promiscusouly adding all libraries in " + info.libraryDirs);
           // Recursively search the "libraries" directory for jar files and
           // directories containing dynamic libraries.
-          final Set<String> libs = new HashSet<String>();
+          final Set<String> libs = new HashSet<>();
           for (final File dir : info.libraryDirs) {
             searchForExtraStuff(dir, libs);
           }

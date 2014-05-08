@@ -67,8 +67,8 @@ import processing.opengl.PShader;
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
 
-  private static final String GLOBAL_STATEMENT_TEXT = IOUtil.readTextOrDie(PAppletJythonDriver.class
-      .getResourceAsStream("add_global_statements.py"));
+  private static final String GLOBAL_STATEMENT_TEXT = IOUtil
+      .readTextOrDie(PAppletJythonDriver.class.getResourceAsStream("add_global_statements.py"));
 
   private PythonSketchError terminalException = null;
 
@@ -203,7 +203,7 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("__global__", new PyObject() {
       @Override
       public PyObject __call__(final PyObject names) {
-        final List<String> newNames = new ArrayList<String>();
+        final List<String> newNames = new ArrayList<>();
         for (final Object o : names.asIterable()) {
           newNames.add(o.toString());
         }

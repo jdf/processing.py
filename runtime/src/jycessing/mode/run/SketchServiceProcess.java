@@ -82,7 +82,7 @@ public class SketchServiceProcess {
   }
 
   private ProcessBuilder createServerCommand() {
-    final ArrayList<String> command = new ArrayList<String>();
+    final List<String> command = new ArrayList<>();
 
     command.add(Base.getJavaPath());
 
@@ -98,7 +98,7 @@ public class SketchServiceProcess {
 
     command.add("-Djava.library.path=" + System.getProperty("java.library.path"));
 
-    final List<String> cp = new ArrayList<String>();
+    final List<String> cp = new ArrayList<>();
     cp.add(System.getProperty("java.class.path"));
     for (final File jar : new File(Base.getContentFile("core"), "library").listFiles(JARS)) {
       cp.add(jar.getAbsolutePath());

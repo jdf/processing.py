@@ -18,8 +18,7 @@ public class SketchServiceManager implements ModeService {
   }
 
   private final PythonMode mode;
-  private final Map<String, SketchServiceProcess> sketchServices =
-      new HashMap<String, SketchServiceProcess>();
+  private final Map<String, SketchServiceProcess> sketchServices = new HashMap<>();
   private volatile boolean isStarted = false;
 
   public SketchServiceManager(final PythonMode mode) {

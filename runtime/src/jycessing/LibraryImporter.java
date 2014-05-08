@@ -37,7 +37,7 @@ class LibraryImporter {
 
   private final List<File> libdirs;
   private final InteractiveConsole interp;
-  private final Set<String> loadedLibs = new HashSet<String>();
+  private final Set<String> loadedLibs = new HashSet<>();
 
   private boolean didAddLibraries = false;
 

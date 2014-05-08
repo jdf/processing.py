@@ -41,7 +41,7 @@ public class SketchInfo implements Serializable {
   public static class Builder {
     private String sketchName;
     private RunMode runMode;
-    private final List<File> libDirs = new ArrayList<File>();
+    private final List<File> libDirs = new ArrayList<>();
     private File sketch;
     private String code;
     private String[] codeFileNames;
