@@ -44,6 +44,17 @@ public class SketchServiceProcess {
     this.editor = editor;
   }
 
+  /**
+   * This constructor should only be used while instrumenting or debugging the
+   * {@link SketchRunner}, in which case it has already been started in the
+   * debugger or such like.
+   */
+  SketchServiceProcess(final PythonMode mode, final PyEditor editor,
+      final SketchService runningService) {
+    this(mode, editor);
+    this.sketchService = runningService;
+  }
+
   public void start() {
     log("Starting sketch runner process.");
     final ProcessBuilder pb = createServerCommand();
@@ -170,7 +181,7 @@ public class SketchServiceProcess {
 
   public void stopSketch() throws SketchException {
     if (sketchService == null) {
-      log("Sketch runner apparetly not running; can't stop sketch.");
+      log("Sketch runner apparently not running; can't stop sketch.");
       handleSketchStopped();
       restartServerProcess();
       return;

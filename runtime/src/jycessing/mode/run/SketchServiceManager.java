@@ -21,13 +21,25 @@ public class SketchServiceManager implements ModeService {
   private final Map<String, SketchServiceProcess> sketchServices = new HashMap<>();
   private volatile boolean isStarted = false;
 
+  /**
+   * This is used when {@link PythonMode#SKETCH_RUNNER_FIRST} is true. This lets
+   * use run the SketchRunner in a debugger, for example.
+   */
+  private SketchService debugSketchRunner;
+
   public SketchServiceManager(final PythonMode mode) {
     this.mode = mode;
   }
 
   public SketchServiceProcess createSketchService(final PyEditor editor) {
-    final SketchServiceProcess p = new SketchServiceProcess(mode, editor);
-    sketchServices.put(editor.getId(), p);
+    final SketchServiceProcess p;
+    if (PythonMode.SKETCH_RUNNER_FIRST) {
+      p = new SketchServiceProcess(mode, editor, debugSketchRunner);
+      sketchServices.put(DEBUG_SKETCH_RUNNER_KEY, p);
+    } else {
+      p = new SketchServiceProcess(mode, editor);
+      sketchServices.put(editor.getId(), p);
+    }
     return p;
   }
 
@@ -74,6 +86,11 @@ public class SketchServiceManager implements ModeService {
 
   @Override
   public void handleReady(final String editorId, final SketchService service) {
+    if (PythonMode.SKETCH_RUNNER_FIRST) {
+      log("Debug sketch runner is ready.");
+      debugSketchRunner = service;
+      return;
+    }
     processFor(editorId).handleReady(service);
   }
 
