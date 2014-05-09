@@ -519,6 +519,41 @@ public class PAppletJythonDriver extends PApplet {
     });
   }
 
+  /*
+   * If you fill(0xAARRGGBB), for some reason Jython decides to
+   * invoke the fill(float) method, unless we provide a long int
+   * version to catch it.
+   */
+  public void fill(final long argb) {
+    fill((int)(argb & 0xFFFFFFFF));
+  }
+
+  public void stroke(final long argb) {
+    stroke((int)(argb & 0xFFFFFFFF));
+  }
+
+  /*
+   * Python can't parse web colors, we we let the user do '#RRGGBB'
+   * as a string.
+   */
+  public void fill(final String argbSpec) {
+    fill(parseColorSpec(argbSpec));
+  }
+
+  public void stroke(final String argbSpec) {
+    stroke(parseColorSpec(argbSpec));
+  }
+
+  private int parseColorSpec(final String argbSpec) {
+    if (argbSpec.startsWith("#")) {
+      try {
+        return 0xFF000000 | Integer.decode(argbSpec);
+      } catch (final NumberFormatException e) {
+      }
+    }
+    throw new RuntimeException("I can't understand that as a color.");
+  }
+
   /**
    * Permit both the instance method lerpColor and the static method lerpColor.
    */
@@ -526,13 +561,15 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("lerpColor", new PyObject() {
       @Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
+        final int c1 = (int)(args[0].asLong() & 0xFFFFFFFF);
+        final int c2 = (int)(args[1].asLong() & 0xFFFFFFFF);
+        final float amt = (float)args[2].asDouble();
         switch (args.length) {
           case 3:
-            return Py.newInteger(lerpColor(args[0].asInt(), args[1].asInt(),
-                (float)args[2].asDouble()));
+            return Py.newInteger(lerpColor(c1, c2, amt));
           case 4:
-            return Py.newInteger(lerpColor(args[0].asInt(), args[1].asInt(),
-                (float)args[2].asDouble(), args[3].asInt()));
+            final int colorMode = (int)(args[3].asLong() & 0xFFFFFFFF);
+            return Py.newInteger(lerpColor(c1, c2, amt, colorMode));
             //$FALL-THROUGH$
           default:
             throw new RuntimeException("lerpColor takes either 3 or 4 arguments, but I got "
