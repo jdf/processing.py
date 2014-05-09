@@ -465,7 +465,7 @@
     </javac>
   </target>
   <target name="test.standalone" depends="build-tests">
-    <junit fork="true">
+    <junit fork="true" haltonfailure="true">
       <test name="test.jycessing.JycessingTests">
           <formatter type="plain" usefile="false"/>
       </test>
@@ -478,20 +478,20 @@
     </junit>
   </target>
   <target name="test.mode" depends="build-tests,mode.jar">
-      <junit fork="true" printsummary="true">
-	  <test name="test.jycessing.JycessingTests">
-          <formatter type="plain" usefile="false"/>
-	  </test> 
-      <classpath>
-        <pathelement location="testing/bin"/>
-        <pathelement location="${corejar}"/>
-        <pathelement location="${processing}/core/library/gluegen-rt.jar"/>
-        <pathelement location="${processing}/core/library/jogl-all.jar"/>
-        <pathelement location="work/PythonMode.jar"/>
-        <pathelement location="${jython}"/>
-        <pathelement location="testing/library/junit-4.11.jar"/>
-        <pathelement location="testing/library/hamcrest-core-1.3.jar"/>
-      </classpath>
+  	<junit fork="true" haltonfailure="true">
+		<test name="test.jycessing.JycessingTests">
+	          <formatter type="plain" usefile="false"/>
+  		</test> 
+	    <classpath>
+			<pathelement location="testing/bin"/>
+			<pathelement location="${corejar}"/>
+			<pathelement location="${processing}/core/library/gluegen-rt.jar"/>
+			<pathelement location="${processing}/core/library/jogl-all.jar"/>
+			<pathelement location="work/PythonMode.jar"/>
+			<pathelement location="${jython}"/>
+			<pathelement location="testing/library/junit-4.11.jar"/>
+			<pathelement location="testing/library/hamcrest-core-1.3.jar"/>
+         </classpath>
     </junit>
   </target>
   <target name="test" depends="test.mode,test.standalone"/>
