@@ -136,8 +136,8 @@ public class JycessingTests {
   }
 
   @Test
-  public void loadPixels() throws Exception {
-    expectOK("loadPixels");
+  public void pixels() throws Exception {
+    expectOK("pixels");
   }
 
   @Test
@@ -201,5 +201,10 @@ public class JycessingTests {
     * you can mutate a global without the "global" keyword.
     */
     expectOK("autoglobal");
+  }
+
+  @Test
+  public void hex() throws Exception {
+    expectOK("hex");
   }
 }

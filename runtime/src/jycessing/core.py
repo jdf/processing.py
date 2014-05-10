@@ -276,7 +276,8 @@ __builtin__.fill = __papplet__.fill
 #__builtin__.filter = __papplet__.filter
 __builtin__.frameRate = __papplet__.frameRate
 __builtin__.frustum = __papplet__.frustum
-__builtin__.get = __papplet__.get
+# We have to provide a funky get() because of int/long conversion woes.
+#__builtin__.get = __papplet__.get
 __builtin__.hint = __papplet__.hint
 __builtin__.hue = __papplet__.hue
 __builtin__.image = __papplet__.image
@@ -420,7 +421,20 @@ __builtin__.dist = PApplet.dist
 __builtin__.exp = PApplet.exp
 __builtin__.expand = PApplet.expand
 __builtin__.floor = PApplet.floor
-__builtin__.hex = PApplet.hex
+
+__original_hex__ = hex
+def __bogus_hex__(x):
+    s = __original_hex__(x).upper()
+    if s[0] == '-':
+        s = '-' + s[3:]
+    else:
+        s = s[2:]
+    if s[-1] == 'L':
+        return s[:-1]
+    return s
+__builtin__.hex = __bogus_hex__
+del __bogus_hex__
+
 __builtin__.hour = PApplet.hour
 __builtin__.join = PApplet.join
 __builtin__.lerp = PApplet.lerp
@@ -463,7 +477,7 @@ __builtin__.subset = PApplet.subset
 __builtin__.tan = PApplet.tan
 __builtin__.trim = PApplet.trim
 __builtin__.unbinary = PApplet.unbinary
-__builtin__.unhex = PApplet.unhex
+__builtin__.unhex = lambda x: int(x, base=16)
 __builtin__.year = PApplet.year
 
 del monkeypatch_method, PAppletJythonDriver

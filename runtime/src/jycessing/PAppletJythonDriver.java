@@ -79,6 +79,20 @@ public class PAppletJythonDriver extends PApplet {
 
   private final CountDownLatch finishedLatch = new CountDownLatch(1);
 
+  /**
+   * Because of a bad interaction between Java and Jython, integers with the high bit set
+   * become negative integers when accessed in Jython, which means that a color like
+   * opaque green (0xFF00FF00) does not survive the round-trip into from Python into
+   * Java and back (i.e., the sequence
+   * <pre>fill(0xFF00FF00)
+   * rect(0, 0, 20, 20)
+   * assert get(10, 10) == 0xFF00FF00</pre>
+   * fails.
+   * <p>Therefore, we override get(), loadPixels(), and updatePixels(), and we shadow
+   * the PApplet pixels[] array with this:
+   */
+  private long[] longPixels;
+
   private enum Mode {
     STATIC, DRAW_LOOP
   }
@@ -163,7 +177,7 @@ public class PAppletJythonDriver extends PApplet {
       }
       return new PythonSketchError(Py.formatException(e.type, e.value), file, line);
     }
-    return new PythonSketchError(t.getMessage());
+    return new PythonSketchError(t.getClass().getSimpleName() + ": " + t.getMessage());
   }
 
   private static PythonSketchError extractSketchErrorFromPyExceptionValue(final PyTuple tup) {
@@ -196,6 +210,7 @@ public class PAppletJythonDriver extends PApplet {
     setMap();
     setSet();
     setLerpColor();
+    setGet();
     builtins.__setitem__("g", Py.java2py(g));
     // There's a bug in ast.Global that makes it impossible to construct a valid Global
     // using the constructor that takes a list of names. This crazy thing is a workaround
@@ -431,22 +446,16 @@ public class PAppletJythonDriver extends PApplet {
           default:
             return originalSet.__call__(args, kws);
           case 3: {
-            final PyObject x = args[0];
-            final PyType tx = x.getType();
-            final PyObject y = args[1];
-            final PyType ty = y.getType();
+            final int x = args[0].asInt();
+            final int y = args[1].asInt();
             final PyObject c = args[2];
             final PyType tc = c.getType();
-            if (tx == PyInteger.TYPE && ty == PyInteger.TYPE && tc == PyInteger.TYPE) {
-              set(x.asInt(), y.asInt(), c.asInt());
-              return Py.None;
-            } else if (tx == PyInteger.TYPE && ty == PyInteger.TYPE && tc.getProxyType() != null
-                && tc.getProxyType() == PImage.class) {
-              set(x.asInt(), y.asInt(),
-                  (processing.core.PImage)c.__tojava__(processing.core.PImage.class));
+            if (tc.getProxyType() != null && tc.getProxyType() == PImage.class) {
+              set(x, y, (processing.core.PImage)c.__tojava__(processing.core.PImage.class));
               return Py.None;
             } else {
-              return super.__call__(args, kws);
+              set(x, y, interpretColorArg(c));
+              return Py.None;
             }
           }
         }
@@ -519,6 +528,10 @@ public class PAppletJythonDriver extends PApplet {
     });
   }
 
+  public String hex(final long n) {
+    return Long.toHexString(n);
+  }
+
   /*
    * If you fill(0xAARRGGBB), for some reason Jython decides to
    * invoke the fill(float) method, unless we provide a long int
@@ -551,18 +564,30 @@ public class PAppletJythonDriver extends PApplet {
       } catch (final NumberFormatException e) {
       }
     }
-    throw new RuntimeException("I can't understand that as a color.");
+    throw new RuntimeException("I can't understand \"" + argbSpec + "\" as a color.");
+  }
+
+  /**
+   * The positional arguments to lerpColor may be long integers or CSS-style
+   * string specs.
+   * @param arg A color argument.
+   * @return the integer correspnding to the intended color.
+   */
+  private int interpretColorArg(final PyObject arg) {
+    return arg.getType() == PyString.TYPE ? parseColorSpec(arg.asString())
+        : (int)(arg.asLong() & 0xFFFFFFFF);
   }
 
   /**
    * Permit both the instance method lerpColor and the static method lerpColor.
+   * Also permit 0xAARRGGBB, '#RRGGBB', and 0-255.
    */
   private void setLerpColor() {
     builtins.__setitem__("lerpColor", new PyObject() {
       @Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
-        final int c1 = (int)(args[0].asLong() & 0xFFFFFFFF);
-        final int c2 = (int)(args[1].asLong() & 0xFFFFFFFF);
+        final int c1 = interpretColorArg(args[0]);
+        final int c2 = interpretColorArg(args[1]);
         final float amt = (float)args[2].asDouble();
         switch (args.length) {
           case 3:
@@ -574,6 +599,31 @@ public class PAppletJythonDriver extends PApplet {
           default:
             throw new RuntimeException("lerpColor takes either 3 or 4 arguments, but I got "
                 + args.length + ".");
+        }
+      }
+    });
+  }
+
+  /**
+   * Fix the result of pixel gets, which wind up as negative ints rather than
+   * unsigned quantities.
+   */
+  private void setGet() {
+    builtins.__setitem__("get", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        switch (args.length) {
+          case 0:
+            return Py.java2py(get());
+          case 2:
+            return Py.newLong(get(args[0].asInt(), args[1].asInt()) & 0xFFFFFFFFL);
+          case 4:
+            return Py.java2py(get(args[0].asInt(), args[1].asInt(), args[2].asInt(),
+                args[3].asInt()));
+            //$FALL-THROUGH$
+          default:
+            throw new RuntimeException("get() takes 0, 2, or 4 arguments, but I got " + args.length
+                + ".");
         }
       }
     });
@@ -660,7 +710,21 @@ public class PAppletJythonDriver extends PApplet {
   @Override
   public void loadPixels() {
     super.loadPixels();
-    builtins.__setitem__("pixels", Py.java2py(pixels));
+    if (longPixels == null || longPixels.length != pixels.length) {
+      longPixels = new long[pixels.length];
+    }
+    for (int i = 0; i < pixels.length; i++) {
+      longPixels[i] = pixels[i] & 0xFFFFFFFFL;
+    }
+    builtins.__setitem__("pixels", Py.java2py(longPixels));
+  }
+
+  @Override
+  public void updatePixels() {
+    for (int i = 0; i < longPixels.length; i++) {
+      pixels[i] = (int)(longPixels[i] & 0xFFFFFFFFL);
+    }
+    super.updatePixels();
   }
 
   @Override

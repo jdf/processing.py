@@ -15,10 +15,10 @@ rect(100, 100, 100, 100)
 fill(255)
 text("I am blue", 105, 116)
 
-# lerpColor takes hex ARGB or the result of a
-# call to color().
-c1 = color(180, 0, 0, 255)
-c2 = 0x880000FF
+# lerpColor takes hex ARGB, a CSS-style string, or the
+# result of a call to color().
+c1 = color(255, 0, 0, 100)
+c2 = '#0000FF'
 fill(lerpColor(c1, c2, .5))
 rect(150, 150, 100, 100)
 
