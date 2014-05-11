@@ -70,6 +70,12 @@ public class PAppletJythonDriver extends PApplet {
   private static final String GLOBAL_STATEMENT_TEXT = IOUtil
       .readTextOrDie(PAppletJythonDriver.class.getResourceAsStream("add_global_statements.py"));
 
+  static {
+    // There's some bug that I don't understand yet that causes the native file
+    // select box to fire twice, skipping confirmation the first time.
+    useNativeSelect = false;
+  }
+
   private PythonSketchError terminalException = null;
 
   protected final PyStringMap builtins;
@@ -111,7 +117,8 @@ public class PAppletJythonDriver extends PApplet {
   // you have implemented a method, we save it and call it.
   private PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth, mouseMovedMeth,
       mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth, initMeth,
-      stopMeth, sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
+      pauseMeth, resumeMeth, stopMeth, destroyMeth, sketchFullScreenMeth, sketchWidthMeth,
+      sketchHeightMeth, sketchRendererMeth;
 
   // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
   // the source file name, so that errors have the file name instead of
@@ -238,6 +245,8 @@ public class PAppletJythonDriver extends PApplet {
 
   @Override
   protected void exitActual() {
+    stop();
+    destroy();
     finishedLatch.countDown();
   }
 
@@ -266,6 +275,9 @@ public class PAppletJythonDriver extends PApplet {
     sketchRendererMeth = interp.get("sketchRenderer");
     initMeth = interp.get("init");
     stopMeth = interp.get("stop");
+    pauseMeth = interp.get("pause");
+    resumeMeth = interp.get("resume");
+    destroyMeth = interp.get("destroy");
     if (mousePressedMeth != null) {
       // The user defined a mousePressed() method, which will hide the magical
       // Processing variable boolean mousePressed. We have to do some magic.
@@ -845,6 +857,75 @@ public class PAppletJythonDriver extends PApplet {
     } finally {
       super.stop();
     }
+  }
+
+  @Override
+  public void pause() {
+    try {
+      if (pauseMeth != null) {
+        pauseMeth.__call__();
+      }
+    } finally {
+      super.pause();
+    }
+  }
+
+  @Override
+  public void resume() {
+    try {
+      if (resumeMeth != null) {
+        resumeMeth.__call__();
+      }
+    } finally {
+      super.resume();
+    }
+  }
+
+  @Override
+  public void destroy() {
+    try {
+      if (destroyMeth != null) {
+        destroyMeth.__call__();
+      }
+    } finally {
+      super.destroy();
+    }
+  }
+
+  /**
+   * Processing uses reflection to call file selection callbacks by name.
+   * We fake out that stuff with one of these babies.
+   */
+  public class FileSelectCallbackProxy {
+    private final PyObject callback;
+
+    public FileSelectCallbackProxy(final String name) {
+      callback = interp.get(name);
+      if (callback == null) {
+        throw new RuntimeException("I can't find a callback function named \"" + name + "\"");
+      }
+    }
+
+    // Called only by reflection.
+    @SuppressWarnings("unused")
+    public void handleCallback(final File selection) {
+      callback.__call__(Py.java2py(selection));
+    }
+  }
+
+  @Override
+  public void selectFolder(final String prompt, final String callback, final File file) {
+    super.selectFolder(prompt, "handleCallback", file, new FileSelectCallbackProxy(callback));
+  }
+
+  @Override
+  public void selectInput(final String prompt, final String callback, final File file) {
+    super.selectInput(prompt, "handleCallback", file, new FileSelectCallbackProxy(callback));
+  }
+
+  @Override
+  public void selectOutput(final String prompt, final String callback, final File file) {
+    super.selectOutput(prompt, "handleCallback", file, new FileSelectCallbackProxy(callback));
   }
 
   // These two functions are a workaround for a Jython bug that prevents the print statement
