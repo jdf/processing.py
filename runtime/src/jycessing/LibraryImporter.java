@@ -2,6 +2,11 @@ package jycessing;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -59,6 +64,7 @@ class LibraryImporter {
   }
 
   private void appendToSysPath(final File file) {
+    addToClassLoader(file);
     final String appendStatement =
         String.format("sys.path.append(\"%s\")\n", file.getAbsolutePath());
     log(appendStatement);
@@ -69,6 +75,26 @@ class LibraryImporter {
           appendToSysPath(f);
         }
       }
+    }
+  }
+
+  private void addToClassLoader(final File jar) {
+    try {
+      final URL url = jar.toURI().toURL();
+      final URLClassLoader ucl = (URLClassLoader)ClassLoader.getSystemClassLoader();
+      // Linear search for url. It's ok for this to be slow.
+      for (final URL existing : ucl.getURLs()) {
+        if (existing.equals(url)) {
+          return;
+        }
+      }
+      log("Appending " + url + " to the system classloader.");
+      final Method addUrl = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+      addUrl.setAccessible(true);
+      addUrl.invoke(ucl, url);
+    } catch (NoSuchMethodException | SecurityException | IllegalAccessException
+        | IllegalArgumentException | InvocationTargetException | MalformedURLException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -95,7 +121,14 @@ class LibraryImporter {
     appendToSysPath(libClassDir);
 
     final String jarPath = String.format("%s/%s.jar", libClassDir.getAbsolutePath(), libName);
+    try {
+      addPublicClassesFromJar(jarPath);
+    } catch (final IOException e) {
+      throw new RuntimeException("While trying to add " + libName + " library:", e);
+    }
+  }
 
+  private void addPublicClassesFromJar(final String jarPath) throws IOException {
     try (final ZipFile file = new ZipFile(jarPath)) {
       final Enumeration<? extends ZipEntry> entries = file.entries();
       while (entries.hasMoreElements()) {
@@ -126,8 +159,6 @@ class LibraryImporter {
         log(importStatement);
         interp.exec(importStatement);
       }
-    } catch (final IOException e) {
-      throw new RuntimeException("While trying to add " + libName + " library:", e);
     }
   }
 
