@@ -313,18 +313,13 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   protected void wrapProcessingVariables() {
+    wrapMouseVariables();
     builtins.__setitem__("displayWidth", pyint(displayWidth));
     builtins.__setitem__("displayHeight", pyint(displayHeight));
-    builtins.__setitem__("mouseX", pyint(mouseX));
-    builtins.__setitem__("mouseY", pyint(mouseY));
-    builtins.__setitem__("pmouseX", pyint(pmouseX));
-    builtins.__setitem__("pmouseY", pyint(pmouseY));
     builtins.__setitem__("paused", Py.newBoolean(paused));
     builtins.__setitem__("focused", Py.newBoolean(focused));
     builtins.__setitem__("keyPressed", Py.newBoolean(keyPressed));
-    builtins.__setitem__("mousePressed", Py.newBoolean(mousePressed));
     builtins.__setitem__("frameCount", pyint(frameCount));
-    builtins.__setitem__("mouseButton", pyint(mouseButton));
     builtins.__setitem__("keyCode", pyint(keyCode));
     builtins.__setitem__("frameRate", new PyFloat(frameRate) {
       @Override
@@ -373,6 +368,17 @@ public class PAppletJythonDriver extends PApplet {
         return getProxy().__unicode__();
       }
     });
+  }
+
+  private void wrapMouseVariables() {
+    builtins.__setitem__("mouseX", pyint(mouseX));
+    builtins.__setitem__("mouseY", pyint(mouseY));
+    builtins.__setitem__("pmouseX", pyint(pmouseX));
+    builtins.__setitem__("pmouseY", pyint(pmouseY));
+    builtins.__setitem__("mouseButton", pyint(mouseButton));
+    if (mousePressedMeth == null) {
+      builtins.__setitem__("mousePressed", Py.newBoolean(mousePressed));
+    }
   }
 
   @Override
@@ -740,24 +746,6 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   @Override
-  public void mouseClicked() {
-    if (mouseClickedMeth == null) {
-      super.mouseClicked();
-    } else {
-      mouseClickedMeth.__call__();
-    }
-  }
-
-  @Override
-  public void mouseMoved() {
-    if (mouseMovedMeth == null) {
-      super.mouseMoved();
-    } else {
-      mouseMovedMeth.__call__();
-    }
-  }
-
-  @Override
   public boolean sketchFullScreen() {
     if (sketchFullScreenMeth == null) {
       return super.sketchFullScreen();
@@ -794,10 +782,32 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   @Override
+  public void mouseClicked() {
+    if (mouseClickedMeth == null) {
+      super.mouseClicked();
+    } else {
+      wrapMouseVariables();
+      mouseClickedMeth.__call__();
+    }
+  }
+
+  @Override
+  public void mouseMoved() {
+    if (mouseMovedMeth == null) {
+      super.mouseMoved();
+    } else {
+      wrapMouseVariables();
+      mouseMovedMeth.__call__();
+    }
+  }
+
+
+  @Override
   public void mousePressed() {
     if (mousePressedMeth == null) {
       super.mousePressed();
     } else {
+      wrapMouseVariables();
       mousePressedMeth.__call__();
     }
   }
@@ -807,6 +817,7 @@ public class PAppletJythonDriver extends PApplet {
     if (mouseReleasedMeth == null) {
       super.mouseReleased();
     } else {
+      wrapMouseVariables();
       mouseReleasedMeth.__call__();
     }
   }
@@ -816,6 +827,7 @@ public class PAppletJythonDriver extends PApplet {
     if (mouseDraggedMeth == null) {
       super.mouseDragged();
     } else {
+      wrapMouseVariables();
       mouseDraggedMeth.__call__();
     }
   }
