@@ -44,8 +44,6 @@ class LibraryImporter {
   private final InteractiveConsole interp;
   private final Set<String> loadedLibs = new HashSet<>();
 
-  private boolean didAddLibraries = false;
-
   public LibraryImporter(final List<File> libdirs, final InteractiveConsole interp) {
     this.libdirs = libdirs;
     this.interp = interp;
@@ -65,10 +63,6 @@ class LibraryImporter {
 
   private void appendToSysPath(final File file) {
     addToClassLoader(file);
-    final String appendStatement =
-        String.format("sys.path.append(\"%s\")\n", file.getAbsolutePath());
-    log(appendStatement);
-    interp.exec(appendStatement);
     if (file.isDirectory()) {
       for (final File f : file.listFiles()) {
         if (f.isDirectory() || f.getName().endsWith(".jar")) {
@@ -99,8 +93,6 @@ class LibraryImporter {
   }
 
   protected void addLibrary(final String libName) {
-    didAddLibraries = true;
-
     if (loadedLibs.contains(libName)) {
       return;
     }
@@ -122,13 +114,13 @@ class LibraryImporter {
 
     final String jarPath = String.format("%s/%s.jar", libClassDir.getAbsolutePath(), libName);
     try {
-      addPublicClassesFromJar(jarPath);
+      importPublicClassesFromJar(jarPath);
     } catch (final IOException e) {
       throw new RuntimeException("While trying to add " + libName + " library:", e);
     }
   }
 
-  private void addPublicClassesFromJar(final String jarPath) throws IOException {
+  private void importPublicClassesFromJar(final String jarPath) throws IOException {
     try (final ZipFile file = new ZipFile(jarPath)) {
       final Enumeration<? extends ZipEntry> entries = file.entries();
       while (entries.hasMoreElements()) {
@@ -160,9 +152,5 @@ class LibraryImporter {
         interp.exec(importStatement);
       }
     }
-  }
-
-  public boolean didAddLibraries() {
-    return didAddLibraries;
   }
 }
