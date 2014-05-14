@@ -859,7 +859,6 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
-  // Minim sketches seem to want to override stop()
   @Override
   public void stop() {
     try {
