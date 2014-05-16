@@ -15,6 +15,18 @@
  */
 package jycessing;
 
+import org.python.core.Py;
+import org.python.core.PyList;
+import org.python.core.PyObject;
+import org.python.core.PyStringMap;
+import org.python.core.PySystemState;
+import org.python.core.codecs;
+import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
+
+import processing.core.PApplet;
+import processing.core.PConstants;
+
 import java.awt.SplashScreen;
 import java.io.File;
 import java.io.FileFilter;
@@ -38,18 +50,6 @@ import jycessing.annotations.PythonUsage;
 import jycessing.launcher.LaunchHelper;
 import jycessing.mode.RunMode;
 import jycessing.mode.run.SketchInfo;
-
-import org.python.core.Py;
-import org.python.core.PyList;
-import org.python.core.PyObject;
-import org.python.core.PyStringMap;
-import org.python.core.PySystemState;
-import org.python.core.codecs;
-import org.python.util.InteractiveConsole;
-import org.python.util.PythonInterpreter;
-
-import processing.core.PApplet;
-import processing.core.PConstants;
 
 public class Runner {
 

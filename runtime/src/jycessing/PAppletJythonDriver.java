@@ -338,6 +338,8 @@ public class PAppletJythonDriver extends PApplet {
     wrapKeyVariables();
   }
 
+  // We only change the "key" variable as necessary to avoid generating
+  // lots of PyUnicode garbage.
   private char lastKey = Character.MIN_VALUE;
 
   private void wrapKeyVariables() {
