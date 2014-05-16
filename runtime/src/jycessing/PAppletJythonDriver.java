@@ -68,8 +68,8 @@ import javax.swing.SwingUtilities;
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
 
-  private static final String GLOBAL_STATEMENT_TEXT = IOUtil.readTextOrDie(
-      PAppletJythonDriver.class.getResourceAsStream("add_global_statements.py"));
+  private static final String GLOBAL_STATEMENT_TEXT = IOUtil
+      .readTextOrDie(PAppletJythonDriver.class.getResourceAsStream("add_global_statements.py"));
 
   static {
     // There's some bug that I don't understand yet that causes the native file
@@ -111,8 +111,8 @@ public class PAppletJythonDriver extends PApplet {
 
   // The presence of either setup() or draw() indicates that this is not a
   // static sketch.
-  private static final Pattern ACTIVE_METHOD_DEF =
-      Pattern.compile("^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
+  private static final Pattern ACTIVE_METHOD_DEF = Pattern.compile(
+      "^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
 
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
@@ -128,8 +128,9 @@ public class PAppletJythonDriver extends PApplet {
     try {
       Py.setSystemState(interp.getSystemState());
       interp.set("__processing_source__", programText);
-      final PyCode code = Py.compile_flags(GLOBAL_STATEMENT_TEXT, pySketchPath, CompileMode.exec,
-          new CompilerFlags());
+      final PyCode code =
+          Py.compile_flags(GLOBAL_STATEMENT_TEXT, pySketchPath, CompileMode.exec,
+              new CompilerFlags());
       Py.exec(code, interp.getLocals(), null);
       Py.flushLine();
     } catch (Throwable t) {
@@ -326,8 +327,8 @@ public class PAppletJythonDriver extends PApplet {
       public PyObject __call__(final PyObject[] args, final String[] kws) {
         switch (args.length) {
           default:
-            throw new RuntimeException(
-                "Can't call \"frameRate\" with " + args.length + " parameters.");
+            throw new RuntimeException("Can't call \"frameRate\" with " + args.length
+                + " parameters.");
           case 1: {
             frameRate((float)args[0].asDouble());
             return Py.None;
@@ -464,7 +465,7 @@ public class PAppletJythonDriver extends PApplet {
             final int y = args[1].asInt();
             final PyObject c = args[2];
             final PyType tc = c.getType();
-            if (tc.getProxyType() != null && tc.getProxyType() == PImage.class) {
+            if (tc.getProxyType() != null && PImage.class.isAssignableFrom(tc.getProxyType())) {
               set(x, y, (processing.core.PImage)c.__tojava__(processing.core.PImage.class));
               return Py.None;
             } else {
@@ -534,7 +535,7 @@ public class PAppletJythonDriver extends PApplet {
               filter(a.asInt(), (float)b.asDouble());
               return Py.None;
             }
-        //$FALL-THROUGH$
+            //$FALL-THROUGH$
           default:
             return builtinFilter.__call__(args, kws);
         }
@@ -609,10 +610,10 @@ public class PAppletJythonDriver extends PApplet {
           case 4:
             final int colorMode = (int)(args[3].asLong() & 0xFFFFFFFF);
             return Py.newInteger(lerpColor(c1, c2, amt, colorMode));
-        //$FALL-THROUGH$
+            //$FALL-THROUGH$
           default:
-            throw new RuntimeException(
-                "lerpColor takes either 3 or 4 arguments, but I got " + args.length + ".");
+            throw new RuntimeException("lerpColor takes either 3 or 4 arguments, but I got "
+                + args.length + ".");
         }
       }
     });
@@ -632,12 +633,12 @@ public class PAppletJythonDriver extends PApplet {
           case 2:
             return Py.newLong(get(args[0].asInt(), args[1].asInt()) & 0xFFFFFFFFL);
           case 4:
-            return Py.java2py(
-                get(args[0].asInt(), args[1].asInt(), args[2].asInt(), args[3].asInt()));
-        //$FALL-THROUGH$
+            return Py.java2py(get(args[0].asInt(), args[1].asInt(), args[2].asInt(), args[3]
+                .asInt()));
+            //$FALL-THROUGH$
           default:
-            throw new RuntimeException(
-                "get() takes 0, 2, or 4 arguments, but I got " + args.length + ".");
+            throw new RuntimeException("get() takes 0, 2, or 4 arguments, but I got " + args.length
+                + ".");
         }
       }
     });
@@ -678,8 +679,7 @@ public class PAppletJythonDriver extends PApplet {
    * sketch's world, particularly width and height.
    */
   @Override
-  public void size(final int iwidth, final int iheight, final String irenderer,
-      final String ipath) {
+  public void size(final int iwidth, final int iheight, final String irenderer, final String ipath) {
     super.size(iwidth, iheight, irenderer, ipath);
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("frame", Py.java2py(frame));

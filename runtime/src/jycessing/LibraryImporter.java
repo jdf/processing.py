@@ -28,7 +28,7 @@ import org.python.util.InteractiveConsole;
  * 
  * <p>add_library causes the given Processing library (all of its jar files and
  * library subdirectories potentially containing native code) to be added to the
- * Jython sys.path, and generates import statements bringing all top-level
+ * system {@link ClassLoader}, and generates import statements bringing all top-level
  * classes available in the main library jar file into the sketch's namespace.
  * 
  * @author feinberg
