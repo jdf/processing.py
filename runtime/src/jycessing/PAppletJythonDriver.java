@@ -33,7 +33,6 @@ import org.python.core.PyStringMap;
 import org.python.core.PySyntaxError;
 import org.python.core.PyTuple;
 import org.python.core.PyType;
-import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
@@ -321,7 +320,6 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("focused", Py.newBoolean(focused));
     builtins.__setitem__("keyPressed", Py.newBoolean(keyPressed));
     builtins.__setitem__("frameCount", pyint(frameCount));
-    builtins.__setitem__("keyCode", pyint(keyCode));
     builtins.__setitem__("frameRate", new PyFloat(frameRate) {
       @Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
@@ -337,38 +335,23 @@ public class PAppletJythonDriver extends PApplet {
       }
     });
 
-    /*
-     * If key is "CODED", i.e., an arrow key or other non-printable, pass that
-     * value through as-is. If it's printable, convert it to a unicode string,
-     * so that the user can compare key == 'x' instead of key == ord('x').
-     */
-    builtins.__setitem__("key", new PyObject() {
-      private char lastKey = (char)-1;
-      private PyObject cachedProxy = null;
+    wrapKeyVariables();
+  }
 
-      private PyObject getProxy() {
-        if (key != lastKey || cachedProxy == null) {
-          cachedProxy = key == CODED ? new PyInteger(key) : new PyUnicode(Character.toString(key));
-          lastKey = key;
-        }
-        return cachedProxy;
-      }
+  private char lastKey = Character.MIN_VALUE;
 
-      @Override
-      public PyObject __eq__(final PyObject other) {
-        return getProxy().__eq__(other);
-      }
-
-      @Override
-      public PyString __str__() {
-        return getProxy().__str__();
-      }
-
-      @Override
-      public PyUnicode __unicode__() {
-        return getProxy().__unicode__();
-      }
-    });
+  private void wrapKeyVariables() {
+    if (lastKey != key) {
+      lastKey = key;
+      /*
+       * If key is "CODED", i.e., an arrow key or other non-printable, pass that
+       * value through as-is. If it's printable, convert it to a unicode string,
+       * so that the user can compare key == 'x' instead of key == ord('x').
+       */
+      final PyObject pyKey = key == CODED ? pyint(key) : Py.newUnicode(key);
+      builtins.__setitem__("key", pyKey);
+    }
+    builtins.__setitem__("keyCode", pyint(keyCode));
   }
 
   private void wrapMouseVariables() {
@@ -633,8 +616,8 @@ public class PAppletJythonDriver extends PApplet {
           case 2:
             return Py.newLong(get(args[0].asInt(), args[1].asInt()) & 0xFFFFFFFFL);
           case 4:
-            return Py.java2py(get(args[0].asInt(), args[1].asInt(), args[2].asInt(), args[3]
-                .asInt()));
+            return Py.java2py(get(args[0].asInt(), args[1].asInt(), args[2].asInt(),
+                args[3].asInt()));
             //$FALL-THROUGH$
           default:
             throw new RuntimeException("get() takes 0, 2, or 4 arguments, but I got " + args.length
@@ -834,6 +817,7 @@ public class PAppletJythonDriver extends PApplet {
     if (keyPressedMeth == null) {
       super.keyPressed();
     } else {
+      wrapKeyVariables();
       keyPressedMeth.__call__();
     }
   }
@@ -843,6 +827,7 @@ public class PAppletJythonDriver extends PApplet {
     if (keyReleasedMeth == null) {
       super.keyReleased();
     } else {
+      wrapKeyVariables();
       keyReleasedMeth.__call__();
     }
   }
@@ -852,6 +837,7 @@ public class PAppletJythonDriver extends PApplet {
     if (keyTypedMeth == null) {
       super.keyTyped();
     } else {
+      wrapKeyVariables();
       keyTypedMeth.__call__();
     }
   }
