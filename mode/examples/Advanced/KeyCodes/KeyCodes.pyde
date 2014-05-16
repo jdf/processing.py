@@ -16,7 +16,7 @@ def draw():
 
 def keyPressed():
     if key == CODED:
-        print KEY_NAMES[keyCode]
+        print key_names[keyCode]
     else:
         print "key " + key
 
