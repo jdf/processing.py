@@ -202,6 +202,26 @@ def __idiv__(a, b):
 def __magSq__(a):
     return __pvector__.magSq(a)
 
+@monkeypatch_method(__pvector__)
+def __eq__(a, b):
+    return a.x == b.x and a.y == b.y and a.z == b.z
+
+@monkeypatch_method(__pvector__)
+def __lt__(a, b):
+    return a.magSq() < b.magSq()
+
+@monkeypatch_method(__pvector__)
+def __le__(a, b):
+    return a.magSq() <= b.magSq()
+
+@monkeypatch_method(__pvector__)
+def __gt__(a, b):
+    return a.magSq() > b.magSq()
+
+@monkeypatch_method(__pvector__)
+def __ge__(a, b):
+    return a.magSq() >= b.magSq()
+
 del __sub__, __isub__, __add__, __iadd__, __mul__, __rmul__, __imul__, __div__, __idiv__, __magSq__
 
 # Now expose the funky PVector class as a builtin.
