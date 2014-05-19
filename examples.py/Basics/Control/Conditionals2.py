@@ -1,10 +1,10 @@
 """
- Conditionals 2. 
+Conditionals 2. 
   
- We extend the language of conditionals from the previous
- example by adding the keyword "else". This allows conditionals 
- to ask two or more sequential questions, each with a different
- action. 
+We extend the language of conditionals from the previous
+example by adding the keyword "else". This allows conditionals 
+to ask two or more sequential questions, each with a different
+action. 
 """
 
 size(640, 360)
