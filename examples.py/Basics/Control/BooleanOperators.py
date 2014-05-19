@@ -1,9 +1,9 @@
 """
- Boolean Operators. 
+Boolean Operators. 
 
- The boolean operators "and" and "or" are used to 
- combine simple relational statements into more complex expressions.
- The "not" operator is used to negate a boolean statement. 
+The boolean operators "and" and "or" are used to 
+combine simple relational statements into more complex expressions.
+The "not" operator is used to negate a boolean statement. 
 """
 
 size(640, 360)
