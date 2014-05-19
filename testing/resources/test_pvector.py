@@ -73,6 +73,18 @@ assert x == y
 x[0].sub(PVector(100, 100, 100))
 assert x != y
 
+a = PVector(1, 1)
+b = PVector(-2, -2)
+assert a < b
+assert a <= b
+assert b > a
+assert b >= a
+a = PVector(1, 2, 3)
+b = PVector(3, 2, 1)
+assert a != b
+assert a >= b
+assert b >= a
+assert a.magSq() == b.magSq()
 
 print 'OK'
 

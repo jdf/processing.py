@@ -33,7 +33,6 @@ import org.python.core.PyStringMap;
 import org.python.core.PySyntaxError;
 import org.python.core.PyTuple;
 import org.python.core.PyType;
-import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
@@ -313,15 +312,25 @@ public class PAppletJythonDriver extends PApplet {
     return i >= 0 && i < CHEAP_INTS.length ? CHEAP_INTS[i] : Py.newInteger(i);
   }
 
+  @Override
+  public void focusGained() {
+    super.focusGained();
+    builtins.__setitem__("focused", Py.newBoolean(focused));
+  }
+
+  @Override
+  public void focusLost() {
+    super.focusLost();
+    builtins.__setitem__("focused", Py.newBoolean(focused));
+  }
+
   protected void wrapProcessingVariables() {
     wrapMouseVariables();
+    wrapKeyVariables();
     builtins.__setitem__("displayWidth", pyint(displayWidth));
     builtins.__setitem__("displayHeight", pyint(displayHeight));
-    builtins.__setitem__("paused", Py.newBoolean(paused));
-    builtins.__setitem__("focused", Py.newBoolean(focused));
     builtins.__setitem__("keyPressed", Py.newBoolean(keyPressed));
     builtins.__setitem__("frameCount", pyint(frameCount));
-    builtins.__setitem__("keyCode", pyint(keyCode));
     builtins.__setitem__("frameRate", new PyFloat(frameRate) {
       @Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
@@ -329,46 +338,30 @@ public class PAppletJythonDriver extends PApplet {
           default:
             throw new RuntimeException("Can't call \"frameRate\" with " + args.length
                 + " parameters.");
-          case 1: {
+          case 1:
             frameRate((float)args[0].asDouble());
             return Py.None;
-          }
         }
       }
     });
+  }
 
-    /*
-     * If key is "CODED", i.e., an arrow key or other non-printable, pass that
-     * value through as-is. If it's printable, convert it to a unicode string,
-     * so that the user can compare key == 'x' instead of key == ord('x').
-     */
-    builtins.__setitem__("key", new PyObject() {
-      private char lastKey = (char)-1;
-      private PyObject cachedProxy = null;
+  // We only change the "key" variable as necessary to avoid generating
+  // lots of PyUnicode garbage.
+  private char lastKey = Character.MIN_VALUE;
 
-      private PyObject getProxy() {
-        if (key != lastKey || cachedProxy == null) {
-          cachedProxy = key == CODED ? new PyInteger(key) : new PyUnicode(Character.toString(key));
-          lastKey = key;
-        }
-        return cachedProxy;
-      }
-
-      @Override
-      public PyObject __eq__(final PyObject other) {
-        return getProxy().__eq__(other);
-      }
-
-      @Override
-      public PyString __str__() {
-        return getProxy().__str__();
-      }
-
-      @Override
-      public PyUnicode __unicode__() {
-        return getProxy().__unicode__();
-      }
-    });
+  private void wrapKeyVariables() {
+    if (lastKey != key) {
+      lastKey = key;
+      /*
+       * If key is "CODED", i.e., an arrow key or other non-printable, pass that
+       * value through as-is. If it's printable, convert it to a unicode string,
+       * so that the user can compare key == 'x' instead of key == ord('x').
+       */
+      final PyObject pyKey = key == CODED ? pyint(key) : Py.newUnicode(key);
+      builtins.__setitem__("key", pyKey);
+    }
+    builtins.__setitem__("keyCode", pyint(keyCode));
   }
 
   private void wrapMouseVariables() {
@@ -460,7 +453,7 @@ public class PAppletJythonDriver extends PApplet {
         switch (args.length) {
           default:
             return originalSet.__call__(args, kws);
-          case 3: {
+          case 3:
             final int x = args[0].asInt();
             final int y = args[1].asInt();
             final PyObject c = args[2];
@@ -472,7 +465,6 @@ public class PAppletJythonDriver extends PApplet {
               set(x, y, interpretColorArg(c));
               return Py.None;
             }
-          }
         }
       }
     });
@@ -491,7 +483,7 @@ public class PAppletJythonDriver extends PApplet {
         switch (args.length) {
           default:
             return builtinMap.__call__(args, kws);
-          case 5: {
+          case 5:
             final PyObject value = args[0];
             final PyObject start1 = args[1];
             final PyObject stop1 = args[2];
@@ -504,7 +496,6 @@ public class PAppletJythonDriver extends PApplet {
             } else {
               return builtinMap.__call__(args, kws);
             }
-          }
         }
       }
     });
@@ -561,7 +552,7 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   /*
-   * Python can't parse web colors, we we let the user do '#RRGGBB'
+   * Python can't parse web colors, so we let the user do '#RRGGBB'
    * as a string.
    */
   public void fill(final String argbSpec) {
@@ -573,13 +564,11 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   private int parseColorSpec(final String argbSpec) {
-    if (argbSpec.startsWith("#")) {
-      try {
-        return 0xFF000000 | Integer.decode(argbSpec);
-      } catch (final NumberFormatException e) {
-      }
+    try {
+      return 0xFF000000 | Integer.decode(argbSpec);
+    } catch (final NumberFormatException e) {
+      throw new RuntimeException("I can't understand \"" + argbSpec + "\" as a color.");
     }
-    throw new RuntimeException("I can't understand \"" + argbSpec + "\" as a color.");
   }
 
   /**
@@ -606,10 +595,10 @@ public class PAppletJythonDriver extends PApplet {
         final float amt = (float)args[2].asDouble();
         switch (args.length) {
           case 3:
-            return Py.newInteger(lerpColor(c1, c2, amt));
+            return pyint(lerpColor(c1, c2, amt));
           case 4:
             final int colorMode = (int)(args[3].asLong() & 0xFFFFFFFF);
-            return Py.newInteger(lerpColor(c1, c2, amt, colorMode));
+            return pyint(lerpColor(c1, c2, amt, colorMode));
             //$FALL-THROUGH$
           default:
             throw new RuntimeException("lerpColor takes either 3 or 4 arguments, but I got "
@@ -633,8 +622,8 @@ public class PAppletJythonDriver extends PApplet {
           case 2:
             return Py.newLong(get(args[0].asInt(), args[1].asInt()) & 0xFFFFFFFFL);
           case 4:
-            return Py.java2py(get(args[0].asInt(), args[1].asInt(), args[2].asInt(), args[3]
-                .asInt()));
+            return Py.java2py(get(args[0].asInt(), args[1].asInt(), args[2].asInt(),
+                args[3].asInt()));
             //$FALL-THROUGH$
           default:
             throw new RuntimeException("get() takes 0, 2, or 4 arguments, but I got " + args.length
@@ -683,8 +672,8 @@ public class PAppletJythonDriver extends PApplet {
     super.size(iwidth, iheight, irenderer, ipath);
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("frame", Py.java2py(frame));
-    builtins.__setitem__("width", Py.newInteger(width));
-    builtins.__setitem__("height", Py.newInteger(height));
+    builtins.__setitem__("width", pyint(width));
+    builtins.__setitem__("height", pyint(height));
   }
 
   @Override
@@ -834,6 +823,7 @@ public class PAppletJythonDriver extends PApplet {
     if (keyPressedMeth == null) {
       super.keyPressed();
     } else {
+      wrapKeyVariables();
       keyPressedMeth.__call__();
     }
   }
@@ -843,6 +833,7 @@ public class PAppletJythonDriver extends PApplet {
     if (keyReleasedMeth == null) {
       super.keyReleased();
     } else {
+      wrapKeyVariables();
       keyReleasedMeth.__call__();
     }
   }
@@ -852,6 +843,7 @@ public class PAppletJythonDriver extends PApplet {
     if (keyTypedMeth == null) {
       super.keyTyped();
     } else {
+      wrapKeyVariables();
       keyTypedMeth.__call__();
     }
   }
