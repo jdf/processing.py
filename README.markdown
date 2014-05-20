@@ -1,4 +1,4 @@
-# processing.py & Python Mode for Processing #
+# Python Mode for Processing #
 
 Write real [Processing](http://processing.org/) sketches in Python.
 
@@ -21,8 +21,8 @@ reference works just fine for Python mode.
 First, [download Processing](http://processing.org/download). Then, install
 Python Mode:
 
-<img src="http://py.processing.org/add_mode.jpg"/>
-<img src="http://py.processing.org/install.jpg"/>
+<img src="http://py.processing.org/add_mode.png"/>
+<img src="http://py.processing.org/install.png"/>
 
 
 ### Download Processing.py 0202 ###
