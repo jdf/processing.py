@@ -12,7 +12,7 @@ def setup():
     background(102)
     
 def draw():
-    if(mousePressed):
+    if mousePressed:
         stroke(255)
     else: 
         stroke(0)

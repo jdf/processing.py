@@ -18,7 +18,6 @@ def setup():
     fill(255, 153)
 
 def draw():
-    global mx, my
     background(51)
     which = frameCount % num
     mx[which] = mouseX
@@ -27,4 +26,3 @@ def draw():
     for i in xrange(0, num, 1):
         index = (which + 1 + i) % num
         ellipse(mx[index], my[index], i, i)
-
