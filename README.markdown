@@ -24,6 +24,22 @@ Python Mode:
 <img src="http://py.processing.org/add_mode.png"/>
 <img src="http://py.processing.org/install.png"/>
 
+Then try your first sketch:
+
+```python
+def setup():
+    size(600, 600)
+    noStroke()
+
+
+def draw():
+    colorMode(RGB)
+    fill(0x11000000)
+    rect(0, 0, width, height)
+    colorMode(HSB)
+    fill(frameCount % 255, 255, 255)
+    ellipse(mouseX, mouseY, 20, 20)
+```
 
 ### Processing.py ###
 
