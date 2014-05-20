@@ -1,16 +1,19 @@
-class EggRing(object): 
-    Egg ovoid
-    Ring circle = Ring()
-    EggRing(x, y, t, sp) 
-        ovoid = Egg(x, y, t, sp)
-        circle.start(x, y - sp/2)
-    
-    def transmit(): 
-        ovoid.wobble()
-        ovoid.display()
-        circle.grow()
-        circle.display()
-        if circle.on == False:
-            circle.on = True
-        
-    
+from egg import Egg
+from ring import Ring
+
+
+class EggRing(object):
+
+    def __init__(self, x, y, t, sp):
+        self.ovoid = Egg(x, y, t, sp)
+        self.circle = Ring()
+        self.circle.start(x, y - sp / 2)
+
+    def transmit(self):
+        self.ovoid.wobble()
+        self.ovoid.display()
+        self.circle.grow()
+        self.circle.display()
+        if self.circle.on == False:
+            self.circle.on = True
+

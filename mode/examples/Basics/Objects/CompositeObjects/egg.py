@@ -1,26 +1,25 @@
-class Egg(object): 
-    x, y# X-coordinate, y-coordinate
-    tilt# Left and right angle offset
-    angle# Used to define the tilt
-    scalar# Height of the egg
+class Egg(object):
+
     # Constructor
-    Egg(xpos, ypos, t, s) 
-        x = xpos
-        y = ypos
-        tilt = t
-        scalar = s / 100.0
-    
-    def wobble(): 
-        tilt = cos(angle) / 8
-        angle += 0.1
-    
-    def display(): 
+
+    def __init__(self, xpos, ypos, t, s):
+        self.x = xpos  # x-coordinate
+        self.y = ypos  # y-coordinate
+        self.tilt = t  # Left and right angle offset
+        self.angle = 0  # Used to define the tilt
+        self.scalar = s / 100.0  # Height of the egg
+
+    def wobble(self):
+        self.tilt = cos(self.angle) / 8
+        self.angle += 0.1
+
+    def display(self):
         noStroke()
         fill(255)
         pushMatrix()
-        translate(x, y)
-        rotate(tilt)
-        scale(scalar)
+        translate(self.x, self.y)
+        rotate(self.tilt)
+        scale(self.scalar)
         beginShape()
         vertex(0, -100)
         bezierVertex(25, -100, 40, -65, 40, -40)
@@ -29,4 +28,4 @@ class Egg(object):
         bezierVertex(-40, -65, -25, -100, 0, -100)
         endShape()
         popMatrix()
-    
+

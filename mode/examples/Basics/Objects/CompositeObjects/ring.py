@@ -1,30 +1,25 @@
-class Ring(object): 
-    
-    x, y# X-coordinate, y-coordinate
-    diameter# Diameter of the ring
-    boolean on = False# Turns the display on and off
-    
-    def start(xpos, ypos): 
-        x = xpos
-        y = ypos
-        on = True
-        diameter = 1
-    
-    
-    def grow(): 
-        if on == True:
-            diameter += 0.5
-            if diameter > width*2:
-                diameter = 0.0
-            
-        
-    
-    
-    def display(): 
-        if on == True:
+class Ring(object):
+
+    x = 0.0  # x-coordinate
+    y = 0.0  # y-coordinate
+    diameter = 1  # Diameter of the ring
+    on = False  # Turns the display on and off
+
+    def start(self, xpos, ypos):
+        self.x = xpos
+        self.y = ypos
+        self.on = True
+
+    def grow(self):
+        if self.on == True:
+            self.diameter += 0.5
+            if self.diameter > width * 2:
+                self.diameter = 0.0
+
+    def display(self):
+        if self.on == True:
             noFill()
             strokeWeight(4)
             stroke(155, 153)
-            ellipse(x, y, diameter, diameter)
-        
-    
+            ellipse(self.x, self.y, self.diameter, self.diameter)
+
