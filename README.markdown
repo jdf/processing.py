@@ -1,4 +1,4 @@
-# processing.py #
+# processing.py & Python Mode for Processing #
 
 Write real [Processing](http://processing.org/) sketches in Python.
 
@@ -10,6 +10,20 @@ Tested on Mac OS 10.8 & 10.9, Windows XP, 7 & 8, and Ubuntu 12.10.
 [![Build Status](https://travis-ci.org/jdf/processing.py.svg?branch=master)](https://travis-ci.org/jdf/processing.py)
 
 ## Quick Start ##
+
+### Processing Develpment Environment ###
+
+If you're looking to write Processing sketches in Python, your best bet is to use
+Python Mode. The project is still in its early days, and documentation is lacking,
+but there are many example sketches to get you started. In general, the Processing
+reference works just fine for Python mode.
+
+First, [download Processing](http://processing.org/download). Then, install
+Python Mode:
+
+<img src="http://py.processing.org/add_mode.jpg"/>
+<img src="http://py.processing.org/install.jpg"/>
+
 
 ### Download Processing.py 0202 ###
 
