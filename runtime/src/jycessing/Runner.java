@@ -347,7 +347,6 @@ public class Runner {
       // Add the add_library function to the sketch namespace.
       if (info.libraryDirs != null) {
         final LibraryImporter libraryImporter = new LibraryImporter(info.libraryDirs, interp);
-        libraryImporter.initialize();
 
         if (info.libraryPolicy == LibraryPolicy.PROMISCUOUS) {
           log("Promiscusouly adding all libraries in " + info.libraryDirs);
