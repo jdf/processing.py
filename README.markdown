@@ -25,7 +25,10 @@ Python Mode:
 <img src="http://py.processing.org/install.png"/>
 
 
-### Download Processing.py 0202 ###
+### Processing.py ###
+
+For command-line hackers and people who need much greater flexibility in how
+they construct and integrate their programs, there's processing.py.
 
 - [Mac OS X (83M)](http://py.processing.org/processing.py-0202-macosx.tgz)
 - [Windows x64 (74M)](http://py.processing.org/processing.py-0202-windows64.zip)
