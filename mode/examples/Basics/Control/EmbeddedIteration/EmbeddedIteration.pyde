@@ -14,6 +14,7 @@ for x in range(gridSize, width, gridSize):
     for y in range(gridSize, height, gridSize):
         noStroke()
         fill(255)
-        rect(x-1, y-1, 3, 3)
+        rect(x - 1, y - 1, 3, 3)
         stroke(255, 50)
-        line(x, y, width/2, height/2) 
+        line(x, y, width / 2, height / 2)
+

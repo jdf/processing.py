@@ -12,8 +12,8 @@ noStroke()
 
 # Draw gray bars
 fill(255)
-y = 60 
-for i in range(0, num/3, 1):
+y = 60
+for i in range(0, num / 3, 1):
     rect(50, y, 475, 10)
     y += 20
 
@@ -28,10 +28,11 @@ y = 50
 for i in range(0, num, 1):
     rect(425, y, 30, 10)
     y += 20
-    
+
 # Thin lines
 y = 45
 fill(0)
-for i in range(0, num-1, 1):
+for i in range(0, num - 1, 1):
     rect(120, y, 40, 1)
     y += 20
+

@@ -10,19 +10,21 @@ locked = False
 xOffset = 0.0
 yOffset = 0.0
 
+
 def setup():
     size(640, 360)
     global bx, by
-    bx = width/2.0
-    by = height/2.0
+    bx = width / 2.0
+    by = height / 2.0
     rectMode(RADIUS)
-    
+
+
 def draw():
     global overBox
     background(0)
-    
-    if(mouseX > bx-boxSize and mouseX < bx+boxSize and
-       mouseY > by-boxSize and mouseY < by+boxSize):
+
+    if(mouseX > bx - boxSize and mouseX < bx + boxSize and
+       mouseY > by - boxSize and mouseY < by + boxSize):
         overBox = True
         if not locked:
             stroke(255)
@@ -33,6 +35,7 @@ def draw():
         overBox = False
     rect(bx, by, boxSize, boxSize)
 
+
 def mousePressed():
     global xOffset, yOffset, locked
     if(overBox):
@@ -42,12 +45,14 @@ def mousePressed():
         locked = False
     xOffset = mouseX - bx
     yOffset = mouseY - by
-   
+
+
 def mouseDragged():
     global bx, by
     if(locked):
         bx = mouseX - xOffset
         by = mouseY - yOffset
+
 
 def mouseReleased():
     global locked
