@@ -308,6 +308,7 @@ __builtin__.lightFalloff = __papplet__.lightFalloff
 __builtin__.lightSpecular = __papplet__.lightSpecular
 __builtin__.lights = __papplet__.lights
 __builtin__.line = __papplet__.line
+__builtin__.link = __papplet__.link
 __builtin__.loadBytes = __papplet__.loadBytes
 __builtin__.loadFont = __papplet__.loadFont
 __builtin__.loadImage = __papplet__.loadImage
