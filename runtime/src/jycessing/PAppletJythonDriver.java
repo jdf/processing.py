@@ -120,6 +120,9 @@ public class PAppletJythonDriver extends PApplet {
       pauseMeth, resumeMeth, stopMeth, destroyMeth, sketchFullScreenMeth, sketchWidthMeth,
       sketchHeightMeth, sketchRendererMeth;
 
+  // Implement the Video library's callback.
+  private PyObject captureEventMeth, movieEventMeth;
+
   // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
   // the source file name, so that errors have the file name instead of
   // "<string>"
@@ -294,6 +297,9 @@ public class PAppletJythonDriver extends PApplet {
       });
     }
 
+    // Video library callbacks.
+    captureEventMeth = interp.get("captureEvent");
+    movieEventMeth = interp.get("movieEvent");
   }
 
   /*
@@ -926,6 +932,19 @@ public class PAppletJythonDriver extends PApplet {
   @Override
   public void selectOutput(final String prompt, final String callback, final File file) {
     super.selectOutput(prompt, "handleCallback", file, new FileSelectCallbackProxy(callback));
+  }
+
+  // Video library callbacks.
+  public void captureEvent(final Object capture) {
+    if (captureEventMeth != null) {
+      captureEventMeth.__call__(Py.java2py(capture));
+    }
+  }
+
+  public void movieEvent(final Object movie) {
+    if (movieEventMeth != null) {
+      movieEventMeth.__call__(Py.java2py(movie));
+    }
   }
 
   // These two functions are a workaround for a Jython bug that prevents the print statement
