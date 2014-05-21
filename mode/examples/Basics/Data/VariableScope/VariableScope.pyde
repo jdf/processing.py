@@ -26,32 +26,27 @@ def draw():
     # Draw a line using the global variable "a"
     line(a, 0, a, height)
 
-    # Create a variable "a" local to the for() statement
-    for a in range(120, 200, 2):
-        line(a, 0, a, height)
+    # Create a variable "b" local to the draw() function
+    b = 100
 
-    # Create a variable "a" local to the draw() function
-    a = 300
-    # Draw a line using the local variable "a"
-    line(a, 0, a, height)
+    # Make a call to the custom function drawGreenLine()
+    drawGreenLine()
 
-    # Make a call to the custom function drawAnotherLine()
-    drawAnotherLine()
-
-    # Make a call to the custom function setYetAnotherLine()
-    drawYetAnotherLine()
+    # Draw a line using the local variable "b"
+    line(b, 0, b, height)  # Note that "b" remains set to 100
 
 
-def drawAnotherLine():
-    # Create a variable "a" local to this method
-    a = 320
-    # Draw a line using the local variable "a"
-    line(a, 0, a, height)
+def drawGreenLine():
+    # Since "b" was defined as a variable local to the draw() function,
+    # this code inside this if statement will not run
+    if('b' in locals() or 'b' in globals()):
+        background(255)  # This won't run
 
-
-def drawYetAnotherLine():
-    # Because no local variable "a" is set,
-    # this lines draws using the original global
-    # variable "a" which is set to the value 20.
-    line(a + 2, 0, a + 2, height)
+    else:
+        pushStyle()
+        stroke(0, 255, 0)
+        b = 320  # Create a variable "b" local to drawGreenLine()
+        # Use the local variable "b" to draw a line
+        line(b, 0, b, height)
+        popStyle()
 
