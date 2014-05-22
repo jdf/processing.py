@@ -33,6 +33,7 @@ import org.python.core.PyStringMap;
 import org.python.core.PySyntaxError;
 import org.python.core.PyTuple;
 import org.python.core.PyType;
+import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
 
 import processing.core.PApplet;
@@ -221,6 +222,7 @@ public class PAppletJythonDriver extends PApplet {
     setSet();
     setLerpColor();
     setGet();
+    setText();
     builtins.__setitem__("g", Py.java2py(g));
     // There's a bug in ast.Global that makes it impossible to construct a valid Global
     // using the constructor that takes a list of names. This crazy thing is a workaround
@@ -577,6 +579,10 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
+  private boolean isString(final PyObject o) {
+    return o.getType() == PyString.TYPE || o.getType() == PyUnicode.TYPE;
+  }
+
   /**
    * The positional arguments to lerpColor may be long integers or CSS-style
    * string specs.
@@ -584,8 +590,7 @@ public class PAppletJythonDriver extends PApplet {
    * @return the integer correspnding to the intended color.
    */
   private int interpretColorArg(final PyObject arg) {
-    return arg.getType() == PyString.TYPE ? parseColorSpec(arg.asString())
-        : (int)(arg.asLong() & 0xFFFFFFFF);
+    return isString(arg) ? parseColorSpec(arg.asString()) : (int)(arg.asLong() & 0xFFFFFFFF);
   }
 
   /**
@@ -635,6 +640,39 @@ public class PAppletJythonDriver extends PApplet {
             throw new RuntimeException("get() takes 0, 2, or 4 arguments, but I got " + args.length
                 + ".");
         }
+      }
+    });
+  }
+
+  /**
+   * Hide the variants of text() that take char/char[] and array indices, since that's
+   * not necessary in Python, and since they mask the text()s that take take strings.
+   */
+  private void setText() {
+    builtins.__setitem__("text", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        final PyObject a = args[0];
+        final float x1 = (float)args[1].asDouble();
+        final float y1 = (float)args[2].asDouble();
+        if (args.length == 3) {
+          if (isString(a)) {
+            text(a.asString(), x1, y1);
+          } else {
+            text((float)a.asDouble(), x1, y1);
+          }
+        } else if (args.length == 4) {
+          if (isString(a)) {
+            text(a.asString(), x1, y1, (float)args[3].asDouble());
+          } else {
+            text((float)a.asDouble(), x1, y1, (float)args[3].asDouble());
+          }
+        } else if (args.length == 5) {
+          text(a.asString(), x1, y1, (float)args[3].asDouble(), (float)args[4].asDouble());
+        } else {
+          throw new RuntimeException("text() takes 3-5 arguments, but I got " + args.length + ".");
+        }
+        return Py.None;
       }
     });
   }

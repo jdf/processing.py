@@ -398,7 +398,8 @@ __builtin__.stroke = __papplet__.stroke
 __builtin__.strokeCap = __papplet__.strokeCap
 __builtin__.strokeJoin = __papplet__.strokeJoin
 __builtin__.strokeWeight = __papplet__.strokeWeight
-__builtin__.text = __papplet__.text
+# Because of two 5-arg text() methods, we have to do this in Java.
+#__builtin__.text = __papplet__.text
 __builtin__.textAlign = __papplet__.textAlign
 __builtin__.textAscent = __papplet__.textAscent
 __builtin__.textDescent = __papplet__.textDescent
