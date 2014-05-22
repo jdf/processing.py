@@ -67,8 +67,8 @@ import javax.swing.SwingUtilities;
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
 
-  private static final String GLOBAL_STATEMENT_TEXT = IOUtil
-      .readTextOrDie(PAppletJythonDriver.class.getResourceAsStream("add_global_statements.py"));
+  private static final String GLOBAL_STATEMENT_TEXT = IOUtil.readResourceAsText(
+      PAppletJythonDriver.class, "add_global_statements.py");
 
   static {
     // There's some bug that I don't understand yet that causes the native file
