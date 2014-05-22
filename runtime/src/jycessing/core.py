@@ -261,7 +261,9 @@ __builtin__.box = __papplet__.box
 __builtin__.brightness = __papplet__.brightness
 __builtin__.camera = __papplet__.camera
 __builtin__.clear = __papplet__.clear
-__builtin__.color = __papplet__.color
+def __long_color__(*args):
+    return 0xFFFFFFFF & __papplet__.color(*args)
+__builtin__.color = __long_color__
 __builtin__.colorMode = __papplet__.colorMode
 __builtin__.copy = __papplet__.copy
 __builtin__.createFont = __papplet__.createFont
