@@ -69,10 +69,9 @@ public class Runner {
     }
   }
 
-  private static final String LAUNCHER_TEXT = IOUtil.readTextOrDie(LaunchHelper.class
-      .getResourceAsStream("launcher.py"));
-  private static final String CORE_TEXT = IOUtil.readTextOrDie(Runner.class
-      .getResourceAsStream("core.py"));
+  private static final String LAUNCHER_TEXT = IOUtil.readResourceAsText(LaunchHelper.class,
+      "launcher.py");
+  private static final String CORE_TEXT = IOUtil.readResourceAsText(Runner.class, "core.py");
 
   static boolean VERBOSE = false;
 

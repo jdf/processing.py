@@ -238,7 +238,6 @@ __builtin__.this = __papplet__
 # https://github.com/kazimuth/python-mode-processing for the
 # technique of exploiting Jython's bound methods, which is tidy
 # and simple.
-__builtin__.alpha = __papplet__.alpha
 __builtin__.ambient = __papplet__.ambient
 __builtin__.ambientLight = __papplet__.ambientLight
 __builtin__.applyMatrix = __papplet__.applyMatrix
@@ -256,12 +255,9 @@ __builtin__.bezierTangent = __papplet__.bezierTangent
 __builtin__.bezierVertex = __papplet__.bezierVertex
 __builtin__.blend = __papplet__.blend
 __builtin__.blendMode = __papplet__.blendMode
-__builtin__.blue = __papplet__.blue
 __builtin__.box = __papplet__.box
-__builtin__.brightness = __papplet__.brightness
 __builtin__.camera = __papplet__.camera
 __builtin__.clear = __papplet__.clear
-__builtin__.color = __papplet__.color
 __builtin__.colorMode = __papplet__.colorMode
 __builtin__.copy = __papplet__.copy
 __builtin__.createFont = __papplet__.createFont
@@ -294,16 +290,14 @@ __builtin__.fill = __papplet__.fill
 
 # We handle filter() by hand to permit both P5's filter() and Python's filter().
 #__builtin__.filter = __papplet__.filter
+
 __builtin__.frameRate = __papplet__.frameRate
 __builtin__.frustum = __papplet__.frustum
-# We have to provide a funky get() because of int/long conversion woes.
-#__builtin__.get = __papplet__.get
+
 __builtin__.hint = __papplet__.hint
-__builtin__.hue = __papplet__.hue
 __builtin__.image = __papplet__.image
 __builtin__.imageMode = __papplet__.imageMode
-# We handle lerpColor by hand because there's an instance method and a static method.
-#__builtin__.lerpColor = __papplet__.lerpColor
+
 __builtin__.lightFalloff = __papplet__.lightFalloff
 __builtin__.lightSpecular = __papplet__.lightSpecular
 __builtin__.lights = __papplet__.lights
@@ -356,7 +350,6 @@ __builtin__.randomGaussian = __papplet__.randomGaussian
 __builtin__.randomSeed = __papplet__.randomSeed
 __builtin__.rect = __papplet__.rect
 __builtin__.rectMode = __papplet__.rectMode
-__builtin__.red = __papplet__.red
 __builtin__.redraw = __papplet__.redraw
 __builtin__.requestImage = __papplet__.requestImage
 __builtin__.resetMatrix = __papplet__.resetMatrix
@@ -365,7 +358,6 @@ __builtin__.rotate = __papplet__.rotate
 __builtin__.rotateX = __papplet__.rotateX
 __builtin__.rotateY = __papplet__.rotateY
 __builtin__.rotateZ = __papplet__.rotateZ
-__builtin__.saturation = __papplet__.saturation
 __builtin__.save = __papplet__.save
 __builtin__.saveBytes = __papplet__.saveBytes
 __builtin__.saveFrame = __papplet__.saveFrame
@@ -398,7 +390,10 @@ __builtin__.stroke = __papplet__.stroke
 __builtin__.strokeCap = __papplet__.strokeCap
 __builtin__.strokeJoin = __papplet__.strokeJoin
 __builtin__.strokeWeight = __papplet__.strokeWeight
-__builtin__.text = __papplet__.text
+
+# Because of two 5-arg text() methods, we have to do this in Java.
+#__builtin__.text = __papplet__.text
+
 __builtin__.textAlign = __papplet__.textAlign
 __builtin__.textAscent = __papplet__.textAscent
 __builtin__.textDescent = __papplet__.textDescent
@@ -414,6 +409,32 @@ __builtin__.translate = __papplet__.translate
 __builtin__.triangle = __papplet__.triangle
 __builtin__.updatePixels = __papplet__.updatePixels
 __builtin__.vertex = __papplet__.vertex
+
+'''
+In order to get colors to behave reasonably, they have to be cast to positive
+long quantities on their way into Python, and 32-bit signed quantities on
+their way into Java.
+'''
+# We have to provide a funky get() because of int/long conversion woes.
+#__builtin__.get = __papplet__.get
+
+# We handle lerpColor by hand because there's an instance method and a static method.
+#__builtin__.lerpColor = __papplet__.lerpColor
+
+def __long_color__(*args):
+    return 0xFFFFFFFF & __papplet__.color(*args)
+__builtin__.color = __long_color__
+
+# These must all be implemented in Java to properly downcast our unsigned longs.
+'''
+__builtin__.alpha = __papplet__.alpha
+__builtin__.red = __papplet__.red
+__builtin__.green = __papplet__.green
+__builtin__.blue = __papplet__.blue
+__builtin__.hue = __papplet__.hue
+__builtin__.saturation = __papplet__.saturation
+__builtin__.brightness = __papplet__.brightness
+'''
 
 # And these are PApplet static methods. Some are commented out to indicate
 # that we prefer or require Jython's implementation.

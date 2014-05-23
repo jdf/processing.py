@@ -6,7 +6,7 @@ size(400, 400)
 fill(255)
 rect(0, 0, width, height)
 
-# New to Python mode, since you can't use a bear
+# New to Python mode, since you can't use a bare
 # hash mark (because of Python comments), you can
 # use a string formatted like a CSS color spec.
 fill('#0000FF')
