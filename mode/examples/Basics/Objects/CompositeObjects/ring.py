@@ -1,13 +1,10 @@
 class Ring(object):
 
-    x = 0.0  # x-coordinate
-    y = 0.0  # y-coordinate
-    diameter = 1  # Diameter of the ring
-    on = False  # Turns the display on and off
-
     def start(self, xpos, ypos):
-        self.x = xpos
-        self.y = ypos
+        self.x = xpos  # x-coordinate
+        self.y = ypos  # y-coordinate
+        self.diameter = 1  # Diameter of the ring
+        self.on = False  # Turns the display on and off
         self.on = True
 
     def grow(self):

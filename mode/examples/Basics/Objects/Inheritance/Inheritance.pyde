@@ -27,9 +27,8 @@ def draw():
 
 class Spin(object):
 
-    angle = 0.0
-
     def __init__(self, xpos, ypos, s):
+        self.angle = 0.0
         self.x = xpos
         self.y = ypos
         self.speed = s

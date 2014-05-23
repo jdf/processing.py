@@ -1,16 +1,7 @@
 class LSystem(object):
-    steps = 0
-    '''axiom
-    rule
-    production
-    startLength
-    drawLength
-    theta
-    generations'''
-
-    rule = None
 
     def __init__(self):
+        self.steps = 0
         self.axiom = "F"
         self.rule = "F+F-F"
         self.startLength = 90.0
