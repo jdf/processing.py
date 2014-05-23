@@ -1,10 +1,13 @@
 from l_system import LSystem
 
+
 class PenroseSnowflakeLSystem(LSystem):
 
     def __init__(self):
         self.axiom = "F3-F3-F3-F3-F"
-        self.ruleF = "F3-F3-F45-F += 1F3-F"
+        self.rule = ""
+        self.steps = 0
+        self.ruleF = "F3-F3-F45-F++F3-F"
         self.startLength = 450.0
         self.theta = radians(18)
         self.reset()
@@ -48,13 +51,11 @@ class PenroseSnowflakeLSystem(LSystem):
             elif step == '+':
                 for j in range(repeats):
                     rotate(self.theta)
-
                 repeats = 1
 
             elif step == '-':
                 for j in range(repeats):
                     rotate(-self.theta)
-
                 repeats = 1
 
             elif step == '[':
@@ -63,8 +64,9 @@ class PenroseSnowflakeLSystem(LSystem):
             elif step == ']':
                 popMatrix()
 
-            elif (step >= 48) and (step <= 57):
-                repeats += step - 48
+            # Use ord to get ASCII value of letter
+            elif (ord(step) >= 48) and (ord(step) <= 57):
+                repeats += ord(step) - 48
 
     def iterate(self, prod_, rule_):
         newProduction = ""
