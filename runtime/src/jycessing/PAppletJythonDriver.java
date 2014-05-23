@@ -220,7 +220,7 @@ public class PAppletJythonDriver extends PApplet {
     setFilter();
     setMap();
     setSet();
-    setLerpColor();
+    setColorMethods();
     setGet();
     setText();
     builtins.__setitem__("g", Py.java2py(g));
@@ -597,7 +597,7 @@ public class PAppletJythonDriver extends PApplet {
    * Permit both the instance method lerpColor and the static method lerpColor.
    * Also permit 0xAARRGGBB, '#RRGGBB', and 0-255.
    */
-  private void setLerpColor() {
+  private void setColorMethods() {
     builtins.__setitem__("lerpColor", new PyObject() {
       @Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
@@ -615,6 +615,48 @@ public class PAppletJythonDriver extends PApplet {
             throw new RuntimeException("lerpColor takes either 3 or 4 arguments, but I got "
                 + args.length + ".");
         }
+      }
+    });
+    builtins.__setitem__("alpha", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        return Py.newFloat(alpha(interpretColorArg(args[0])));
+      }
+    });
+    builtins.__setitem__("red", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        return Py.newFloat(red(interpretColorArg(args[0])));
+      }
+    });
+    builtins.__setitem__("green", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        return Py.newFloat(green(interpretColorArg(args[0])));
+      }
+    });
+    builtins.__setitem__("blue", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        return Py.newFloat(blue(interpretColorArg(args[0])));
+      }
+    });
+    builtins.__setitem__("hue", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        return Py.newFloat(hue(interpretColorArg(args[0])));
+      }
+    });
+    builtins.__setitem__("saturation", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        return Py.newFloat(saturation(interpretColorArg(args[0])));
+      }
+    });
+    builtins.__setitem__("brightness", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        return Py.newFloat(brightness(interpretColorArg(args[0])));
       }
     });
   }
