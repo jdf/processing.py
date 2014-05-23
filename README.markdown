@@ -1,4 +1,4 @@
-# processing.py #
+# Python Mode for Processing #
 
 Write real [Processing](http://processing.org/) sketches in Python.
 
@@ -11,7 +11,39 @@ Tested on Mac OS 10.8 & 10.9, Windows XP, 7 & 8, and Ubuntu 12.10.
 
 ## Quick Start ##
 
-### Download Processing.py 0202 ###
+### Processing Develpment Environment ###
+
+If you're looking to write Processing sketches in Python, your best bet is to use
+Python Mode. The project is still in its early days, and documentation is lacking,
+but there are many example sketches to get you started. In general, the Processing
+reference works just fine for Python mode.
+
+First, [download Processing](http://processing.org/download). Then, install
+Python Mode:
+
+<img src="http://py.processing.org/add_mode.png"/>
+<img src="http://py.processing.org/install.png"/>
+
+Then try your first sketch:
+
+```python
+def setup():
+    size(600, 600)
+    colorMode(HSB)
+    noStroke()
+
+
+def draw():
+    fill(0x11000000)
+    rect(0, 0, width, height)
+    fill(frameCount % 255, 255, 255)
+    ellipse(mouseX, mouseY, 20, 20)
+```
+
+### Processing.py ###
+
+For command-line hackers and people who need much greater flexibility in how
+they construct and integrate their programs, there's processing.py.
 
 - [Mac OS X (83M)](http://py.processing.org/processing.py-0202-macosx.tgz)
 - [Windows x64 (74M)](http://py.processing.org/processing.py-0202-windows64.zip)

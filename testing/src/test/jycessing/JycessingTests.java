@@ -207,4 +207,9 @@ public class JycessingTests {
   public void hex() throws Exception {
     expectOK("hex");
   }
+
+  @Test
+  public void color() throws Exception {
+    expectOK("color");
+  }
 }
