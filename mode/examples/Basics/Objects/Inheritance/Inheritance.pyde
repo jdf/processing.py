@@ -1,10 +1,10 @@
 """
 Inheritance
 
-A class can(object): be defined using another class as(object): a foundation. In object-oriented
-programming terminology, one class can(object): inherit fi elds and methods from another. 
+A class can be defined using another class as a foundation. In object-oriented
+programming terminology, one class can inherit fields and methods from another. 
 An object that inherits from another is called a subclass, and the object it 
-inherits from is called a superclass. A subclass extends(object): the superclass.
+inherits from is called a superclass. A subclass extends the superclass.
 """
 
 spots = None
@@ -27,9 +27,8 @@ def draw():
 
 class Spin(object):
 
-    angle = 0.0
-
     def __init__(self, xpos, ypos, s):
+        self.angle = 0.0
         self.x = xpos
         self.y = ypos
         self.speed = s

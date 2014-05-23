@@ -1,9 +1,8 @@
 # Class for animating a sequence of GIFs
 class Animation(object):
 
-    frame = 0
-
     def __init__(self, imagePrefix, count):
+        self.frame = 0
         self.imageCount = count
         self.images = [PImage] * self.imageCount
         for i in range(self.imageCount):
