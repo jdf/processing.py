@@ -12,8 +12,10 @@ public class RMIUtils {
   static final int RMI_PORT = 8220;
 
   static {
+    System.setProperty("java.rmi.server.hostname", "127.0.0.1");
     // Timeout RMI calls after 1.5 seconds. Good for detecting a hanging sketch runner.
     System.setProperty("sun.rmi.transport.tcp.responseTimeout", "1500");
+    System.setProperty("sun.rmi.transport.tcp.localHostNameTimeOut", "1000");
   }
 
   private static void log(final String msg) {

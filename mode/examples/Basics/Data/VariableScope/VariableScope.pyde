@@ -41,7 +41,6 @@ def drawGreenLine():
     # this code inside this if statement will not run
     if('b' in locals() or 'b' in globals()):
         background(255)  # This won't run
-
     else:
         pushStyle()
         stroke(0, 255, 0)

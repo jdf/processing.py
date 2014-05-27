@@ -10,6 +10,7 @@ from penrose_snowflake_l_system import PenroseSnowflakeLSystem
 
 ps = None
 
+
 def setup():
     size(640, 360)
     stroke(255)

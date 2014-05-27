@@ -1,15 +1,18 @@
 from l_system import LSystem
 
 
-class PenroseSnowflakeLSystem(LSystem):
+class PenroseLSystem(LSystem):
 
     def __init__(self):
-        self.axiom = "F3-F3-F3-F3-F"
+        self.axiom = "[X]++[X]++[X]++[X]++[X]"
         self.rule = ""
         self.steps = 0
-        self.ruleF = "F3-F3-F45-F++F3-F"
-        self.startLength = 450.0
-        self.theta = radians(18)
+        self.ruleW = "YF++ZF4-XF[-YF4-WF]++"
+        self.ruleX = "+YF--ZF[3-WF--XF]+"
+        self.ruleY = "-WF++XF[+++YF++ZF]-"
+        self.ruleZ = "--YF++++WF[+ZF++++XF]--XF"
+        self.startLength = 460.0
+        self.theta = radians(36)
         self.reset()
 
     def useRule(self, r_):
@@ -34,16 +37,20 @@ class PenroseSnowflakeLSystem(LSystem):
 
     def render(self):
         translate(width, height)
+        pushes = 0
         repeats = 1
-        self.steps += 3
+        self.steps += 12
         if self.steps > len(self.production):
             self.steps = len(self.production)
 
         for i in range(self.steps):
             step = self.production[i]
             if step == 'F':
+                stroke(255, 60)
                 for j in range(repeats):
+                    println("hello")
                     line(0, 0, 0, -self.drawLength)
+                    noFill()
                     translate(0, -self.drawLength)
 
                 repeats = 1
@@ -59,14 +66,20 @@ class PenroseSnowflakeLSystem(LSystem):
                 repeats = 1
 
             elif step == '[':
+                pushes += 1
                 pushMatrix()
 
             elif step == ']':
                 popMatrix()
+                pushes -= 1
 
             # Use ord to get ASCII value of letter
             elif (ord(step) >= 48) and (ord(step) <= 57):
                 repeats += ord(step) - 48
+
+        while pushes > 0:
+            popMatrix()
+            pushes -= 1
 
     def iterate(self, prod_, rule_):
         newProduction = ""

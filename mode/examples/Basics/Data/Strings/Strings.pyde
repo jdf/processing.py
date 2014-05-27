@@ -10,6 +10,15 @@ TODO: Make a more Pythonic example showing string manipulation
 letter = ' ' # Strings can be written in single quotes
 words = "Begin..." # Or double quotes
 
+#Or triple quotes for multi-line strings
+morewords = """
+I 
+am
+a
+multi-line
+string
+"""
+
 def setup(): 
     size(640, 360)
     # Create the font
@@ -19,7 +28,8 @@ def draw():
     background(0)# Set background to black
     # Draw the letter to the center of the screen
     textSize(14)
-    text("Click on the program, then type to add to the String", 50, 50)
+    # Concatenate (combine) strings by juxtaposition:  
+    text("Click on the program, ""then type to add to the String", 50, 50)
     text("Current key: " + letter, 50, 70)
     text("The String is " + str(len(words)) +    " letters long", 50, 90)    
     textSize(36)

@@ -22,7 +22,6 @@ def setup():
 
 def draw():
     background(51)
-    global mx, my, easing, radius, edge, inner
 
     if abs(mouseX - mx) > 0.1:
         mx = mx + (mouseX - mx) * easing

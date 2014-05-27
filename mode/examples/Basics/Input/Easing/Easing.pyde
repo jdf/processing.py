@@ -20,7 +20,6 @@ def setup():
 
 
 def draw():
-    global x, y
     background(51)
 
     targetX = mouseX
