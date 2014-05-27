@@ -28,16 +28,12 @@ class LSystem(object):
                 rect(0, 0, -self.drawLength, -self.drawLength)
                 noFill()
                 translate(0, -self.drawLength)
-
             elif step == '+':
                 rotate(self.theta)
-
             elif step == '-':
                 rotate(-self.theta)
-
             elif step == '[':
                 pushMatrix()
-
             elif step == ']':
                 popMatrix()
 

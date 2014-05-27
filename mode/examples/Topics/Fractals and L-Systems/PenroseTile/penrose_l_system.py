@@ -36,7 +36,7 @@ class PenroseLSystem(LSystem):
         return self.generations
 
     def render(self):
-        translate(width, height)
+        translate(width/2, height/2)
         pushes = 0
         repeats = 1
         self.steps += 12
@@ -48,35 +48,27 @@ class PenroseLSystem(LSystem):
             if step == 'F':
                 stroke(255, 60)
                 for j in range(repeats):
-                    println("hello")
                     line(0, 0, 0, -self.drawLength)
                     noFill()
                     translate(0, -self.drawLength)
-
                 repeats = 1
-
             elif step == '+':
                 for j in range(repeats):
                     rotate(self.theta)
                 repeats = 1
-
             elif step == '-':
                 for j in range(repeats):
                     rotate(-self.theta)
                 repeats = 1
-
             elif step == '[':
                 pushes += 1
                 pushMatrix()
-
             elif step == ']':
                 popMatrix()
                 pushes -= 1
-
             # Use ord to get ASCII value of letter
             elif (ord(step) >= 48) and (ord(step) <= 57):
-                repeats += ord(step) - 48
-
+                repeats = ord(step) - 48
         while pushes > 0:
             popMatrix()
             pushes -= 1
@@ -85,14 +77,18 @@ class PenroseLSystem(LSystem):
         newProduction = ""
         for i in range(len(prod_)):
             step = self.production[i]
-            if step == 'F':
-                newProduction = newProduction + self.ruleF
-
+            if step == 'W':
+                newProduction = newProduction + self.ruleW
+            elif step == 'X':
+                newProduction = newProduction + self.ruleX
+            elif step == 'Y':
+                newProduction = newProduction + self.ruleY
+            elif step == 'Z':
+                newProduction = newProduction + self.ruleZ
             else:
                 if step != 'F':
                     newProduction = newProduction + step
-
-        self.drawLength = self.drawLength * 0.4
+        self.drawLength = self.drawLength * 0.5
         self.generations += 1
         return newProduction
 
