@@ -1,11 +1,18 @@
 class Ring(object):
 
     def start(self, xpos, ypos):
+<<<<<<< HEAD
+        self.x = xpos # x-coordinate
+        self.y = ypos # y-coordinate
+        self.on = True # Turns the display on and off
+        self.diameter = 1
+=======
         self.x = xpos  # x-coordinate
         self.y = ypos  # y-coordinate
         self.diameter = 1  # Diameter of the ring
         self.on = False  # Turns the display on and off
         self.on = True
+>>>>>>> toobig
 
     def grow(self):
         if self.on == True:

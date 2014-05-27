@@ -1,58 +1,40 @@
 class LSystem(object):
-<<<<<<< HEAD
-    steps = 0
-    '''axiom
-    rule
-    production
-    startLength
-    drawLength
-    theta
-    generations'''
-
-    rule = None
-
-    def __init__(self):
-=======
 
     def __init__(self):
         self.steps = 0
->>>>>>> toobig
+
         self.axiom = "F"
         self.rule = "F+F-F"
         self.startLength = 90.0
         self.theta = radians(120.0)
-        self.reset()
+        reset()
 
     def reset(self):
-        self.production = self.axiom
-        self.drawLength = self.startLength
+        self.production = axiom
+        self.drawLength = startLength
         self.generations = 0
 
     def getAge(self):
-        return self.generations
+        return generations
 
     def render(self):
         translate(width / 2, height / 2)
-        self.steps += 5
-        if self.steps > len(self.production)():
-            self.steps = len(self.production)()
+        steps += 5
+        if steps > len(production)():
+            steps = len(production)()
 
-        for i in range(self.steps):
-            step = self.production.charAt(i)
+        for i in range(steps):
+            step = production.charAt(i)
             if step == 'F':
-                rect(0, 0, -self.drawLength, -self.drawLength)
+                rect(0, 0, -drawLength, -drawLength)
                 noFill()
-                translate(0, -self.drawLength)
-
+                translate(0, -drawLength)
             elif step == '+':
-                rotate(self.theta)
-
+                rotate(theta)
             elif step == '-':
-                rotate(-self.theta)
-
+                rotate(-theta)
             elif step == '[':
                 pushMatrix()
-
             elif step == ']':
                 popMatrix()
 
@@ -64,6 +46,6 @@ class LSystem(object):
         self.drawLength = self.drawLength * 0.6
         self.generations += 1
         newProduction = prod_
-        newProduction = newProduction.replaceAll("F", rule_)
+        newProduction = newProduction.replace("F", rule_)
         return newProduction
 
