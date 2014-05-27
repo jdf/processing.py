@@ -22,11 +22,18 @@ for i in range(d, width + d, d):
     else:
         b = False
 
-    if b == True:
+    '''    
+    Analogous to the above is:
+
+    b = i < middle 
+    
+    Note: i < middle evaluates to a boolean True or False.
+    '''
+
+    if b:  # If b is True, run this block
         # Vertical line
         line(i, d, i, height - d)
-
-    if b == False:
+    else:  # Otherwise, if b is False, run this block
         # Horizontal line
         line(middle, i - middle + d, width - d, i - middle + d)
 

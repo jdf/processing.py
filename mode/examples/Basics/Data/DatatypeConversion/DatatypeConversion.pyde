@@ -20,12 +20,7 @@ f = float(sCode)  # Sets f = 65.0
 i = int(f * 1.4)  # Sets i to 91
 b = bytes(sCode / 2)  # Sets b to 32 
 
-println(f)
-println(i)
-println(b)
-
 #String formatting in Python
-
 
 #Use the % operator to insert the value of variables into the string. 
 #You must specify the type of the variable after the % with the corresponding letter (see below). 
@@ -34,4 +29,4 @@ text("The value of variable s is %s" % s, 50, 100) # %s for strings
 text("The value of variable f is %f" % f, 50, 150) # %f for floats
 text("The value of variable i is %i" % i, 50, 200) # %i for integers
 text("The value of variable b is %s" % b, 50, 250) 
-
+text("The value of s is %s, f is %f, i is %i" % (s, f, i), 50, 300) 

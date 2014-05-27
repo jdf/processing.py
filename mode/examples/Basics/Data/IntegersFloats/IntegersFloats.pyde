@@ -3,9 +3,9 @@ Integers Floats.
 
 Integers and floats are two different kinds of numerical data. 
 An integer (more commonly called an int) is a number without 
-a decimal point. A float is a floating-ponumber, which means 
-it is a number that has a decimal place. Floats are used when
-more precision is needed. 
+a decimal point. A float is a floating-point number, which means 
+it is a number that has a decimal place. Floats are used when you 
+need to approximate real numbers.
 """
 
 a = 0  # Create a variable "a" of the datatype "int"
