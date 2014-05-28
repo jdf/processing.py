@@ -26,7 +26,6 @@ def draw():
             yoff = sin(radians(a)) * val
             fill(0)
             ellipse(mouseX + xoff, mouseY + yoff, val, val)
-
         fill(255)
         ellipse(mouseX, mouseY, 2, 2)
 

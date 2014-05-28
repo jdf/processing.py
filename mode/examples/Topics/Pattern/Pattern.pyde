@@ -20,7 +20,7 @@ def draw():
 # The simple method variableEllipse() was created specifically
 # for this program. It calculates the speed of the mouse
 # and draws a small ellipse if the mouse is moving slowly
-# and draws a large ellipse if the mouse is moving quickly
+# and draws a large ellipse if the mouse is moving quickly.
 
 
 def variableEllipse(x, y, px, py):
