@@ -9,13 +9,23 @@ import java.rmi.server.UnicastRemoteObject;
 import jycessing.mode.PythonMode;
 
 public class RMIUtils {
+  private static final boolean EXTREMELY_VERSBOSE = false;
+
   static final int RMI_PORT = 8220;
 
   static {
+    System.setProperty("sun.rmi.transport.tcp.localHostNameTimeOut", "1000");
     System.setProperty("java.rmi.server.hostname", "127.0.0.1");
+
     // Timeout RMI calls after 1.5 seconds. Good for detecting a hanging sketch runner.
     System.setProperty("sun.rmi.transport.tcp.responseTimeout", "1500");
-    System.setProperty("sun.rmi.transport.tcp.localHostNameTimeOut", "1000");
+
+    if (EXTREMELY_VERSBOSE) {
+      System.setProperty("java.rmi.server.logCalls", "true");
+      System.setProperty("sun.rmi.server.logLevel", "VERBOSE");
+      System.setProperty("sun.rmi.client.logCalls", "true");
+      System.setProperty("sun.rmi.transport.tcp.logLevel", "VERBOSE");
+    }
   }
 
   private static void log(final String msg) {
