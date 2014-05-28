@@ -538,7 +538,3 @@ class FakeStdErr():
 sys.stderr = FakeStdErr()
 
 del FakeStdOut, FakeStdErr
-
-# Create a namespace for sketch globals, and make it available to modules.
-class sketch: pass
-__builtin__.sketch = sketch
