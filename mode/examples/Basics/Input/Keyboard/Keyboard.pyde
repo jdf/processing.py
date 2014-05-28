@@ -6,14 +6,6 @@ to create forms in time and space. Each key has a unique identifying
 number. These numbers can be used to position shapes in space. 
 """
 
-# Store Unicode codes of A,Z,a,z to determine whether pressed key is a
-# letter key
-
-A_code = ord('A')
-Z_code = ord('Z')
-a_code = ord('a')
-z_code = ord('z')
-
 
 def setup():
     size(640, 360)
@@ -30,12 +22,10 @@ def draw():
 
 def keyPressed():
     keyIndex = -1
-    key_code = ord(key)
-
-    if key_code >= A_code and key_code <= Z_code:
-        keyIndex = key_code - A_code
-    elif key_code >= a_code and key_code <= z_code:
-        keyIndex = key_code - a_code
+    if 'A' <= key <= 'Z':
+        keyIndex = ord(key) - ord('A')
+    elif 'a' <= key <= 'z':
+        keyIndex = ord(key) - ord('a')
     if keyIndex == -1:
         # If it's not a letter key, clear the screen
         background(0)
