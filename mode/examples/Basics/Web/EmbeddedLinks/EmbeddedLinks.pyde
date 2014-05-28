@@ -16,7 +16,7 @@ def draw():
     background(204)
 
     # Left button
-    if overLeftButton == True:
+    if overLeftButton:
         fill(255)
     else:
         noFill()
@@ -25,7 +25,7 @@ def draw():
     rect(50, 90, 15, 15)
 
     # Right button
-    if overRightButton == True:
+    if overRightButton:
         fill(255)
     else:
         noFill()

@@ -19,7 +19,7 @@ def setup():
 
 def draw():
     background(0)
-    if img != None:
+    if img:
         for i in range(5):
             image(img, 0, img.height * i)
 
