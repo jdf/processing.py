@@ -46,19 +46,14 @@ for j in range(height):
             if aa + bb > 16.0:
                 break  # Bail
             n += 1
-
         # We color each pixel based on how long it takes to get to infinity
         # If we never got there, let's pick the color black
         if n == maxiterations:
             pixels[i + j * width] = color(0)
-
         else:
             # Gosh, we could make fancy colors here if we wanted
             pixels[i + j * width] = color(n * 16 % 255)
-
         x += dx
-
     y += dy
-
 updatePixels()
 

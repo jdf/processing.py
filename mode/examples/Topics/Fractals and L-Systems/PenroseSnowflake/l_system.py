@@ -1,22 +1,7 @@
 class LSystem(object):
-<<<<<<< HEAD
-    steps = 0
-    '''axiom
-    rule
-    production
-    startLength
-    drawLength
-    theta
-    generations'''
-
-    rule = None
-
-    def __init__(self):
-=======
 
     def __init__(self):
         self.steps = 0
->>>>>>> toobig
         self.axiom = "F"
         self.rule = "F+F-F"
         self.startLength = 90.0

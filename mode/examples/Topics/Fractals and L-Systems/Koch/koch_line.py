@@ -2,9 +2,9 @@
 # Daniel Shiffman
 # http://natureofcode.com
 # Koch Curve
-# A class to(object): describe one line segment in the fractal
+# A class to describe one line segment in the fractal.
 # Includes methods to calculate midPVectors along the line according to
-# the Koch algorithm
+# the Koch algorithm.
 
 
 class KochLine(object):

@@ -1,5 +1,5 @@
 # Koch Curve
-# A class to(object): manage the list of line segments in the snowflake pattern
+# A class to manage the list of line segments in the snowflake pattern.
 
 from koch_line import KochLine
 
@@ -25,16 +25,13 @@ class KochFractal(object):
         # Add the initial line (from one end PVector to the other)
         self.lines.append(KochLine(self.start, self.end))
 
-    def getCount(self):
-        return self.count
-
     # This is easy, just draw all the lines
     def render(self):
-        for l in self.lines:
-            l.display()
+        for i in self.lines:
+            i.display()
 
     # This is where the **MAGIC** happens
-    # Step 1: Create an empty
+    # Step 1: Create an empty list
     # Step 2: For every line currently in the list
     #     - calculate 4 line segments based on Koch algorithm
     #     - add all 4 line segments into the list
@@ -46,13 +43,13 @@ class KochFractal(object):
 
     def iterate(self, before):
         now = []
-        for l in before:
+        for i in before:
             # Calculate 5 koch PVectors (done for us by the line object)
-            a = l.start()
-            b = l.kochleft()
-            c = l.kochmiddle()
-            d = l.kochright()
-            e = l.end()
+            a = i.start()
+            b = i.kochleft()
+            c = i.kochmiddle()
+            d = i.kochright()
+            e = i.end()
             # Make line segments between all the PVectors and add them
             now.append(KochLine(a, b))
             now.append(KochLine(b, c))

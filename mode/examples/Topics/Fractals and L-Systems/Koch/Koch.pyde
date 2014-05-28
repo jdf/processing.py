@@ -25,6 +25,6 @@ def draw():
     # Iterate
     k.nextLevel()
     # Let's not do it more than 5 times. . .
-    if k.getCount() > 5:
+    if k.count > 5:
         k.restart()
 
