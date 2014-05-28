@@ -35,7 +35,6 @@ def draw():
     if mousePressed:
         background(153, 153, 0)
         animation1.display(xpos - animation1.getWidth() / 2, ypos)
-
     else:
         background(255, 204, 0)
         animation2.display(xpos - animation1.getWidth() / 2, ypos)
