@@ -25,13 +25,13 @@ for i in range(5, height + 5, 5):
         test = True
 
     # Testing if a boolean value is "True"
-    # The expression "if test" is equivalent to "if test == True"
+    # The expression "if test" is equivalent to "if test == True".
     if test:
         stroke(0)
         point(width / 3, i)
 
     # Testing if a boolean value is "False"
-    # The expression "if not test" is equivalent to "if test == false"
+    # The expression "if not test" is equivalent to "if test == False".
     if not test:
         stroke(255)
         point(width / 4, i)
