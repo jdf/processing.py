@@ -23,29 +23,32 @@ def setup():
 
 
 def draw():
-    # Draw a line using the global variable "a"
+    # Draw a line using the global variable "a".
     line(a, 0, a, height)
 
-    # Create a variable "b" local to the draw() function
+    # Create a variable "b" local to the draw() function.
     b = 100
 
+    # Create a global variable "c".
+    global c
+    c = 320 # Since "c" is global, it is avalaible to other functions.
     # Make a call to the custom function drawGreenLine()
     drawGreenLine()
 
-    # Draw a line using the local variable "b"
-    line(b, 0, b, height)  # Note that "b" remains set to 100
+    # Draw a line using the local variable "b".
+    line(b, 0, b, height)  # Note that "b" remains set to 100.
 
 
 def drawGreenLine():
     # Since "b" was defined as a variable local to the draw() function,
-    # this code inside this if statement will not run
+    # this code inside this if statement will not run.
     if('b' in locals() or 'b' in globals()):
         background(255)  # This won't run
     else:
         pushStyle()
         stroke(0, 255, 0)
-        b = 320  # Create a variable "b" local to drawGreenLine()
-        # Use the local variable "b" to draw a line
-        line(b, 0, b, height)
+        b = 320  # Create a variable "b" local to drawGreenLine().
+        # Use the local variable "b" and the global variable "c" to draw a line.
+        line(b, 0, c, height) 
         popStyle()
 
