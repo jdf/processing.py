@@ -29,7 +29,8 @@ def draw():
     # Draw the letter to the center of the screen
     textSize(14)
     # Concatenate (combine) strings by juxtaposition:  
-    text("Click on the program, ""then type to add to the String", 50, 50)
+    text("Click on the program, "
+    "then type to add to the String", 50, 50)
     text("Current key: " + letter, 50, 70)
     text("The String is " + str(len(words)) +    " letters long", 50, 90)    
     textSize(36)
@@ -38,7 +39,7 @@ def draw():
 def keyPressed(): 
     # The variable "key" always contains the value 
     # of the most recent key pressed.
-    if (key >= 'A' and key <= 'z') or key == ' ':
+    if ('A' <= key <= 'z') or key == ' ':
         letter = key
         words += key
         
