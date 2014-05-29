@@ -1,7 +1,7 @@
 """
 WigglePShape. 
 
-How to move the individual vertices of a PShape
+How to move the individual vertices of a PShape.
 """
 from wiggler import Wiggler
 
