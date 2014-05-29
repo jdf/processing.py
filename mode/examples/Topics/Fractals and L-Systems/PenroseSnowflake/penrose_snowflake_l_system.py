@@ -38,32 +38,25 @@ class PenroseSnowflakeLSystem(LSystem):
         self.steps += 3
         if self.steps > len(self.production):
             self.steps = len(self.production)
-
         for i in range(self.steps):
             step = self.production[i]
             if step == 'F':
                 for j in range(repeats):
                     line(0, 0, 0, -self.drawLength)
                     translate(0, -self.drawLength)
-
                 repeats = 1
-
             elif step == '+':
                 for j in range(repeats):
                     rotate(self.theta)
                 repeats = 1
-
             elif step == '-':
                 for j in range(repeats):
                     rotate(-self.theta)
                 repeats = 1
-
             elif step == '[':
                 pushMatrix()
-
             elif step == ']':
                 popMatrix()
-
             # Use ord to get ASCII value of letter
             elif (ord(step) >= 48) and (ord(step) <= 57):
                 repeats += ord(step) - 48
@@ -74,7 +67,6 @@ class PenroseSnowflakeLSystem(LSystem):
             step = self.production[i]
             if step == 'F':
                 newProduction = newProduction + self.ruleF
-
             else:
                 if step != 'F':
                     newProduction = newProduction + step

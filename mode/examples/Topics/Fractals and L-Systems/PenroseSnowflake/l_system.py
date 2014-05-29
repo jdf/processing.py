@@ -21,23 +21,18 @@ class LSystem(object):
         self.steps += 5
         if self.steps > len(self.production)():
             self.steps = len(self.production)()
-
         for i in range(self.steps):
             step = self.production.charAt(i)
             if step == 'F':
                 rect(0, 0, -self.drawLength, -self.drawLength)
                 noFill()
                 translate(0, -self.drawLength)
-
             elif step == '+':
                 rotate(self.theta)
-
             elif step == '-':
                 rotate(-self.theta)
-
             elif step == '[':
                 pushMatrix()
-
             elif step == ']':
                 popMatrix()
 
