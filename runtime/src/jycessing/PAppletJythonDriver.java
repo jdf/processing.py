@@ -204,6 +204,10 @@ public class PAppletJythonDriver extends PApplet {
     if (message.contains("expecting INDENT")) {
       return "This line needs be indented.";
     }
+    if (message.contains("mismatched input '//'")) {
+      return "Did you mean to make a comment? "
+          + "Comments in Python use the # character, not the double-slash.";
+    }
     return message;
   }
 
@@ -775,10 +779,6 @@ public class PAppletJythonDriver extends PApplet {
         // Call the Python sketch's setup()
         setupMeth.__call__();
       }
-    } catch (final PyException e) {
-      checkForRendererChangeException(e);
-      terminalException = toSketchException(e);
-      exit();
     } catch (final Exception e) {
       checkForRendererChangeException(e);
       terminalException = toSketchException(e);
