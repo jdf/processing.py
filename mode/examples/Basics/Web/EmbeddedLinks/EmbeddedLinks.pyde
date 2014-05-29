@@ -52,10 +52,6 @@ def mouseDragged():
 
 
 def checkButtons():
-    if mouseX > 20 and mouseX < 95 and mouseY > 60 and mouseY < 135:
-        overLeftButton = True
-    elif mouseX > 105 and mouseX < 180 and mouseY > 60 and mouseY < 135:
-        overRightButton = True
-    else:
-        overLeftButton = overRightButton = False
+    overLeftButton = 20 < mouseX < 95 and 60 < mouseY < 135;
+    overRightButton = 105 < mouseX < 180 and 60 < mouseY < 135;
 
