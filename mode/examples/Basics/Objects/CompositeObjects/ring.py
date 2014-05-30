@@ -8,13 +8,13 @@ class Ring(object):
         self.on = True
 
     def grow(self):
-        if self.on == True:
+        if self.on:
             self.diameter += 0.5
             if self.diameter > width * 2:
                 self.diameter = 0.0
 
     def display(self):
-        if self.on == True:
+        if self.on:
             noFill()
             strokeWeight(4)
             stroke(155, 153)

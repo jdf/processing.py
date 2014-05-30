@@ -1,7 +1,5 @@
 class Egg(object):
 
-    # Constructor
-
     def __init__(self, xpos, ypos, t, s):
         self.x = xpos  # x-coordinate
         self.y = ypos  # y-coordinate
