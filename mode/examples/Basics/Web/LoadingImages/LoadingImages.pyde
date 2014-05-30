@@ -1,11 +1,5 @@
 """
 Loading Images. 
-
-Processing applications can only load images from the network
-while running in the Processing environment. 
-
-This example will not run in a web broswer and will only work when 
-the computer is connected to the Internet. 
 """
 
 img = None
@@ -19,7 +13,6 @@ def setup():
 
 def draw():
     background(0)
-    if img:
-        for i in range(5):
-            image(img, 0, img.height * i)
+    for i in range(5):
+        image(img, 0, img.height * i)
 
