@@ -124,17 +124,13 @@ public class PAppletJythonDriver extends PApplet {
   // Implement the Video library's callback.
   private PyObject captureEventMeth, movieEventMeth;
 
-  // Adapted from Jython's PythonInterpreter.java exec(String s) to preserve
-  // the source file name, so that errors have the file name instead of
-  // "<string>"
   private void interpretSketch() throws PythonSketchError {
     try {
-      Py.setSystemState(interp.getSystemState());
       interp.set("__processing_source__", programText);
       final PyCode code =
           Py.compile_flags(GLOBAL_STATEMENT_TEXT, pySketchPath, CompileMode.exec,
               new CompilerFlags());
-      Py.exec(code, interp.getLocals(), null);
+      interp.exec(code);
       Py.flushLine();
     } catch (Throwable t) {
       checkForRendererChangeException(t);
