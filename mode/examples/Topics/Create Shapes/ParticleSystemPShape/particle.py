@@ -1,6 +1,8 @@
 import globals
 
 # An individual Particle
+
+
 class Particle(object):
     # Velocity
     center = None
@@ -23,9 +25,12 @@ class Particle(object):
         self.part.texture(globals.sprite)
         self.part.normal(0, 0, 1)
         self.part.vertex(-self.partSize / 2, -self.partSize / 2, 0, 0)
-        self.part.vertex(+self.partSize / 2, -self.partSize / 2, globals.sprite.width, 0)
-        self.part.vertex(+self.partSize / 2, +self.partSize / 2, globals.sprite.width, globals.sprite.height)
-        self.part.vertex(-self.partSize / 2, +self.partSize / 2, 0, globals.sprite.height)
+        self.part.vertex(+self.partSize / 2, -
+                         self.partSize / 2, globals.sprite.width, 0)
+        self.part.vertex(+self.partSize / 2, +self.partSize /
+                         2, globals.sprite.width, globals.sprite.height)
+        self.part.vertex(-self.partSize / 2, +
+                         self.partSize / 2, 0, globals.sprite.height)
         self.part.endShape()
         # Initialize center vector.
         self.center = PVector()
@@ -51,11 +56,9 @@ class Particle(object):
 
     # Is it off the screen, or its lifespan is over?
     def isDead(self):
-        if  self.center.x > width or self.center.x < 0 \
-                or self.center.y > height or self.center.y < 0 or self.lifespan < 0:
-            return True
-        else:
-            return False
+        return (self.center.x > width or self.center.x < 0
+                or self.center.y > height or self.center.y < 0 or
+                self.lifespan < 0)
 
     def update(self):
         # Decrease life.

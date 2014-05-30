@@ -8,7 +8,7 @@ class Wiggler(object):
     y = None
     # For 2D Perlin noise
     yoff = 0
-    # We are using an ArrayList to keep a duplicate copy
+    # We are using a list to keep a duplicate copy
     # of vertices original locations.
     original = []
 

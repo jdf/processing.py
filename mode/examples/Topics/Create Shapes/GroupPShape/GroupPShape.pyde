@@ -36,10 +36,10 @@ def setup():
     path.stroke(255)
     # Note: range() only operates on integers.
     # The next two lines show a way to increment by a float value.
-    for a in range(-PI * 10, 0, 1):
-        atemp = a * 0.1
+    for t in range(-PI * 10, 0, 1):
+        ttemp = t * 0.1
         r = random(60, 70)
-        path.vertex(r * cos(atemp), r * sin(atemp))
+        path.vertex(r * cos(ttemp), r * sin(ttemp))
     path.endShape()
     # Make a primitive (Rectangle) PShape.
     rectangle = createShape(RECT, -10, -10, 20, 20)

@@ -11,7 +11,7 @@ from polygon import Polygon
 # A list of objects
 polygons = []
 # Three possible shapes
-shapes = [PShape] * 3
+shapes = [None] * 3
 
 
 def setup():
