@@ -3,15 +3,14 @@ Convolution
 by Daniel Shiffman.    
 
 Applies a convolution matrix to a portion of an image. Move mouse to 
-apply filter to different parts of the image. This example is currently
-not accurate in JavaScript mode.
+apply filter to different parts of the image. 
 """
 
 img = None
 w = 120
 # It's possible to convolve the image with many different
 # matrices to produce different effects. This is a high-pass
-# filterit accentuates the edges.
+# filter; it accentuates the edges.
 matrix = [[-1, -1, -1],
           [-1,  9, -1],
           [-1, -1, -1]]
@@ -26,7 +25,6 @@ def draw():
     # We're only going to process a portion of the image
     # so let's set the whole image as the background first
     image(img, 0, 0)
-
     # Calculate the small rectangle we will process
     xstart = constrain(mouseX - w / 2, 0, img.width)
     ystart = constrain(mouseY - w / 2, 0, img.height)
@@ -40,7 +38,6 @@ def draw():
             c = convolution(x, y, matrix, matrixsize, img)
             loc = x + y * img.width
             pixels[loc] = c
-
     updatePixels()
 
 
