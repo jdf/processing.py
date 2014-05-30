@@ -58,7 +58,7 @@ class PenroseSnowflakeLSystem(LSystem):
             elif step == ']':
                 popMatrix()
             # Use ord to get ASCII value of letter
-            elif (ord(step) >= 48) and (ord(step) <= 57):
+            elif 48 <= ord(step) <= 57:
                 repeats += ord(step) - 48
 
     def iterate(self, prod_, rule_):
@@ -67,9 +67,8 @@ class PenroseSnowflakeLSystem(LSystem):
             step = self.production[i]
             if step == 'F':
                 newProduction = newProduction + self.ruleF
-            else:
-                if step != 'F':
-                    newProduction = newProduction + step
+            elif step != 'F':
+                newProduction = newProduction + step
 
         self.drawLength = self.drawLength * 0.4
         self.generations += 1

@@ -36,7 +36,7 @@ class PenroseLSystem(LSystem):
         return self.generations
 
     def render(self):
-        translate(width/2, height/2)
+        translate(width / 2, height / 2)
         pushes = 0
         repeats = 1
         self.steps += 12
@@ -85,9 +85,8 @@ class PenroseLSystem(LSystem):
                 newProduction = newProduction + self.ruleY
             elif step == 'Z':
                 newProduction = newProduction + self.ruleZ
-            else:
-                if step != 'F':
-                    newProduction = newProduction + step
+            elif step != 'F':
+                newProduction = newProduction + step
         self.drawLength = self.drawLength * 0.5
         self.generations += 1
         return newProduction

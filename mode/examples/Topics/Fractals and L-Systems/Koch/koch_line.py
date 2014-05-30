@@ -38,13 +38,10 @@ class KochLine(object):
     def kochmiddle(self):
         v = PVector.sub(self.b, self.a)
         v.div(3)
-
         p = self.a.get()
         p.add(v)
-
         v.rotate(-radians(60))
         p.add(v)
-
         return p
 
     # Easy, just 2/3 of the way

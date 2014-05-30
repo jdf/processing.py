@@ -4,9 +4,9 @@ by Daniel Shiffman.
 
 Simple rendering of the Mandelbrot set.
 """
+
 # Establish a range of values on the complex plane
 # A different range will allow us to "zoom" in or out on the fractal
-# xmin = -1.5ymin = -.1wh = 0.15
 xmin = -3
 ymin = -1.25
 w = 5
