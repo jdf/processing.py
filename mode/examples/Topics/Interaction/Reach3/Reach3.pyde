@@ -23,8 +23,8 @@ def setup():
     strokeWeight(20.0)
     stroke(255, 100)
     noFill()
-    x[len(x) - 1] = width / 2  # Set base x-coordinate
-    y[len(x) - 1] = height  # Set base y-coordinate
+    x[-1] = width / 2  # Set base x-coordinate
+    y[-1] = height  # Set base y-coordinate
 
 
 def draw():
