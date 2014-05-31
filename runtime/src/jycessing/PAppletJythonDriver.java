@@ -542,9 +542,9 @@ public class PAppletJythonDriver extends PApplet {
     });
   }
 
-  public String hex(final long n) {
-    return Long.toHexString(n);
-  }
+  // public String hex(final long n) {
+  // return Long.toHexString(n);
+  // }
 
   /*
    * If you fill(0xAARRGGBB), for some reason Jython decides to
@@ -666,24 +666,24 @@ public class PAppletJythonDriver extends PApplet {
    * unsigned quantities.
    */
   private void setGet() {
-    builtins.__setitem__("get", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        switch (args.length) {
-          case 0:
-            return Py.java2py(get());
-          case 2:
-            return Py.newLong(get(args[0].asInt(), args[1].asInt()) & 0xFFFFFFFFL);
-          case 4:
-            return Py.java2py(get(args[0].asInt(), args[1].asInt(), args[2].asInt(),
-                args[3].asInt()));
-            //$FALL-THROUGH$
-          default:
-            throw new RuntimeException("get() takes 0, 2, or 4 arguments, but I got " + args.length
-                + ".");
-        }
-      }
-    });
+    // builtins.__setitem__("get", new PyObject() {
+    // @Override
+    // public PyObject __call__(final PyObject[] args, final String[] kws) {
+    // switch (args.length) {
+    // case 0:
+    // return Py.java2py(get());
+    // case 2:
+    // return Py.newLong(get(args[0].asInt(), args[1].asInt()) & 0xFFFFFFFFL);
+    // case 4:
+    // return Py.java2py(get(args[0].asInt(), args[1].asInt(), args[2].asInt(),
+    // args[3].asInt()));
+    // //$FALL-THROUGH$
+    // default:
+    // throw new RuntimeException("get() takes 0, 2, or 4 arguments, but I got " + args.length
+    // + ".");
+    // }
+    // }
+    // });
   }
 
   /**
@@ -796,22 +796,24 @@ public class PAppletJythonDriver extends PApplet {
   @Override
   public void loadPixels() {
     super.loadPixels();
-    if (longPixels == null || longPixels.length != pixels.length) {
-      longPixels = new long[pixels.length];
-    }
-    for (int i = 0; i < pixels.length; i++) {
-      longPixels[i] = pixels[i] & 0xFFFFFFFFL;
-    }
-    builtins.__setitem__("pixels", Py.java2py(longPixels));
+    builtins.__setitem__("pixels", Py.java2py(pixels));
+    // if (longPixels == null || longPixels.length != pixels.length) {
+    // longPixels = new long[pixels.length];
+    // }
+    // for (int i = 0; i < pixels.length; i++) {
+    // longPixels[i] = pixels[i] & 0xFFFFFFFFL;
+    // }
+    // builtins.__setitem__("pixels", Py.java2py(longPixels));
   }
 
-  @Override
-  public void updatePixels() {
-    for (int i = 0; i < longPixels.length; i++) {
-      pixels[i] = (int)(longPixels[i] & 0xFFFFFFFFL);
-    }
-    super.updatePixels();
-  }
+  //
+  // @Override
+  // public void updatePixels() {
+  // for (int i = 0; i < longPixels.length; i++) {
+  // pixels[i] = (int)(longPixels[i] & 0xFFFFFFFFL);
+  // }
+  // super.updatePixels();
+  // }
 
   @Override
   public boolean sketchFullScreen() {

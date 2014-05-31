@@ -39,4 +39,11 @@ public class ReflectionUtil {
     }
   }
 
+  public static <T> void setBoolean(final T instance, final String fieldName, final boolean value) {
+    try {
+      accessibleField(instance.getClass(), fieldName).set(null, value);
+    } catch (final Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

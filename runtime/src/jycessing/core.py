@@ -416,14 +416,15 @@ long quantities on their way into Python, and 32-bit signed quantities on
 their way into Java.
 '''
 # We have to provide a funky get() because of int/long conversion woes.
-#__builtin__.get = __papplet__.get
+__builtin__.get = __papplet__.get
 
 # We handle lerpColor by hand because there's an instance method and a static method.
 #__builtin__.lerpColor = __papplet__.lerpColor
 
-def __long_color__(*args):
-    return 0xFFFFFFFF & __papplet__.color(*args)
-__builtin__.color = __long_color__
+#def __long_color__(*args):
+#    return 0xFFFFFFFF & __papplet__.color(*args)
+#__builtin__.color = __long_color__
+__builtin__.color = __papplet__.color
 
 # These must all be implemented in Java to properly downcast our unsigned longs.
 '''
@@ -475,6 +476,7 @@ def __bogus_hex__(x):
         return s[:-1]
     return s
 __builtin__.hex = __bogus_hex__
+__builtin__.hex = __papplet__.hex
 del __bogus_hex__
 
 __builtin__.hour = PApplet.hour
