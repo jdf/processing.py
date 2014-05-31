@@ -258,6 +258,7 @@ __builtin__.blendMode = __papplet__.blendMode
 __builtin__.box = __papplet__.box
 __builtin__.camera = __papplet__.camera
 __builtin__.clear = __papplet__.clear
+__builtin__.color = __papplet__.color
 __builtin__.colorMode = __papplet__.colorMode
 __builtin__.copy = __papplet__.copy
 __builtin__.createFont = __papplet__.createFont
@@ -421,12 +422,8 @@ __builtin__.get = __papplet__.get
 # We handle lerpColor by hand because there's an instance method and a static method.
 #__builtin__.lerpColor = __papplet__.lerpColor
 
-#def __long_color__(*args):
-#    return 0xFFFFFFFF & __papplet__.color(*args)
-#__builtin__.color = __long_color__
-__builtin__.color = __papplet__.color
 
-# These must all be implemented in Java to properly downcast our unsigned longs.
+# These must all be implemented in Java to support our funky color arguments.
 '''
 __builtin__.alpha = __papplet__.alpha
 __builtin__.red = __papplet__.red
@@ -464,21 +461,7 @@ __builtin__.dist = PApplet.dist
 __builtin__.exp = PApplet.exp
 __builtin__.expand = PApplet.expand
 __builtin__.floor = PApplet.floor
-
-__original_hex__ = hex
-def __bogus_hex__(x):
-    s = __original_hex__(x).upper()
-    if s[0] == '-':
-        s = '-' + s[3:]
-    else:
-        s = s[2:]
-    if s[-1] == 'L':
-        return s[:-1]
-    return s
-__builtin__.hex = __bogus_hex__
-__builtin__.hex = __papplet__.hex
-del __bogus_hex__
-
+__builtin__.hex = PApplet.hex
 __builtin__.hour = PApplet.hour
 __builtin__.join = PApplet.join
 __builtin__.lerp = PApplet.lerp
@@ -521,7 +504,7 @@ __builtin__.subset = PApplet.subset
 __builtin__.tan = PApplet.tan
 __builtin__.trim = PApplet.trim
 __builtin__.unbinary = PApplet.unbinary
-__builtin__.unhex = lambda x: int(x, base=16)
+__builtin__.unhex = PApplet.unhex
 __builtin__.year = PApplet.year
 
 del monkeypatch_method, PAppletJythonDriver

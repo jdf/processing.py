@@ -86,20 +86,6 @@ public class PAppletJythonDriver extends PApplet {
 
   private final CountDownLatch finishedLatch = new CountDownLatch(1);
 
-  /**
-   * Because of a bad interaction between Java and Jython, integers with the high bit set
-   * become negative integers when accessed in Jython, which means that a color like
-   * opaque green (0xFF00FF00) does not survive the round-trip into from Python into
-   * Java and back (i.e., the sequence
-   * <pre>fill(0xFF00FF00)
-   * rect(0, 0, 20, 20)
-   * assert get(10, 10) == 0xFF00FF00</pre>
-   * fails.
-   * <p>Therefore, we override get(), loadPixels(), and updatePixels(), and we shadow
-   * the PApplet pixels[] array with this:
-   */
-  private long[] longPixels;
-
   private enum Mode {
     STATIC, DRAW_LOOP
   }
@@ -221,7 +207,6 @@ public class PAppletJythonDriver extends PApplet {
     setMap();
     setSet();
     setColorMethods();
-    setGet();
     setText();
     builtins.__setitem__("g", Py.java2py(g));
     // There's a bug in ast.Global that makes it impossible to construct a valid Global
@@ -542,10 +527,6 @@ public class PAppletJythonDriver extends PApplet {
     });
   }
 
-  // public String hex(final long n) {
-  // return Long.toHexString(n);
-  // }
-
   /*
    * If you fill(0xAARRGGBB), for some reason Jython decides to
    * invoke the fill(float) method, unless we provide a long int
@@ -590,7 +571,7 @@ public class PAppletJythonDriver extends PApplet {
    * @return the integer correspnding to the intended color.
    */
   private int interpretColorArg(final PyObject arg) {
-    return isString(arg) ? parseColorSpec(arg.asString()) : (int)(arg.asLong() & 0xFFFFFFFF);
+    return isString(arg) ? parseColorSpec(arg.asString()) : arg.asInt();
   }
 
   /**
@@ -659,31 +640,6 @@ public class PAppletJythonDriver extends PApplet {
         return Py.newFloat(brightness(interpretColorArg(args[0])));
       }
     });
-  }
-
-  /**
-   * Fix the result of pixel gets, which wind up as negative ints rather than
-   * unsigned quantities.
-   */
-  private void setGet() {
-    // builtins.__setitem__("get", new PyObject() {
-    // @Override
-    // public PyObject __call__(final PyObject[] args, final String[] kws) {
-    // switch (args.length) {
-    // case 0:
-    // return Py.java2py(get());
-    // case 2:
-    // return Py.newLong(get(args[0].asInt(), args[1].asInt()) & 0xFFFFFFFFL);
-    // case 4:
-    // return Py.java2py(get(args[0].asInt(), args[1].asInt(), args[2].asInt(),
-    // args[3].asInt()));
-    // //$FALL-THROUGH$
-    // default:
-    // throw new RuntimeException("get() takes 0, 2, or 4 arguments, but I got " + args.length
-    // + ".");
-    // }
-    // }
-    // });
   }
 
   /**
@@ -797,23 +753,7 @@ public class PAppletJythonDriver extends PApplet {
   public void loadPixels() {
     super.loadPixels();
     builtins.__setitem__("pixels", Py.java2py(pixels));
-    // if (longPixels == null || longPixels.length != pixels.length) {
-    // longPixels = new long[pixels.length];
-    // }
-    // for (int i = 0; i < pixels.length; i++) {
-    // longPixels[i] = pixels[i] & 0xFFFFFFFFL;
-    // }
-    // builtins.__setitem__("pixels", Py.java2py(longPixels));
   }
-
-  //
-  // @Override
-  // public void updatePixels() {
-  // for (int i = 0; i < longPixels.length; i++) {
-  // pixels[i] = (int)(longPixels[i] & 0xFFFFFFFFL);
-  // }
-  // super.updatePixels();
-  // }
 
   @Override
   public boolean sketchFullScreen() {
