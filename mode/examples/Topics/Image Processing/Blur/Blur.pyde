@@ -27,8 +27,8 @@ def draw():
     for y in range(1, img.height - 1):  # Skip top and bottom edges
         for x in range(1, img.width - 1):  # Skip left and right edges
             sum = 0  # Kernel sum for this pixel
-            for ky in range(-1, 2, 1):
-                for kx in range(-1, 2, 1):
+            for ky in (-1, 0, 1):
+                for kx in (-1, 0, 1):
                     # Calculate the adjacent pixel for this kernel point
                     pos = (y + ky) * img.width + (x + kx)
                     # Image is grayscale, red/green/blue are identical
