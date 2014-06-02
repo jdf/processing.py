@@ -36,5 +36,5 @@ def draw():
 
 def listCopy(src, srcPosition, dst, dstPosition, length):
     for i in range(length):
-        dst[i + dstPosition] = src[i + srcPosition]
+        dst[dstPosition:dstPosition + length] = src[srcPosition:srcPosition + length]
 
