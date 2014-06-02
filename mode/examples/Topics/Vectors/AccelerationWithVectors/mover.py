@@ -7,16 +7,13 @@ A "Mover" object stores location, velocity, and acceleration as vectors
 The motion is controlled by affecting the acceleration (in this case towards the mouse)
 """
 
+# The Mover tracks location, velocity, and acceleration
+
 
 class Mover(object):
-    # The Mover tracks location, velocity, and acceleration
-    location = None
-    velocity = None
-    acceleration = None
-    # The Mover's maximum speed
-    topspeed = 0.0
 
     def __init__(self):
+        self.acceleration = None
         # Start in the center
         self.location = PVector(width / 2, height / 2)
         self.velocity = PVector(0, 0)
