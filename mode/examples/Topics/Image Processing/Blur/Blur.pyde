@@ -6,7 +6,9 @@ pixel in an image and blends it with the neighboring pixels
 to blur the image. 
 """
 v = 1.0 / 9.0
-kernel = [[v, v, v], [v, v, v], [v, v, v]]
+kernel = [[v, v, v],
+          [v, v, v],
+          [v, v, v]]
 img = None
 
 
