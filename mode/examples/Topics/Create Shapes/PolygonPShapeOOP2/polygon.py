@@ -1,11 +1,10 @@
 # A class to describe a Polygon (with a PShape).
 class Polygon(object):
 
-    def __init__(self, s_):
-
+    def __init__(self, s):
         self.x = random(width)
         self.y = random(-500, -100)
-        self.s = s_
+        self.s = s
         self.speed = random(2, 6)
 
     # Simple motion
