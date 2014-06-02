@@ -4,8 +4,6 @@ from particle import Particle
 
 
 class ParticleSystem(object):
-    particles = None
-    particleShape = None
 
     def __init__(self, n):
         # It's just an ArrayList of particle objects.
