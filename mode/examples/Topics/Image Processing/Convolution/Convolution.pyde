@@ -33,8 +33,8 @@ def draw():
     matrixsize = 3
     loadPixels()
     # Begin our loop for every pixel in the smaller image
-    for x in range(xstart, xend, 1):
-        for y in range(ystart, yend, 1):
+    for x in range(xstart, xend):
+        for y in range(ystart, yend):
             c = convolution(x, y, matrix, matrixsize, img)
             loc = x + y * img.width
             pixels[loc] = c
