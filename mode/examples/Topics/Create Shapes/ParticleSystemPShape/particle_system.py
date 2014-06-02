@@ -6,7 +6,7 @@ from particle import Particle
 class ParticleSystem(object):
 
     def __init__(self, n):
-        # It's just an ArrayList of particle objects.
+        # It's just a list of particle objects.
         self.particles = []
         # The PShape to group all the particle PShapes.
         self.particleShape = createShape(GROUP)
