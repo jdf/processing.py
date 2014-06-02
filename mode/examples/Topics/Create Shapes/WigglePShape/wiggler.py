@@ -42,7 +42,6 @@ class Wiggler(object):
             self.s.setVertex(i, r.x, r.y)
             # Increment perlin noise x value.
             xoff += 0.5
-
         # Increment perlin noise y value.
         self.yoff += 0.02
 
