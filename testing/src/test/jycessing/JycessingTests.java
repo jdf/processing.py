@@ -2,6 +2,8 @@ package test.jycessing;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -14,8 +16,6 @@ import jycessing.Runner;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.RunMode;
 import jycessing.mode.run.SketchInfo;
-
-import org.junit.Test;
 
 public class JycessingTests {
   private static String run(final String testResource) throws Exception {
@@ -211,5 +211,10 @@ public class JycessingTests {
   @Test
   public void color() throws Exception {
     expectOK("color");
+  }
+
+  @Test
+  public void loadThings() throws Exception {
+    expectOK("loadthings");
   }
 }

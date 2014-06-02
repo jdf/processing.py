@@ -290,7 +290,7 @@ __builtin__.exit = __papplet__.exit
 __builtin__.fill = __papplet__.fill
 
 # We handle filter() by hand to permit both P5's filter() and Python's filter().
-#__builtin__.filter = __papplet__.filter
+# __builtin__.filter = __papplet__.filter
 
 __builtin__.frameRate = __papplet__.frameRate
 __builtin__.frustum = __papplet__.frustum
@@ -312,7 +312,6 @@ __builtin__.loadJSONObject = __papplet__.loadJSONObject
 __builtin__.loadPixels = __papplet__.loadPixels
 __builtin__.loadShader = __papplet__.loadShader
 __builtin__.loadShape = __papplet__.loadShape
-__builtin__.loadStrings = __papplet__.loadStrings
 __builtin__.loadTable = __papplet__.loadTable
 __builtin__.loadXML = __papplet__.loadXML
 __builtin__.loop = __papplet__.loop
@@ -342,8 +341,6 @@ __builtin__.printArray = __papplet__.printArray
 __builtin__.printCamera = __papplet__.printCamera
 __builtin__.printMatrix = __papplet__.printMatrix
 __builtin__.printProjection = __papplet__.printProjection
-__builtin__.pushMatrix = __papplet__.pushMatrix
-__builtin__.pushStyle = __papplet__.pushStyle
 __builtin__.quad = __papplet__.quad
 __builtin__.quadraticVertex = __papplet__.quadraticVertex
 __builtin__.random = __papplet__.random
@@ -393,7 +390,7 @@ __builtin__.strokeJoin = __papplet__.strokeJoin
 __builtin__.strokeWeight = __papplet__.strokeWeight
 
 # Because of two 5-arg text() methods, we have to do this in Java.
-#__builtin__.text = __papplet__.text
+# __builtin__.text = __papplet__.text
 
 __builtin__.textAlign = __papplet__.textAlign
 __builtin__.textAscent = __papplet__.textAscent
@@ -420,7 +417,7 @@ their way into Java.
 __builtin__.get = __papplet__.get
 
 # We handle lerpColor by hand because there's an instance method and a static method.
-#__builtin__.lerpColor = __papplet__.lerpColor
+# __builtin__.lerpColor = __papplet__.lerpColor
 
 
 # These must all be implemented in Java to support our funky color arguments.
@@ -457,7 +454,7 @@ __builtin__.day = PApplet.day
 __builtin__.debug = PApplet.debug
 __builtin__.degrees = PApplet.degrees
 __builtin__.dist = PApplet.dist
-#__builtin__.exec = PApplet.exec
+# __builtin__.exec = PApplet.exec
 __builtin__.exp = PApplet.exp
 __builtin__.expand = PApplet.expand
 __builtin__.floor = PApplet.floor
@@ -466,15 +463,14 @@ __builtin__.hour = PApplet.hour
 __builtin__.join = PApplet.join
 __builtin__.lerp = PApplet.lerp
 __builtin__.loadBytes = PApplet.loadBytes
-__builtin__.loadStrings = PApplet.loadStrings
 __builtin__.log = PApplet.log
 __builtin__.mag = PApplet.mag
 # We permit both Python and P5's map()s.
-#__builtin__.map = PApplet.map
+# __builtin__.map = PApplet.map
 __builtin__.match = PApplet.match
 __builtin__.matchAll = PApplet.matchAll
-#__builtin__.max = PApplet.max
-#__builtin__.min = PApplet.min
+# __builtin__.max = PApplet.max
+# __builtin__.min = PApplet.min
 __builtin__.minute = PApplet.minute
 __builtin__.month = PApplet.month
 __builtin__.nf = PApplet.nf
@@ -483,11 +479,11 @@ __builtin__.nfp = PApplet.nfp
 __builtin__.nfs = PApplet.nfs
 __builtin__.norm = PApplet.norm
 __builtin__.pow = PApplet.pow
-#__builtin__.print = PApplet.print
+# __builtin__.print = PApplet.print
 __builtin__.println = PApplet.println
 __builtin__.radians = PApplet.radians
 __builtin__.reverse = PApplet.reverse
-#__builtin__.round = PApplet.round
+# __builtin__.round = PApplet.round
 __builtin__.saveBytes = PApplet.saveBytes
 __builtin__.saveStream = PApplet.saveStream
 __builtin__.saveStrings = PApplet.saveStrings
@@ -507,6 +503,58 @@ __builtin__.unbinary = PApplet.unbinary
 __builtin__.unhex = PApplet.unhex
 __builtin__.year = PApplet.year
 
+
+# Here are some names that resolve to static *and* instance methods.
+# Dispatch them to the appropriate methods based on the type of their
+# arguments.
+def __createReader__(o):
+    if isinstance(o, basestring):
+        return __papplet__.createReader(o)
+    return PApplet.createReader(o)
+__builtin__.createReader = __createReader__
+
+def __loadStrings__(o):
+    if isinstance(o, basestring):
+        return __papplet__.loadStrings(o)
+    return PApplet.loadStrings(o)
+__builtin__.loadStrings = __loadStrings__
+
+def __loadBytes__(o):
+    if isinstance(o, basestring):
+        return __papplet__.loadBytes(o)
+    return PApplet.loadBytes(o)
+__builtin__.loadBytes = __loadBytes__
+
+def __loadJSONArray__(o):
+    if isinstance(o, basestring):
+        return __papplet__.loadJSONArray(o)
+    return PApplet.loadJSONArray(o)
+__builtin__.loadJSONArray = __loadJSONArray__
+
+def __loadJSONObject__(o):
+    if isinstance(o, basestring):
+        return __papplet__.loadJSONObject(o)
+    return PApplet.loadJSONObject(o)
+__builtin__.loadJSONObject = __loadJSONObject__
+
+def __saveStream__(target, source):
+    if isinstance(source, basestring) or isinstance(target, basestring):
+        return __papplet__.saveStream(target, source)
+    return PApplet.saveStream(target, source)
+__builtin__.saveStream = __saveStream__
+
+def __saveStrings__(where, data):
+    if isinstance(where, basestring):
+        return __papplet__.saveStrings(where, data)
+    return PApplet.saveStrings(where, data)
+__builtin__.saveStrings = __saveStrings__
+
+def __saveBytes__(where, data):
+    if isinstance(where, basestring):
+        return __papplet__.saveBytes(where, data)
+    return PApplet.saveBytes(where, data)
+__builtin__.saveBytes = __saveBytes__
+
 del monkeypatch_method, PAppletJythonDriver
 
 # Due to a seeming bug in Jython, the print builtin ignores the the setting of
@@ -523,3 +571,42 @@ class FakeStdErr():
 sys.stderr = FakeStdErr()
 
 del FakeStdOut, FakeStdErr
+
+# Make it so that you can either
+#
+#  pushStyle()
+#  drawSomething()
+#  popStyle()
+#  drawOtherThing()
+#
+# or
+#
+#  with pushStyle():
+#      drawSomething();
+#  drawOtherThing()
+#
+# And same with pushMatrix/popMatrix.
+
+class __style_popper__(object):
+    def __init__(self): pass
+    def __enter__(self): pass
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        __papplet__.popStyle()
+        return False
+    
+def __push_style__():
+    __papplet__.pushStyle()
+    return __style_popper__()
+__builtin__.pushStyle = __push_style__
+
+class __matrix_popper__(object):
+    def __init__(self): pass
+    def __enter__(self): pass
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        __papplet__.popMatrix()
+        return False
+    
+def __push_matrix__():
+    __papplet__.pushMatrix()
+    return __matrix_popper__()
+__builtin__.pushMatrix = __push_matrix__
