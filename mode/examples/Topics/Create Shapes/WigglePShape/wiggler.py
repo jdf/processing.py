@@ -1,28 +1,23 @@
 # An object that wraps the PShape.
 class Wiggler(object):
 
-    # The PShape to be "wiggled".
-    s = None
-    # Its location
-    x = None
-    y = None
-    # For 2D Perlin noise
-    yoff = 0
-    # We are using a list to keep a duplicate copy
-    # of vertices original locations.
-    original = []
-
     def __init__(self):
+        # For 2D Perlin noise
+        self.yoff = 0
+        # Its location
         self.x = width / 2
         self.y = height / 2
         # The "original" locations of the vertices make up a circle.
+        # We are using a list to keep a duplicate copy
+        # of vertices original locations.
         self.original = []
         for a in range(0, TWO_PI * 10, 2):
             ascaled = a * .1
             v = PVector.fromAngle(ascaled)
             v.mult(100)
             self.original.append(v)
-        # Now make the PShape with those vertices.
+        # The PShape to be "wiggled".
+        # Make the PShape with those vertices.
         self.s = createShape()
         self.s.beginShape()
         self.s.fill(127)
