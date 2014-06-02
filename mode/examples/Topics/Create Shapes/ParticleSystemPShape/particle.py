@@ -4,19 +4,10 @@ import globals
 
 
 class Particle(object):
-    # Velocity
-    center = None
-    velocity = None
-    # Lifespane is tied to alpha
-    lifespan = None
-    # The particle PShape
-    part = None
-    # The particle size
-    partSize = 0
-    # A single force
-    gravity = PVector(0, 0.1)
 
     def __init__(self):
+        # A single force
+        self.gravity = PVector(0, 0.1)
         self.partSize = random(10, 60)
         # The particle is a textured quad.
         self.part = createShape()
