@@ -12,6 +12,18 @@ img2 = None
 selMode = REPLACE
 name = "REPLACE"
 picAlpha = 255
+modes = ((REPLACE, "REPLACE"),
+         (BLEND, "BLEND"),
+         (ADD, "ADD"),
+         (SUBTRACT, "SUBTRACT"),
+         (LIGHTEST, "LIGHTEST"),
+         (DARKEST, "DARKEST"),
+         (DIFFERENCE, "DIFFERENCE"),
+         (EXCLUSION, "EXCLUSION"),
+         (MULTIPLY, "MULTIPLY"),
+         (SCREEN, "SCREEN"),
+         (REPLACE, "REPLACE"))
+currentMode = 0
 
 
 def setup():
@@ -22,6 +34,7 @@ def setup():
 
 
 def draw():
+    selMode, name = modes[currentMode]
     picAlpha = int(map(mouseX, 0, width, 0, 255))
     background(0)
     tint(255, 255)
@@ -37,36 +50,7 @@ def draw():
 
 
 def mousePressed():
-    if selMode == REPLACE:
-        selMode = BLEND
-        name = "BLEND"
-    elif selMode == BLEND:
-        selMode = ADD
-        name = "ADD"
-    elif selMode == ADD:
-        selMode = SUBTRACT
-        name = "SUBTRACT"
-    elif selMode == SUBTRACT:
-        selMode = LIGHTEST
-        name = "LIGHTEST"
-    elif selMode == LIGHTEST:
-        selMode = DARKEST
-        name = "DARKEST"
-    elif selMode == DARKEST:
-        selMode = DIFFERENCE
-        name = "DIFFERENCE"
-    elif selMode == DIFFERENCE:
-        selMode = EXCLUSION
-        name = "EXCLUSION"
-    elif selMode == EXCLUSION:
-        selMode = MULTIPLY
-        name = "MULTIPLY"
-    elif selMode == MULTIPLY:
-        selMode = SCREEN
-        name = "SCREEN"
-    elif selMode == SCREEN:
-        selMode = REPLACE
-        name = "REPLACE"
+    currentMode = (currentMode + 1) % len(modes)
 
 
 def mouseDragged():
