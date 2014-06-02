@@ -9,8 +9,6 @@ Click to go to cycle through the modes.
 
 img1 = None
 img2 = None
-selMode = REPLACE
-name = "REPLACE"
 picAlpha = 255
 modes = ((REPLACE, "REPLACE"),
          (BLEND, "BLEND"),
