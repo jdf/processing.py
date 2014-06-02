@@ -3,7 +3,7 @@ Edge Detection.
 
 A high-pass filter sharpens an image. This program analyzes every
 pixel in an image in relation to the neighboring pixels to sharpen 
-the image. This example is currently not accurate in JavaScript mode.
+the image. 
 """
 
 kernel = [[-1, -1, -1],
