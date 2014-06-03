@@ -343,7 +343,12 @@ __builtin__.printMatrix = __papplet__.printMatrix
 __builtin__.printProjection = __papplet__.printProjection
 __builtin__.quad = __papplet__.quad
 __builtin__.quadraticVertex = __papplet__.quadraticVertex
+
+# Processing's "random" function works as documented, but is blown
+# away if the user does a python 'import random'. This seems
+# reasonable to me.
 __builtin__.random = __papplet__.random
+
 __builtin__.randomGaussian = __papplet__.randomGaussian
 __builtin__.randomSeed = __papplet__.randomSeed
 __builtin__.rect = __papplet__.rect
@@ -610,3 +615,6 @@ def __push_matrix__():
     __papplet__.pushMatrix()
     return __matrix_popper__()
 __builtin__.pushMatrix = __push_matrix__
+
+import os
+os.chdir(__cwd__)

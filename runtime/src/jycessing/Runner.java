@@ -376,6 +376,7 @@ public class Runner {
        */
       interp.set("__interp__", interp);
       interp.set("__path__", info.sketch.getAbsolutePath());
+      interp.set("__cwd__", info.sketch.getParentFile().getAbsolutePath());
       interp.set("__source__", info.code);
       interp.exec(CORE_TEXT);
 
