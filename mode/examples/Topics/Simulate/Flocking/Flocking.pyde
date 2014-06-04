@@ -13,12 +13,11 @@ from boid import Boid
 from flock import Flock
 
 
-flock = None
+flock = Flock()
 
 
 def setup():
     size(640, 360)
-    flock = Flock()
     # Add an initial set of boids into the system
     for i in range(150):
         flock.addBoid(Boid(width / 2, height / 2))

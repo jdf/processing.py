@@ -14,7 +14,7 @@ class ParticleSystem(object):
         self.particles.append(Particle(self.origin))
 
     def run(self):
-        for i in range(len(self.particles) - 1, -1, -1):
+        for i in reversed(range(len(self.particles))):
             p = self.particles[i]
             p.run()
             if p.isDead():

@@ -41,8 +41,5 @@ class Particle(object):
 
     # Is the particle still useful?
     def isDead(self):
-        if self.lifespan <= 0.0:
-            return True
-        else:
-            return False
+        return self.lifespan <= 0.0
 

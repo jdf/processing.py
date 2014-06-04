@@ -16,7 +16,7 @@ class ParticleSystem(object):
     def run(self):
         # Cycle through the list backwards, because we are deleting while
         # iterating.
-        for i in range(len(self.particles) - 1, -1, -1):
+        for i in reversed(range(len(self.particles))):
             p = self.particles[i]
             p.run()
             if p.isDead():

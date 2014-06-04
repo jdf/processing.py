@@ -6,33 +6,32 @@ When you release the mouse, it will snap back into position.
 Each circle has a slightly different behavior.    
 """
 
-num = 3
-springs = [None] * num
+springs = []
 
 
 def setup():
     size(640, 360)
     noStroke()
-    springs[0] = Spring(240, 260, 40, 0.98, 8.0, 0.1, springs, 0)
-    springs[1] = Spring(320, 210, 120, 0.95, 9.0, 0.1, springs, 1)
-    springs[2] = Spring(180, 170, 200, 0.90, 9.9, 0.1, springs, 2)
+    springs.append(Spring(240, 260, 40, 0.98, 8.0, 0.1, springs, 0))
+    springs.append(Spring(320, 210, 120, 0.95, 9.0, 0.1, springs, 1))
+    springs.append(Spring(180, 170, 200, 0.90, 9.9, 0.1, springs, 2))
 
 
 def draw():
     background(51)
-    for i in range(num):
-        springs[i].update()
-        springs[i].display()
+    for spring in springs:
+        spring.update()
+        spring.display()
 
 
 def mousePressed():
-    for i in range(num):
-        springs[i].pressed()
+    for spring in springs:
+        spring.pressed()
 
 
 def mouseReleased():
-    for i in range(num):
-        springs[i].released()
+    for spring in springs:
+        spring.released()
 
 
 class Spring(object):
@@ -82,16 +81,13 @@ class Spring(object):
     def overEvent(self):
         disX = self.tempxpos - mouseX
         disY = self.tempypos - mouseY
-        if sqrt(sq(disX) + sq(disY)) < self.size / 2:
-            return True
-        else:
-            return False
+        return sqrt(sq(disX) + sq(disY)) < self.size/2
 
     # Make sure no other springs are active
     def otherOver(self):
         for i in range(num):
             if i != self.me:
-                if self.friends[i].over == True:
+                if self.friends[i].over:
                     return True
         return False
 
@@ -103,10 +99,7 @@ class Spring(object):
         ellipse(self.tempxpos, self.tempypos, self.size, self.size)
 
     def pressed(self):
-        if self.over:
-            self.move = True
-        else:
-            self.move = False
+        self.move = self.over
 
     def released(self):
         self.move = False

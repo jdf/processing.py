@@ -13,6 +13,7 @@ Bodies experience fluid resistance when in "water"
 class Liquid(object):
 
     # Liquid is a rectangle.
+
     def __init__(self, x_, y_, w_, h_, c_):
         self.x = x_
         self.y = y_
@@ -23,11 +24,8 @@ class Liquid(object):
 
     # Is the Mover in the Liquid?
     def contains(self, m):
-        l = m.location
-        if l.x > self.x and l.x < self.x + self.w and l.y > self.y and l.y < self.y + self.h:
-            return True
-        else:
-            return False
+        loc = m.location
+        return self.x < loc.x < self.x + self.w and self.y < loc.y < self.y + self.h
 
     # Calculate drag force.
     def drag(self, m):

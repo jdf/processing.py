@@ -20,7 +20,7 @@ class Boid(object):
         # We could add mass here if we want A = F / M
         self.acceleration.add(force)
 
-    # We accumulate a acceleration each time based on three rules.
+    # We accumulate acceleration each time based on three rules.
     def flock(self, boids):
         sep = self.separate(boids)  # Separation
         ali = self.align(boids)  # Alignment
@@ -99,7 +99,7 @@ class Boid(object):
             d = PVector.dist(self.location, other.location)
             # If the distance is greater than 0 and less than an arbitrary
             # amount (0 when you are yourself).
-            if (d > 0) and (d < desiredseparation):
+            if 0 < d < desiredseparation: 
                 # Calculate vector pointing away from neighbor.
                 diff = PVector.sub(self.location, other.location)
                 diff.normalize()
@@ -107,6 +107,8 @@ class Boid(object):
                 steer.add(diff)
                 count += 1  # Keep track of how many
         # Average -- divide by how many
+        if count == 0: 
+            return PVector(0,0)
         if count > 0:
             steer.div(float(count))
         # As long as the vector is greater than 0
@@ -127,20 +129,19 @@ class Boid(object):
         count = 0
         for other in boids:
             d = PVector.dist(self.location, other.location)
-            if (d > 0) and (d < neighbordist):
+            if 0 < d < neighbordist:
                 sum.add(other.velocity)
                 count += 1
-        if count > 0:
-            sum.div(float(count))
-            # First two lines of code below could be condensed with PVector setMag() method.
-            # Implement Reynolds: Steering = Desired - Velocity
-            sum.normalize()
-            sum.mult(self.maxspeed)
-            steer = PVector.sub(sum, self.velocity)
-            steer.limit(self.maxforce)
-            return steer
-        else:
-            return PVector(0, 0)
+        if count == 0:
+            return PVector(0,0)
+        sum.div(float(count))
+        # First two lines of code below could be condensed with PVector setMag() method.
+        # Implement Reynolds: Steering = Desired - Velocity
+        sum.normalize()
+        sum.mult(self.maxspeed)
+        steer = PVector.sub(sum, self.velocity)
+        steer.limit(self.maxforce)
+        return steer
 
     # Cohesion
     # For the average location (i.e. center) of all nearby boids, calculate
@@ -152,7 +153,7 @@ class Boid(object):
         count = 0
         for other in boids:
             d = PVector.dist(self.location, other.location)
-            if (d > 0) and (d < neighbordist):
+            if 0 < d < neighbordist:
                 sum.add(other.location)  # Add location.
                 count += 1
         if count > 0:
