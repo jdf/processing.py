@@ -5,131 +5,111 @@ Move the mouse over one of the circles and click to re-position.
 When you release the mouse, it will snap back into position. 
 Each circle has a slightly different behavior.    
 """
- 
+
 num = 3
-Spring[] springs = Spring[num]
+springs = [None] * num
+
+
 def setup():
     size(640, 360)
     noStroke()
-    springs[0] = Spring(240, 260,    40, 0.98, 8.0, 0.1, springs, 0)
+    springs[0] = Spring(240, 260, 40, 0.98, 8.0, 0.1, springs, 0)
     springs[1] = Spring(320, 210, 120, 0.95, 9.0, 0.1, springs, 1)
     springs[2] = Spring(180, 170, 200, 0.90, 9.9, 0.1, springs, 2)
-def draw(): 
+
+
+def draw():
     background(51)
-    
-    for i in range(num): 
+    for i in range(num):
         springs[i].update()
         springs[i].display()
-    
-def mousePressed(): 
-    for i in range(num): 
+
+
+def mousePressed():
+    for i in range(num):
         springs[i].pressed()
-    
-def mouseReleased(): 
-    for i in range(num): 
+
+
+def mouseReleased():
+    for i in range(num):
         springs[i].released()
-    
-class Spring(object): 
-    # Screen values 
-    xpos, ypos
-    tempxpos, tempypos
-    size = 20
-    boolean over = False
-    boolean move = False
-    # Spring simulation constants 
-    mass# Mass 
-    k = 0.2# Spring constant 
-    damp# Damping 
-    rest_posx# Rest position X 
-    rest_posy# Rest position Y 
-    # Spring simulation variables 
-    #pos = 20.0# Position 
-    velx = 0.0# X Velocity 
-    vely = 0.0# Y Velocity 
-    accel = 0# Acceleration 
-    force = 0# Force 
-    Spring[] friends
-    me
-    
+
+
+class Spring(object):
+
     # Constructor
-    Spring(x, y, s, d, m, 
-                 k_in, Spring[] others, id) 
-    
-        xpos = tempxpos = x
-        ypos = tempypos = y
-        rest_posx = x
-        rest_posy = y
-        size = s
-        damp = d
-        mass = m
-        k = k_in
-        friends = others
-        me = id
-    
-    def update(): 
-    
-        if move:
-            rest_posy = mouseY
-            rest_posx = mouseX
-        
-        force = -k * (tempypos - rest_posy)# f=-ky 
-        accel = force / mass# Set the acceleration, f=ma == a=f/m 
-        vely = damp * (vely + accel)# Set the velocity 
-        tempypos = tempypos + vely# Updated position 
-        force = -k * (tempxpos - rest_posx)# f=-ky 
-        accel = force / mass# Set the acceleration, f=ma == a=f/m 
-        velx = damp * (velx + accel)# Set the velocity 
-        tempxpos = tempxpos + velx# Updated position 
-        
-        if (overEvent() or move) and !otherOver() :
-            over = True
+    def __init__(self, x, y, s, d, m, k_in, others, id):
+        self.over = False
+        self.move = False
+        self.velx = 0.0  # X Velocity
+        self.vely = 0.0  # Y Velocity
+        self.accel = 0  # Acceleration
+        self.force = 0  # Force
+        # Screen values
+        self.xpos = x
+        self.tempxpos = x
+        self.ypos = y
+        self.tempypos = y
+        self.rest_posx = x  # Rest position X
+        self.rest_posy = y  # Rest position Y
+        self.size = s
+        self.damp = d  # Damping
+        self.mass = m  # Mass
+        self.k = k_in  # Spring constant
+        self.friends = others
+        self.me = id
+
+    def update(self):
+        if self.move:
+            self.rest_posy = mouseY
+            self.rest_posx = mouseX
+        self.force = -self.k * (self.tempypos - self.rest_posy)  # f=-ky
+        # Set the acceleration, f=ma == a=f/m
+        self.accel = self.force / self.mass
+        self.vely = self.damp * (self.vely + self.accel)  # Set the velocity
+        self.tempypos = self.tempypos + self.vely  # Updated position
+        self.force = -self.k * (self.tempxpos - self.rest_posx)  # f=-ky
+        # Set the acceleration, f=ma == a=f/m
+        self.accel = self.force / self.mass
+        self.velx = self.damp * (self.velx + self.accel)  # Set the velocity
+        self.tempxpos = self.tempxpos + self.velx  # Updated position
+        if (self.overEvent() or self.move) and not self.otherOver():
+            self.over = True
         else:
-            over = False
-        
-    
-    
+            self.over = False
+
     # Test to see if mouse is over this spring
-    boolean overEvent() 
-        disX = tempxpos - mouseX
-        disY = tempypos - mouseY
-        if sqrt(sq(disX) + sq(disY)) < size/2 :
+    def overEvent(self):
+        disX = self.tempxpos - mouseX
+        disY = self.tempypos - mouseY
+        if sqrt(sq(disX) + sq(disY)) < self.size / 2:
             return True
         else:
             return False
-        
-    
-    
+
     # Make sure no other springs are active
-    boolean otherOver() 
-        for i in range(num): 
-            if i != me:
-                if friends[i].over == True:
+    def otherOver(self):
+        for i in range(num):
+            if i != self.me:
+                if self.friends[i].over == True:
                     return True
-                
-            
-        
         return False
-    
-    def display(): 
-    
-        if over:
+
+    def display(self):
+        if self.over:
             fill(153)
         else:
             fill(255)
-        
-        ellipse(tempxpos, tempypos, size, size)
-    
-    def pressed(): 
-    
-        if over:
-            move = True
+        ellipse(self.tempxpos, self.tempypos, self.size, self.size)
+
+    def pressed(self):
+        if self.over:
+            self.move = True
         else:
-            move = False
-        
-    
-    def released(): 
-    
-        move = False
-        rest_posx = xpos
-        rest_posy = ypos
-    
+            self.move = False
+
+    def released(self):
+        self.move = False
+        self.rest_posx = self.xpos
+        self.rest_posy = self.ypos
+

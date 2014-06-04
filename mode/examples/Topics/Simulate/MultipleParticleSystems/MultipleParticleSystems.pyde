@@ -6,9 +6,14 @@ Click the mouse to generate a burst of particles
 at mouse location.
 
 Each burst is one instance of a particle system
-with Particles and CrazyParticles (a subclass of(object): Particle)
+with Particles and CrazyParticles (a subclass of Particle).
 Note use of Inheritance and Polymorphism here.
 """
+
+from crazy_particle import CrazyParticle
+from particle import Particle
+from particle_system import ParticleSystem
+
 systems = None
 
 
@@ -19,16 +24,16 @@ def setup():
 
 def draw():
     background(0)
-    for (ps in systems)
+    for ps in systems:
         ps.run()
         ps.addParticle()
 
-    if systems.isEmpty():
+    if not systems:
         fill(255)
         textAlign(CENTER)
         text("click mouse to add particle systems", width / 2, height / 2)
 
 
 def mousePressed():
-    systems.add(ParticleSystem(1, PVector(mouseX, mouseY)))
+    systems.append(ParticleSystem(1, PVector(mouseX, mouseY)))
 

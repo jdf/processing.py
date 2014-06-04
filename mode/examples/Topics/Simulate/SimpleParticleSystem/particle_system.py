@@ -1,21 +1,22 @@
-# A class to(object): describe a group of Particles
-# An ArrayList is used to manage the list of Particles 
-class ParticleSystem(object): 
-    ArrayList<Particle> particles
-    PVector origin
-    ParticleSystem(PVector location) 
-        origin = location.get()
-        particles = ArrayList<Particle>()
-    
-    def addParticle(): 
-        particles.add(Particle(origin))
-    
-    def run(): 
-        for (i = particles.size()-1i >= 0i -= 1) 
-            Particle p = particles.get(i)
+# A class to describe a group of Particles.
+# A list is used to manage the list of Particles.
+
+from particle import Particle
+
+
+class ParticleSystem(object):
+
+    def __init__(self, location):
+        self.origin = location.get()
+        self.particles = []
+
+    def addParticle(self):
+        self.particles.append(Particle(self.origin))
+
+    def run(self):
+        for i in range(len(self.particles) - 1, -1, -1):
+            p = self.particles[i]
             p.run()
             if p.isDead():
-                particles.remove(i)
-            
-        
-    
+                del self.particles[i]
+

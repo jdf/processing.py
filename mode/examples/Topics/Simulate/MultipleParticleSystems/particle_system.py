@@ -1,39 +1,37 @@
-# An ArrayList is used to manage the list of Particles
-class ParticleSystem(object): 
-    ArrayList<Particle> particles# An arraylist for all the particles
-    PVector origin# An origin point for where particles are birthed
-    ParticleSystem(num, PVector v) 
-        particles = ArrayList<Particle>()# Initialize the arraylist
-        origin = v.get()# Store the origin point
-        for i in range(num): 
-            particles.add(Particle(origin))# Add "num" amount of particles to the arraylist
-        
-    
-    def run(): 
-        # Cycle through the ArrayList backwards, because we are deleting while iterating
-        for (i = particles.size()-1i >= 0i -= 1) 
-            Particle p = particles.get(i)
+# A list is used to manage the list of Particles.
+
+from particle import Particle
+from crazy_particle import CrazyParticle
+
+
+class ParticleSystem(object):
+
+    def __init__(self, num, v):
+        self.particles = []  # Initialize the list.
+        self.origin = v.get()  # Store the origin point.
+        for i in range(num):
+            # Add "num" amount of particles to the list.
+            self.particles.append(Particle(self.origin))
+
+    def run(self):
+        # Cycle through the list backwards, because we are deleting while
+        # iterating.
+        for i in range(len(self.particles) - 1, -1, -1):
+            p = self.particles[i]
             p.run()
             if p.isDead():
-                particles.remove(i)
-            
-        
-    
-    def addParticle(): 
-        Particle p
-        # Add either a Particle or CrazyParticle to the system
+                del self.particles[i]
+
+    def addParticle(self):
+        p = None
+        # Add either a Particle or CrazyParticle to the system.
         if int(random(0, 2)) == 0:
-            p = Particle(origin)
-        
+            p = Particle(self.origin)
         else:
-            p = CrazyParticle(origin)
-        
-        particles.add(p)
-    
-    def addParticle(Particle p): 
-        particles.add(p)
-    
-    # A method to test if the particle system still has particles
-    boolean dead() 
-        return particles.isEmpty()
-    
+            p = CrazyParticle(self.origin)
+        self.particles.append(p)
+
+    # A method to test if the particle system still has particles.
+    def dead(self):
+        return self.particles.isEmpty()
+
