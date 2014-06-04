@@ -1,11 +1,12 @@
 """
-PolygonPShapeOOP. 
+PolygonPShapeOOP.
 
-Wrapping a PShape inside a custom class 
+Wrapping a PShape inside a custom class
 and demonstrating how we can have a multiple objects each
 using the same PShape.
 """
 
+import random
 from polygon import Polygon
 
 # A list of objects
@@ -41,10 +42,7 @@ def setup():
     # Make a list.
     polygons = []
     for i in range(25):
-        selection = int(random(len(shapes)))  # Pick a random index.
-        # Use corresponding PShape to create Polygon.
-        p = Polygon(shapes[selection])
-        polygons.append(p)
+        polygons.append(Polygon(random.choice(shapes)))
 
 
 def draw():
