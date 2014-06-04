@@ -1,12 +1,13 @@
 """
-Springs. 
+Springs.
 
-Move the mouse over one of the circles and click to re-position. 
-When you release the mouse, it will snap back into position. 
-Each circle has a slightly different behavior.    
+Move the mouse over one of the circles and click to re-position.
+When you release the mouse, it will snap back into position.
+Each circle has a slightly different behavior.
 """
 
 springs = []
+num = 3
 
 
 def setup():
@@ -37,6 +38,7 @@ def mouseReleased():
 class Spring(object):
 
     # Constructor
+
     def __init__(self, x, y, s, d, m, k_in, others, id):
         self.over = False
         self.move = False
@@ -72,23 +74,19 @@ class Spring(object):
         self.accel = self.force / self.mass
         self.velx = self.damp * (self.velx + self.accel)  # Set the velocity
         self.tempxpos = self.tempxpos + self.velx  # Updated position
-        if (self.overEvent() or self.move) and not self.otherOver():
-            self.over = True
-        else:
-            self.over = False
+        self.over = (self.overEvent() or self.move) and not self.otherOver()
 
     # Test to see if mouse is over this spring
     def overEvent(self):
         disX = self.tempxpos - mouseX
         disY = self.tempypos - mouseY
-        return sqrt(sq(disX) + sq(disY)) < self.size/2
+        return sqrt(sq(disX) + sq(disY)) < self.size / 2
 
     # Make sure no other springs are active
     def otherOver(self):
-        for i in range(num):
-            if i != self.me:
-                if self.friends[i].over:
-                    return True
+        for friend in self.friends:
+            if friend.me != self.me and friend.over:
+                return True
         return False
 
     def display(self):

@@ -62,10 +62,7 @@ def updateSpring():
     if abs(v) < 0.1:
         v = 0.0
     # Test if mouse is over the top bar
-    if mouseX > left and mouseX < right and mouseY > ps and mouseY < ps + springHeight:
-        over = True
-    else:
-        over = False
+    over = mouseX > left and mouseX < right and mouseY > ps and mouseY < ps + springHeight
     # Set and constrain the position of top bar.
     if move:
         ps = mouseY - springHeight / 2

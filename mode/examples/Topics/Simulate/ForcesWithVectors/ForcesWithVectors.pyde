@@ -31,21 +31,21 @@ def draw():
     background(0)
     # Draw water.
     liquid.display()
-    for i in range(len(movers)):
+    for mover in movers:
         # Is the Mover in the liquid?
-        if liquid.contains(movers[i]):
+        if liquid.contains(mover):
             # Calculate drag force.
-            drag = liquid.drag(movers[i])
+            drag = liquid.drag(mover)
             # Apply drag force to Mover.
-            movers[i].applyForce(drag)
+            mover.applyForce(drag)
         # Gravity is scaled by mass here!
-        gravity = PVector(0, 0.1 * movers[i].mass)
+        gravity = PVector(0, 0.1 * mover.mass)
         # Apply gravity.
-        movers[i].applyForce(gravity)
+        mover.applyForce(gravity)
         # Update and display.
-        movers[i].update()
-        movers[i].display()
-        movers[i].checkEdges()
+        mover.update()
+        mover.display()
+        mover.checkEdges()
     fill(255)
     text("click mouse to reset", 10, 30)
 
