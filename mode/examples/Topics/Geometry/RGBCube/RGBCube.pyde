@@ -38,8 +38,8 @@ def draw():
 
     rotateX(-ymag)
     rotateY(-xmag)
-
     scale(90)
+
     beginShape(QUADS)
 
     fill(0, 1, 1)
@@ -97,5 +97,4 @@ def draw():
     vertex(-1, -1, 1)
 
     endShape()
-
     popMatrix()

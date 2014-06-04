@@ -27,7 +27,6 @@ def setup():
 def draw():
     background(0)
     translate(halfWidth, halfHeight)
-
     rxp = ((mouseX - (halfWidth)) * 0.005)
     ryp = ((mouseY - (halfHeight)) * 0.005)
     rx = (rx * 0.9) + (rxp * 0.1)
@@ -38,5 +37,5 @@ def draw():
     noStroke()
     sphere(radius)
 
-    for i in range(quantity):
-        hairs[i].render()
+    for hair in hairs:
+        hair.render()
