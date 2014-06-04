@@ -6,7 +6,7 @@ Rotating cubes in space using a custom Cube class.
 Color controlled by light sources. Move the mouse left
 and right to zoom.
 """
-from Cube import Cube
+from cube import Cube
 
 halfWidth = None
 halfHeight = None

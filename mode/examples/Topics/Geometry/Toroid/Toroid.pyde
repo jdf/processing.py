@@ -123,44 +123,32 @@ def draw():
 def keyPressed():
     if key == CODED:
         # pts
-        if keyCode == UP:
-            if pts < 40:
-                pts += 1
-        elif keyCode == DOWN:
-            if pts > 3:
-                pts -= 1
+        if keyCode == UP and pts < 40:
+            pts += 1
+        elif keyCode == DOWN and pts > 3:
+            pts -= 1
         # extrusion length
-        if keyCode == LEFT:
-            if segments > 3:
-                segments -= 1
-        elif keyCode == RIGHT:
-            if segments < 80:
-                segments += 1
+        if keyCode == LEFT and segments > 3:
+            segments -= 1
+        elif keyCode == RIGHT and segments < 80:
+            segments += 1
 
     # lathe radius
-    if key == 'a':
-        if latheRadius > 0:
-            latheRadius -= 1
+    if key == 'a' and latheRadius > 0:
+        latheRadius -= 1
     elif key == 's':
         latheRadius += 1
 
     # ellipse radius
-    if key == 'z':
-        if radius > 10:
-            radius -= 1
+    if key == 'z' and radius > 10:
+        radius -= 1
     elif key == 'x':
         radius += 1
 
     # wireframe
     if key == 'w':
-        if isWireFrame:
-            isWireFrame = False
-        else:
-            isWireFrame = True
+        isWireFrame = not isWireFrame
 
     # helix
     if key == 'h':
-        if isHelix:
-            isHelix = False
-        else:
-            isHelix = True
+        isHelix = not isHelix

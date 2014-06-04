@@ -1,12 +1,12 @@
-class Pelo():
+class Hair(object):
     def __init__(self, radius):
         self.radius = radius
         self.phi = random(TAU)
-        self.largo = random(1.15, 1.2)
+        self.slow = random(1.15, 1.2)
         self.theta = asin(random(-self.radius, self.radius) / self.radius)
         self.z = self.radius * sin(self.theta)
 
-    def dibujar(self):
+    def render(self):
         oFF = (noise(millis() * 0.0005, sin(self.phi)) - 0.5) * 0.3
         oFFb = (noise(millis() * 0.0007, sin(self.z) * 0.01) - 0.5) * 0.3
 
@@ -20,9 +20,9 @@ class Pelo():
         yo = self.radius * cos(self.thetaFF) * sin(phiFF)
         zo = self.radius * sin(self.thetaFF)
 
-        xb = xo * self.largo
-        yb = yo * self.largo
-        zb = zo * self.largo
+        xb = xo * self.slow
+        yb = yo * self.slow
+        zb = zo * self.slow
 
         beginShape(LINES)
         stroke(0)

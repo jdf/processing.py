@@ -4,13 +4,13 @@ by David Pena.
 
 Uniform random distribution on the surface of a sphere.
 """
-from Pelo import Pelo
+from hair import Hair
 
 halfWidth = None
 halfHeight = None
 radius = None
-lista = None
-cuantos = 4000
+hairs = None
+quantity = 4000
 rx = 0
 ry = 0
 
@@ -20,7 +20,7 @@ def setup():
     halfWidth = width / 2
     halfHeight = height / 2
     radius = height / 3
-    lista = [Pelo(radius) for _ in range(cuantos)]
+    hairs = [Hair(radius) for _ in range(quantity)]
     noiseDetail(3)
 
 
@@ -38,5 +38,5 @@ def draw():
     noStroke()
     sphere(radius)
 
-    for i in range(cuantos):
-        lista[i].dibujar()
+    for i in range(quantity):
+        hairs[i].render()
