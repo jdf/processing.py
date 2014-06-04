@@ -27,10 +27,12 @@ def setup():
 def draw():
     background(0)
     noStroke()
+
     translate(halfWidth, halfHeight, -100)
     rotateX(rotx)
     rotateY(roty)
     scale(90)
+
     TexturedCube(tex)
 
 
