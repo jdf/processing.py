@@ -13,9 +13,9 @@ num = 3
 def setup():
     size(640, 360)
     noStroke()
-    springs.append(Spring(240, 260, 40, 0.98, 8.0, 0.1, springs, 0))
-    springs.append(Spring(320, 210, 120, 0.95, 9.0, 0.1, springs, 1))
-    springs.append(Spring(180, 170, 200, 0.90, 9.9, 0.1, springs, 2))
+    springs.append(Spring(240, 260, 40, 0.98, 8.0, 0.1, springs))
+    springs.append(Spring(320, 210, 120, 0.95, 9.0, 0.1, springs))
+    springs.append(Spring(180, 170, 200, 0.90, 9.9, 0.1, springs))
 
 
 def draw():
@@ -39,7 +39,7 @@ class Spring(object):
 
     # Constructor
 
-    def __init__(self, x, y, s, d, m, k_in, others, id):
+    def __init__(self, x, y, s, d, m, k_in, others):
         self.over = False
         self.move = False
         self.velx = 0.0  # X Velocity
@@ -58,7 +58,6 @@ class Spring(object):
         self.mass = m  # Mass
         self.k = k_in  # Spring constant
         self.friends = others
-        self.me = id
 
     def update(self):
         if self.move:
@@ -85,7 +84,7 @@ class Spring(object):
     # Make sure no other springs are active
     def otherOver(self):
         for friend in self.friends:
-            if friend.me != self.me and friend.over:
+            if friend != self and friend.over
                 return True
         return False
 
