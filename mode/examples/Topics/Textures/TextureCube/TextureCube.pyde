@@ -33,10 +33,10 @@ def draw():
     rotateY(roty)
     scale(90)
 
-    TexturedCube(tex)
+    texturedCube(tex)
 
 
-def TexturedCube(tex):
+def texturedCube(tex):
     beginShape(QUADS)
     texture(tex)
 
