@@ -14,7 +14,6 @@ as well as examples in Topics/Vectors/
 from liquid import Liquid
 from mover import Mover
 
-# Five moving bodies
 movers = [None] * 10
 # Liquid
 liquid = None
