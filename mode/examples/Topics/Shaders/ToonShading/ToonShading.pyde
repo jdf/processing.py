@@ -31,9 +31,6 @@ def draw():
 
 
 def mousePressed():
-    if shaderEnabled:
-        shaderEnabled = False
+    shaderEnabled = not shaderEnabled
+    if not shaderEnabled:
         resetShader()
-    else:
-        shaderEnabled = True
-
