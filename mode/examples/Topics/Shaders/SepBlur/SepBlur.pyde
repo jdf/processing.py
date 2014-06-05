@@ -63,6 +63,6 @@ def keyPressed():
         blur.set("blurSize", 5)
         blur.set("sigma", 2.0)
     elif key == '3':
-        blur.set("blurSize", 5)
+        blur.set("blurSize", 3)
         blur.set("sigma", 1.0)
 
