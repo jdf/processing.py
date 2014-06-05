@@ -68,6 +68,19 @@ public class Runner {
     }
   }
 
+  private static final String BUILD_NUMBER = loadBuildNumber();
+
+  private static String loadBuildNumber() {
+    final Properties buildProperties = new Properties();
+    try (InputStream in = Runner.class.getResourceAsStream("build.properties")) {
+      buildProperties.load(in);
+      return buildProperties.getProperty("build.number", "????");
+    } catch (final IOException e) {
+      System.err.println("Can't read build.properties.");
+      return "????";
+    }
+  }
+
   private static final String LAUNCHER_TEXT = IOUtil.readResourceAsText(LaunchHelper.class,
       "launcher.py");
   private static final String CORE_TEXT = IOUtil.readResourceAsText(Runner.class, "core.py");
@@ -378,6 +391,7 @@ public class Runner {
       interp.set("__path__", info.sketch.getAbsolutePath());
       interp.set("__cwd__", info.sketch.getParentFile().getAbsolutePath());
       interp.set("__source__", info.code);
+      interp.set("__python_mode_build__", BUILD_NUMBER);
       interp.exec(CORE_TEXT);
 
       final PAppletJythonDriver applet =
