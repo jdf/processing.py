@@ -20,8 +20,8 @@ def setup():
 
 def draw():
     background(0)
-    elevatedshader.set("time", (float)(millis() / 1000.0))
+    time = millis()
+    elevatedshader.set("time", millis() / 1000.0)
     shader(elevatedshader)
     rect(0, 0, width, height)
-    frame.setTitle("frame: " + str(frameCount) + " - fps: " + str(frameRate))
-
+    frame.setTitle("frame: %d - - fps: %d" % (frameCount, frameRate))

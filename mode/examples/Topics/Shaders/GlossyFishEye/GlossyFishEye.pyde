@@ -54,9 +54,6 @@ def draw():
 
 
 def mousePressed():
-    if useFishEye:
-        useFishEye = False
+    useFishEye = not useFishEye
+    if not useFishEye:
         resetShader()
-    else:
-        useFishEye = True
-
