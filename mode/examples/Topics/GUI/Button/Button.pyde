@@ -49,14 +49,8 @@ def draw():
 
 
 def update(x, y):
-    if overCircle(circleX, circleY, circleSize):
-        circleOver = True
-        rectOver = False
-    elif overRect(rectX, rectY, rectSize, rectSize):
-        rectOver = True
-        circleOver = False
-    else:
-        circleOver = rectOver = False
+    circleOver = overCircle(circleX, circleY, circleSize)
+    rectOver = overRect(rectX, rectY, rectSize, rectSize)
 
 
 def mousePressed():
@@ -71,7 +65,5 @@ def overRect(x, y, width, height):
 
 
 def overCircle(x, y, diameter):
-    disX = x - mouseX
-    disY = y - mouseY
-    return sqrt(sq(disX) + sq(disY)) < diameter / 2
-
+    distance = dist(x,y,mouseX,mouseY)
+    return distance < diameter / 2
