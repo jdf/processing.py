@@ -80,8 +80,8 @@ class Handle(object):
         stroke(0)
         rect(self.boxx, self.boxy, self.size, self.size)
         if self.over or self.press:
-            line(self.boxx, self.boxy, self.boxx +
-                 self.size, self.boxy + self.size)
+            line(self.boxx, self.boxy, self.boxx
+                 +self.size, self.boxy + self.size)
             line(self.boxx, self.boxy + self.size,
                  self.boxx + self.size, self.boxy)
 
