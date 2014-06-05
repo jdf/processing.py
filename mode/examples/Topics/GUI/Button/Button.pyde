@@ -65,5 +65,6 @@ def overRect(x, y, width, height):
 
 
 def overCircle(x, y, diameter):
-    distance = dist(x,y,mouseX,mouseY)
+    distance = dist(x, y, mouseX, mouseY)
     return distance < diameter / 2
+
