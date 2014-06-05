@@ -16,12 +16,12 @@ class Particle(object):
         self.part.texture(globals.sprite)
         self.part.normal(0, 0, 1)
         self.part.vertex(-self.partSize / 2, -self.partSize / 2, 0, 0)
-        self.part.vertex(+self.partSize / 2, -
-                         self.partSize / 2, globals.sprite.width, 0)
-        self.part.vertex(+self.partSize / 2, +self.partSize /
-                         2, globals.sprite.width, globals.sprite.height)
-        self.part.vertex(-self.partSize / 2, +
-                         self.partSize / 2, 0, globals.sprite.height)
+        self.part.vertex(+self.partSize / 2,
+                         -self.partSize / 2, globals.sprite.width, 0)
+        self.part.vertex(+self.partSize / 2, +self.partSize
+                         / 2, globals.sprite.width, globals.sprite.height)
+        self.part.vertex(-self.partSize / 2,
+                         +self.partSize / 2, 0, globals.sprite.height)
         self.part.endShape()
         # Initialize center vector.
         self.center = PVector()
