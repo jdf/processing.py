@@ -52,7 +52,7 @@ class Handle(object):
         self.otherslocked = False
         for handle in self.others:
             if handle.locked:
-                self.otherslocked = False
+                self.otherslocked = True
                 break
         if not self.otherslocked:
             self.overEvent()
