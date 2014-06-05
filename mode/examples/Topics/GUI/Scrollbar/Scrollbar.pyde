@@ -70,9 +70,6 @@ class HScrollbar(object):
         if abs(self.newspos - self.spos) > 1:
             self.spos = self.spos + (self.newspos - self.spos) / self.loose
 
-    def constrain(val, minv, maxv):
-        return min(max(val, minv), maxv)
-
     def overEvent(self):
         return self.xpos < mouseX < self.xpos + self.swidth and self.ypos < mouseY < self.ypos + self.sheight
 

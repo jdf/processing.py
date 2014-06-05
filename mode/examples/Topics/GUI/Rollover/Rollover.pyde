@@ -1,8 +1,8 @@
 """
-Rollover. 
+Rollover.
 
 Roll over the colored squares in the center of the image
-to change the color of the outside rectangle. 
+to change the color of the outside rectangle.
 """
 
 # Position of square button
@@ -47,22 +47,15 @@ def draw():
 
 
 def update(x, y):
-    if overCircle(circleX, circleY, circleSize):
-        circleOver = True
-        rectOver = False
-    elif overRect(rectX, rectY, rectSize, rectSize):
-        rectOver = True
-        circleOver = False
-    else:
-        circleOver = rectOver = False
+    circleOver = overCircle(circleX, circleY, circleSize)
+    rectOver = overRect(rectX, rectY, rectSize, rectSize)
 
 
 def overRect(x, y, width, height):
     return x <= mouseX <= x + width and y <= mouseY <= y + height
 
 
-def overCircle(x, y, diameter)
-    disX = x - mouseX
-    disY = y - mouseY
-    return sqrt(sq(disX) + sq(disY)) < diameter / 2
+def overCircle(x, y, diameter):
+    distance = dist(x, y, mouseX, mouseY)
+    return distance < diameter / 2
 

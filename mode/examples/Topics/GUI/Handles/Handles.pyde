@@ -18,16 +18,16 @@ def setup():
 
 def draw():
     background(153)
-    for i in range(len(handles)):
-        handles[i].update()
-        handles[i].display()
+    for h in handles:
+        h.update()
+        h.display()
     fill(0)
     rect(0, 0, width / 2, height)
 
 
 def mouseReleased():
-    for i in range(len(handles)):
-        handles[i].releaseEvent()
+    for h in handles:
+        h.releaseEvent()
 
 
 class Handle(object):
@@ -48,17 +48,17 @@ class Handle(object):
     def update(self):
         self.boxx = self.x + self.stretch
         self.boxy = self.y - self.size / 2
-        for i in range(len(self.others)):
-            if self.others[i].locked == True:
-                self.otherslocked = True
-                break
-            else:
+        
+        self.otherslocked = False
+        for handle in self.others:
+            if handle.locked:
                 self.otherslocked = False
-        if self.otherslocked == False:
+                break
+        if not self.otherslocked:
             self.overEvent()
             self.pressEvent()
         if self.press:
-            self.stretch = lock(
+            self.stretch = constrain(
                 mouseX - width / 2 - self.size / 2, 0, width / 2 - self.size - 1)
 
     def overEvent(self):
@@ -88,8 +88,3 @@ class Handle(object):
 
 def overRect(x, y, width, height):
     return x <= mouseX <= x + width and y <= mouseY <= y + height
-
-
-def lock(val, minv, maxv):
-    return min(max(val, minv), maxv)
-
