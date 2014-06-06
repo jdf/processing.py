@@ -20,11 +20,9 @@ def setup():
 
 
 def draw():
-    global overBox
     background(0)
-
-    if(mouseX > bx - boxSize and mouseX < bx + boxSize and
-       mouseY > by - boxSize and mouseY < by + boxSize):
+    if bx - boxSize < mouseX < bx + boxSize and \
+       by - boxSize < mouseY < by + boxSize:
         overBox = True
         if not locked:
             stroke(255)
@@ -37,8 +35,7 @@ def draw():
 
 
 def mousePressed():
-    global xOffset, yOffset, locked
-    if(overBox):
+    if overBox:
         locked = True
         fill(255, 255, 255)
     else:
@@ -48,13 +45,11 @@ def mousePressed():
 
 
 def mouseDragged():
-    global bx, by
-    if(locked):
+    if locked:
         bx = mouseX - xOffset
         by = mouseY - yOffset
 
 
 def mouseReleased():
-    global locked
     locked = False
 

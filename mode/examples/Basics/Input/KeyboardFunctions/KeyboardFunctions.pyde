@@ -39,7 +39,7 @@ def setup():
 
 
 def draw():
-    if newletter == True:
+    if newletter:
         # Draw the letter
         if letterHeight == maxHeight:
             y_pos = y
