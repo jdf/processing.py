@@ -23,7 +23,6 @@ def setup():
 
 def draw():
     background(51)
-    which = frameCount % num
     mx.append(mouseX)
     my.append(mouseY)
     if len(mx) > num:
