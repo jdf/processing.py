@@ -35,8 +35,8 @@ def draw():
     background(102)
 
     # Update the position of the shape.
-    xpos = xpos + (XSpeed * xdirection)
-    ypos = ypos + (YSpeed * ydirection)
+    xpos += XSpeed * xdirection
+    ypos += YSpeed * ydirection
 
     # Test to see if the shape exceeds the boundaries of the screen.
     # If it does, reverse its direction by multiplying by -1.

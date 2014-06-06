@@ -69,7 +69,6 @@ def draw():
     for coord in coords:
         # Check distance between ellipse and base top coordinates.
         if PVector.dist(position, coord) < r:
-
             # Calculate dot product of incident vector and base top normal.
             dot = incidence.dot(normal)
 
