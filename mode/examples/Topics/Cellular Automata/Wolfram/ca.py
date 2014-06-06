@@ -57,23 +57,7 @@ class CA(object):
     # Could be improved and made more concise, but here we can explicitly see
     # what is going on for each case.
     def executeRules(self, a, b, c):
-        if a == 1 and b == 1 and c == 1:
-            return self.rules[0]
-        if a == 1 and b == 1 and c == 0:
-            return self.rules[1]
-        if a == 1 and b == 0 and c == 1:
-            return self.rules[2]
-        if a == 1 and b == 0 and c == 0:
-            return self.rules[3]
-        if a == 0 and b == 1 and c == 1:
-            return self.rules[4]
-        if a == 0 and b == 1 and c == 0:
-            return self.rules[5]
-        if a == 0 and b == 0 and c == 1:
-            return self.rules[6]
-        if a == 0 and b == 0 and c == 0:
-            return self.rules[7]
-        return 0
+        return self.rules[int(str(a) + str(b) + str(c), base=2)]
 
     # The CA is done if it reaches the bottom of the screen.
     def finished(self):

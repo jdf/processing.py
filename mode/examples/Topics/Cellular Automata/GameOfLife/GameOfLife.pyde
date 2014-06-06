@@ -130,12 +130,7 @@ def keyPressed():
         # Restart: reinitialization of cells.
         for x in range(width / cellSize):
             for y in range(height / cellSize):
-                state = random(100)
-                if state > probabilityOfAliveAtStart:
-                    state = 0
-                else:
-                    state = 1
-                cells[x][y] = int(state)  # Save state of each cell.
+                cells[x][y] = 0 if random(100) > probabilityOfAliveAtStart else 1
     if key == ' ':  # On/off of pause.
         paused = not paused
     if key == 'c' or key == 'C':  # Clear all.

@@ -41,6 +41,7 @@ def reset():
 
 
 def clearScreen():
+    cells = []
     background(0)
 
 

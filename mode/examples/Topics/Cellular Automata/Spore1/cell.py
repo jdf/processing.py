@@ -10,14 +10,8 @@ class Cell(object):
     # Perform action based on surroundings.
     def run(self):
         # Fix cell coordinates.
-        while(self.x < 0):
-            self.x += width
-        while(self.x > width - 1):
-            self.x -= width
-        while(self.y < 0):
-            self.y += height
-        while(self.y > height - 1):
-            self.y -= height
+        self.x %= width
+        self.y %= height
         # Cell instructions.
         if config.w.getpix(self.x + 1, self.y) == config.black:
             self.move(0, 1)
