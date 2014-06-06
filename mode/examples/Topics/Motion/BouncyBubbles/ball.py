@@ -1,8 +1,8 @@
 import config
 
+
 class Ball(object):
-    # Exciting! *Class* variables! These are shared amongst all
-    # *instances* of Ball.
+    # Class variables. These are shared amongst all instances of Ball.
     Spring = 0.05
     Gravity = 0.03
     Friction = -0.9

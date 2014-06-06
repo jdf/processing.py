@@ -4,13 +4,13 @@ Morph.
 Changing one shape into another by interpolating vertices from one to another.
 """
 
-# Two ArrayLists to store the vertices for two shapes.
+# Two lists to store the vertices for two shapes.
 # This example assumes that each shape will have the same
-# number of vertices, i.e. the size of each ArrayList will be the same.
+# number of vertices, i.e. the size of each list will be the same.
 circle = []
 square = []
 
-# An ArrayList for a third set of vertices, the ones we will be drawing
+# A list for a third set of vertices, the ones we will be drawing
 # in the window.
 morph = []
 

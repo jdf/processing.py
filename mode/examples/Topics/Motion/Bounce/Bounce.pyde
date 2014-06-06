@@ -3,17 +3,22 @@ Bounce.
 When the shape hits the edge of the window, it reverses its direction.
 """
 
-rad = 60  # Width of the shape.
+# Half width of the shape.
+Radius = 60
+
+# Speed of the shape.
+XSpeed = 2.8
+YSpeed = 2.2
+
 # Starting position of shape.
 xpos = 0
 ypos = 0
 
-# Speed of the shape.
-xspeed = 2.8
-yspeed = 2.2
+# Left to Right.
+xdirection = 1
 
-xdirection = 1  # Left or Right.
-ydirection = 1  # Top to Bottom.
+# Top to Bottom.
+ydirection = 1
 
 
 def setup():
@@ -30,16 +35,16 @@ def draw():
     background(102)
 
     # Update the position of the shape.
-    xpos = xpos + (xspeed * xdirection)
-    ypos = ypos + (yspeed * ydirection)
+    xpos = xpos + (XSpeed * xdirection)
+    ypos = ypos + (YSpeed * ydirection)
 
     # Test to see if the shape exceeds the boundaries of the screen.
     # If it does, reverse its direction by multiplying by -1.
-    if xpos > width - rad or xpos < rad:
+    if (xpos < Radius) or (width - Radius < xpos):
         xdirection *= -1
 
-    if ypos > height - rad or ypos < rad:
+    if (ypos < Radius) or (height - Radius < ypos):
         ydirection *= -1
 
     # Draw the shape
-    ellipse(xpos, ypos, rad, rad)
+    ellipse(xpos, ypos, Radius, Radius)

@@ -66,9 +66,9 @@ def draw():
     incidence.normalize()
 
     # Detect and handle collision.
-    for i in range(len(coords)):
+    for coord in coords:
         # Check distance between ellipse and base top coordinates.
-        if PVector.dist(position, coords[i]) < r:
+        if PVector.dist(position, coord) < r:
 
             # Calculate dot product of incident vector and base top normal.
             dot = incidence.dot(normal)

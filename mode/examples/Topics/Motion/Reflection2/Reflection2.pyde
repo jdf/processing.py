@@ -13,6 +13,7 @@ orb = Orb(50, 50, 3)
 grounds = None
 segments = 40
 
+
 def setup():
     size(640, 360)
 
@@ -23,11 +24,11 @@ def setup():
     # Float value required for segment width (segs) calculations so the ground
     #  spans the entire display window, regardless of segment number.
     # The ground is an array of "Ground" objects.
-    grounds = [Ground(width / float(segments) * _,
-                      peakHeights[_],
-                      width / float(segments) * (_ + 1),
-                      peakHeights[_ + 1])
-               for _ in range(segments)]
+    grounds = [Ground(width / float(segments) * s,
+                      peakHeights[s],
+                      width / float(segments) * (s + 1),
+                      peakHeights[s + 1])
+               for s in range(segments)]
 
 
 def draw():
