@@ -6,162 +6,81 @@ class Icosahedron(Shape3D):
     def __init__(self, radius=150):
         Shape3D.__init__(self)
         self.radius = radius
-        self.topPent = [PVector for p in range(5)]
-        self.bottomPent = [PVector for p in range(5)]
+        self.topPent = [PVector() for _ in range(5)]
+        self.bottomPent = [PVector() for _ in range(5)]
         self.angle = 0
-
         c = dist(cos(0) * self.radius,
                  sin(0) * self.radius,
                  cos(radians(72)) * self.radius,
                  sin(radians(72)) * self.radius)
         b = self.radius
-        a = sqrt((c * c) - (b * b))
+        a = sqrt((c**2) - (b**2))
+        self.triHeight = sqrt((c**2) - (c / 2)**2)
 
-        self.triHt = sqrt((c * c) - (c / 2)**2)
-
-        for i in range(len(self.topPent)):
+        for i in range(5):
             self.topPent[i] = PVector(cos(self.angle) * self.radius,
                                       sin(self.angle) * self.radius,
-                                      self.triHt / 2.0)
+                                      self.triHeight / 2.0)
             self.angle += radians(72)
-
-        self.topPoint = PVector(0, 0, self.triHt / 2.0 + a)
+        self.topPoint = PVector(0, 0, self.triHeight / 2.0 + a)
         self.angle = 72.0 / 2.0
-        for i in range(len(self.topPent)):
+        for i in range(5):
             self.bottomPent[i] = PVector(cos(self.angle) * self.radius,
                                          sin(self.angle) * self.radius,
-                                         -self.triHt / 2.0)
+                                         -self.triHeight / 2.0)
             self.angle += radians(72)
-
-        self.bottomPoint = PVector(0, 0, -(self.triHt / 2.0 + a))
+        self.bottomPoint = PVector(0, 0, -(self.triHeight / 2.0 + a))
 
     # Draw icosahedron.
     def create(self):
-        for i in range(len(self.topPent)):
-            # Icosahedron top.
-            beginShape()
-            if i < len(self.topPent) - 1:
-                vertex(self.locationX + self.topPent[i].x,
-                       self.locationY + self.topPent[i].y,
-                       self.locationZ + self.topPent[i].z)
-                vertex(self.locationX + self.topPoint.x,
-                       self.locationY + self.topPoint.y,
-                       self.locationZ + self.topPoint.z)
-                vertex(self.locationX + self.topPent[i + 1].x,
-                       self.locationY + self.topPent[i + 1].y,
-                       self.locationZ + self.topPent[i + 1].z)
+        for i in range(5):
+            if i < 4:
+                # Icosahedron top.
+                self.makeTriangle(self.topPent[i],
+                                  self.topPoint,
+                                  self.topPent[i + 1])
+                # Icosahedron bottom.
+                self.makeTriangle(self.bottomPent[i],
+                                  self.bottomPoint,
+                                  self.bottomPent[i + 1])
             else:
-                vertex(self.locationX + self.topPent[i].x,
-                       self.locationY + self.topPent[i].y,
-                       self.locationZ + self.topPent[i].z)
-                vertex(self.locationX + self.topPoint.x,
-                       self.locationY + self.topPoint.y,
-                       self.locationZ + self.topPoint.z)
-                vertex(self.locationX + self.topPent[0].x,
-                       self.locationY + self.topPent[0].y,
-                       self.locationZ + self.topPent[0].z)
-            endShape(CLOSE)
-
-            # Icosahedron bottom.
-            beginShape()
-            if i < len(self.bottomPent) - 1:
-                vertex(self.locationX + self.bottomPent[i].x,
-                       self.locationY + self.bottomPent[i].y,
-                       self.locationZ + self.bottomPent[i].z)
-                vertex(self.locationX + self.bottomPoint.x,
-                       self.locationY + self.bottomPoint.y,
-                       self.locationZ + self.bottomPoint.z)
-                vertex(self.locationX + self.bottomPent[i + 1].x,
-                       self.locationY + self.bottomPent[i + 1].y,
-                       self.locationZ + self.bottomPent[i + 1].z)
-            else:
-                vertex(self.locationX + self.bottomPent[i].x,
-                       self.locationY + self.bottomPent[i].y,
-                       self.locationZ + self.bottomPent[i].z)
-                vertex(self.locationX + self.bottomPoint.x,
-                       self.locationY + self.bottomPoint.y,
-                       self.locationZ + self.bottomPoint.z)
-                vertex(self.locationX + self.bottomPent[0].x,
-                       self.locationY + self.bottomPent[0].y,
-                       self.locationZ + self.bottomPent[0].z)
-            endShape(CLOSE)
+                self.makeTriangle(self.topPent[i],
+                                  self.topPoint,
+                                  self.topPent[0])
+                self.makeTriangle(self.bottomPent[i],
+                                  self.bottomPoint,
+                                  self.bottomPent[0])
 
         # Icosahedron body.
-        for i in range(len(self.topPent)):
-            if i < len(self.topPent) - 2:
-                beginShape()
-                vertex(self.locationX + self.topPent[i].x,
-                       self.locationY + self.topPent[i].y,
-                       self.locationZ + self.topPent[i].z)
-                vertex(self.locationX + self.bottomPent[i + 1].x,
-                       self.locationY + self.bottomPent[i + 1].y,
-                       self.locationZ + self.bottomPent[i + 1].z)
-                vertex(self.locationX + self.bottomPent[i + 2].x,
-                       self.locationY + self.bottomPent[i + 2].y,
-                       self.locationZ + self.bottomPent[i + 2].z)
-                endShape(CLOSE)
+        for i in range(5):
+            if i < 3:
+                self.makeTriangle(self.topPent[i],
+                                  self.bottomPent[i + 1],
+                                  self.bottomPent[i + 2])
+                self.makeTriangle(self.bottomPent[i + 2],
+                                  self.topPent[i],
+                                  self.topPent[i + 1])
+            elif i == 3:
+                self.makeTriangle(self.topPent[i],
+                                  self.bottomPent[i + 1],
+                                  self.bottomPent[0])
+                self.makeTriangle(self.bottomPent[0],
+                                  self.topPent[i],
+                                  self.topPent[i + 1])
+            elif i == 4:
+                self.makeTriangle(self.topPent[i],
+                                  self.bottomPent[0],
+                                  self.bottomPent[1])
+                self.makeTriangle(self.bottomPent[1],
+                                  self.topPent[i],
+                                  self.topPent[0])
 
-                beginShape()
-                vertex(self.locationX + self.bottomPent[i + 2].x,
-                       self.locationY + self.bottomPent[i + 2].y,
-                       self.locationZ + self.bottomPent[i + 2].z)
-                vertex(self.locationX + self.topPent[i].x,
-                       self.locationY + self.topPent[i].y,
-                       self.locationZ + self.topPent[i].z)
-                vertex(self.locationX + self.topPent[i + 1].x,
-                       self.locationY + self.topPent[i + 1].y,
-                       self.locationZ + self.topPent[i + 1].z)
-                endShape(CLOSE)
-
-            elif i == len(self.topPent) - 2:
-                beginShape()
-                vertex(self.locationX + self.topPent[i].x,
-                       self.locationY + self.topPent[i].y,
-                       self.locationZ + self.topPent[i].z)
-                vertex(self.locationX + self.bottomPent[i + 1].x,
-                       self.locationY + self.bottomPent[i + 1].y,
-                       self.locationZ + self.bottomPent[i + 1].z)
-                vertex(self.locationX + self.bottomPent[0].x,
-                       self.locationY + self.bottomPent[0].y,
-                       self.locationZ + self.bottomPent[0].z)
-                endShape(CLOSE)
-
-                beginShape()
-                vertex(self.locationX + self.bottomPent[0].x,
-                       self.locationY + self.bottomPent[0].y,
-                       self.locationZ + self.bottomPent[0].z)
-                vertex(self.locationX + self.topPent[i].x,
-                       self.locationY + self.topPent[i].y,
-                       self.locationZ + self.topPent[i].z)
-                vertex(self.locationX + self.topPent[i + 1].x,
-                       self.locationY + self.topPent[i + 1].y,
-                       self.locationZ + self.topPent[i + 1].z)
-                endShape(CLOSE)
-
-            elif i == len(self.topPent) - 1:
-                beginShape()
-                vertex(self.locationX + self.topPent[i].x,
-                       self.locationY + self.topPent[i].y,
-                       self.locationZ + self.topPent[i].z)
-                vertex(self.locationX + self.bottomPent[0].x,
-                       self.locationY + self.bottomPent[0].y,
-                       self.locationZ + self.bottomPent[0].z)
-                vertex(self.locationX + self.bottomPent[1].x,
-                       self.locationY + self.bottomPent[1].y,
-                       self.locationZ + self.bottomPent[1].z)
-                endShape(CLOSE)
-
-                beginShape()
-                vertex(self.locationX + self.bottomPent[1].x,
-                       self.locationY + self.bottomPent[1].y,
-                       self.locationZ + self.bottomPent[1].z)
-                vertex(self.locationX + self.topPent[i].x,
-                       self.locationY + self.topPent[i].y,
-                       self.locationZ + self.topPent[i].z)
-                vertex(self.locationX + self.topPent[0].x,
-                       self.locationY + self.topPent[0].y,
-                       self.locationZ + self.topPent[0].z)
-                endShape(CLOSE)
+    def makeTriangle(self, a, b, c):
+        beginShape()
+        vertex(a.x, a.y, a.z)
+        vertex(b.x, b.y, b.z)
+        vertex(c.x, c.y, c.z)
+        endShape(CLOSE)
 
     # Overridden methods fom Shape3D.
     def rotZ(self, theta):
@@ -182,7 +101,7 @@ class Icosahedron(Shape3D):
         self.bottomPoint.y = ty
 
         # Top and bottom pentagons.
-        for i in range(len(self.topPent)):
+        for i in range(5):
             tx = cos(theta) * self.topPent[i].x + sin(theta) * self.topPent[i].y
             ty = sin(theta) * self.topPent[i].x - cos(theta) * self.topPent[i].y
             self.topPent[i].x = tx
