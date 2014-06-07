@@ -43,6 +43,10 @@ with beginContour():             beginContour()
                                  endContour()
 
 
+with beginCamera():              beginCamera()
+    doSomething()                doSomething()
+                                 endCamera()
+
 with beginPGL():                 beginPGL()
     doSomething()                doSomething()
                                  endPGL()

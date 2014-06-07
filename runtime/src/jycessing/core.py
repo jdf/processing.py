@@ -619,5 +619,7 @@ makePopper('beginPGL', 'endPGL')
 makePopper('beginShape', 'endShape')
 makePopper('beginShape', 'endShape',
            close_args=[CLOSE], exposed_name='beginClosedShape')
+makePopper('beginCamera', 'endCamera')
+
 import os
 os.chdir(__cwd__)
