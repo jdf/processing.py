@@ -580,44 +580,44 @@ sys.stderr = FakeStdErr()
 
 del FakeStdOut, FakeStdErr
 
-# Make it so that you can either
+# Implement
 #
-#  pushStyle()
-#  drawSomething()
-#  popStyle()
-#  drawOtherThing()
+# with pushFoo():
+#     doSomethingInFooContext()
+# doSomethingOutOfFooContext()
 #
-# or
-#
-#  with pushStyle():
-#      drawSomething();
-#  drawOtherThing()
-#
-# And same with pushMatrix/popMatrix.
+# pushFoo()/popFoo() still works as usual.
 
-class __style_popper__(object):
-    def __init__(self): pass
-    def __enter__(self): pass
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        __papplet__.popStyle()
-        return False
+def makePopper(pushName, popName, exposed_name=None, close_args=None):
+    if not close_args:
+        close_args = []
+    if not exposed_name:
+        exposed_name = pushName
+
+    bound_push = getattr(__papplet__, pushName)
+    bound_pop = getattr(__papplet__, popName)
     
-def __push_style__():
-    __papplet__.pushStyle()
-    return __style_popper__()
-__builtin__.pushStyle = __push_style__
-
-class __matrix_popper__(object):
-    def __init__(self): pass
-    def __enter__(self): pass
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        __papplet__.popMatrix()
-        return False
+    class Popper(object):
+        def __init__(self): pass
+            
+        def __enter__(self): pass
+        
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            bound_pop(*close_args)
+            return False
+        
+    def shim(*args):
+        bound_push(*args)
+        return Popper()
     
-def __push_matrix__():
-    __papplet__.pushMatrix()
-    return __matrix_popper__()
-__builtin__.pushMatrix = __push_matrix__
+    setattr(__builtin__, exposed_name, shim)
 
+makePopper('pushStyle', 'popStyle')
+makePopper('pushMatrix', 'popMatrix')
+makePopper('beginContour', 'endContour')
+makePopper('beginPGL', 'endPGL')
+makePopper('beginShape', 'endShape')
+makePopper('beginShape', 'endShape',
+           close_args=[CLOSE], exposed_name='beginClosedShape')
 import os
 os.chdir(__cwd__)
