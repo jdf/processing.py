@@ -4,12 +4,12 @@ from particle import Particle
 
 
 class CrazyParticle(Particle):
+    
     # Just adding one variable to a CrazyParticle.
     # It inherits all other fields from "Particle", and we don't have to
     # retype them!
     # The CrazyParticle constructor can call the parent class (super class)
     # constructor.
-
     def __init__(self, l):
         # "super" means do everything from the constructor in Particle.
         super(CrazyParticle, self).__init__(l)

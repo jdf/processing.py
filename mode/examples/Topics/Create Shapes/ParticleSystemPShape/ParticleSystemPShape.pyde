@@ -9,7 +9,6 @@ from particle_system import ParticleSystem
 # Particle System object
 ps = None
 
-
 def setup():
     size(640, 360, P2D)
     # A particle system with 10,000 particles.

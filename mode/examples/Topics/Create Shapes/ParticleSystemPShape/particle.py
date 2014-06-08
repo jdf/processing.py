@@ -5,7 +5,7 @@ import globals
 
 class Particle(object):
 
-    def __init__(self):
+    def __init__(self, sprite):
         # A single force
         self.gravity = PVector(0, 0.1)
         self.partSize = random(10, 60)
@@ -13,15 +13,15 @@ class Particle(object):
         self.part = createShape()
         self.part.beginShape(QUAD)
         self.part.noStroke()
-        self.part.texture(globals.sprite)
+        self.part.texture(sprite)
         self.part.normal(0, 0, 1)
         self.part.vertex(-self.partSize / 2, -self.partSize / 2, 0, 0)
-        self.part.vertex(+self.partSize / 2,
-                         -self.partSize / 2, globals.sprite.width, 0)
-        self.part.vertex(+self.partSize / 2, +self.partSize
-                         / 2, globals.sprite.width, globals.sprite.height)
+        self.part.vertex(self.partSize / 2,
+                         -self.partSize / 2, sprite.width, 0)
+        self.part.vertex(self.partSize / 2,
+                         self.partSize / 2, sprite.width, sprite.height)
         self.part.vertex(-self.partSize / 2,
-                         +self.partSize / 2, 0, globals.sprite.height)
+                         self.partSize / 2, 0, sprite.height)
         self.part.endShape()
         # Initialize center vector.
         self.center = PVector()

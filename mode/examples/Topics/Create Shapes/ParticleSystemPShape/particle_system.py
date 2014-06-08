@@ -11,8 +11,9 @@ class ParticleSystem(object):
         # The PShape to group all the particle PShapes.
         self.particleShape = createShape(GROUP)
         # Make all the Particles.
+        sprite = loadImage("sprite.png")
         for i in range(n):
-            p = Particle()
+            p = Particle(sprite)
             self.particles.append(p)
             # Each particle's PShape gets added to the System PShape.
             self.particleShape.addChild(p.getShape())

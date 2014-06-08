@@ -62,8 +62,9 @@ class PenroseLSystem(LSystem):
                 repeats = 1
             elif step == '[':
                 pushes += 1
-                with pushMatrix():
-                elif step == ']':
+                pushMatrix()
+            elif step == ']':
+                popMatrix()
                 pushes -= 1
             # Use ord to get ASCII value of letter
             elif (ord(step) >= 48) and (ord(step) <= 57):

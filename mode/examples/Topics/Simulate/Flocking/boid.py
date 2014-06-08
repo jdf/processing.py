@@ -97,7 +97,7 @@ class Boid(object):
             d = PVector.dist(self.location, other.location)
             # If the distance is greater than 0 and less than an arbitrary
             # amount (0 when you are yourself).
-            if 0 < d < desiredseparation: 
+            if 0 < d < desiredseparation:
                 # Calculate vector pointing away from neighbor.
                 diff = PVector.sub(self.location, other.location)
                 diff.normalize()
@@ -105,8 +105,8 @@ class Boid(object):
                 steer.add(diff)
                 count += 1  # Keep track of how many
         # Average -- divide by how many
-        if count == 0: 
-            return PVector(0,0)
+        if count == 0:
+            return PVector(0, 0)
         if count > 0:
             steer.div(float(count))
         # As long as the vector is greater than 0
@@ -131,7 +131,7 @@ class Boid(object):
                 sum.add(other.velocity)
                 count += 1
         if count == 0:
-            return PVector(0,0)
+            return PVector(0, 0)
         sum.div(float(count))
         # First two lines of code below could be condensed with PVector setMag() method.
         # Implement Reynolds: Steering = Desired - Velocity

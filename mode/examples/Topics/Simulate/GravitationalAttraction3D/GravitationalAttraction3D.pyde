@@ -49,11 +49,11 @@ def draw():
     # All the Planets
     for planet in planets:
         # Sun attracts Planets.
-        force = s.attract(planets)
-        planets.applyForce(force)
+        force = s.attract(planet)
+        planet.applyForce(force)
         # Update and draw Planets.
-        planets.update()
-        planets.display()
+        planet.update()
+        planet.display()
     # Rotate around the scene.
     angle += 0.003
 

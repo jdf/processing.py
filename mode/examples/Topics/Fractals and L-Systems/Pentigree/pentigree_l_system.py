@@ -51,6 +51,6 @@ class PentigreeLSystem(LSystem):
             elif step == '-':
                 rotate(-self.theta)
             elif step == '[':
-                with pushMatrix():
-                elif step == ']':
-
+                pushMatrix()
+            elif step == ']':
+                popMatrix()

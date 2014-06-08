@@ -11,7 +11,6 @@ from particle_system import ParticleSystem
 
 ps = None
 
-
 def setup():
     size(640, 360)
     img = loadImage("texture.png")
@@ -29,9 +28,9 @@ def draw():
         ps.addParticle()
     # Draw an arrow representing the wind force.
     drawVector(wind, PVector(width / 2, 50, 0), 500)
+
+
 # Renders a vector object 'v' as an arrow and a location 'loc'.
-
-
 def drawVector(v, loc, scayl):
     with pushMatrix():
         arrowsize = 4

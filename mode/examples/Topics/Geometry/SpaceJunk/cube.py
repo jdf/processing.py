@@ -15,7 +15,6 @@ class Cube(object):
     # It's just a bunch of rectangles drawn for each cube face.
     def drawCube(self):
         with beginShape(QUADS):
-    
             # Front face.
             vertex(self.minusWTwo + self.shiftX,
                    self.minusHTwo + self.shiftY,
