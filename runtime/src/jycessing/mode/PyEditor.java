@@ -95,6 +95,11 @@ public class PyEditor extends Editor {
     });
   }
 
+  @Override
+  protected JEditTextArea createTextArea() {
+    return new PyTextArea(new PdeTextAreaDefaults(mode));
+  }
+
   public String getId() {
     return id;
   }

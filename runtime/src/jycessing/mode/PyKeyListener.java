@@ -3,6 +3,7 @@ package jycessing.mode;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -234,24 +235,62 @@ public class PyKeyListener extends PdeKeyListener {
     textArea.selectNone();
   }
 
-  private static Pattern findIndent = Pattern.compile("^((?: |\\t)*)");
-  private static Pattern incIndent = Pattern.compile("[:\\(]( |\\t)*(#.*)?$");
+  private static final Pattern INITIAL_WHITESPACE = Pattern.compile("^(\\s*)");
+  /*
+   * This can be fooled by a line like
+   * print "He said: #LOLHASHTAG!"
+   */
+  private static final Pattern TERMINAL_COLON = Pattern.compile(":\\s*(#.*)?$");
+  private static final Pattern POP_CONTEXT = Pattern.compile("^\\s*(return|break|continue)\\b");
 
-  String getIndent(final int cursor, final String text) {
+
+  /**
+   * Search for an unterminated paren or bracket. If found, return
+   * its index in the given text. Otherwise return -1.
+   * <p>Ignores syntax errors, treating (foo] as a valid construct.
+   * <p>Assumes that the text contains no surrogate characters.
+   * @param cursor The current cursor position in the given text.
+   * @param text The text to search for an unterminated paren or bracket.
+   * @return The index of the unterminated paren, or -1.
+   */
+  private int indexOfUnclosedParen(final int cursor, final String text) {
+    final Stack<Integer> stack = new Stack<Integer>();
+    int column = 0;
+    for (int i = 0; i < cursor; i++) {
+      final char c = text.charAt(i);
+      if (c == '(' || c == '[' || c == '{') {
+        stack.push(column);
+      } else if (c == ')' || c == ']' || c == '}') {
+        if (stack.size() == 0) {
+          // Syntax error; bail.
+          return -1;
+        }
+        stack.pop();
+      }
+
+      if (c == '\n') {
+        column = 0;
+      } else {
+        column++;
+      }
+    }
+    return stack.size() > 0 ? stack.pop() : -1;
+  }
+
+  private String getIndent(final int cursor, final String text) {
     if (cursor <= 1) {
       return "\n";
     }
 
-    int lineStart, lineEnd;
-    int i;
-    for (i = cursor - 1; i >= 0 && text.charAt(i) != '\n'; i--) {
-      // noop
+    int lineStart = cursor;
+    while (lineStart > 0 && text.charAt(lineStart - 1) != '\n') {
+      lineStart--;
     }
-    lineStart = i + 1;
-    for (i = cursor - 1; i < text.length() && text.charAt(i) != '\n'; i++) {
-      // noop
+
+    int lineEnd = cursor - 1;
+    while (lineEnd < text.length() && text.charAt(lineEnd) != '\n') {
+      lineEnd++;
     }
-    lineEnd = i;
 
     if (lineEnd <= lineStart) {
       return "\n";
@@ -259,19 +298,34 @@ public class PyKeyListener extends PdeKeyListener {
 
     final String line = text.substring(lineStart, lineEnd);
 
-    String indent;
-    final Matcher f = findIndent.matcher(line);
-
-    if (f.find()) {
-      indent = '\n' + f.group();
-
-      if (incIndent.matcher(line).find()) {
-        indent += TAB;
-      }
-    } else {
-      indent = "\n";
+    final Matcher f = INITIAL_WHITESPACE.matcher(line);
+    if (!f.find()) {
+      throw new AssertionError("How can there be nothing?");
     }
+    final String initialWhitespace = f.group();
+    if (TERMINAL_COLON.matcher(line).find()) {
+      // This isn't right, yet. If there's an unbalanced close paren
+      // on the colon line, we have to search back for the indent of
+      // the line where the paren is opened!
+      return "\n" + initialWhitespace + TAB;
+    }
+    if (POP_CONTEXT.matcher(line).find()) {
+      final int currentIndentLength = initialWhitespace.length();
+      final int spaceCount = Math.max(0, currentIndentLength - 4);
+      return "\n" + nSpaces(spaceCount);
+    }
+    final int parenColumn = indexOfUnclosedParen(cursor, text);
+    if (parenColumn > -1) {
+      return "\n" + nSpaces(parenColumn + 1);
+    }
+    return "\n" + initialWhitespace;
+  }
 
-    return indent;
+  private static final String nSpaces(final int n) {
+    final StringBuilder sb = new StringBuilder(n);
+    for (int i = 0; i < n; i++) {
+      sb.append(' ');
+    }
+    return sb.toString();
   }
 }
