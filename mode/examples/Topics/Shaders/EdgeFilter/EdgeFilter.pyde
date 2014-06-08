@@ -20,11 +20,10 @@ def draw():
     background(0)
     lights()
     translate(width / 2, height / 2)
-    pushMatrix()
-    rotateX(frameCount * 0.01)
-    rotateY(frameCount * 0.01)
-    box(120)
-    popMatrix()
+    with pushMatrix():
+        rotateX(frameCount * 0.01)
+        rotateY(frameCount * 0.01)
+        box(120)
     if applyFilter:
         filter(edges)
     # The sphere doesn't have the edge detection applied

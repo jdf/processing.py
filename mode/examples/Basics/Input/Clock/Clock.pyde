@@ -48,11 +48,10 @@ def draw():
 
     # Draw the minute ticks
     strokeWeight(2)
-    beginShape(POINTS)
-    for a in range(0, 360, 6):
-        angle = radians(a)
-        x = cx + cos(angle) * secondsRadius
-        y = cy + sin(angle) * secondsRadius
-        vertex(x, y)
-    endShape()
+    with beginShape(POINTS):
+        for a in range(0, 360, 6):
+            angle = radians(a)
+            x = cx + cos(angle) * secondsRadius
+            y = cy + sin(angle) * secondsRadius
+            vertex(x, y)
 

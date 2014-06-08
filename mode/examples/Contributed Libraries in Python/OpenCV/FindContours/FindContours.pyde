@@ -20,8 +20,7 @@ for contour in contours:
     contour.draw()
     
     stroke(255, 0, 0)
-    beginShape()
-    for point in contour.getPolygonApproximation().getPoints(): 
-        vertex(point.x, point.y)    
-    endShape()
+    with beginShape():
+        for point in contour.getPolygonApproximation().getPoints(): 
+            vertex(point.x, point.y)    
 

@@ -46,8 +46,7 @@ class Wiggler(object):
         self.yoff += 0.02
 
     def display(self):
-        pushMatrix()
-        translate(self.x, self.y)
-        shape(self.s)
-        popMatrix()
+        with pushMatrix():
+            translate(self.x, self.y)
+            shape(self.s)
 

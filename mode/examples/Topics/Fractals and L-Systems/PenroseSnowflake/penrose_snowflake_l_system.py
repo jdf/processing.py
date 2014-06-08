@@ -54,9 +54,8 @@ class PenroseSnowflakeLSystem(LSystem):
                     rotate(-self.theta)
                 repeats = 1
             elif step == '[':
-                pushMatrix()
-            elif step == ']':
-                popMatrix()
+                with pushMatrix():
+                elif step == ']':
             # Use ord to get ASCII value of letter
             elif 48 <= ord(step) <= 57:
                 repeats += ord(step) - 48

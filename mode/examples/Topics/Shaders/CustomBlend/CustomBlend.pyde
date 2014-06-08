@@ -86,19 +86,17 @@ def initShaders():
 
 
 def drawOutput(x, y, w, h):
-    pushMatrix()
-    translate(x, y)
-    noStroke()
-    beginShape(QUAD)
-    # Although we are not associating a texture to
-    # this shape, the uv coordinates will be stored
-    # anyways so they can be used in the fragment
-    # shader to access the destination and source
-    # images.
-    vertex(0, 0, 0, 0)
-    vertex(w, 0, 1, 0)
-    vertex(w, h, 1, 1)
-    vertex(0, h, 0, 1)
-    endShape()
-    popMatrix()
+    with pushMatrix():
+        translate(x, y)
+        noStroke()
+        with beginShape(QUAD):
+            # Although we are not associating a texture to
+            # this shape, the uv coordinates will be stored
+            # anyways so they can be used in the fragment
+            # shader to access the destination and source
+            # images.
+            vertex(0, 0, 0, 0)
+            vertex(w, 0, 1, 0)
+            vertex(w, h, 1, 1)
+            vertex(0, h, 0, 1)
 

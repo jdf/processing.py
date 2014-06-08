@@ -28,8 +28,7 @@ class Sun(object):
     def display(self):
         stroke(255)
         noFill()
-        pushMatrix()
-        translate(self.location.x, self.location.y, self.location.z)
-        sphere(self.mass * 2)
-        popMatrix()
+        with pushMatrix():
+            translate(self.location.x, self.location.y, self.location.z)
+            sphere(self.mass * 2)
 

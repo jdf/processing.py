@@ -29,10 +29,9 @@ class CrazyParticle(Particle):
         # Render the ellipse just like in a regular particle
         super(CrazyParticle, self).display()
         # Then add a rotating line
-        pushMatrix()
-        translate(self.location.x, self.location.y)
-        rotate(self.theta)
-        stroke(255, self.lifespan)
-        line(0, 0, 25, 0)
-        popMatrix()
+        with pushMatrix():
+            translate(self.location.x, self.location.y)
+            rotate(self.theta)
+            stroke(255, self.lifespan)
+            line(0, 0, 25, 0)
 

@@ -33,8 +33,7 @@ class Star(object):
 
     def display(self):
         # Locating and drawing the shape.
-        pushMatrix()
-        translate(self.x, self.y)
-        shape(self.s)
-        popMatrix()
+        with pushMatrix():
+            translate(self.x, self.y)
+            shape(self.s)
 

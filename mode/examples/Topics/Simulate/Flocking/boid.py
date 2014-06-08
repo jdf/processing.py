@@ -67,15 +67,13 @@ class Boid(object):
         # Processing.js catches up.
         fill(200, 100)
         stroke(255)
-        pushMatrix()
-        translate(self.location.x, self.location.y)
-        rotate(theta)
-        beginShape(TRIANGLES)
-        vertex(0, -self.r * 2)
-        vertex(-self.r, self.r * 2)
-        vertex(self.r, self.r * 2)
-        endShape()
-        popMatrix()
+        with pushMatrix():
+            translate(self.location.x, self.location.y)
+            rotate(theta)
+            with beginShape(TRIANGLES):
+                vertex(0, -self.r * 2)
+                vertex(-self.r, self.r * 2)
+                vertex(self.r, self.r * 2)
 
     # Wraparound
     def borders(self):

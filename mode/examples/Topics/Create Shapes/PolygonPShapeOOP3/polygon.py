@@ -15,8 +15,7 @@ class Polygon(object):
 
     # Draw the object.
     def display(self):
-        pushMatrix()
-        translate(self.x, self.y)
-        shape(self.s)
-        popMatrix()
+        with pushMatrix():
+            translate(self.x, self.y)
+            shape(self.s)
 

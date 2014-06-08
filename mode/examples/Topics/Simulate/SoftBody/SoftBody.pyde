@@ -55,12 +55,11 @@ def drawShape():
     # Draw polygon.
     curveTightness(organicConstant)
     fill(255)
-    beginShape()
-    for i in range(nodes):
-        curveVertex(nodeX[i], nodeY[i])
-    for i in range(nodes - 1):
-        curveVertex(nodeX[i], nodeY[i])
-    endShape(CLOSE)
+    with beginClosedShape():
+        for i in range(nodes):
+            curveVertex(nodeX[i], nodeY[i])
+        for i in range(nodes - 1):
+            curveVertex(nodeX[i], nodeY[i])
 
 
 def moveShape():

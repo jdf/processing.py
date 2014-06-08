@@ -34,11 +34,10 @@ def draw():
             # brightness
             z = (mouseX / float(width)) * brightness(img.pixels[loc]) - 20.0
             # Translate to the location, set fill and stroke, and draw the rect
-            pushMatrix()
-            translate(x + 200, y + 100, z)
-            fill(c, 204)
-            noStroke()
-            rectMode(CENTER)
-            rect(0, 0, cellsize, cellsize)
-            popMatrix()
+            with pushMatrix():
+                translate(x + 200, y + 100, z)
+                fill(c, 204)
+                noStroke()
+                rectMode(CENTER)
+                rect(0, 0, cellsize, cellsize)
 

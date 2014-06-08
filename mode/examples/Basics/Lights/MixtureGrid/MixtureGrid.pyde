@@ -17,12 +17,11 @@ def draw():
 
     for x in range(0, width + 1, 60):
         for y in range(0, height + 1, 60):
-            pushMatrix()
-            translate(x, y)
-            rotateY(map(mouseX, 0, width, 0, PI))
-            rotateX(map(mouseY, 0, height, 0, PI))
-            box(90)
-            popMatrix()
+            with pushMatrix():
+                translate(x, y)
+                rotateY(map(mouseX, 0, width, 0, PI))
+                rotateX(map(mouseY, 0, height, 0, PI))
+                box(90)
 
 
 def defineLights():

@@ -24,9 +24,8 @@ class Hair(object):
         yb = yo * self.slow
         zb = zo * self.slow
 
-        beginShape(LINES)
-        stroke(0)
-        vertex(x, y, self.z)
-        stroke(200, 150)
-        vertex(xb, yb, zb)
-        endShape()
+        with beginShape(LINES):
+            stroke(0)
+            vertex(x, y, self.z)
+            stroke(200, 150)
+            vertex(xb, yb, zb)
