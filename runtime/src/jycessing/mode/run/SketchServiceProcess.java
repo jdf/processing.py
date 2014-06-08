@@ -42,6 +42,7 @@ public class SketchServiceProcess {
   public SketchServiceProcess(final PythonMode mode, final PyEditor editor) {
     this.mode = mode;
     this.editor = editor;
+    start();
   }
 
   /**

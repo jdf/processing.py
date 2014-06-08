@@ -14,8 +14,7 @@ public class SketchInfo implements Serializable {
   public final RunMode runMode;
   public final List<File> libraryDirs;
 
-  // One of the following two should be set,
-  public final File sketch;
+  public final File mainSketchFile;
 
   public final String sketchName;
   public final String code;
@@ -25,12 +24,12 @@ public class SketchInfo implements Serializable {
   public final LibraryPolicy libraryPolicy;
 
   private SketchInfo(final String sketchName, final RunMode runMode, final List<File> libDirs,
-      final File sketch, final String code, final String[] codeFileNames, final int x, final int y,
-      final LibraryPolicy libraryPolicy) {
+      final File mainSketchFile, final String code, final String[] codeFileNames, final int x,
+      final int y, final LibraryPolicy libraryPolicy) {
     this.sketchName = sketchName;
     this.runMode = runMode;
     this.libraryDirs = Collections.unmodifiableList(libDirs);
-    this.sketch = sketch;
+    this.mainSketchFile = mainSketchFile;
     this.code = code;
     this.codeFileNames = codeFileNames;
     this.x = x;
@@ -69,7 +68,7 @@ public class SketchInfo implements Serializable {
       return this;
     }
 
-    public Builder sketch(final File sketch) {
+    public Builder mainSketchFile(final File sketch) {
       this.sketch = sketch;
       return this;
     }

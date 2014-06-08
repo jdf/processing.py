@@ -85,6 +85,9 @@ public class Runner {
       "launcher.py");
   private static final String CORE_TEXT = IOUtil.readResourceAsText(Runner.class, "core.py");
 
+  // A beautiful cursive L, not possibly part of any real sketch name.
+  private static final String WARMUP_SKETCH_NAME = "\u2112";
+
   static boolean VERBOSE = false;
 
   static void log(final Object... objs) {
@@ -252,7 +255,7 @@ public class Runner {
             .libraryPolicy(LibraryPolicy.PROMISCUOUS)
             .runMode(
                 Arrays.asList(args).contains("--present") ? RunMode.PRESENTATION : RunMode.WINDOWED)
-            .sketch(new File(sketchPath)).code(sketchSource).build();
+            .mainSketchFile(new File(sketchPath)).code(sketchSource).build();
     // Hide the splash, if possible
     final SplashScreen splash = SplashScreen.getSplashScreen();
     if (splash != null) {
@@ -316,7 +319,20 @@ public class Runner {
     SELECTIVE
   }
 
-  public static void runSketchBlocking(final SketchInfo info) throws PythonSketchError {
+  /**
+   * warmup() front-loads a huge amount of slow IO so that when the user gets around
+   * to running a sketch, most of the slow work is already done. 
+   */
+  public static void warmup() {
+    try {
+      runSketchBlocking(new SketchInfo.Builder().code("exit()").runMode(RunMode.WINDOWED)
+          .mainSketchFile(new File("/tmp/warmup.pyde")).sketchName(WARMUP_SKETCH_NAME).build());
+    } catch (final PythonSketchError e) {
+      // drop
+    }
+  }
+
+  public synchronized static void runSketchBlocking(final SketchInfo info) throws PythonSketchError {
     final Properties props = new Properties();
 
     // Suppress sys-package-manager output.
@@ -329,11 +345,11 @@ public class Runner {
     for (final File dir : info.libraryDirs) {
       pythonPath.append(dir.getAbsolutePath());
     }
-    final String sketchDirPath = info.sketch.getParentFile().getAbsolutePath();
+    final String sketchDirPath = info.mainSketchFile.getParentFile().getAbsolutePath();
     pythonPath.append(File.pathSeparator).append(sketchDirPath);
 
     props.setProperty("python.path", pythonPath.toString());
-    props.setProperty("python.main", info.sketch.getAbsolutePath());
+    props.setProperty("python.main", info.mainSketchFile.getAbsolutePath());
     props.setProperty("python.main.root", sketchDirPath);
 
     final String[] args = info.runMode.args(info);
@@ -351,7 +367,7 @@ public class Runner {
       sys.path.insert(0, Py.newString(sketchDirPath));
 
       // For moar useful error messages.
-      interp.set("__file__", info.sketch.getAbsolutePath());
+      interp.set("__file__", info.mainSketchFile.getAbsolutePath());
 
       interp.exec("import sys\n");
 
@@ -388,8 +404,8 @@ public class Runner {
        * needs. 
        */
       interp.set("__interp__", interp);
-      interp.set("__path__", info.sketch.getAbsolutePath());
-      interp.set("__cwd__", info.sketch.getParentFile().getAbsolutePath());
+      interp.set("__path__", info.mainSketchFile.getAbsolutePath());
+      interp.set("__cwd__", info.mainSketchFile.getParentFile().getAbsolutePath());
       interp.set("__source__", info.code);
       interp.set("__python_mode_build__", BUILD_NUMBER);
       interp.exec(CORE_TEXT);
@@ -400,7 +416,9 @@ public class Runner {
       applet.findSketchMethods();
 
       try {
-        applet.runAndBlock(args);
+        if (!info.sketchName.equals(WARMUP_SKETCH_NAME)) {
+          applet.runAndBlock(args);
+        }
       } finally {
         interp.cleanup();
       }

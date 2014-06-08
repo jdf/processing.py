@@ -30,6 +30,12 @@ public class SketchRunner implements SketchService {
     } catch (final Exception e) {
       System.err.println(e.getMessage());
     }
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        Runner.warmup();
+      }
+    }, "SketchRuner Warmup Thread").start();
   }
 
   /**
