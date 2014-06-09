@@ -32,6 +32,8 @@ import processing.app.Mode;
 import processing.app.SketchCode;
 import processing.app.SketchException;
 import processing.app.Toolkit;
+import processing.app.syntax.JEditTextArea;
+import processing.app.syntax.PdeTextAreaDefaults;
 
 @SuppressWarnings("serial")
 public class PyEditor extends Editor {
