@@ -2,6 +2,8 @@ package jycessing.mode;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -69,9 +71,7 @@ public class PyEditor extends Editor {
     pyMode = (PythonMode)mode;
 
     // Provide horizontal scrolling.
-    // TODO: Enable this when Ben releases a PDE with support for this
-    // turned on.
-    // textarea.addMouseWheelListener(createHorizontalScrollListener());
+    textarea.addMouseWheelListener(createHorizontalScrollListener());
 
     // Create a sketch service affiliated with this editor.
     final SketchServiceManager sketchServiceManager = pyMode.getSketchServiceManager();
@@ -99,7 +99,6 @@ public class PyEditor extends Editor {
     return id;
   }
 
-  /*
   private MouseWheelListener createHorizontalScrollListener() {
     return new MouseWheelListener() {
       @Override
@@ -112,7 +111,6 @@ public class PyEditor extends Editor {
       }
     };
   }
-  */
 
   @Override
   public String getCommentPrefix() {
