@@ -6,15 +6,15 @@ Multiple-object collision.
 The "bounding-box" rendering is imprecise because we've implemented springy
 bodies which don't show their deformation.
 """
-import config
 from ball import Ball
 
 balls = []
+NUM_BALLS = 12
 
 
 def setup():
     size(640, 360, P3D)
-    for i in range(config.NUM_BALLS):
+    for i in range(NUM_BALLS):
         balls.append(Ball(random(width), random(height),
                           random(15, 45), i, balls))
     noStroke()
