@@ -17,9 +17,8 @@ class Ball(object):
         for other in self.others[self.index:]:
             dx = other.x - self.x
             dy = other.y - self.y
-            distance = sqrt(dx**2 + dy**2)
             minDist = other.radius + self.radius
-            if distance < minDist:
+            if dist(other.x, other.y, self.x, self.y) < minDist:
                 angle = atan2(dy, dx)
                 targetX = self.x + cos(angle) * minDist
                 targetY = self.y + sin(angle) * minDist
