@@ -302,9 +302,6 @@ public class PyKeyListener extends PdeKeyListener {
     final String line = textArea.getLineText(lineNumber);
 
     final String defaultIndent = indentOf(line);
-    if (cursor != lineEnd - 1) {
-      return defaultIndent;
-    }
 
     // Search for an unmatched closing paren on this line.
     int balance = 0;
