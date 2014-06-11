@@ -38,7 +38,6 @@ def mouseReleased():
 class Spring(object):
 
     # Constructor
-
     def __init__(self, x, y, s, d, m, k_in, others):
         self.over = False
         self.move = False

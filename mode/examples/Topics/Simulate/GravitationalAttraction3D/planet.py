@@ -28,8 +28,7 @@ class Planet(object):
     def display(self):
         noStroke()
         fill(255)
-        pushMatrix()
-        translate(self.location.x, self.location.y, self.location.z)
-        sphere(self.mass * 8)
-        popMatrix()
+        with pushMatrix():
+            translate(self.location.x, self.location.y, self.location.z)
+            sphere(self.mass * 8)
 

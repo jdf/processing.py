@@ -64,10 +64,9 @@ def draw():
 
     # Draw cylinder ends.
     for i in range(2):
-        beginShape()
-        for j in range(pts):
-            vertex(vertices[i][j].x, vertices[i][j].y, vertices[i][j].z)
-        endShape(CLOSE)
+        with beginClosedShape():
+            for j in range(pts):
+                vertex(vertices[i][j].x, vertices[i][j].y, vertices[i][j].z)
 
 
 """

@@ -43,9 +43,8 @@ def branch(h):
         branch(h)# Ok, now call myself to draw two branches!!
         popMatrix()# Whenever we get back here, we "pop" in order to restore the previous matrix state    
         # Repeat the same thing, only branch off to the "left" this time!
-        pushMatrix()
-        rotate(-theta)
-        line(0, 0, 0, -h)
-        translate(0, -h)
-        branch(h)
-        popMatrix()
+        with pushMatrix():
+            rotate(-theta)
+            line(0, 0, 0, -h)
+            translate(0, -h)
+            branch(h)

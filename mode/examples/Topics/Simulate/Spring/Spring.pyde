@@ -6,22 +6,22 @@ Click, drag, and release the horizontal bar to start the spring.
 
 # Spring drawing constants for top bar
 springHeight = 32  # Height
-left = 0  # Left position
-right = 0  # Right position
-max = 200  # Maximum Y value
-min = 100  # Minimum Y value
+left = 0      # Left position
+right = 0     # Right position
+max = 200     # Maximum Y value
+min = 100     # Minimum Y value
 over = False  # If mouse over
 move = False  # If mouse down and over
 # Spring simulation constants
-M = 0.8  # Mass
-K = 0.2  # Spring constant
+M = 0.8   # Mass
+K = 0.2   # Spring constant
 D = 0.92  # Damping
-R = 150  # Rest position
+R = 150   # Rest position
 # Spring simulation variables
-ps = R  # Position
-v = 0.0  # Velocity
-a = 0  # Acceleration
-f = 0  # Force
+ps = R    # Position
+v = 0.0   # Velocity
+a = 0     # Acceleration
+f = 0     # Force
 
 
 def setup():
@@ -67,8 +67,8 @@ def updateSpring():
     if move:
         ps = mouseY - springHeight / 2
         ps = constrain(ps, min, max)
-
-
+        
+        
 def mousePressed():
     if over:
         move = True

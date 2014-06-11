@@ -12,11 +12,9 @@ from particle_system import ParticleSystem
 
 ps = None
 
-
 def setup():
     size(640, 360)
     ps = ParticleSystem(PVector(width / 2, 50))
-
 
 def draw():
     background(0)

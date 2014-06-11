@@ -8,8 +8,6 @@ Bodies experience fluid resistance when in "water"
 """
 
 # Liquid class
-
-
 class Liquid(object):
 
     # Liquid is a rectangle.

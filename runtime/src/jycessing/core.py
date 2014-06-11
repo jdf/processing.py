@@ -441,7 +441,7 @@ __builtin__.brightness = __papplet__.brightness
 
 # And these are PApplet static methods. Some are commented out to indicate
 # that we prefer or require Jython's implementation.
-__builtin__.abs = PApplet.abs
+#__builtin__.abs = PApplet.abs
 __builtin__.acos = PApplet.acos
 __builtin__.append = PApplet.append
 __builtin__.arrayCopy = PApplet.arrayCopy
@@ -580,44 +580,46 @@ sys.stderr = FakeStdErr()
 
 del FakeStdOut, FakeStdErr
 
-# Make it so that you can either
+# Implement
 #
-#  pushStyle()
-#  drawSomething()
-#  popStyle()
-#  drawOtherThing()
+# with pushFoo():
+#     doSomethingInFooContext()
+# doSomethingOutOfFooContext()
 #
-# or
-#
-#  with pushStyle():
-#      drawSomething();
-#  drawOtherThing()
-#
-# And same with pushMatrix/popMatrix.
+# pushFoo()/popFoo() still works as usual.
 
-class __style_popper__(object):
-    def __init__(self): pass
-    def __enter__(self): pass
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        __papplet__.popStyle()
-        return False
-    
-def __push_style__():
-    __papplet__.pushStyle()
-    return __style_popper__()
-__builtin__.pushStyle = __push_style__
+def makePopper(pushName, popName, exposed_name=None, close_args=None):
+    if not close_args:
+        close_args = []
+    if not exposed_name:
+        exposed_name = pushName
 
-class __matrix_popper__(object):
-    def __init__(self): pass
-    def __enter__(self): pass
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        __papplet__.popMatrix()
-        return False
+    bound_push = getattr(__papplet__, pushName)
+    bound_pop = getattr(__papplet__, popName)
     
-def __push_matrix__():
-    __papplet__.pushMatrix()
-    return __matrix_popper__()
-__builtin__.pushMatrix = __push_matrix__
+    class Popper(object):
+        def __init__(self): pass
+            
+        def __enter__(self): pass
+        
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            bound_pop(*close_args)
+            return False
+        
+    def shim(*args):
+        bound_push(*args)
+        return Popper()
+    
+    setattr(__builtin__, exposed_name, shim)
+
+makePopper('pushStyle', 'popStyle')
+makePopper('pushMatrix', 'popMatrix')
+makePopper('beginContour', 'endContour')
+makePopper('beginPGL', 'endPGL')
+makePopper('beginShape', 'endShape')
+makePopper('beginShape', 'endShape',
+           close_args=[CLOSE], exposed_name='beginClosedShape')
+makePopper('beginCamera', 'endCamera')
 
 import os
 os.chdir(__cwd__)

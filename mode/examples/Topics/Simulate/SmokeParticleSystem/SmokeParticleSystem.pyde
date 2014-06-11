@@ -11,7 +11,6 @@ from particle_system import ParticleSystem
 
 ps = None
 
-
 def setup():
     size(640, 360)
     img = loadImage("texture.png")
@@ -29,25 +28,24 @@ def draw():
         ps.addParticle()
     # Draw an arrow representing the wind force.
     drawVector(wind, PVector(width / 2, 50, 0), 500)
+
+
 # Renders a vector object 'v' as an arrow and a location 'loc'.
-
-
 def drawVector(v, loc, scayl):
-    pushMatrix()
-    arrowsize = 4
-    # Translate to location to render vector.
-    translate(loc.x, loc.y)
-    stroke(255)
-    # Call vector heading function to get direction (note that pointing up is
-    # a heading of 0) and rotate.
-    rotate(v.heading())
-    # Calculate length of vector & scale it to be bigger or smaller if
-    # necessary.
-    len = v.mag() * scayl
-    # Draw three lines to make an arrow (draw pointing up since we've rotate
-    # to the proper direction).
-    line(0, 0, len, 0)
-    line(len, 0, len - arrowsize, +arrowsize / 2)
-    line(len, 0, len - arrowsize, -arrowsize / 2)
-    popMatrix()
+    with pushMatrix():
+        arrowsize = 4
+        # Translate to location to render vector.
+        translate(loc.x, loc.y)
+        stroke(255)
+        # Call vector heading function to get direction (note that pointing up is
+        # a heading of 0) and rotate.
+        rotate(v.heading())
+        # Calculate length of vector & scale it to be bigger or smaller if
+        # necessary.
+        len = v.mag() * scayl
+        # Draw three lines to make an arrow (draw pointing up since we've rotate
+        # to the proper direction).
+        line(0, 0, len, 0)
+        line(len, 0, len - arrowsize, +arrowsize / 2)
+        line(len, 0, len - arrowsize, -arrowsize / 2)
 

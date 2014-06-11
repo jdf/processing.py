@@ -27,10 +27,9 @@ def draw():
     angle1 = (mouseX / float(width) - 0.5) * -PI
     angle2 = (mouseY / float(height) - 0.5) * PI
 
-    pushMatrix()
-    segment(x, y, angle1)
-    segment(segLength, 0, angle2)
-    popMatrix()
+    with pushMatrix():
+        segment(x, y, angle1)
+        segment(segLength, 0, angle2)
 
 
 def segment(s, y, a):

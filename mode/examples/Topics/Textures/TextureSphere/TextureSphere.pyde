@@ -48,28 +48,25 @@ def draw():
 
 
 def renderGlobe():
-    pushMatrix()
-    translate(thirdWidth, halfHeight, pushBack)
-
-    pushMatrix()
-    noFill()
-    stroke(255, 200)
-    strokeWeight(2)
-    smooth()
-    popMatrix()
-
-    lights()
-
-    pushMatrix()
-    rotateX(radians(-rotationX))
-    rotateY(radians(270 - rotationY))
-    fill(200)
-    noStroke()
-    textureMode(IMAGE)
-    texturedSphere(globeRadius, texmap)
-    popMatrix()
-
-    popMatrix()
+    with pushMatrix():
+        translate(thirdWidth, halfHeight, pushBack)
+    
+        with pushMatrix():
+            noFill()
+            stroke(255, 200)
+            strokeWeight(2)
+            smooth()
+    
+        lights()
+    
+        with pushMatrix():
+            rotateX(radians(-rotationX))
+            rotateY(radians(270 - rotationY))
+            fill(200)
+            noStroke()
+            textureMode(IMAGE)
+            texturedSphere(globeRadius, texmap)
+    
 
     rotationX += velocityX
     rotationY += velocityY

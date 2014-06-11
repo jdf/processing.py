@@ -16,7 +16,6 @@ from particle_system import ParticleSystem
 
 systems = None
 
-
 def setup():
     size(640, 360)
     systems = []

@@ -28,9 +28,8 @@ def draw():
 
 
 def segment(x, y, a):
-    pushMatrix()
-    translate(x, y)
-    rotate(a)
-    line(0, 0, segLength, 0)
-    popMatrix()
+    with pushMatrix():
+        translate(x, y)
+        rotate(a)
+        line(0, 0, segLength, 0)
 

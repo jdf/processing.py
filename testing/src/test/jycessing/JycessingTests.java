@@ -27,7 +27,7 @@ public class JycessingTests {
       final String sourceText = new String(Files.readAllBytes(source), "utf-8");
       final SketchInfo info =
           new SketchInfo.Builder().sketchName("test " + testResource)
-              .libraryPolicy(LibraryPolicy.SELECTIVE).code(sourceText).sketch(source.toFile())
+              .libraryPolicy(LibraryPolicy.SELECTIVE).code(sourceText).mainSketchFile(source.toFile())
               .runMode(RunMode.UNIT_TEST).build();
       System.setOut(new PrintStream(baos, true));
       Runner.runSketchBlocking(info);
@@ -51,7 +51,7 @@ public class JycessingTests {
         System.err.println("Running import " + module + " test.");
         final SketchInfo info =
             new SketchInfo.Builder().sketchName("test import " + module)
-                .libraryPolicy(LibraryPolicy.SELECTIVE).code(testText).sketch(src.toFile())
+                .libraryPolicy(LibraryPolicy.SELECTIVE).code(testText).mainSketchFile(src.toFile())
                 .runMode(RunMode.UNIT_TEST).build();
         Runner.runSketchBlocking(info);
         assertEquals("OK\n",

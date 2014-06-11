@@ -4,12 +4,12 @@ from particle import Particle
 
 
 class CrazyParticle(Particle):
+    
     # Just adding one variable to a CrazyParticle.
     # It inherits all other fields from "Particle", and we don't have to
     # retype them!
     # The CrazyParticle constructor can call the parent class (super class)
     # constructor.
-
     def __init__(self, l):
         # "super" means do everything from the constructor in Particle.
         super(CrazyParticle, self).__init__(l)
@@ -29,10 +29,9 @@ class CrazyParticle(Particle):
         # Render the ellipse just like in a regular particle
         super(CrazyParticle, self).display()
         # Then add a rotating line
-        pushMatrix()
-        translate(self.location.x, self.location.y)
-        rotate(self.theta)
-        stroke(255, self.lifespan)
-        line(0, 0, 25, 0)
-        popMatrix()
+        with pushMatrix():
+            translate(self.location.x, self.location.y)
+            rotate(self.theta)
+            stroke(255, self.lifespan)
+            line(0, 0, 25, 0)
 
