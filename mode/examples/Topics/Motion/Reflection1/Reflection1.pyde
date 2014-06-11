@@ -110,7 +110,6 @@ def createGround():
     baseLength = PVector.dist(base1, base2)
 
     # Fill base top coordinate array.
-    coords = [PVector() for _ in range(ceil(baseLength))]
-    for i in range(len(coords)):
-        coords[i].x = base1.x + ((base2.x - base1.x) / baseLength) * i
-        coords[i].y = base1.y + ((base2.y - base1.y) / baseLength) * i
+    coords = [PVector(base1.x + ((base2.x - base1.x) / baseLength) * i,
+                      base1.y + ((base2.y - base1.y) / baseLength) * i)
+              for i in range(ceil(baseLength))]

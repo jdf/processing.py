@@ -1,5 +1,3 @@
-import config
-
 # Custom Cube Class
 class Cube(object):
     QuadBG = []
@@ -11,11 +9,11 @@ class Cube(object):
     QuadBG.append(color(0, 0, 255))
     QuadBG.append(color(127, 0, 255))
 
-    def __init__(self, width, height, depth):
+    def __init__(self, width, height, depth, bounds=300):
         self.width = width
         self.height = height
         self.depth = depth
-
+        self.BOUNDS = bounds
         # Position, velocity vectors
         # Start in center
         self.position = PVector()
@@ -76,11 +74,11 @@ class Cube(object):
         self.position.add(self.velocity)
 
         # Check wall collisions
-        if self.position.x > config.BOUNDS / 2 or self.position.x < -config.BOUNDS / 2:
+        if self.position.x > self.BOUNDS / 2 or self.position.x < -self.BOUNDS / 2:
             self.velocity.x *= -1
-        if self.position.y > config.BOUNDS / 2 or self.position.y < -config.BOUNDS / 2:
+        if self.position.y > self.BOUNDS / 2 or self.position.y < -self.BOUNDS / 2:
             self.velocity.y *= -1
-        if self.position.z > config.BOUNDS / 2 or self.position.z < -config.BOUNDS / 2:
+        if self.position.z > self.BOUNDS / 2 or self.position.z < -self.BOUNDS / 2:
             self.velocity.z *= -1
 
     # Display method

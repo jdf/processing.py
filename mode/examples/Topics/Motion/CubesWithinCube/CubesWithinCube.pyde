@@ -4,18 +4,18 @@ by Ira Greenberg.
 
 Collision detection against all outer cube's surfaces.
 """
-import config
 from cube import Cube
 
 halfWidth = None
 halfHeight = None
 
+BOUNDS = 300
 # 20 little internal cubes
 cubes = []
 for i in range(20):
     # Cubes are randomly sized
     cubeSize = random(5, 15)
-    cubes.append(Cube(cubeSize, cubeSize, cubeSize))
+    cubes.append(Cube(cubeSize, cubeSize, cubeSize, BOUNDS))
 
 
 def setup():
@@ -39,7 +39,7 @@ def draw():
 
     # Outer transparent cube, just using box() method
     noFill()
-    box(config.BOUNDS)
+    box(BOUNDS)
 
     # Move and rotate cubes
     for cube in cubes:
