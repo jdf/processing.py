@@ -7,7 +7,6 @@ class Icosahedron(Shape3D):
         Shape3D.__init__(self)
         self.topPent = [PVector() for _ in range(5)]
         self.bottomPent = [PVector() for _ in range(5)]
-        angle = 0
         c = dist(cos(0) * radius,
                  sin(0) * radius,
                  cos(radians(72)) * radius,
@@ -15,7 +14,7 @@ class Icosahedron(Shape3D):
         b = radius
         a = sqrt((c**2) - (b**2))
         self.triHeight = sqrt((c**2) - (c / 2)**2)
-
+        angle = 0
         for i in range(5):
             self.topPent[i] = PVector(cos(angle) * radius,
                                       sin(angle) * radius,
