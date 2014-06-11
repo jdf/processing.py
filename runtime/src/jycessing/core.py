@@ -441,7 +441,7 @@ __builtin__.brightness = __papplet__.brightness
 
 # And these are PApplet static methods. Some are commented out to indicate
 # that we prefer or require Jython's implementation.
-__builtin__.abs = PApplet.abs
+#__builtin__.abs = PApplet.abs
 __builtin__.acos = PApplet.acos
 __builtin__.append = PApplet.append
 __builtin__.arrayCopy = PApplet.arrayCopy
