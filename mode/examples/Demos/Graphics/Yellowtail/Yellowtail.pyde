@@ -78,37 +78,38 @@ def renderGesture(gesture, w, h):
         return
     if gesture.nPolys <= 0:
         return
-    with beginShape(QUADS):
-        for i, p in enumerate(gesture.polygons):
-            xpts = p.xpoints
-            ypts = p.ypoints
-            vertex(xpts[0], ypts[0])
-            vertex(xpts[1], ypts[1])
-            vertex(xpts[2], ypts[2])
-            vertex(xpts[3], ypts[3])
-            cr = gesture.crosses[i]
-            if cr > 0:
-                if (cr & 3) > 0:
-                    vertex(xpts[0] + w, ypts[0])
-                    vertex(xpts[1] + w, ypts[1])
-                    vertex(xpts[2] + w, ypts[2])
-                    vertex(xpts[3] + w, ypts[3])
-                    vertex(xpts[0] - w, ypts[0])
-                    vertex(xpts[1] - w, ypts[1])
-                    vertex(xpts[2] - w, ypts[2])
-                    vertex(xpts[3] - w, ypts[3])
-                if (cr & 12) > 0:
-                    vertex(xpts[0], ypts[0] + h)
-                    vertex(xpts[1], ypts[1] + h)
-                    vertex(xpts[2], ypts[2] + h)
-                    vertex(xpts[3], ypts[3] + h)
-                    vertex(xpts[0], ypts[0] - h)
-                    vertex(xpts[1], ypts[1] - h)
-                    vertex(xpts[2], ypts[2] - h)
-                    vertex(xpts[3], ypts[3] - h)
-                # I have knowingly retained the small flaw of not
-                # completely dealing with the corner conditions
-                # (the case in which both of the above are True).
+    beginShape(QUADS)
+    for i, p in enumerate(gesture.polygons):
+        xpts = p.xpoints
+        ypts = p.ypoints
+        vertex(xpts[0], ypts[0])
+        vertex(xpts[1], ypts[1])
+        vertex(xpts[2], ypts[2])
+        vertex(xpts[3], ypts[3])
+        cr = gesture.crosses[i]
+        if cr > 0:
+            if (cr & 3) > 0:
+                vertex(xpts[0] + w, ypts[0])
+                vertex(xpts[1] + w, ypts[1])
+                vertex(xpts[2] + w, ypts[2])
+                vertex(xpts[3] + w, ypts[3])
+                vertex(xpts[0] - w, ypts[0])
+                vertex(xpts[1] - w, ypts[1])
+                vertex(xpts[2] - w, ypts[2])
+                vertex(xpts[3] - w, ypts[3])
+            if (cr & 12) > 0:
+                vertex(xpts[0], ypts[0] + h)
+                vertex(xpts[1], ypts[1] + h)
+                vertex(xpts[2], ypts[2] + h)
+                vertex(xpts[3], ypts[3] + h)
+                vertex(xpts[0], ypts[0] - h)
+                vertex(xpts[1], ypts[1] - h)
+                vertex(xpts[2], ypts[2] - h)
+                vertex(xpts[3], ypts[3] - h)
+            # I have knowingly retained the small flaw of not
+            # completely dealing with the corner conditions
+            # (the case in which both of the above are True).
+    endShape()
 
 
 def updateGeometry():

@@ -10,11 +10,12 @@ class Eye:
         self.angle = atan2(my - self.y, mx - self.x)
 
     def display(self):
-        with pushMatrix():
-            translate(self.x, self.y)
-            fill(255)
-            ellipse(0, 0, self.size, self.size)
-            rotate(self.angle)
-            fill(153, 204, 0)
-            ellipse(self.size / 4, 0, self.size / 2, self.size / 2)
+        pushMatrix()
+        translate(self.x, self.y)
+        fill(255)
+        ellipse(0, 0, self.size, self.size)
+        rotate(self.angle)
+        fill(153, 204, 0)
+        ellipse(self.size / 4, 0, self.size / 2, self.size / 2)
+        popMatrix()
 

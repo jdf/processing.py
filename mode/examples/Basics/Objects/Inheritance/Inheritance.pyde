@@ -45,11 +45,12 @@ class SpinArm(Spin):
     def display(self):
         strokeWeight(1)
         stroke(0)
-        with pushMatrix():
-            translate(self.x, self.y)
-            self.angle += self.speed
-            rotate(self.angle)
-            line(0, 0, 165, 0)
+        pushMatrix()
+        translate(self.x, self.y)
+        self.angle += self.speed
+        rotate(self.angle)
+        line(0, 0, 165, 0)
+        popMatrix()
 
 
 class SpinSpots(Spin):
@@ -62,10 +63,11 @@ class SpinSpots(Spin):
 
     def display(self):
         noStroke()
-        with pushMatrix():
-            translate(self.x, self.y)
-            self.angle += self.speed
-            rotate(self.angle)
-            ellipse(-self.dim / 2, 0, self.dim, self.dim)
-            ellipse(self.dim / 2, 0, self.dim, self.dim)
+        pushMatrix()
+        translate(self.x, self.y)
+        self.angle += self.speed
+        rotate(self.angle)
+        ellipse(-self.dim / 2, 0, self.dim, self.dim)
+        ellipse(self.dim / 2, 0, self.dim, self.dim)
+        popMatrix()
 

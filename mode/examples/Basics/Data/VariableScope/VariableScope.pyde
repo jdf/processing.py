@@ -45,9 +45,10 @@ def drawGreenLine():
     if('b' in locals() or 'b' in globals()):
         background(255)  # This won't run
     else:
-        with pushStyle():
-            stroke(0, 255, 0)
-            b = 320  # Create a variable "b" local to drawGreenLine().
-            # Use the local variable "b" and the global variable "c" to draw a line.
-            line(b, 0, c, height) 
+        pushStyle()
+        stroke(0, 255, 0)
+        b = 320  # Create a variable "b" local to drawGreenLine().
+        # Use the local variable "b" and the global variable "c" to draw a line.
+        line(b, 0, c, height) 
+        popStyle()
 

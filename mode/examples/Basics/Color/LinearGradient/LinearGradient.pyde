@@ -31,13 +31,13 @@ def draw():
 
 def setGradient(x, y, w, h, c1, c2, axis):
     noFill()
-    if axis == Y_AXIS:  # Top to bottom gradient
+    if axis == Y_AXIS:     # Top to bottom gradient
         for i in range(y, y + h + 1):
             inter = map(i, y, y + h, 0, 1)
             c = lerpColor(c1, c2, inter)
             stroke(c)
             line(x, i, x + w, i)
-    elif axis == X_AXIS:  # Left to right gradient
+    elif axis == X_AXIS:     # Left to right gradient
         for i in range(x, x + w + 1):
             inter = map(i, x, x + w, 0, 1)
             c = lerpColor(c1, c2, inter)

@@ -22,9 +22,10 @@ def draw():
 
     spin += 0.01
 
-    with pushMatrix():
-        translate(width / 2, height / 2, 0)
-        rotateX(PI / 9)
-        rotateY(PI / 5 + spin)
-        box(150)
+    pushMatrix()
+    translate(width / 2, height / 2, 0)
+    rotateX(PI / 9)
+    rotateY(PI / 5 + spin)
+    box(150)
+    popMatrix()
 

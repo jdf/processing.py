@@ -61,8 +61,9 @@ def reachSegment(i, xin, yin):
 
 def segment(x, y, a, sw):
     strokeWeight(sw)
-    with pushMatrix():
-        translate(x, y)
-        rotate(a)
-        line(0, 0, segLength, 0)
+    pushMatrix()
+    translate(x, y)
+    rotate(a)
+    line(0, 0, segLength, 0)
+    popMatrix()
 

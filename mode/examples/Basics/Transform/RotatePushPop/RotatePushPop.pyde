@@ -24,11 +24,12 @@ def draw():
 
     for i in range(num):
         gray = map(i, 0, num - 1, 0, 255)
-        with pushMatrix():
-            fill(gray)
-            rotateY(a + offset * i)
-            rotateX(a / 2 + offset * i)
-            box(200)
+        pushMatrix()
+        fill(gray)
+        rotateY(a + offset * i)
+        rotateX(a / 2 + offset * i)
+        box(200)
+        popMatrix()
 
     a += 0.01
 

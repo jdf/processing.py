@@ -2,8 +2,6 @@ package jycessing.mode;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -71,7 +69,9 @@ public class PyEditor extends Editor {
     pyMode = (PythonMode)mode;
 
     // Provide horizontal scrolling.
-    textarea.addMouseWheelListener(createHorizontalScrollListener());
+    // TODO: Enable this when Ben releases a PDE with support for this
+    // turned on.
+    // textarea.addMouseWheelListener(createHorizontalScrollListener());
 
     // Create a sketch service affiliated with this editor.
     final SketchServiceManager sketchServiceManager = pyMode.getSketchServiceManager();
@@ -99,6 +99,7 @@ public class PyEditor extends Editor {
     return id;
   }
 
+  /*
   private MouseWheelListener createHorizontalScrollListener() {
     return new MouseWheelListener() {
       @Override
@@ -111,6 +112,7 @@ public class PyEditor extends Editor {
       }
     };
   }
+  */
 
   @Override
   public String getCommentPrefix() {
@@ -278,9 +280,9 @@ public class PyEditor extends Editor {
           new SketchInfo.Builder().sketchName(sketch.getName()).runMode(mode)
               .addLibraryDir(Base.getContentFile("modes/java/libraries"))
               .addLibraryDir(Base.getSketchbookLibrariesFolder())
-              .mainSketchFile(new File(sketchPath).getAbsoluteFile())
-              .code(sketch.getCode(0).getProgram()).codeFileNames(codeFileNames).x(getX())
-              .y(getY()).libraryPolicy(LibraryPolicy.SELECTIVE).build();
+              .sketch(new File(sketchPath).getAbsoluteFile()).code(sketch.getCode(0).getProgram())
+              .codeFileNames(codeFileNames).x(getX()).y(getY())
+              .libraryPolicy(LibraryPolicy.SELECTIVE).build();
       sketchService.runSketch(info);
     } catch (final SketchException e) {
       statusError(e);
