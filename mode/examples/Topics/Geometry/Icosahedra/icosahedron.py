@@ -74,8 +74,7 @@ class Icosahedron(Shape3D):
                                   self.topPent[0])
 
     def makeTriangle(self, a, b, c):
-        beginShape()
-        vertex(a.x, a.y, a.z)
-        vertex(b.x, b.y, b.z)
-        vertex(c.x, c.y, c.z)
-        endShape(CLOSE)
+        with beginShape():
+            vertex(a.x, a.y, a.z)
+            vertex(b.x, b.y, b.z)
+            vertex(c.x, c.y, c.z)
