@@ -26,7 +26,9 @@ while True:
         while len(src) < size:
             src += connection.recv(4096)
         src = src.decode('utf-8')
-        reformatted = autopep8.fix_code(src)
+        reformatted = autopep8.fix_code(
+            src,
+            options=autopep8.parse_args(['--ignore', 'E302', '']))
         encoded = reformatted.encode('utf-8')
         connection.sendall(pack('>i', len(encoded)))
         connection.sendall(encoded)

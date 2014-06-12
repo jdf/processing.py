@@ -15,32 +15,6 @@
  */
 package jycessing;
 
-import org.python.antlr.ast.Global;
-import org.python.core.CompileMode;
-import org.python.core.CompilerFlags;
-import org.python.core.Py;
-import org.python.core.PyBoolean;
-import org.python.core.PyCode;
-import org.python.core.PyException;
-import org.python.core.PyFloat;
-import org.python.core.PyIndentationError;
-import org.python.core.PyInteger;
-import org.python.core.PyJavaType;
-import org.python.core.PyObject;
-import org.python.core.PySet;
-import org.python.core.PyString;
-import org.python.core.PyStringMap;
-import org.python.core.PySyntaxError;
-import org.python.core.PyTuple;
-import org.python.core.PyType;
-import org.python.core.PyUnicode;
-import org.python.util.InteractiveConsole;
-
-import processing.core.PApplet;
-import processing.core.PConstants;
-import processing.core.PImage;
-import processing.opengl.PShader;
-
 import java.awt.EventQueue;
 import java.awt.Window;
 import java.awt.event.ComponentAdapter;
@@ -59,6 +33,36 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
+
+import org.python.antlr.ast.Global;
+import org.python.core.CompileMode;
+import org.python.core.CompilerFlags;
+import org.python.core.Py;
+import org.python.core.PyBaseCode;
+import org.python.core.PyBoolean;
+import org.python.core.PyCode;
+import org.python.core.PyException;
+import org.python.core.PyFloat;
+import org.python.core.PyFunction;
+import org.python.core.PyIndentationError;
+import org.python.core.PyInteger;
+import org.python.core.PyJavaType;
+import org.python.core.PyObject;
+import org.python.core.PySet;
+import org.python.core.PyString;
+import org.python.core.PyStringMap;
+import org.python.core.PySyntaxError;
+import org.python.core.PyTuple;
+import org.python.core.PyType;
+import org.python.core.PyUnicode;
+import org.python.util.InteractiveConsole;
+
+import processing.core.PApplet;
+import processing.core.PConstants;
+import processing.core.PImage;
+import processing.event.KeyEvent;
+import processing.event.MouseEvent;
+import processing.opengl.PShader;
 
 /**
  *
@@ -100,12 +104,46 @@ public class PAppletJythonDriver extends PApplet {
   private static final Pattern ACTIVE_METHOD_DEF = Pattern.compile(
       "^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
 
+  /**
+   * The Processing event handling functions can take 0 or 1 argument.
+   * This class represents such a function.
+   * <p>If the user did not implement the variant that takes an event,
+   * then we have to pass through to the super implementation, or else
+   * the zero-arg version won't get called.
+   */
+  private abstract class EventFunction<T> {
+    private final PyFunction func;
+    private final int argCount;
+
+    protected abstract void callSuper(T event);
+
+    public EventFunction(final String funcName) {
+      func = (PyFunction)interp.get(funcName);
+      argCount = func == null ? -1 : ((PyBaseCode)(func).__code__).co_argcount;
+    }
+
+    public void invoke() {
+      if (func != null && argCount == 0) {
+        func.__call__();
+      }
+    }
+
+    public void invoke(final T event) {
+      if (func != null && argCount == 1) {
+        func.__call__(Py.java2py(event));
+      } else {
+        callSuper(event);
+      }
+    }
+  }
+
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
-  private PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth, mouseMovedMeth,
-      mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth, initMeth,
-      pauseMeth, resumeMeth, stopMeth, destroyMeth, sketchFullScreenMeth, sketchWidthMeth,
-      sketchHeightMeth, sketchRendererMeth;
+  private PyObject setupMeth, drawMeth, initMeth, pauseMeth, resumeMeth, stopMeth, destroyMeth,
+      sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
+  private EventFunction<KeyEvent> keyPressedFunc, keyReleasedFunc, keyTypedFunc;
+  private EventFunction<MouseEvent> mousePressedFunc, mouseClickedFunc, mouseMovedFunc,
+      mouseReleasedFunc, mouseDraggedFunc;
 
   // Implement the Video library's callback.
   private PyObject captureEventMeth, movieEventMeth;
@@ -251,14 +289,57 @@ public class PAppletJythonDriver extends PApplet {
     // Find and cache any PApplet callbacks defined in the Python sketch
     drawMeth = interp.get("draw");
     setupMeth = interp.get("setup");
-    mousePressedMeth = interp.get("mousePressed");
-    mouseClickedMeth = interp.get("mouseClicked");
-    mouseMovedMeth = interp.get("mouseMoved");
-    mouseReleasedMeth = interp.get("mouseReleased");
-    mouseDraggedMeth = interp.get("mouseDragged");
-    keyPressedMeth = interp.get("keyPressed");
-    keyReleasedMeth = interp.get("keyReleased");
-    keyTypedMeth = interp.get("keyTyped");
+
+    mousePressedFunc = new EventFunction<MouseEvent>("mousePressed") {
+      @Override
+      protected void callSuper(final MouseEvent event) {
+        PAppletJythonDriver.super.mousePressed(event);
+      }
+    };
+    mouseClickedFunc = new EventFunction<MouseEvent>("mouseClicked") {
+      @Override
+      protected void callSuper(final MouseEvent event) {
+        PAppletJythonDriver.super.mouseClicked(event);
+      }
+    };
+    mouseMovedFunc = new EventFunction<MouseEvent>("mouseMoved") {
+      @Override
+      protected void callSuper(final MouseEvent event) {
+        PAppletJythonDriver.super.mouseMoved(event);
+      }
+    };
+    mouseReleasedFunc = new EventFunction<MouseEvent>("mouseReleased") {
+      @Override
+      protected void callSuper(final MouseEvent event) {
+        PAppletJythonDriver.super.mouseReleased(event);
+      }
+    };
+    mouseDraggedFunc = new EventFunction<MouseEvent>("mouseDragged") {
+      @Override
+      protected void callSuper(final MouseEvent event) {
+        PAppletJythonDriver.super.mouseDragged(event);
+      }
+    };
+
+    keyPressedFunc = new EventFunction<KeyEvent>("keyPressed") {
+      @Override
+      protected void callSuper(final KeyEvent event) {
+        PAppletJythonDriver.super.keyPressed(event);
+      }
+    };
+    keyReleasedFunc = new EventFunction<KeyEvent>("keyReleased") {
+      @Override
+      protected void callSuper(final KeyEvent event) {
+        PAppletJythonDriver.super.keyReleased(event);
+      }
+    };
+    keyTypedFunc = new EventFunction<KeyEvent>("keyTyped") {
+      @Override
+      protected void callSuper(final KeyEvent event) {
+        PAppletJythonDriver.super.keyTyped(event);
+      }
+    };
+
     sketchFullScreenMeth = interp.get("sketchFullScreen");
     sketchWidthMeth = interp.get("sketchWidth");
     sketchHeightMeth = interp.get("sketchHeight");
@@ -268,7 +349,7 @@ public class PAppletJythonDriver extends PApplet {
     pauseMeth = interp.get("pause");
     resumeMeth = interp.get("resume");
     destroyMeth = interp.get("destroy");
-    if (mousePressedMeth != null) {
+    if (mousePressedFunc.func != null) {
       // The user defined a mousePressed() method, which will hide the magical
       // Processing variable boolean mousePressed. We have to do some magic.
       interp.getLocals().__setitem__("mousePressed", new PyBoolean(false) {
@@ -279,7 +360,7 @@ public class PAppletJythonDriver extends PApplet {
 
         @Override
         public PyObject __call__(final PyObject[] args, final String[] kws) {
-          return mousePressedMeth.__call__(args, kws);
+          return mousePressedFunc.func.__call__(args, kws);
         }
       });
     }
@@ -363,7 +444,7 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("pmouseX", pyint(pmouseX));
     builtins.__setitem__("pmouseY", pyint(pmouseY));
     builtins.__setitem__("mouseButton", pyint(mouseButton));
-    if (mousePressedMeth == null) {
+    if (mousePressedFunc.func == null) {
       builtins.__setitem__("mousePressed", Py.newBoolean(mousePressed));
     }
   }
@@ -793,83 +874,100 @@ public class PAppletJythonDriver extends PApplet {
 
   @Override
   public void mouseClicked() {
-    if (mouseClickedMeth == null) {
-      super.mouseClicked();
-    } else {
-      wrapMouseVariables();
-      mouseClickedMeth.__call__();
-    }
+    wrapMouseVariables();
+    mouseClickedFunc.invoke();
+  }
+
+  @Override
+  public void mouseClicked(final MouseEvent e) {
+    wrapMouseVariables();
+    mouseClickedFunc.invoke(e);
   }
 
   @Override
   public void mouseMoved() {
-    if (mouseMovedMeth == null) {
-      super.mouseMoved();
-    } else {
-      wrapMouseVariables();
-      mouseMovedMeth.__call__();
-    }
+    wrapMouseVariables();
+    mouseMovedFunc.invoke();
   }
 
+  @Override
+  public void mouseMoved(final MouseEvent e) {
+    wrapMouseVariables();
+    mouseMovedFunc.invoke(e);
+  }
 
   @Override
   public void mousePressed() {
-    if (mousePressedMeth == null) {
-      super.mousePressed();
-    } else {
-      wrapMouseVariables();
-      mousePressedMeth.__call__();
-    }
+    wrapMouseVariables();
+    mousePressedFunc.invoke();
+  }
+
+  @Override
+  public void mousePressed(final MouseEvent e) {
+    wrapMouseVariables();
+    mousePressedFunc.invoke(e);
   }
 
   @Override
   public void mouseReleased() {
-    if (mouseReleasedMeth == null) {
-      super.mouseReleased();
-    } else {
-      wrapMouseVariables();
-      mouseReleasedMeth.__call__();
-    }
+    wrapMouseVariables();
+    mouseReleasedFunc.invoke();
   }
 
   @Override
+  public void mouseReleased(final MouseEvent e) {
+    wrapMouseVariables();
+    mouseReleasedFunc.invoke(e);
+  }
+
+
+  @Override
   public void mouseDragged() {
-    if (mouseDraggedMeth == null) {
-      super.mouseDragged();
-    } else {
-      wrapMouseVariables();
-      mouseDraggedMeth.__call__();
-    }
+    wrapMouseVariables();
+    mouseDraggedFunc.invoke();
+  }
+
+  @Override
+  public void mouseDragged(final MouseEvent e) {
+    wrapMouseVariables();
+    mouseDraggedFunc.invoke(e);
   }
 
   @Override
   public void keyPressed() {
-    if (keyPressedMeth == null) {
-      super.keyPressed();
-    } else {
-      wrapKeyVariables();
-      keyPressedMeth.__call__();
-    }
+    wrapKeyVariables();
+    keyPressedFunc.invoke();
+  }
+
+  @Override
+  public void keyPressed(final KeyEvent e) {
+    wrapKeyVariables();
+    keyPressedFunc.invoke(e);
   }
 
   @Override
   public void keyReleased() {
-    if (keyReleasedMeth == null) {
-      super.keyReleased();
-    } else {
-      wrapKeyVariables();
-      keyReleasedMeth.__call__();
-    }
+    wrapKeyVariables();
+    keyReleasedFunc.invoke();
   }
 
   @Override
+  public void keyReleased(final KeyEvent e) {
+    wrapKeyVariables();
+    keyReleasedFunc.invoke(e);
+  }
+
+
+  @Override
   public void keyTyped() {
-    if (keyTypedMeth == null) {
-      super.keyTyped();
-    } else {
-      wrapKeyVariables();
-      keyTypedMeth.__call__();
-    }
+    wrapKeyVariables();
+    keyTypedFunc.invoke();
+  }
+
+  @Override
+  public void keyTyped(final KeyEvent e) {
+    wrapKeyVariables();
+    keyTypedFunc.invoke(e);
   }
 
   @Override
@@ -963,17 +1061,5 @@ public class PAppletJythonDriver extends PApplet {
     if (movieEventMeth != null) {
       movieEventMeth.__call__(Py.java2py(movie));
     }
-  }
-
-  // These two functions are a workaround for a Jython bug that prevents the print statement
-  // from using the stdout and stderr set on the interpreter. See core.py.
-  public void printout(final Object o) {
-    System.out.print(String.valueOf(o));
-    System.out.flush();
-  }
-
-  public void printerr(final Object o) {
-    System.err.print(String.valueOf(o));
-    System.err.flush();
   }
 }

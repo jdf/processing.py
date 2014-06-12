@@ -2,39 +2,56 @@ package test.jycessing;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import jycessing.Printer;
 import jycessing.Runner;
 import jycessing.Runner.LibraryPolicy;
+import jycessing.StreamPrinter;
 import jycessing.mode.RunMode;
 import jycessing.mode.run.SketchInfo;
 
+import org.junit.Test;
+
 public class JycessingTests {
-  private static String run(final String testResource) throws Exception {
-    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    final PrintStream saved = System.out;
-    try {
-      System.err.println("Running " + testResource + " test.");
-      final Path source = Paths.get("testing/resources/test_" + testResource + ".py");
-      final String sourceText = new String(Files.readAllBytes(source), "utf-8");
-      final SketchInfo info =
-          new SketchInfo.Builder().sketchName("test " + testResource)
-              .libraryPolicy(LibraryPolicy.SELECTIVE).code(sourceText).sketch(source.toFile())
-              .runMode(RunMode.UNIT_TEST).build();
-      System.setOut(new PrintStream(baos, true));
-      Runner.runSketchBlocking(info);
-      return new String(baos.toByteArray()).replaceAll("\r\n", "\n").replaceAll("\r", "\n");
-    } finally {
-      System.setOut(saved);
+  private static class CapturingPrinter implements Printer {
+    private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    private final PrintStream out = new PrintStream(baos, true);
+
+    @Override
+    public void print(final Object o) {
+      out.print(String.valueOf(o));
     }
+
+    public String getText() {
+      try {
+        return new String(baos.toByteArray(), "utf-8").replaceAll("\r\n", "\n").replaceAll("\r",
+            "\n");
+      } catch (final UnsupportedEncodingException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+
+  private static String run(final String testResource) throws Exception {
+    System.err.println("Running " + testResource + " test.");
+    final Path source = Paths.get("testing/resources/test_" + testResource + ".py");
+    final String sourceText = new String(Files.readAllBytes(source), "utf-8");
+    final SketchInfo info =
+        new SketchInfo.Builder().sketchName("test " + testResource)
+            .libraryPolicy(LibraryPolicy.SELECTIVE).code(sourceText)
+            .mainSketchFile(source.toFile()).runMode(RunMode.UNIT_TEST).build();
+    final CapturingPrinter out = new CapturingPrinter();
+    Runner.runSketchBlocking(info, out, new StreamPrinter(System.err));
+    return out.getText();
   }
 
   private static void testImport(final String module) throws Exception {
@@ -44,21 +61,14 @@ public class JycessingTests {
       final String testText = "import " + module + "\nprint 'OK'\nexit()";
       Files.copy(new ByteArrayInputStream(testText.getBytes("utf-8")), src,
           StandardCopyOption.REPLACE_EXISTING);
-      final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      final PrintStream saved = System.out;
-      try {
-        System.setOut(new PrintStream(baos, true));
-        System.err.println("Running import " + module + " test.");
-        final SketchInfo info =
-            new SketchInfo.Builder().sketchName("test import " + module)
-                .libraryPolicy(LibraryPolicy.SELECTIVE).code(testText).sketch(src.toFile())
-                .runMode(RunMode.UNIT_TEST).build();
-        Runner.runSketchBlocking(info);
-        assertEquals("OK\n",
-            new String(baos.toByteArray()).replaceAll("\r\n", "\n").replaceAll("\r", "\n"));
-      } finally {
-        System.setOut(saved);
-      }
+      final CapturingPrinter out = new CapturingPrinter();
+      System.err.println("Running import " + module + " test.");
+      final SketchInfo info =
+          new SketchInfo.Builder().sketchName("test import " + module)
+              .libraryPolicy(LibraryPolicy.SELECTIVE).code(testText).mainSketchFile(src.toFile())
+              .runMode(RunMode.UNIT_TEST).build();
+      Runner.runSketchBlocking(info, out, new StreamPrinter(System.err));
+      assertEquals("OK\n", out.getText());
     } finally {
       Files.delete(src);
       Files.delete(tmp);

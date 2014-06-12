@@ -1,5 +1,7 @@
 package jycessing.mode;
 
+import java.awt.Point;
+
 import jycessing.mode.run.SketchInfo;
 import processing.core.PApplet;
 
@@ -11,10 +13,16 @@ public enum RunMode {
     }
   },
   WINDOWED {
+    private String locArg(final String arg, final Point p) {
+      return String.format("%s=%d,%d", arg, p.x, p.y);
+    }
+
     @Override
     public String[] args(final SketchInfo info) {
-      return new String[] {String.format("--editor-location=%d,%d", info.x, info.y),
-          info.sketchName, pathArg(info)};
+      final String locArg =
+          info.sketchLoc == null ? locArg(PApplet.ARGS_EDITOR_LOCATION, info.editorLoc) : locArg(
+              PApplet.ARGS_LOCATION, info.sketchLoc);
+      return new String[] {locArg, info.sketchName, pathArg(info)};
     }
   },
   PRESENTATION {
@@ -26,7 +34,7 @@ public enum RunMode {
   abstract public String[] args(SketchInfo info);
 
   private static String pathArg(final SketchInfo info) {
-    return PApplet.ARGS_SKETCH_FOLDER + "=" + info.sketch.getParent();
+    return PApplet.ARGS_SKETCH_FOLDER + "=" + info.mainSketchFile.getParent();
   }
 
 }

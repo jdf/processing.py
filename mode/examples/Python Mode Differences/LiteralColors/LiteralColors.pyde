@@ -23,11 +23,10 @@ fill(lerpColor(c1, c2, .5))
 rect(150, 150, 100, 100)
 
 fill(255)
-pushMatrix()
-translate(160, 234)
-rotate(-PI / 4)
-text("I am\ntranslucent purple", 0, 0)
-popMatrix()
+with pushMatrix():
+    translate(160, 234)
+    rotate(-PI / 4)
+    text("I am\ntranslucent purple", 0, 0)
 
 # You can use hex constants, but must explicitly
 # specify the alpha in the high order bits.

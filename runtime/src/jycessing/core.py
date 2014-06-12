@@ -245,6 +245,7 @@ __builtin__.arc = __papplet__.arc
 __builtin__.background = __papplet__.background
 __builtin__.beginCamera = __papplet__.beginCamera
 __builtin__.beginContour = __papplet__.beginContour
+__builtin__.beginPGL = __papplet__.beginPGL
 __builtin__.beginRaw = __papplet__.beginRaw
 __builtin__.beginRecord = __papplet__.beginRecord
 __builtin__.beginShape = __papplet__.beginShape
@@ -283,6 +284,7 @@ __builtin__.ellipseMode = __papplet__.ellipseMode
 __builtin__.emissive = __papplet__.emissive
 __builtin__.endCamera = __papplet__.endCamera
 __builtin__.endContour = __papplet__.endContour
+__builtin__.endPGL = __papplet__.endPGL
 __builtin__.endRaw = __papplet__.endRaw
 __builtin__.endRecord = __papplet__.endRecord
 __builtin__.endShape = __papplet__.endShape
@@ -407,6 +409,7 @@ __builtin__.textSize = __papplet__.textSize
 __builtin__.textWidth = __papplet__.textWidth
 __builtin__.texture = __papplet__.texture
 __builtin__.textureMode = __papplet__.textureMode
+__builtin__.textureWrap = __papplet__.textureWrap
 __builtin__.tint = __papplet__.tint
 __builtin__.translate = __papplet__.translate
 __builtin__.triangle = __papplet__.triangle
@@ -438,7 +441,7 @@ __builtin__.brightness = __papplet__.brightness
 
 # And these are PApplet static methods. Some are commented out to indicate
 # that we prefer or require Jython's implementation.
-__builtin__.abs = PApplet.abs
+#__builtin__.abs = PApplet.abs
 __builtin__.acos = PApplet.acos
 __builtin__.append = PApplet.append
 __builtin__.arrayCopy = PApplet.arrayCopy
@@ -567,54 +570,67 @@ del monkeypatch_method, PAppletJythonDriver
 
 class FakeStdOut():
     def write(self, s):
-        __papplet__.printout(s)
+        __stdout__.print(s)
 sys.stdout = FakeStdOut()
 
 class FakeStdErr():
     def write(self, s):
-        __papplet__.printerr(s)
+        __stderr__.print(s)
 sys.stderr = FakeStdErr()
 
 del FakeStdOut, FakeStdErr
 
-# Make it so that you can either
+# Implement
 #
-#  pushStyle()
-#  drawSomething()
-#  popStyle()
-#  drawOtherThing()
+# with pushFoo():
+#     doSomethingInFooContext()
+# doSomethingOutOfFooContext()
 #
-# or
-#
-#  with pushStyle():
-#      drawSomething();
-#  drawOtherThing()
-#
-# And same with pushMatrix/popMatrix.
+# pushFoo()/popFoo() still works as usual.
 
-class __style_popper__(object):
-    def __init__(self): pass
-    def __enter__(self): pass
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        __papplet__.popStyle()
-        return False
-    
-def __push_style__():
-    __papplet__.pushStyle()
-    return __style_popper__()
-__builtin__.pushStyle = __push_style__
+def makePopper(pushName, popName, exposed_name=None, close_args=None):
+    if not close_args:
+        close_args = []
+    if not exposed_name:
+        exposed_name = pushName
 
-class __matrix_popper__(object):
-    def __init__(self): pass
-    def __enter__(self): pass
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        __papplet__.popMatrix()
-        return False
+    bound_push = getattr(__papplet__, pushName)
+    bound_pop = getattr(__papplet__, popName)
     
-def __push_matrix__():
-    __papplet__.pushMatrix()
-    return __matrix_popper__()
-__builtin__.pushMatrix = __push_matrix__
+    class Popper(object):
+        def __init__(self, delegate):
+            self.delegate = delegate
+            
+        def __enter__(self):
+            # The result of pushFoo/beginFoo is made available to
+            # the "as" clause of the "with" statement.
+            return self.delegate
+        
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            bound_pop(*close_args)
+            return False
+
+        # If you say
+        #    foo = beginPGL()
+        # foo now is a Popper object, but the user will want
+        # PGL methods and properties, so we delegate those
+        # attribute fetches to the actual PGL object.        
+        def __getattr__(self, attr):
+            return getattr(self.delegate, attr)
+
+    def shim(*args):
+        return Popper(bound_push(*args))
+    
+    setattr(__builtin__, exposed_name, shim)
+
+makePopper('pushStyle', 'popStyle')
+makePopper('pushMatrix', 'popMatrix')
+makePopper('beginContour', 'endContour')
+makePopper('beginPGL', 'endPGL')
+makePopper('beginShape', 'endShape')
+makePopper('beginShape', 'endShape',
+           close_args=[CLOSE], exposed_name='beginClosedShape')
+makePopper('beginCamera', 'endCamera')
 
 import os
 os.chdir(__cwd__)

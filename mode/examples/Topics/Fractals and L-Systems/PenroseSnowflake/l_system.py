@@ -32,9 +32,8 @@ class LSystem(object):
             elif step == '-':
                 rotate(-self.theta)
             elif step == '[':
-                pushMatrix()
-            elif step == ']':
-                popMatrix()
+                with pushMatrix():
+                elif step == ']':
 
     def simulate(self, gen):
         while self.getAge() < gen:
