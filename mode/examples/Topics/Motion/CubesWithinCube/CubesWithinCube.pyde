@@ -9,13 +9,13 @@ from cube import Cube
 halfWidth = None
 halfHeight = None
 
-BOUNDS = 300
+Bounds = 300
 # 20 little internal cubes
 cubes = []
 for i in range(20):
     # Cubes are randomly sized
     cubeSize = random(5, 15)
-    cubes.append(Cube(cubeSize, cubeSize, cubeSize, BOUNDS))
+    cubes.append(Cube(cubeSize, cubeSize, cubeSize))
 
 
 def setup():
@@ -39,9 +39,9 @@ def draw():
 
     # Outer transparent cube, just using box() method
     noFill()
-    box(BOUNDS)
+    box(Bounds)
 
     # Move and rotate cubes
     for cube in cubes:
-        cube.update()
+        cube.update(Bounds)
         cube.display()
