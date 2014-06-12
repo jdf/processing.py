@@ -1,5 +1,6 @@
 package jycessing.mode;
 
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
@@ -22,6 +23,7 @@ import javax.swing.JMenuItem;
 import jycessing.IOUtil;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.run.SketchInfo;
+import jycessing.mode.run.SketchInfo.Builder;
 import jycessing.mode.run.SketchService;
 import jycessing.mode.run.SketchServiceManager;
 import jycessing.mode.run.SketchServiceProcess;
@@ -274,14 +276,20 @@ public class PyEditor extends Editor {
       for (int i = 0; i < codeFileNames.length; i++) {
         codeFileNames[i] = sketch.getCode(i).getFile().getName();
       }
-      final SketchInfo info =
+      final Builder infoBuilder =
           new SketchInfo.Builder().sketchName(sketch.getName()).runMode(mode)
               .addLibraryDir(Base.getContentFile("modes/java/libraries"))
               .addLibraryDir(Base.getSketchbookLibrariesFolder())
               .mainSketchFile(new File(sketchPath).getAbsoluteFile())
-              .code(sketch.getCode(0).getProgram()).codeFileNames(codeFileNames).x(getX())
-              .y(getY()).libraryPolicy(LibraryPolicy.SELECTIVE).build();
-      sketchService.runSketch(info);
+              .code(sketch.getCode(0).getProgram()).codeFileNames(codeFileNames)
+              .libraryPolicy(LibraryPolicy.SELECTIVE);
+
+      if (getSketchLocation() != null) {
+        infoBuilder.sketchLoc(getSketchLocation());
+      } else if (getLocation() != null) {
+        infoBuilder.editorLoc(new Point(getLocation()));
+      }
+      sketchService.runSketch(infoBuilder.build());
     } catch (final SketchException e) {
       statusError(e);
     }

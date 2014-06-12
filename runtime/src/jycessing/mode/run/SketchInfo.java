@@ -1,5 +1,6 @@
 package jycessing.mode.run;
 
+import java.awt.Point;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,21 +20,21 @@ public class SketchInfo implements Serializable {
   public final String sketchName;
   public final String code;
   public final String[] codeFileNames;
-  public final int x;
-  public final int y;
+  public final Point editorLoc;
+  public final Point sketchLoc;
   public final LibraryPolicy libraryPolicy;
 
   private SketchInfo(final String sketchName, final RunMode runMode, final List<File> libDirs,
-      final File mainSketchFile, final String code, final String[] codeFileNames, final int x,
-      final int y, final LibraryPolicy libraryPolicy) {
+      final File mainSketchFile, final String code, final String[] codeFileNames,
+      final Point editorLoc, final Point sketchLoc, final LibraryPolicy libraryPolicy) {
     this.sketchName = sketchName;
     this.runMode = runMode;
     this.libraryDirs = Collections.unmodifiableList(libDirs);
     this.mainSketchFile = mainSketchFile;
     this.code = code;
     this.codeFileNames = codeFileNames;
-    this.x = x;
-    this.y = y;
+    this.editorLoc = editorLoc;
+    this.sketchLoc = sketchLoc;
     this.libraryPolicy = libraryPolicy;
   }
 
@@ -44,13 +45,13 @@ public class SketchInfo implements Serializable {
     private File sketch;
     private String code;
     private String[] codeFileNames;
-    private int x = -1;
-    private int y = -1;
+    private Point editorLoc;
+    private Point sketchLoc;
     private LibraryPolicy libraryPolicy;
 
     public SketchInfo build() {
-      return new SketchInfo(sketchName, runMode, libDirs, sketch, code, codeFileNames, x, y,
-          libraryPolicy);
+      return new SketchInfo(sketchName, runMode, libDirs, sketch, code, codeFileNames, editorLoc,
+          sketchLoc, libraryPolicy);
     }
 
     public Builder sketchName(final String sketchName) {
@@ -83,13 +84,13 @@ public class SketchInfo implements Serializable {
       return this;
     }
 
-    public Builder x(final int x) {
-      this.x = x;
+    public Builder sketchLoc(final Point sketchLoc) {
+      this.sketchLoc = sketchLoc;
       return this;
     }
 
-    public Builder y(final int y) {
-      this.y = y;
+    public Builder editorLoc(final Point editorLoc) {
+      this.editorLoc = editorLoc;
       return this;
     }
 

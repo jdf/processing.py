@@ -15,17 +15,7 @@
  */
 package jycessing;
 
-import org.python.core.Py;
-import org.python.core.PyList;
-import org.python.core.PyObject;
-import org.python.core.PyStringMap;
-import org.python.core.PySystemState;
-import org.python.util.InteractiveConsole;
-import org.python.util.PythonInterpreter;
-
-import processing.core.PApplet;
-import processing.core.PConstants;
-
+import java.awt.Point;
 import java.awt.SplashScreen;
 import java.io.File;
 import java.io.FileFilter;
@@ -49,6 +39,17 @@ import jycessing.annotations.PythonUsage;
 import jycessing.launcher.LaunchHelper;
 import jycessing.mode.RunMode;
 import jycessing.mode.run.SketchInfo;
+
+import org.python.core.Py;
+import org.python.core.PyList;
+import org.python.core.PyObject;
+import org.python.core.PyStringMap;
+import org.python.core.PySystemState;
+import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
+
+import processing.core.PApplet;
+import processing.core.PConstants;
 
 public class Runner {
 
@@ -261,7 +262,7 @@ public class Runner {
     if (splash != null) {
       splash.close();
     }
-    runSketchBlocking(info);
+    runSketchBlocking(info, new StreamPrinter(System.out), new StreamPrinter(System.err));
   }
 
   private static final Pattern JAR_RESOURCE = Pattern
@@ -325,14 +326,18 @@ public class Runner {
    */
   public static void warmup() {
     try {
-      runSketchBlocking(new SketchInfo.Builder().code("exit()").runMode(RunMode.WINDOWED)
-          .mainSketchFile(new File("/tmp/warmup.pyde")).sketchName(WARMUP_SKETCH_NAME).build());
+      final SketchInfo info =
+          new SketchInfo.Builder().code("exit()").runMode(RunMode.WINDOWED)
+              .mainSketchFile(new File("/tmp/warmup.pyde")).sketchName(WARMUP_SKETCH_NAME)
+              .sketchLoc(new Point(0, 0)).build();
+      runSketchBlocking(info, new DevNullPrinter(), new DevNullPrinter());
     } catch (final PythonSketchError e) {
       // drop
     }
   }
 
-  public synchronized static void runSketchBlocking(final SketchInfo info) throws PythonSketchError {
+  public synchronized static void runSketchBlocking(final SketchInfo info, final Printer stdout,
+      final Printer stderr) throws PythonSketchError {
     final Properties props = new Properties();
 
     // Suppress sys-package-manager output.
@@ -408,6 +413,8 @@ public class Runner {
       interp.set("__cwd__", info.mainSketchFile.getParentFile().getAbsolutePath());
       interp.set("__source__", info.code);
       interp.set("__python_mode_build__", BUILD_NUMBER);
+      interp.set("__stdout__", stdout);
+      interp.set("__stderr__", stderr);
       interp.exec(CORE_TEXT);
 
       final PAppletJythonDriver applet =

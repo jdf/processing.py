@@ -1,8 +1,8 @@
 package jycessing.mode.run;
 
-import java.io.PrintStream;
 import java.rmi.RemoteException;
 
+import jycessing.Printer;
 import jycessing.PythonSketchError;
 import jycessing.Runner;
 import jycessing.mode.PythonMode;
@@ -79,19 +79,27 @@ public class SketchRunner implements SketchService {
       public void run() {
         try {
           try {
-            final PrintStream syserr = System.err;
-            final PrintStream sysout = System.out;
-            System.setErr(new ForwardingPrintStream(id, modeService, Stream.ERR));
-            try {
-              System.setOut(new ForwardingPrintStream(id, modeService, Stream.OUT));
-              try {
-                Runner.runSketchBlocking(info);
-              } finally {
-                System.setOut(sysout);
+            final Printer stdout = new Printer() {
+              @Override
+              public void print(final Object o) {
+                try {
+                  modeService.printStdOut(id, String.valueOf(o));
+                } catch (final RemoteException e) {
+                  System.err.println(e);
+                }
               }
-            } finally {
-              System.setErr(syserr);
-            }
+            };
+            final Printer stderr = new Printer() {
+              @Override
+              public void print(final Object o) {
+                try {
+                  modeService.printStdErr(id, String.valueOf(o));
+                } catch (final RemoteException e) {
+                  System.err.println(e);
+                }
+              }
+            };
+            Runner.runSketchBlocking(info, stdout, stderr);
           } catch (final PythonSketchError e) {
             log("Sketch runner caught " + e);
             modeService.handleSketchException(id, convertPythonSketchError(e, info.codeFileNames));

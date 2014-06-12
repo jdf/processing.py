@@ -8,7 +8,6 @@ import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
@@ -217,26 +216,12 @@ public class SketchServiceProcess {
     }
   }
 
-  private static final Pattern IGNORE = Pattern.compile("^__MOVE__\\s+(.*)$");
-
-  public void print(final Stream stream, final String s) {
-    if (stream == Stream.ERR) {
-      editor.printErr(s);
-    } else {
-      editor.printOut(s);
-    }
+  public void printStdOut(final String s) {
+    editor.printOut(s);
   }
 
-  public void println(final Stream stream, final String s) {
-    if (stream == Stream.ERR && IGNORE.matcher(s).matches()) {
-      // TODO(feinberg): Handle MOVE commands.
-      return;
-    }
-    if (stream == Stream.ERR) {
-      editor.printErr(s + "\n");
-    } else {
-      editor.printOut(s + "\n");
-    }
+  public void printStdErr(final String s) {
+    editor.printErr(s);
   }
 
   public void handleSketchException(final Exception e) {

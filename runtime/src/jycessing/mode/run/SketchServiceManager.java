@@ -105,12 +105,12 @@ public class SketchServiceManager implements ModeService {
   }
 
   @Override
-  public void print(final String editorId, final Stream stream, final String s) {
-    processFor(editorId).print(stream, s);
+  public void printStdErr(final String editorId, final String s) {
+    processFor(editorId).printStdErr(s);
   }
 
   @Override
-  public void println(final String editorId, final Stream stream, final String s) {
-    processFor(editorId).println(stream, s);
+  public void printStdOut(final String editorId, final String s) {
+    processFor(editorId).printStdOut(s);
   }
 }

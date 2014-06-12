@@ -570,12 +570,12 @@ del monkeypatch_method, PAppletJythonDriver
 
 class FakeStdOut():
     def write(self, s):
-        __papplet__.printout(s)
+        __stdout__.print(s)
 sys.stdout = FakeStdOut()
 
 class FakeStdErr():
     def write(self, s):
-        __papplet__.printerr(s)
+        __stderr__.print(s)
 sys.stderr = FakeStdErr()
 
 del FakeStdOut, FakeStdErr
@@ -602,12 +602,19 @@ def makePopper(pushName, popName, exposed_name=None, close_args=None):
             self.delegate = delegate
             
         def __enter__(self):
+            # The result of pushFoo/beginFoo is made available to
+            # the "as" clause of the "with" statement.
             return self.delegate
         
         def __exit__(self, exc_type, exc_val, exc_tb):
             bound_pop(*close_args)
             return False
-        
+
+        # If you say
+        #    foo = beginPGL()
+        # foo now is a Popper object, but the user will want
+        # PGL methods and properties, so we delegate those
+        # attribute fetches to the actual PGL object.        
         def __getattr__(self, attr):
             return getattr(self.delegate, attr)
 
