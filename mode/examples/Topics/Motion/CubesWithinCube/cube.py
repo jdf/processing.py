@@ -9,11 +9,10 @@ class Cube(object):
     QuadBG.append(color(0, 0, 255))
     QuadBG.append(color(127, 0, 255))
 
-    def __init__(self, width, height, depth, bounds=300):
+    def __init__(self, width, height, depth):
         self.width = width
         self.height = height
         self.depth = depth
-        self.BOUNDS = bounds
         # Position, velocity vectors
         # Start in center
         self.position = PVector()
@@ -70,24 +69,23 @@ class Cube(object):
             endShape()
 
     # Update location
-    def update(self):
+    def update(self, bounds):
         self.position.add(self.velocity)
 
         # Check wall collisions
-        if self.position.x > self.BOUNDS / 2 or self.position.x < -self.BOUNDS / 2:
+        if self.position.x > bounds / 2 or self.position.x < -bounds / 2:
             self.velocity.x *= -1
-        if self.position.y > self.BOUNDS / 2 or self.position.y < -self.BOUNDS / 2:
+        if self.position.y > bounds / 2 or self.position.y < -bounds / 2:
             self.velocity.y *= -1
-        if self.position.z > self.BOUNDS / 2 or self.position.z < -self.BOUNDS / 2:
+        if self.position.z > bounds / 2 or self.position.z < -bounds / 2:
             self.velocity.z *= -1
 
     # Display method
     def display(self):
-        pushMatrix()
-        translate(self.position.x, self.position.y, self.position.z)
-        rotateX(frameCount * PI / self.rotation.x)
-        rotateY(frameCount * PI / self.rotation.y)
-        rotateZ(frameCount * PI / self.rotation.z)
-        noStroke()
-        self.drawCube()  # Farm out shape to another method
-        popMatrix()
+        with pushMatrix():
+            translate(self.position.x, self.position.y, self.position.z)
+            rotateX(frameCount * PI / self.rotation.x)
+            rotateY(frameCount * PI / self.rotation.y)
+            rotateZ(frameCount * PI / self.rotation.z)
+            noStroke()
+            self.drawCube()  # Farm out shape to another method
