@@ -598,17 +598,21 @@ def makePopper(pushName, popName, exposed_name=None, close_args=None):
     bound_pop = getattr(__papplet__, popName)
     
     class Popper(object):
-        def __init__(self): pass
+        def __init__(self, delegate):
+            self.delegate = delegate
             
-        def __enter__(self): pass
+        def __enter__(self):
+            return self.delegate
         
         def __exit__(self, exc_type, exc_val, exc_tb):
             bound_pop(*close_args)
             return False
         
+        def __getattr__(self, attr):
+            return getattr(self.delegate, attr)
+
     def shim(*args):
-        bound_push(*args)
-        return Popper()
+        return Popper(bound_push(*args))
     
     setattr(__builtin__, exposed_name, shim)
 
