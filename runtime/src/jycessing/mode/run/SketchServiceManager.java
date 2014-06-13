@@ -1,5 +1,6 @@
 package jycessing.mode.run;
 
+import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -102,6 +103,11 @@ public class SketchServiceManager implements ModeService {
   @Override
   public void handleSketchStopped(final String editorId) {
     processFor(editorId).handleSketchStopped();
+  }
+
+  @Override
+  public void handleSketchMoved(final String editorId, final Point leftTop) {
+    processFor(editorId).handleSketchMoved(leftTop);
   }
 
   @Override

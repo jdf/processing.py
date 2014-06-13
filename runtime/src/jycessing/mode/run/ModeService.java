@@ -1,10 +1,13 @@
 package jycessing.mode.run;
 
+import java.awt.Point;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface ModeService extends Remote {
   void handleReady(String editorId, final SketchService service) throws RemoteException;
+
+  void handleSketchMoved(String editorId, final Point leftTop) throws RemoteException;
 
   void handleSketchStopped(String editorId) throws RemoteException;
 

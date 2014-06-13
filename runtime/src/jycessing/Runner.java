@@ -338,6 +338,12 @@ public class Runner {
 
   public synchronized static void runSketchBlocking(final SketchInfo info, final Printer stdout,
       final Printer stderr) throws PythonSketchError {
+    runSketchBlocking(info, stdout, stderr, null);
+  }
+
+  public synchronized static void runSketchBlocking(final SketchInfo info, final Printer stdout,
+      final Printer stderr, final SketchPositionListener sketchPositionListener)
+      throws PythonSketchError {
     final Properties props = new Properties();
 
     // Suppress sys-package-manager output.
@@ -419,6 +425,8 @@ public class Runner {
 
       final PAppletJythonDriver applet =
           (PAppletJythonDriver)interp.get("__papplet__").__tojava__(PAppletJythonDriver.class);
+
+      applet.setSketchPositionListener(sketchPositionListener);
 
       applet.findSketchMethods();
 

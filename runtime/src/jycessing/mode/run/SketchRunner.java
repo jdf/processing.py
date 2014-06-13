@@ -1,10 +1,12 @@
 package jycessing.mode.run;
 
+import java.awt.Point;
 import java.rmi.RemoteException;
 
 import jycessing.Printer;
 import jycessing.PythonSketchError;
 import jycessing.Runner;
+import jycessing.SketchPositionListener;
 import jycessing.mode.PythonMode;
 import jycessing.mode.run.RMIUtils.RMIProblem;
 import processing.app.SketchException;
@@ -99,7 +101,17 @@ public class SketchRunner implements SketchService {
                 }
               }
             };
-            Runner.runSketchBlocking(info, stdout, stderr);
+            final SketchPositionListener sketchPositionListener = new SketchPositionListener() {
+              @Override
+              public void sketchMoved(final Point leftTop) {
+                try {
+                  modeService.handleSketchMoved(id, leftTop);
+                } catch (final RemoteException e) {
+                  System.err.println(e);
+                }
+              }
+            };
+            Runner.runSketchBlocking(info, stdout, stderr, sketchPositionListener);
           } catch (final PythonSketchError e) {
             log("Sketch runner caught " + e);
             modeService.handleSketchException(id, convertPythonSketchError(e, info.codeFileNames));
