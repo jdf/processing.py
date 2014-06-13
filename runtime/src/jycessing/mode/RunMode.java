@@ -22,13 +22,14 @@ public enum RunMode {
       final String locArg =
           info.sketchLoc == null ? locArg(PApplet.ARGS_EDITOR_LOCATION, info.editorLoc) : locArg(
               PApplet.ARGS_LOCATION, info.sketchLoc);
-      return new String[] {locArg, info.sketchName, pathArg(info)};
+      return new String[] {PApplet.ARGS_EXTERNAL, locArg, info.sketchName, pathArg(info)};
     }
   },
   PRESENTATION {
     @Override
     public String[] args(final SketchInfo info) {
-      return new String[] {"--present", "--external", info.sketchName, pathArg(info)};
+      return new String[] {PApplet.ARGS_FULL_SCREEN, PApplet.ARGS_EXTERNAL, info.sketchName,
+          pathArg(info)};
     }
   };
   abstract public String[] args(SketchInfo info);

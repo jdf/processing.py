@@ -1,5 +1,6 @@
 package jycessing.mode.run;
 
+import java.awt.Point;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -226,6 +227,10 @@ public class SketchServiceProcess {
 
   public void handleSketchException(final Exception e) {
     editor.statusError(e);
+  }
+
+  public void handleSketchMoved(final Point leftTop) {
+    editor.setSketchLocation(leftTop);
   }
 
 }

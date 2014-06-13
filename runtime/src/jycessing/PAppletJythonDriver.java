@@ -15,8 +15,8 @@
  */
 package jycessing;
 
+import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.swing.SwingUtilities;
 
 import org.python.antlr.ast.Global;
 import org.python.core.CompileMode;
@@ -72,7 +70,7 @@ import processing.opengl.PShader;
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
 
-  private static final String GLOBAL_STATEMENT_TEXT = IOUtil.readResourceAsText(
+  private static final String AUTOGLOBAL_SCRIPT = IOUtil.readResourceAsText(
       PAppletJythonDriver.class, "add_global_statements.py");
 
   static {
@@ -148,12 +146,16 @@ public class PAppletJythonDriver extends PApplet {
   // Implement the Video library's callback.
   private PyObject captureEventMeth, movieEventMeth;
 
+  private SketchPositionListener sketchPositionListener;
+
   private void interpretSketch() throws PythonSketchError {
     try {
+      /*
+       * Run the Python 
+       */
       interp.set("__processing_source__", programText);
       final PyCode code =
-          Py.compile_flags(GLOBAL_STATEMENT_TEXT, pySketchPath, CompileMode.exec,
-              new CompilerFlags());
+          Py.compile_flags(AUTOGLOBAL_SCRIPT, pySketchPath, CompileMode.exec, new CompilerFlags());
       interp.exec(code);
       Py.flushLine();
     } catch (Throwable t) {
@@ -489,6 +491,14 @@ public class PAppletJythonDriver extends PApplet {
         exit();
       }
     });
+    frame.addComponentListener(new ComponentAdapter() {
+      @Override
+      public void componentMoved(final ComponentEvent e) {
+        if (sketchPositionListener != null) {
+          sketchPositionListener.sketchMoved(((Component)e.getSource()).getLocation());
+        }
+      }
+    });
     try {
       finishedLatch.await();
     } catch (final InterruptedException interrupted) {
@@ -500,7 +510,7 @@ public class PAppletJythonDriver extends PApplet {
         // fallthrough
       }
     } finally {
-      ((Window)SwingUtilities.getRoot(this)).dispose();
+      frame.dispose();
     }
     if (terminalException != null) {
       throw terminalException;
@@ -1062,4 +1072,15 @@ public class PAppletJythonDriver extends PApplet {
       movieEventMeth.__call__(Py.java2py(movie));
     }
   }
+
+  public void setSketchPositionListener(final SketchPositionListener sketchPositionListener) {
+    this.sketchPositionListener = sketchPositionListener;
+  }
+
+  /**
+   * Replace PApplet's behavior, since we don't use the __MOVE__ thingy.
+   */
+  @Override
+  public void setupExternalMessages() {}
+
 }
