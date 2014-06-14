@@ -30,6 +30,7 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -218,14 +219,15 @@ public class Runner {
     // The last argument is the path to the Python sketch
     String sketchPath = args[args.length - 1];
 
+    final List<String> argsList = Arrays.asList(args);
+
     // In case the sketch path points to "internal" we get it from the wrapper
-    if (Arrays.asList(args).contains("--internal")) {
+    if (argsList.contains("--internal")) {
       sketchPath = new File(getRuntimeRoot(), "Runtime/sketch.py").getAbsolutePath();
     }
 
     // Debug when using launcher
-    if (Arrays.asList(args).contains("--redirect")) {
-
+    if (argsList.contains("--redirect")) {
       // Get sketch path, name, out and err names
       final File file = new File(sketchPath).getCanonicalFile();
       final String name = file.getName().replaceAll("\\.py", "");
@@ -250,18 +252,21 @@ public class Runner {
     // or not readable.
     final String sketchSource = IOUtil.readText(new File(sketchPath).toPath());
 
-    final SketchInfo info =
-        new SketchInfo.Builder()
-            .addLibraryDir(getLibraries())
-            .libraryPolicy(LibraryPolicy.PROMISCUOUS)
-            .runMode(
-                Arrays.asList(args).contains("--present") ? RunMode.PRESENTATION : RunMode.WINDOWED)
-            .mainSketchFile(new File(sketchPath)).code(sketchSource).build();
+    @SuppressWarnings("deprecation")
+    final boolean isPresentation =
+        argsList.contains(PApplet.ARGS_PRESENT) || argsList.contains(PApplet.ARGS_FULL_SCREEN);
+
     // Hide the splash, if possible
     final SplashScreen splash = SplashScreen.getSplashScreen();
     if (splash != null) {
       splash.close();
     }
+
+    final SketchInfo info =
+        new SketchInfo.Builder().addLibraryDir(getLibraries())
+            .libraryPolicy(LibraryPolicy.PROMISCUOUS)
+            .runMode(isPresentation ? RunMode.PRESENTATION : RunMode.WINDOWED)
+            .mainSketchFile(new File(sketchPath)).code(sketchSource).build();
     runSketchBlocking(info, new StreamPrinter(System.out), new StreamPrinter(System.err));
   }
 

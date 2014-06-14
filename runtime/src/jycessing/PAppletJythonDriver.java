@@ -32,6 +32,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JFrame;
+
 import org.python.antlr.ast.Global;
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
@@ -479,10 +481,20 @@ public class PAppletJythonDriver extends PApplet {
 
   public void runAndBlock(final String[] args) throws PythonSketchError {
     PApplet.runSketch(args, this);
+    // Thank you, rogerdpack.
+    // http://stackoverflow.com/a/596141
+    // This brings the sketch window to front!
     EventQueue.invokeLater(new Runnable() {
       @Override
       public void run() {
+        frame.setVisible(true);
+        int state = frame.getExtendedState();
+        state &= ~JFrame.ICONIFIED;
+        frame.setExtendedState(state);
+        frame.setAlwaysOnTop(true);
         frame.toFront();
+        frame.requestFocus();
+        frame.setAlwaysOnTop(false);
       }
     });
     frame.addWindowListener(new WindowAdapter() {
