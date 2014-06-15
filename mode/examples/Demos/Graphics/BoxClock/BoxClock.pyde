@@ -8,8 +8,8 @@
 add_library('peasycam')
 
 # Creating a **filled** wireframe cube is non-obvious.
-# We need am opaque black cube...
-fillCube = PShape()
+# We need an opaque black cube...
+fillCube = None
 # ...and a transparent colored wireframe.
 edgeCube = PShape()
 cam = None
