@@ -106,14 +106,8 @@ def addForce(x, y, dx, dy):
     # Balance the x and y components of speed with the screen aspect ratio.
     speed = dx**2 + (dy**2 * aspectRatio)
     if speed > 0:
-        if x < 0:
-            x = 0
-        elif x > 1:
-            x = 1
-        if y < 0:
-            y = 0
-        elif y > 1:
-            y = 1
+        x = constrain(x, 0, 1)
+        y = constrain(y, 0, 1)
         colorMult = 5
         velocityMult = 30.0
         index = fluidSolver.getIndexForNormalizedPosition(x, y)

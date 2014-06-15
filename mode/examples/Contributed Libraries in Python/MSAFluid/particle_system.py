@@ -79,5 +79,5 @@ class ParticleSystem(object):
             self.curIndex = 0
 
     def addParticles(self, x, y, count):
-        for i in range(count):
+        for _ in range(count):
             self.addParticle(x + random(-15, 15), y + random(-15, 15))
