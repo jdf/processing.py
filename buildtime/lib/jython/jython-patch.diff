@@ -1,0 +1,167 @@
+# HG changeset patch
+# User Jonathan Feinberg <jdf@pobox.com>
+# Date 1402887093 14400
+# Node ID 7922557f229ea15d7d7601d9de0987d1a6cd45bc
+# Parent  ea302f9e4c3a3fff5782711e7c40d24a1b4308bb
+Processing compatibility patch.
+
+diff --git a/build.xml b/build.xml
+--- a/build.xml
++++ b/build.xml
+@@ -423,7 +423,8 @@
+     </target>
+ 
+     <target name="template-init" depends="prepare">
+-        <javac srcdir="${source.dir}/"
++        <javac includeantruntime="true"
++                srcdir="${source.dir}/"
+                 destdir="${compile.dir}"
+                 target="${jdk.target.version}"
+                 source="${jdk.source.version}"
+@@ -475,7 +476,8 @@
+                deprecation="${deprecation}"
+                nowarn="${nowarn}"
+                memoryMaximumSize="192m"
+-               fork="true">
++               fork="true"
++               includeantruntime="true">
+             <compilerarg line="${javac.Xlint}"/>
+             <src path="${source.dir}"/>
+             <src path="${gensrc.dir}"/>
+@@ -491,7 +493,8 @@
+                source="${jdk.source.version}"
+                debug="${debug}"
+                deprecation="${deprecation}"
+-               nowarn="${nowarn}">
++               nowarn="${nowarn}"
++               includeantruntime="true">
+             <compilerarg line="${javac.Xlint}"/>
+         </javac>
+ 
+@@ -503,7 +506,8 @@
+                debug="${debug}"
+                deprecation="${deprecation}"
+                nowarn="${nowarn}"
+-               encoding="UTF-8">
++               encoding="UTF-8"
++               includeantruntime="false">
+             <compilerarg line="${javac.Xlint}"/>
+             <classpath refid="test.classpath" />
+         </javac>
+@@ -513,7 +517,8 @@
+             source="${jdk.source.version}"
+             debug="${debug}"
+             deprecation="${deprecation}"
+-            nowarn="${nowarn}"> 
++            nowarn="${nowarn}"
++            includeantruntime="false"> 
+             <compilerarg line="${javac.Xlint}"/>
+             <classpath refid="test.classpath" />
+         </javac>
+@@ -852,7 +857,8 @@
+     <target name="installer" depends="brand-readme-version, installer-init, jar-standalone, javadoc, copy-full">
+         <property name="installer.src.dir" value="${jython.base.dir}/installer/src/java" />
+         <echo>compiling installer from ${installer.src.dir}</echo>
+-        <javac srcdir="${installer.src.dir}"
++        <javac includeantruntime="true"
++               srcdir="${installer.src.dir}"
+                includes="org/**"
+                destdir="${compile.dir}"
+                target="${jdk.target.version}"
+diff --git a/src/org/python/core/PyArray.java b/src/org/python/core/PyArray.java
+--- a/src/org/python/core/PyArray.java
++++ b/src/org/python/core/PyArray.java
+@@ -1240,6 +1240,9 @@
+         if ("u".equals(typecode)) {
+             return new PyUnicode(Array.getInt(data, i));
+         }
++        if (type == Integer.TYPE) {
++            return Py.newInteger(((int[])data)[i]);
++        }
+         return Py.java2py(Array.get(data, i));
+     }
+ 
+@@ -1623,17 +1626,12 @@
+                 throw Py.OverflowError("value too large for " + type.getName());
+             }
+         } else if (type == Integer.TYPE) {
+-            long val;
+             try {
+-                val = ((Long)value.__tojava__(Long.TYPE)).longValue();
++                Array.setInt(data, i, value.asInt());
++                return;
+             } catch (ClassCastException e) {
+                 throw Py.TypeError("Type not compatible with array type");
+             }
+-            if (val < (isSigned() ? 0 : Integer.MIN_VALUE)) {
+-                throw Py.OverflowError("value too small for " + type.getName());
+-            } else if (val > Integer.MAX_VALUE) {
+-                throw Py.OverflowError("value too large for " + type.getName());
+-            }
+         } else if (type == Long.TYPE) {
+             if (isSigned() && value instanceof PyInteger) {
+                 if (((PyInteger)value).getValue() < 0) {
+diff --git a/src/org/python/core/PyInteger.java b/src/org/python/core/PyInteger.java
+--- a/src/org/python/core/PyInteger.java
++++ b/src/org/python/core/PyInteger.java
+@@ -283,13 +283,16 @@
+     }
+ 
+     private static final boolean canCoerce(PyObject other) {
+-        return other instanceof PyInteger;
++        return other instanceof PyInteger || other instanceof PyLong;
+     }
+ 
+     private static final int coerce(PyObject other) {
+         if (other instanceof PyInteger) {
+             return ((PyInteger)other).getValue();
+         }
++        if (other instanceof PyLong) {
++            return other.asInt();
++        }
+         throw Py.TypeError("xxx");
+     }
+ 
+diff --git a/src/org/python/core/PyLong.java b/src/org/python/core/PyLong.java
+--- a/src/org/python/core/PyLong.java
++++ b/src/org/python/core/PyLong.java
+@@ -276,14 +276,17 @@
+ 
+     @Override
+     public int asInt(int index) {
+-        return (int)getLong(Integer.MIN_VALUE, Integer.MAX_VALUE,
+-                "long int too large to convert to int");
++        return asInt();
+     }
+ 
++    /**
++     * This is different from Jython, in that it silently throws away bits
++     * downcasts to int, rather than throwing an exception if there are too
++     * many bits to convert to an  int losslessly.
++     */
+     @Override
+     public int asInt() {
+-        return (int)getLong(Integer.MIN_VALUE, Integer.MAX_VALUE,
+-                "long int too large to convert to int");
++        return value.intValue();
+     }
+ 
+     @Override
+@@ -301,7 +304,7 @@
+                 return new Short((short)getLong(Short.MIN_VALUE, Short.MAX_VALUE));
+             }
+             if (c == Integer.TYPE || c == Integer.class) {
+-                return new Integer((int)getLong(Integer.MIN_VALUE, Integer.MAX_VALUE));
++                return new Integer(asInt());
+             }
+             if (c == Long.TYPE || c == Long.class) {
+                 return new Long(getLong(Long.MIN_VALUE, Long.MAX_VALUE));
+@@ -364,7 +367,7 @@
+         if (other instanceof PyLong) {
+             return ((PyLong)other).getValue();
+         } else if (other instanceof PyInteger) {
+-            return BigInteger.valueOf(((PyInteger)other).getValue());
++            return BigInteger.valueOf(((PyInteger) other).getValue() & 0xFFFFFFFFL);
+         } else {
+             throw Py.TypeError("xxx");
+         }
