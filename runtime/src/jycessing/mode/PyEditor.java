@@ -1,12 +1,16 @@
 package jycessing.mode;
 
+import java.awt.Component;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryIteratorException;
@@ -17,8 +21,15 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import jycessing.IOUtil;
 import jycessing.Runner.LibraryPolicy;
@@ -224,7 +235,42 @@ public class PyEditor extends Editor {
    * TODO(James Gilles): Create this!
    */
   public void handleExportApplication() {
-    Base.showMessage("Sorry", "You can't do that yet.");
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    panel.add(Box.createVerticalStrut(6));
+    JLabel filler = new JLabel("THIS PANEL IS A LIE", SwingConstants.CENTER);
+    filler.setAlignmentX(Component.LEFT_ALIGNMENT);
+    panel.add(filler);
+    String[] options = { "Zaboomafoo", "Bears" };
+    final JOptionPane optionPane = new JOptionPane(panel,
+                                                   JOptionPane.PLAIN_MESSAGE,
+                                                   JOptionPane.YES_NO_OPTION,
+                                                   null,
+                                                   options,
+                                                   options[0]);
+    
+    final JDialog dialog = new JDialog(this, "Export Application", true);
+    dialog.setContentPane(optionPane);
+    optionPane.addPropertyChangeListener(new PropertyChangeListener() {
+      public void propertyChange(PropertyChangeEvent e) {
+        String prop = e.getPropertyName();
+
+        if (dialog.isVisible() &&
+            (e.getSource() == optionPane) &&
+            (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+          // If you were going to check something before  
+          // closing the window, you'd do it here.
+          dialog.setVisible(false);
+        }
+      }
+    });
+    dialog.pack();
+    dialog.setResizable(false);
+    Rectangle bounds = getBounds();
+    dialog.setLocation(bounds.x + (bounds.width - dialog.getSize().width) / 2,
+                       bounds.y + (bounds.height - dialog.getSize().height) / 2);
+    dialog.setVisible(true);
+    Object value = optionPane.getValue();
   }
 
   /**
