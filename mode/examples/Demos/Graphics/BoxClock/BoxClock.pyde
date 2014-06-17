@@ -29,7 +29,6 @@ def setup():
 
 
 def draw():
-    # Note that we're rotating the *shape*, not the matrix or camera.
     rotateX(sin(frameCount * 0.008))
     rotateY(cos(frameCount * 0.008))
 
@@ -46,7 +45,6 @@ def drawShape():
     y = map(minute(), 0, 59, 1, 12)
     z = map(hour(), 0, 23, 1, 12)
 
-    # Note that we're scaling the *shape*, not the matrix or camera.
     scale(x, y, z)
     shape(fillCube, 0, 0)
     shape(edgeCube, 0, 0)
