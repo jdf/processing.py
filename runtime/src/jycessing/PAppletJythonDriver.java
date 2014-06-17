@@ -407,6 +407,7 @@ public class PAppletJythonDriver extends PApplet {
     wrapKeyVariables();
     builtins.__setitem__("displayWidth", pyint(displayWidth));
     builtins.__setitem__("displayHeight", pyint(displayHeight));
+    builtins.__setitem__("focused", Py.newBoolean(focused));
     builtins.__setitem__("keyPressed", Py.newBoolean(keyPressed));
     builtins.__setitem__("frameCount", pyint(frameCount));
     builtins.__setitem__("frameRate", new PyFloat(frameRate) {
@@ -495,6 +496,7 @@ public class PAppletJythonDriver extends PApplet {
         frame.toFront();
         frame.requestFocus();
         frame.setAlwaysOnTop(false);
+        requestFocus();
       }
     });
     frame.addWindowListener(new WindowAdapter() {
