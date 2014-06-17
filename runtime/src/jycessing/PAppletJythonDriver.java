@@ -144,6 +144,7 @@ public class PAppletJythonDriver extends PApplet {
   private EventFunction<KeyEvent> keyPressedFunc, keyReleasedFunc, keyTypedFunc;
   private EventFunction<MouseEvent> mousePressedFunc, mouseClickedFunc, mouseMovedFunc,
       mouseReleasedFunc, mouseDraggedFunc;
+  private PyObject mouseWheelMeth; // Can only be called with a MouseEvent; no need for shenanigans
 
   // Implement the Video library's callback.
   private PyObject captureEventMeth, movieEventMeth;
@@ -353,6 +354,7 @@ public class PAppletJythonDriver extends PApplet {
     pauseMeth = interp.get("pause");
     resumeMeth = interp.get("resume");
     destroyMeth = interp.get("destroy");
+    mouseWheelMeth = interp.get("mouseWheel");
     if (mousePressedFunc.func != null) {
       // The user defined a mousePressed() method, which will hide the magical
       // Processing variable boolean mousePressed. We have to do some magic.
@@ -957,6 +959,14 @@ public class PAppletJythonDriver extends PApplet {
   public void mouseDragged(final MouseEvent e) {
     wrapMouseVariables();
     mouseDraggedFunc.invoke(e);
+  }
+  
+  @Override
+  public void mouseWheel(final MouseEvent e){
+    wrapMouseVariables();
+    if (mouseWheelMeth != null){
+      mouseWheelMeth.__call__(Py.java2py(e));
+    }
   }
 
   @Override
