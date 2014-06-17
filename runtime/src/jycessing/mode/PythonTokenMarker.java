@@ -170,6 +170,7 @@ public class PythonTokenMarker extends TokenMarker {
       pyKeywords = new PyKeywordMap();
       pyKeywords.add("__init__", Token.FUNCTION2);
       pyKeywords.add("and", Token.KEYWORD3);
+      pyKeywords.add("as", Token.KEYWORD3);
       pyKeywords.add("assert", Token.KEYWORD1);
       pyKeywords.add("break", Token.KEYWORD1);
       pyKeywords.add("chr", Token.FUNCTION1);
@@ -199,6 +200,7 @@ public class PythonTokenMarker extends TokenMarker {
       pyKeywords.add("return", Token.KEYWORD1);
       pyKeywords.add("self", Token.KEYWORD2);
       pyKeywords.add("try", Token.KEYWORD1);
+      pyKeywords.add("with", Token.KEYWORD3);
       pyKeywords.add("while", Token.KEYWORD3);
     }
     return pyKeywords;
