@@ -490,7 +490,7 @@ __builtin__.nfs = PApplet.nfs
 __builtin__.norm = PApplet.norm
 __builtin__.pow = PApplet.pow
 # __builtin__.print = PApplet.print
-__builtin__.println = PApplet.println
+#__builtin__.println = PApplet.println
 __builtin__.radians = PApplet.radians
 __builtin__.reverse = PApplet.reverse
 # __builtin__.round = PApplet.round
@@ -581,6 +581,12 @@ class FakeStdErr():
 sys.stderr = FakeStdErr()
 
 del FakeStdOut, FakeStdErr
+
+def __println__(o):
+    sys.stdout.write(o)
+    sys.stdout.write('\n')
+__builtin__.println = __println__
+
 
 # Implement
 #
