@@ -5,26 +5,23 @@
     (C) Ben Alkov, 2014, licensed as APL 2.0 as part of processing.py
     (https://github.com/jdf/processing.py).
 '''
-add_library('peasycam')
-
 # Creating a **filled** wireframe cube is non-obvious.
 # We need an opaque black cube...
 fillCube = None
 # ...and a transparent colored wireframe.
 edgeCube = PShape()
-cam = None
 
 
 def setup():
     size(500, 500, P3D)
-    # rotateX(radians(180))
-    # frameRate(60)
     smooth(4)
-    cam = PeasyCam(this, 70)
-    cam.setMinimumDistance(70)
-    cam.setMaximumDistance(200)
+    camera(0, 0, 100,
+           0, 0, 0,
+           0, 1, 0)
+
     # Draw a 2x2x2 opaque box.
     fillCube = createShape(BOX, 2)
+
     # The fill color here has to match the `background` from `draw` in order
     # for the fill cube to be invisible.
     fillCube.setFill(color(10))
@@ -35,6 +32,7 @@ def draw():
     # Note that we're rotating the *shape*, not the matrix or camera.
     rotateX(sin(frameCount * 0.008))
     rotateY(cos(frameCount * 0.008))
+
     # The fill color here has to match the `fillCube`'s `setFill` color in
     # order for the fill cube to be invisible.
     background(10)
@@ -47,6 +45,7 @@ def drawShape():
     x = map(second(), 0, 59, 1, 12)
     y = map(minute(), 0, 59, 1, 12)
     z = map(hour(), 0, 23, 1, 12)
+
     # Note that we're scaling the *shape*, not the matrix or camera.
     scale(x, y, z)
     shape(fillCube, 0, 0)
