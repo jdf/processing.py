@@ -405,6 +405,8 @@ public class PAppletJythonDriver extends PApplet {
   protected void wrapProcessingVariables() {
     wrapMouseVariables();
     wrapKeyVariables();
+    builtins.__setitem__("width", pyint(width));
+    builtins.__setitem__("height", pyint(height));
     builtins.__setitem__("displayWidth", pyint(displayWidth));
     builtins.__setitem__("displayHeight", pyint(displayHeight));
     builtins.__setitem__("focused", Py.newBoolean(focused));
