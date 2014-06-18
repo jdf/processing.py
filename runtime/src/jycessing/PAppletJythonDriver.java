@@ -963,8 +963,8 @@ public class PAppletJythonDriver extends PApplet {
   
   @Override
   public void mouseWheel(final MouseEvent e){
-    wrapMouseVariables();
     if (mouseWheelMeth != null){
+      wrapMouseVariables();
       mouseWheelMeth.__call__(Py.java2py(e));
     }
   }
