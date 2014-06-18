@@ -2,7 +2,9 @@ package jycessing.mode.run;
 
 import java.awt.Point;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
@@ -20,6 +22,7 @@ public class SketchServiceManager implements ModeService {
 
   private final PythonMode mode;
   private final Map<String, SketchServiceProcess> sketchServices = new HashMap<>();
+  private final Set<String> killedSketchServices = new HashSet<>();
   private volatile boolean isStarted = false;
 
   /**
@@ -46,6 +49,7 @@ public class SketchServiceManager implements ModeService {
 
   public void destroySketchService(final PyEditor editor) {
     final SketchServiceProcess process = sketchServices.remove(editor.getId());
+    killedSketchServices.add(editor.getId());
     if (process != null) {
       process.shutdown();
     }
@@ -102,6 +106,10 @@ public class SketchServiceManager implements ModeService {
 
   @Override
   public void handleSketchStopped(final String editorId) {
+    // The sketch runner might cause this to be fired during shtdown.
+    if (killedSketchServices.remove(editorId)) {
+      return;
+    }
     processFor(editorId).handleSketchStopped();
   }
 
