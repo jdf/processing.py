@@ -2,6 +2,7 @@ package jycessing.mode.run;
 
 import static com.google.common.base.Predicates.containsPattern;
 import static com.google.common.base.Predicates.not;
+import static com.google.common.base.Predicates.or;
 import static com.google.common.collect.Collections2.filter;
 
 import java.awt.Point;
@@ -120,8 +121,12 @@ public class SketchServiceProcess {
     command.add("-Djava.library.path=" + System.getProperty("java.library.path"));
 
     final List<String> cp = new ArrayList<>();
-    cp.addAll(filter(Arrays.asList(System.getProperty("java.class.path").split(
-        Pattern.quote(File.pathSeparator))), not(containsPattern("/processing/app/(test|lib)/"))));
+    cp.addAll(filter(
+        Arrays.asList(System.getProperty("java.class.path")
+            .split(Pattern.quote(File.pathSeparator))),
+        not(or(
+            containsPattern("(ant|ant-launcher|antlr|netbeans.*|osgi.*|jdi.*|ibm\\.icu.*|jna)\\.jar$"),
+            containsPattern("/processing/app/(test|lib)/")))));
     for (final File jar : new File(Base.getContentFile("core"), "library").listFiles(JARS)) {
       cp.add(jar.getAbsolutePath());
     }
