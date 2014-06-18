@@ -1,5 +1,9 @@
 package jycessing.mode.run;
 
+import static com.google.common.base.Predicates.containsPattern;
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.Collections2.filter;
+
 import java.awt.Point;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -8,13 +12,17 @@ import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.Base;
 import processing.app.Preferences;
 import processing.app.SketchException;
+
+import com.google.common.base.Joiner;
 
 public class SketchServiceProcess {
   private static void log(final String msg) {
@@ -59,6 +67,7 @@ public class SketchServiceProcess {
   public void start() {
     log("Starting sketch runner process.");
     final ProcessBuilder pb = createServerCommand();
+    pb.inheritIO();
     log("Running:\n" + pb.command());
     try {
       sketchServiceProcess = pb.start();
@@ -111,11 +120,12 @@ public class SketchServiceProcess {
     command.add("-Djava.library.path=" + System.getProperty("java.library.path"));
 
     final List<String> cp = new ArrayList<>();
-    cp.add(System.getProperty("java.class.path"));
+    cp.addAll(filter(Arrays.asList(System.getProperty("java.class.path").split(
+        Pattern.quote(File.pathSeparator))), not(containsPattern("/processing/app/(test|lib)/"))));
     for (final File jar : new File(Base.getContentFile("core"), "library").listFiles(JARS)) {
       cp.add(jar.getAbsolutePath());
     }
-    final File[] libJars = mode.getContentFile("mode").listFiles(JARS);
+    final File[] libJars = mode.getContentFile("mode").getAbsoluteFile().listFiles(JARS);
     if (libJars != null) {
       for (final File jar : libJars) {
         cp.add(jar.getAbsolutePath());
@@ -124,14 +134,7 @@ public class SketchServiceProcess {
       log("No library jars found; I assume we're running in Eclipse.");
     }
     command.add("-cp");
-    final StringBuilder sb = new StringBuilder();
-    for (final String element : cp) {
-      if (sb.length() > 0) {
-        sb.append(File.pathSeparatorChar);
-      }
-      sb.append(element);
-    }
-    command.add(sb.toString());
+    command.add(Joiner.on(File.pathSeparator).join(cp));
 
     // enable assertions
     command.add("-ea");
@@ -144,7 +147,6 @@ public class SketchServiceProcess {
 
     return new ProcessBuilder(command);
   }
-
 
   private void restartServerProcess() {
     shutdown();
