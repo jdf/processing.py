@@ -246,7 +246,7 @@ public class PyEditor extends Editor {
     }
     
     //will this get GC'd?
-    new ExportDialog(this, sketch).show();
+    new ExportDialog(this, sketch).go();
   }
   
   /**

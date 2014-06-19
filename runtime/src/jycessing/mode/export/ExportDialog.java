@@ -75,7 +75,7 @@ public class ExportDialog extends JDialog {
     
   }
   
-  public void show() {
+  public void go() {
     this.setVisible(true);
     
     // wait until they click "Export". This stops the main editor from working -
