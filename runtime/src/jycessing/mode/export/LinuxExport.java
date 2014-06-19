@@ -5,6 +5,8 @@ import java.util.List;
 import java.io.File;
 import java.io.IOException;
 
+import jycessing.mode.PythonMode;
+import jycessing.mode.run.SketchRunner;
 import processing.app.Base;
 import processing.app.Library;
 import processing.app.Preferences;
@@ -15,6 +17,12 @@ import processing.core.PConstants;
 
 public class LinuxExport extends PlatformExport {
 
+  private static void log(final String msg) {
+    if (PythonMode.VERBOSE) {
+      System.err.println(LinuxExport.class.getSimpleName() + ": " + msg);
+    }
+  }
+  
   public LinuxExport(int bits) {
     this.id = PConstants.LINUX;
     this.bits = bits;
@@ -47,27 +55,7 @@ public class LinuxExport extends PlatformExport {
 
   @Override
   public void copyLibraries(Sketch sketch, List<Library> libraries) {
-    /*File libFolder = new File(sketch.getFolder(), this.name+"/lib");
-    for (Library library : libraries) {
-      for (File exportFile : library.getApplicationExports(id, bits)) {
-        final String exportName = exportFile.getName();
-        if (!exportFile.exists()) {
-          System.err.println("The file "+exportName+" is mentioned in the export.txt from "
-                        +library+" but does not actually exist.");
-          continue;
-        }
-        try{
-          if (exportFile.isDirectory()) {
-            
-            Base.copyDir(exportFile, new File(libFolder, exportName));
-          } else {
-            Base.copyFile(exportFile, new File(libFolder, exportName));
-          }
-        } catch(IOException e){
-          e.printStackTrace();
-        }
-      }
-    }*/
+    
   }
   
   
@@ -83,11 +71,10 @@ public class LinuxExport extends PlatformExport {
 
   }
   
-  public void export() {
+  public void export(Sketch sketch) {
  // Work out user preferences and other possibilities we care about
-    /*
-    // I'm putting these here to tell anyone reading what this method depends on - does that make sense?
-    final boolean embedJava = (platform == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
+    
+    final boolean embedJava = (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
     final boolean hasData = sketch.hasDataFolder();
     final boolean hasCode = sketch.hasCodeFolder();
     
@@ -110,46 +97,21 @@ public class LinuxExport extends PlatformExport {
     if (embedJava) {
       log("Embedding java in export.");
       javaFolder.mkdirs();
-      if (platform == PConstants.MACOSX) {
-        
-      } else if (platform == PConstants.WINDOWS) {
-        
-      } else if (platform == PConstants.LINUX) {
-        Base.copyDir(Base.getJavaHome(), javaFolder);
-      } else if (platform == PConstants.OTHER) {
-        
-      }
+      Base.copyDir(Base.getJavaHome(), javaFolder);
     }
     
     // Handle data folder
     if (hasData) {
       log("Copying data folder to export.");
       dataFolder.mkdirs();
-      if (platform == PConstants.MACOSX) {
-        
-      } else if (platform == PConstants.WINDOWS) {
-        
-      } else if (platform == PConstants.LINUX) {
-        Base.copyDir(sketch.getDataFolder(), dataFolder);
-      } else if (platform == PConstants.OTHER) {
-        
-      }
+      Base.copyDir(sketch.getDataFolder(), dataFolder);
     }
     
     // Handle code folder
-    // ...what is the code folder for, exactly?
     if (hasCode) {
       log("Copying code folder to export.");
       codeFolder.mkdirs();
-      if (platform == PConstants.MACOSX) {
-        
-      } else if (platform == PConstants.WINDOWS) {
-        
-      } else if (platform == PConstants.LINUX) {
-        
-      } else if (platform == PConstants.OTHER) {
-        
-      }
+      Base.copyDir(sketch.getCodeFolder(), codeFolder);
     }
     
     // Handle source folder
@@ -167,10 +129,10 @@ public class LinuxExport extends PlatformExport {
       Library core = new Library(Base.getContentFile("core"));
       libraries.add(core);
       for (Library library : libraries) {
-        for (File exportFile : library.getApplicationExports(platform, bits)) {
+        for (File exportFile : library.getApplicationExports(id, bits)) {
           final String exportName = exportFile.getName();
           if (!exportFile.exists()) {
-            statusError("The file "+exportName+" is mentioned in the export.txt from "
+            System.err.println("The file "+exportName+" is mentioned in the export.txt from "
                           +library+" but does not actually exist.");
             continue;
           }
@@ -184,7 +146,7 @@ public class LinuxExport extends PlatformExport {
           }
         }
       }
-    }*/
+    }
   }
   
 }
