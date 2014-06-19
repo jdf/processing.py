@@ -29,7 +29,7 @@ assert a == c
 assert int(1000 * PVector.dist(a, b)) == 736116
 assert PVector.cross(a, b) == PVector(-260.0, 280.0, -60.0)
 assert a.cross(b) == PVector(-260.0, 280.0, -60.0)
-assert PVector.dot(a, b) == 24110.0
+assert PVector.dot(a, b) == 0
 
 d = a.get()
 d += b
@@ -85,6 +85,14 @@ assert a != b
 assert a >= b
 assert b >= a
 assert a.magSq() == b.magSq()
+
+v1 = PVector(10, 20);
+v2 = PVector(60, 80); 
+a = PVector.angleBetween(v1, v2);
+assert a == 0.17985349893569946  # more or less
+
+# Regression test for https://github.com/jdf/Processing.py-Bugs/issues/67
+assert isinstance(PVector(1,2), PVector)
 
 print 'OK'
 
