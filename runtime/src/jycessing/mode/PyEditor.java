@@ -407,10 +407,11 @@ public class PyEditor extends Editor {
     }
     
     // Handle imported libraries
-    // For now, all we have is the core library and the processing.py library
+    // For now, all we have is the core library
     {
       Library core = new Library(Base.getContentFile("core"));
       libraries.add(core);
+      
       for (Library library : libraries) {
         for (File exportFile : library.getApplicationExports(platform, bits)) {
           final String exportName = exportFile.getName();
@@ -431,8 +432,16 @@ public class PyEditor extends Editor {
       }
     }
     
+    // Add Python Mode stuff (pymode jar, guava, jython jar, jython license)
+    // [If we restructured the mode code as a P5 library this could be folded into the above]
+    for (File exportFile : pyMode.getContentFile("mode").listFiles()){
+      if (exportFile.getName().toLowerCase().endsWith(".jar")) {
+        jarFiles.add(exportFile.getName());
+      }
+      Base.copyFile(exportFile, new File(libFolder, exportFile.getName()));
+    }
     
-    
+    // Create .sh file...
   }
   
   /**
