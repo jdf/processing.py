@@ -77,7 +77,7 @@ public class ExportDialog extends JDialog {
   }
   
   public void go() {
-    log("launching export dialog");
+    log("Launching export dialog");
     
     this.setVisible(true);
     
