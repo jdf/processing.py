@@ -38,6 +38,7 @@ public class ExportDialog extends JDialog {
     this.editor = editor;
     this.sketch = sketch;
     
+    log("Setting up export dialog");
     
     JPanel panel = new JPanel();
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -76,6 +77,8 @@ public class ExportDialog extends JDialog {
   }
   
   public void go() {
+    log("launching export dialog");
+    
     this.setVisible(true);
     
     // wait until they click "Export". This stops the main editor from working -

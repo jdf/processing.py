@@ -29,13 +29,19 @@ public class Exporter {
   
   public Exporter(PyEditor editor, Sketch sketch){
     this.sketch = sketch;
+    this.editor = editor;
   }
   
   public void export() {
-    
+    try {
+      exportWith(new LinuxExport(64));
+    } catch (IOException e) {
+      e.printStackTrace();
+      editor.statusError("Export failed!");
+    }
   }
   
-  private void exportTo(ExportPlatform platform) throws IOException {
+  private void exportWith(PlatformExport platform) throws IOException {
     
     log("Exporting to "+platform.name);
     
@@ -54,7 +60,7 @@ public class Exporter {
     List<String> jarFiles = new ArrayList<String>();    // Things we'll need to add to the export's classpath
     
     // Delete previous export (if the user wants to, and it exists) and make a new one
-    // pyMode.prepareExportFolder(destFolder);
+    platform.prepareExportFolder(sketch);
     
     // Handle embedding java
     if (embedJava) {
@@ -68,8 +74,7 @@ public class Exporter {
       platform.copyData(sketch);
     }
     
-    // Handle code folder
-    // ...what is the code folder for, exactly?
+    // Handle code folder (for .jar files that aren't formatted as Processing libraries... and more?)
     if (hasCode) {
       log("Copying code folder to export.");
       platform.copyCode(sketch);
@@ -87,24 +92,7 @@ public class Exporter {
       Library core = new Library(Base.getContentFile("core"));
       libraries.add(core);
       
-      for (Library library : libraries) {
-        for (File exportFile : library.getApplicationExports(platform.id, platform.bits)) {
-          final String exportName = exportFile.getName();
-          if (!exportFile.exists()) {
-            System.err.println("The file "+exportName+" is mentioned in the export.txt from "
-                          +library+" but does not actually exist.");
-            continue;
-          }
-          if (exportFile.isDirectory()) {
-            Base.copyDir(exportFile, new File(libFolder, exportName));
-          } else if (exportName.toLowerCase().endsWith(".jar") || exportName.toLowerCase().endsWith(".zip")) {
-            jarFiles.add(exportName);
-            Base.copyFile(exportFile, new File(libFolder, exportName));
-          } else {
-            Base.copyFile(exportFile, new File(libFolder, exportName));
-          }
-        }
-      }
+      platform.copyLibraries(sketch, libraries);
     }
     
     // Add Python Mode stuff (pymode jar, guava, jython jar, jython license)
