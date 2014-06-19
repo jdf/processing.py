@@ -23,75 +23,37 @@ public class LinuxExport extends PlatformExport {
     }
   }
   
-  public LinuxExport(int bits) {
+  private Sketch sketch;
+  private List<Library> libraries;
+  
+  public LinuxExport(int bits, Sketch sketch, List<Library> libraries) {
     this.id = PConstants.LINUX;
     this.bits = bits;
     this.name = PConstants.platformNames[id] + bits;
+    this.sketch = sketch;
+    this.libraries = libraries;
   }
   
-  @Override
-  public void embedJava(Sketch sketch) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void copyData(Sketch sketch) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void copyCode(Sketch sketch) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void copySource(Sketch sketch) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void copyLibraries(Sketch sketch, List<Library> libraries) {
-    
-  }
-  
-  
-  @Override
-  public void createExecutable(Sketch sketch) {
-    // TODO Auto-generated method stub
-
-  }
-  
-  @Override
-  public void prepareExportFolder(Sketch sketch) {
-    // TODO Auto-generated method stub
-
-  }
-  
-  public void export(Sketch sketch) {
- // Work out user preferences and other possibilities we care about
-    
+  public void export() throws IOException {
+    // Work out user preferences and other possibilities we care about
     final boolean embedJava = (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
     final boolean hasData = sketch.hasDataFolder();
     final boolean hasCode = sketch.hasCodeFolder();
+    final boolean deletePrevious = Preferences.getBoolean("export.delete_target_folder");
     
     // Work out the folders we'll be (maybe) using
-    final File destFolder = new File(sketch.getFolder(), "application."+PConstants.platformNames[platform]+bits);
+    final File destFolder = new File(sketch.getFolder(), "application."+name);
     final File libFolder = new File(destFolder, "lib");
     final File codeFolder = new File(destFolder, "code");
     final File sourceFolder = new File(destFolder, "source");
     final File dataFolder = new File(destFolder, "data");
     final File javaFolder = new File(destFolder, "java");
-    
-    // Things we need to keep track of
-    List<Library> libraries = new ArrayList<Library>(); // Obtained by scraping the python AST, eventually...
-    List<String> jarFiles = new ArrayList<String>();    // Things we'll need to add to the export's classpath
-    
+        
     // Delete previous export (if the user wants to, and it exists) and make a new one
-    pyMode.prepareExportFolder(destFolder);
+    if (deletePrevious) {
+      Base.removeDir(destFolder);
+    }
+    destFolder.mkdirs();
     
     // Handle embedding java
     if (embedJava) {
@@ -124,7 +86,7 @@ public class LinuxExport extends PlatformExport {
     }
     
     // Handle imported libraries
-    // For now, all we have is the core library and the processing.py library
+    // For now, all we have is the core library
     {
       Library core = new Library(Base.getContentFile("core"));
       libraries.add(core);
@@ -133,20 +95,18 @@ public class LinuxExport extends PlatformExport {
           final String exportName = exportFile.getName();
           if (!exportFile.exists()) {
             System.err.println("The file "+exportName+" is mentioned in the export.txt from "
-                          +library+" but does not actually exist.");
+                          +library+" but does not actually exist. Moving on.");
             continue;
           }
           if (exportFile.isDirectory()) {
             Base.copyDir(exportFile, new File(libFolder, exportName));
-          } else if (exportName.toLowerCase().endsWith(".jar") || exportName.toLowerCase().endsWith(".zip")) {
-            jarFiles.add(exportName);
-            Base.copyFile(exportFile, new File(libFolder, exportName));
           } else {
             Base.copyFile(exportFile, new File(libFolder, exportName));
           }
         }
       }
     }
+    
+    // Make shell script
   }
-  
 }
