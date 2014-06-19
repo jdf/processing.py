@@ -1,3 +1,8 @@
+a = PVector()
+assert a.x == 0
+assert a.y == 0
+assert a.z == 0
+
 a = PVector(5, 7, 11)
 b = PVector(13, 17, 23)
 assert a - b == PVector(-8.0, -10.0, -12.0)

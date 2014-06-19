@@ -114,11 +114,8 @@ class PVector(__pvector__):
     def __instance_dot__(self, o):
         return PVector.dot(self, o)
 
-    def __init__(self, x, y, z=None):
-        if z is None:
-            __pvector__.__init__(self, x, y)
-        else:
-            __pvector__.__init__(self, x, y, z)
+    def __init__(self, x=0, y=0, z=0):
+        __pvector__.__init__(self, x, y, z)
         self.add = self.__instance_add__
         self.sub = self.__instance_sub__
         self.mult = self.__instance_mult__
