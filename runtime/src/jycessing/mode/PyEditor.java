@@ -17,6 +17,8 @@ import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -43,10 +45,14 @@ import processing.app.Editor;
 import processing.app.EditorState;
 import processing.app.EditorToolbar;
 import processing.app.Formatter;
+import processing.app.Library;
 import processing.app.Mode;
+import processing.app.Preferences;
 import processing.app.SketchCode;
 import processing.app.SketchException;
 import processing.app.Toolkit;
+import processing.core.PApplet;
+import processing.core.PConstants;
 
 @SuppressWarnings("serial")
 public class PyEditor extends Editor {
@@ -233,15 +239,34 @@ public class PyEditor extends Editor {
 
   /**
    * TODO(James Gilles): Create this!
+   * Create export GUI and hand off results to performExport()
    */
   public void handleExportApplication() {
+    // This is kind of obnoxious. Should we just save automatically?
+    if (sketch.isModified()) {
+      Object[] options = { "OK", "Cancel" };
+      int result = JOptionPane.showOptionDialog(this,
+                                                "Save changes before export?",
+                                                "Save",
+                                                JOptionPane.OK_CANCEL_OPTION,
+                                                JOptionPane.QUESTION_MESSAGE,
+                                                null,
+                                                options,
+                                                options[0]);
+      if (result == JOptionPane.OK_OPTION) {
+        handleSave(true);
+      } else {
+        statusNotice("Export canceled, changes must first be saved.");
+        return;
+      }
+    }
     JPanel panel = new JPanel();
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
     panel.add(Box.createVerticalStrut(6));
-    JLabel filler = new JLabel("THIS PANEL IS A LIE", SwingConstants.CENTER);
+    JLabel filler = new JLabel("Options will go here", SwingConstants.CENTER);
     filler.setAlignmentX(Component.LEFT_ALIGNMENT);
     panel.add(filler);
-    String[] options = { "Zaboomafoo", "Bears" };
+    String[] options = { "Export", "Cancel" };
     final JOptionPane optionPane = new JOptionPane(panel,
                                                    JOptionPane.PLAIN_MESSAGE,
                                                    JOptionPane.YES_NO_OPTION,
@@ -258,8 +283,6 @@ public class PyEditor extends Editor {
         if (dialog.isVisible() &&
             (e.getSource() == optionPane) &&
             (prop.equals(JOptionPane.VALUE_PROPERTY))) {
-          // If you were going to check something before  
-          // closing the window, you'd do it here.
           dialog.setVisible(false);
         }
       }
@@ -270,9 +293,148 @@ public class PyEditor extends Editor {
     dialog.setLocation(bounds.x + (bounds.width - dialog.getSize().width) / 2,
                        bounds.y + (bounds.height - dialog.getSize().height) / 2);
     dialog.setVisible(true);
+    
+    // wait until they click "Export". This stops the main editor from working -
+    // do we want that?
     Object value = optionPane.getValue();
+    
+    if (value.equals(options[0])) {
+      performExport();
+    } else {
+      statusNotice("Export to Application Cancelled");
+    }
   }
 
+  /**
+   * Perform preprocessing and export to each selected platform
+   * Currently I'm only doing linux
+   */
+  public void performExport() {
+    int platform = Base.getPlatformIndex("linux");
+    try {
+      exportToPlatform(platform, 64);
+    } catch (Exception e) {
+      e.printStackTrace();
+      statusError("Export to "+PConstants.platformNames[platform]+64+" failed. Sorry!");
+    }
+  }
+  
+  /**
+   * This is how Java Mode handles exporting - lots and lots of if statements.
+   * I could also make individual "exportTo$Platform" methods, but I'm not sure.
+   * 
+   * @param platform
+   * @param bits
+   */
+  public void exportToPlatform(int platform, int bits) throws IOException {
+    
+    log("Exporting to "+PConstants.platformNames[platform]+bits);
+    
+    // Work out user preferences and other possibilities we care about
+    // I'm putting these here to tell anyone reading what this method depends on - does that make sense?
+    final boolean embedJava = (platform == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
+    final boolean hasData = sketch.hasDataFolder();
+    final boolean hasCode = sketch.hasCodeFolder();
+    
+    // Work out the folders we'll be (maybe) using
+    final File destFolder = new File(sketch.getFolder(), "application."+PConstants.platformNames[platform]+bits);
+    final File libFolder = new File(destFolder, "lib");
+    final File codeFolder = new File(destFolder, "code");
+    final File sourceFolder = new File(destFolder, "source");
+    final File dataFolder = new File(destFolder, "data");
+    final File javaFolder = new File(destFolder, "java");
+    
+    // Things we need to keep track of
+    List<Library> libraries = new ArrayList<Library>(); // Obtained by scraping the python AST, eventually...
+    List<String> jarFiles = new ArrayList<String>();    // Things we'll need to add to the export's classpath
+    
+    // Delete previous export (if the user wants to, and it exists) and make a new one
+    pyMode.prepareExportFolder(destFolder);
+    
+    // Handle embedding java
+    if (embedJava) {
+      log("Embedding java in export.");
+      javaFolder.mkdirs();
+      if (platform == PConstants.MACOSX) {
+        
+      } else if (platform == PConstants.WINDOWS) {
+        
+      } else if (platform == PConstants.LINUX) {
+        Base.copyDir(Base.getJavaHome(), javaFolder);
+      } else if (platform == PConstants.OTHER) {
+        
+      }
+    }
+    
+    // Handle data folder
+    if (hasData) {
+      log("Copying data folder to export.");
+      dataFolder.mkdirs();
+      if (platform == PConstants.MACOSX) {
+        
+      } else if (platform == PConstants.WINDOWS) {
+        
+      } else if (platform == PConstants.LINUX) {
+        Base.copyDir(sketch.getDataFolder(), dataFolder);
+      } else if (platform == PConstants.OTHER) {
+        
+      }
+    }
+    
+    // Handle code folder
+    // ...what is the code folder for, exactly?
+    if (hasCode) {
+      log("Copying code folder to export.");
+      codeFolder.mkdirs();
+      if (platform == PConstants.MACOSX) {
+        
+      } else if (platform == PConstants.WINDOWS) {
+        
+      } else if (platform == PConstants.LINUX) {
+        
+      } else if (platform == PConstants.OTHER) {
+        
+      }
+    }
+    
+    // Handle source folder
+    {
+      log("Copying source to export.");
+      sourceFolder.mkdirs();
+      for (SketchCode code : sketch.getCode()){
+        code.copyTo(new File(sourceFolder, code.getFileName()));
+      }
+    }
+    
+    // Handle imported libraries
+    // For now, all we have is the core library and the processing.py library
+    {
+      Library core = new Library(Base.getContentFile("core"));
+      libraries.add(core);
+      for (Library library : libraries) {
+        for (File exportFile : library.getApplicationExports(platform, bits)) {
+          final String exportName = exportFile.getName();
+          if (!exportFile.exists()) {
+            statusError("The file "+exportName+" is mentioned in the export.txt from "
+                          +library+" but does not actually exist.");
+            continue;
+          }
+          if (exportFile.isDirectory()) {
+            Base.copyDir(exportFile, new File(libFolder, exportName));
+          } else if (exportName.toLowerCase().endsWith(".jar") || exportName.toLowerCase().endsWith(".zip")) {
+            jarFiles.add(exportName);
+            Base.copyFile(exportFile, new File(libFolder, exportName));
+          } else {
+            Base.copyFile(exportFile, new File(libFolder, exportName));
+          }
+        }
+      }
+    }
+    
+    
+    
+  }
+  
   /**
    * Save the current state of the sketch into a temp dir, and return
    * the created directory.
