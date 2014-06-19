@@ -35,6 +35,8 @@ public class Exporter {
   public void export() {
     // Do export-common things - work out libraries, etc.
     List<Library> libraries = new ArrayList<Library>();
+    Library core = new Library(Base.getContentFile("core"));
+    libraries.add(core);
     
     // Now, do this for each platform:
     try {

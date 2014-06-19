@@ -88,8 +88,6 @@ public class LinuxExport extends PlatformExport {
     // Handle imported libraries
     // For now, all we have is the core library
     {
-      Library core = new Library(Base.getContentFile("core"));
-      libraries.add(core);
       for (Library library : libraries) {
         for (File exportFile : library.getApplicationExports(id, bits)) {
           final String exportName = exportFile.getName();
