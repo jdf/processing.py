@@ -15,6 +15,11 @@ public class SketchInfo implements Serializable {
   public final RunMode runMode;
   public final List<File> libraryDirs;
 
+  // This may be different from the directory containing mainSketchFile,
+  // because the sketch may have been temporarily copied into a temp
+  // folder to make unsaved changes to source available.
+  public final File sketchHome;
+
   public final File mainSketchFile;
 
   public final String sketchName;
@@ -25,11 +30,13 @@ public class SketchInfo implements Serializable {
   public final LibraryPolicy libraryPolicy;
 
   private SketchInfo(final String sketchName, final RunMode runMode, final List<File> libDirs,
-      final File mainSketchFile, final String code, final String[] codeFileNames,
-      final Point editorLoc, final Point sketchLoc, final LibraryPolicy libraryPolicy) {
+      final File sketchHome, final File mainSketchFile, final String code,
+      final String[] codeFileNames, final Point editorLoc, final Point sketchLoc,
+      final LibraryPolicy libraryPolicy) {
     this.sketchName = sketchName;
     this.runMode = runMode;
     this.libraryDirs = Collections.unmodifiableList(libDirs);
+    this.sketchHome = sketchHome;
     this.mainSketchFile = mainSketchFile;
     this.code = code;
     this.codeFileNames = codeFileNames;
@@ -42,7 +49,8 @@ public class SketchInfo implements Serializable {
     private String sketchName;
     private RunMode runMode;
     private final List<File> libDirs = new ArrayList<>();
-    private File sketch;
+    private File sketchHome;
+    private File mainSketchFile;
     private String code;
     private String[] codeFileNames;
     private Point editorLoc;
@@ -50,8 +58,11 @@ public class SketchInfo implements Serializable {
     private LibraryPolicy libraryPolicy;
 
     public SketchInfo build() {
-      return new SketchInfo(sketchName, runMode, libDirs, sketch, code, codeFileNames, editorLoc,
-          sketchLoc, libraryPolicy);
+      if (sketchHome == null) {
+        sketchHome = mainSketchFile.getParentFile();
+      }
+      return new SketchInfo(sketchName, runMode, libDirs, sketchHome, mainSketchFile, code,
+          codeFileNames, editorLoc, sketchLoc, libraryPolicy);
     }
 
     public Builder sketchName(final String sketchName) {
@@ -69,8 +80,13 @@ public class SketchInfo implements Serializable {
       return this;
     }
 
-    public Builder mainSketchFile(final File sketch) {
-      this.sketch = sketch;
+    public Builder sketchHome(final File sketchHome) {
+      this.sketchHome = sketchHome;
+      return this;
+    }
+
+    public Builder mainSketchFile(final File mainSketchFile) {
+      this.mainSketchFile = mainSketchFile;
       return this;
     }
 

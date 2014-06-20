@@ -9,8 +9,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryIteratorException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -228,26 +226,16 @@ public class PyEditor extends Editor {
   }
 
   /**
-   * Save the current state of the sketch into a temp dir, and return
+   * Save the current state of the sketch code into a temp dir, and return
    * the created directory.
    * @return a new directory containing a saved version of the current
-   * (presumably modified) sketch.
+   * (presumably modified) sketch code.
    * @throws IOException 
    */
   private Path createTempSketch() throws IOException {
     final Path tmp = Files.createTempDirectory(sketch.getName());
     for (final SketchCode code : sketch.getCode()) {
       Files.write(tmp.resolve(code.getFileName()), code.getProgram().getBytes("utf-8"));
-    }
-    final Path sketchFolder = sketch.getFolder().toPath();
-    try (final DirectoryStream<Path> stream = Files.newDirectoryStream(sketchFolder)) {
-      for (final Path entry : stream) {
-        if (!mode.canEdit(entry.toFile())) {
-          IOUtil.copy(entry, tmp);
-        }
-      }
-    } catch (final DirectoryIteratorException ex) {
-      throw ex.getCause();
     }
     return tmp;
   }
@@ -280,6 +268,7 @@ public class PyEditor extends Editor {
           new SketchInfo.Builder().sketchName(sketch.getName()).runMode(mode)
               .addLibraryDir(Base.getContentFile("modes/java/libraries"))
               .addLibraryDir(Base.getSketchbookLibrariesFolder())
+              .sketchHome(sketch.getFolder().getAbsoluteFile())
               .mainSketchFile(new File(sketchPath).getAbsoluteFile())
               .code(sketch.getCode(0).getProgram()).codeFileNames(codeFileNames)
               .libraryPolicy(LibraryPolicy.SELECTIVE);

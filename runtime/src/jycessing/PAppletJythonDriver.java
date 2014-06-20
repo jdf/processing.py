@@ -236,11 +236,10 @@ public class PAppletJythonDriver extends PApplet {
     return message;
   }
 
-  public PAppletJythonDriver(final InteractiveConsole interp, final String sketchPath,
+  public PAppletJythonDriver(final InteractiveConsole interp, final String pySketchPath,
       final String programText) {
     this.programText = programText;
-    this.pySketchPath = sketchPath;
-    this.sketchPath = new File(sketchPath).getParent();
+    this.pySketchPath = pySketchPath;
     this.mode = ACTIVE_METHOD_DEF.matcher(programText).find() ? Mode.DRAW_LOOP : Mode.STATIC;
     Runner.log("Mode: ", mode.name());
     this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
@@ -960,10 +959,10 @@ public class PAppletJythonDriver extends PApplet {
     wrapMouseVariables();
     mouseDraggedFunc.invoke(e);
   }
-  
+
   @Override
-  public void mouseWheel(final MouseEvent e){
-    if (mouseWheelMeth != null){
+  public void mouseWheel(final MouseEvent e) {
+    if (mouseWheelMeth != null) {
       wrapMouseVariables();
       mouseWheelMeth.__call__(Py.java2py(e));
     }

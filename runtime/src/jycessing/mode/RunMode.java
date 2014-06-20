@@ -35,7 +35,7 @@ public enum RunMode {
   abstract public String[] args(SketchInfo info);
 
   private static String pathArg(final SketchInfo info) {
-    return PApplet.ARGS_SKETCH_FOLDER + "=" + info.mainSketchFile.getParent();
+    return PApplet.ARGS_SKETCH_FOLDER + "=" + info.sketchHome.getAbsolutePath();
   }
 
 }
