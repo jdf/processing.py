@@ -61,7 +61,8 @@ public class SketchServiceProcess {
    */
   SketchServiceProcess(final PythonMode mode, final PyEditor editor,
       final SketchService runningService) {
-    this(mode, editor);
+    this.mode = mode;
+    this.editor = editor;
     this.sketchService = runningService;
   }
 
