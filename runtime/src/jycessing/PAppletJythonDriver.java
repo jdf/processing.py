@@ -22,6 +22,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -63,6 +64,9 @@ import processing.core.PImage;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 import processing.opengl.PShader;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
 /**
  *
@@ -217,17 +221,63 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   private static PythonSketchError extractSketchErrorFromPyExceptionValue(final PyTuple tup) {
-    final String message = maybeMakeFriendlyMessage((String)tup.get(0));
+    final String pyMessage = (String)tup.get(0);
+    final String message = maybeMakeFriendlyMessage(pyMessage);
     final PyTuple context = (PyTuple)tup.get(1);
-    final String file = new File((String)context.get(0)).getName();
+    final File file = new File((String)context.get(0));
+    final String fileName = file.getName();
     final int line = ((Integer)context.get(1)).intValue() - 1;
     final int column = ((Integer)context.get(2)).intValue();
-    return new PythonSketchError(message, file, line, column);
+    if (pyMessage.startsWith("no viable alternative")) {
+      return noViableAlternative(file, line, column);
+    }
+
+    return new PythonSketchError(message, fileName, line, column);
+  }
+
+  private static final Pattern NAKED_COLOR = Pattern.compile("[(,]\\s*#([0-9a-fA-F]{6})\\b");
+
+  /**
+   * The message "no vialble alternative" is a strong indication that there's an unclosed
+   * paren somewhere before the triggering line. Maybe the user tried to specify a color
+   * as in Java Processing, like <code>fill(#FFAA55)</code>, which Python sees as an open
+   * paren followed by a comment.
+   * <p>This function takes a stab at finding such a thing, and reporting it. Otherwise,
+   * it throws a slightly less cryptic error message.
+   * @param file
+   * @param line
+   * @param column
+   * @return
+   */
+  private static PythonSketchError noViableAlternative(final File file, final int lineNo,
+      final int column) {
+    final PythonSketchError defaultException =
+        new PythonSketchError(
+            "Maybe there's an unclosed paren or quote mark somewhere before this line?",
+            file.getName(), lineNo, column);
+    try {
+      int lineIndex = 0;
+      for (final String line : Files.readLines(file, Charsets.UTF_8)) {
+        final Matcher m = NAKED_COLOR.matcher(line);
+        if (m.find()) {
+          final String color = m.group(1);
+          return new PythonSketchError("Did you try to name a color here? "
+              + "Colors in Python mode are either strings, like '#" + color + "', or "
+              + "large hex integers, like 0xFF" + color.toUpperCase() + ".", file.getName(),
+              lineIndex, m.start(1));
+        }
+        lineIndex++;
+      }
+    } catch (final IOException e) {
+      System.err.println("While trying to read " + file + ": " + e.getMessage());
+      return defaultException;
+    }
+    return defaultException;
   }
 
   private static String maybeMakeFriendlyMessage(final String message) {
     if (message.contains("expecting INDENT")) {
-      return "This line needs be indented.";
+      return "This line probably needs to be indented.";
     }
     if (message.contains("mismatched input '//'")) {
       return "Did you mean to make a comment? "
