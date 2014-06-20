@@ -430,6 +430,9 @@ public class Runner {
 
       final PAppletJythonDriver applet =
           (PAppletJythonDriver)interp.get("__papplet__").__tojava__(PAppletJythonDriver.class);
+      // We have to do this because static mode sketches may load data
+      // files during parsing!
+      applet.sketchPath = info.sketchHome.getAbsolutePath();
 
       applet.setSketchPositionListener(sketchPositionListener);
 
