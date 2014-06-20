@@ -252,8 +252,8 @@ public class PyEditor extends Editor {
   /**
    * TODO Restructure mode so that we can have a core Library instead?
    */
-  public File[] getRequiredFiles() {
-    return pyMode.getContentFile("mode").listFiles();
+  public File getModeFolder() {
+    return pyMode.getContentFile("mode");
   }
   
   /**

@@ -1,6 +1,5 @@
 package jycessing.mode.export;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,11 +8,7 @@ import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.Base;
 import processing.app.Library;
-import processing.app.Preferences;
 import processing.app.Sketch;
-import processing.app.SketchCode;
-import processing.core.PApplet;
-import processing.core.PConstants;
 
 public class Exporter {
   
@@ -40,10 +35,13 @@ public class Exporter {
     
     // Now, do this for each platform:
     try {
-      new LinuxExport(64, sketch, libraries).export();
+      new LinuxExport(64, sketch, editor, libraries).export();
     } catch (IOException e) {
       e.printStackTrace();
       editor.statusError("Export failed!");
     }
+    
+    log("Opening result folder.");
+    Base.openFolder(sketch.getFolder());
   }
 }
