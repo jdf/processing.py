@@ -88,6 +88,8 @@ __builtin__.PShapeOpenGL = PShapeOpenGL
 from processing.opengl import Texture
 __builtin__.Texture = Texture
 
+from processing.data import Table
+__builtin__.Table = Table
 
 # PVector requires special handling, because it exposes the same method names
 # as static methods and instance methods.
