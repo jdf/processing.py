@@ -399,7 +399,6 @@
     <copy-processing-library dir="${cache}" library="net"/>
     <copy-processing-library dir="${cache}" library="pdf"/>
     <copy-processing-library dir="${cache}" library="serial"/>
-    <copy-processing-library dir="${cache}" library="video"/>
   </target>
 
   <target name="make-one-distribution" depends="jar,platform-lib-cache">

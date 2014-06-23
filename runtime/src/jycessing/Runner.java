@@ -261,9 +261,9 @@ public class Runner {
     if (splash != null) {
       splash.close();
     }
-
     final SketchInfo info =
-        new SketchInfo.Builder().addLibraryDir(getLibraries())
+        new SketchInfo.Builder().sketchName(new File(sketchPath).getName())
+            .addLibraryDir(getLibraries())
             .libraryPolicy(LibraryPolicy.PROMISCUOUS)
             .runMode(isPresentation ? RunMode.PRESENTATION : RunMode.WINDOWED)
             .mainSketchFile(new File(sketchPath)).code(sketchSource).build();
