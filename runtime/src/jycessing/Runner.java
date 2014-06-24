@@ -261,9 +261,9 @@ public class Runner {
     if (splash != null) {
       splash.close();
     }
-
     final SketchInfo info =
-        new SketchInfo.Builder().addLibraryDir(getLibraries())
+        new SketchInfo.Builder().sketchName(new File(sketchPath).getName())
+            .addLibraryDir(getLibraries())
             .libraryPolicy(LibraryPolicy.PROMISCUOUS)
             .runMode(isPresentation ? RunMode.PRESENTATION : RunMode.WINDOWED)
             .mainSketchFile(new File(sketchPath)).code(sketchSource).build();
@@ -438,6 +438,9 @@ public class Runner {
 
       final PAppletJythonDriver applet =
           (PAppletJythonDriver)interp.get("__papplet__").__tojava__(PAppletJythonDriver.class);
+      // We have to do this because static mode sketches may load data
+      // files during parsing!
+      applet.sketchPath = info.sketchHome.getAbsolutePath();
 
       applet.setSketchPositionListener(sketchPositionListener);
 

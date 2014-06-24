@@ -48,6 +48,7 @@ public class JycessingTests {
     final SketchInfo info =
         new SketchInfo.Builder().sketchName("test " + testResource)
             .libraryPolicy(LibraryPolicy.SELECTIVE).code(sourceText)
+            .sketchHome(Paths.get("testing/resources/").toFile().getAbsoluteFile())
             .mainSketchFile(source.toFile()).runMode(RunMode.UNIT_TEST).build();
     final CapturingPrinter out = new CapturingPrinter();
     Runner.runSketchBlocking(info, out, new StreamPrinter(System.err));

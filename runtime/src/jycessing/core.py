@@ -2,6 +2,8 @@
 # are necessary, even in auxilliary modules.
 import __builtin__
 
+from numbers import Number
+
 # PAppletJythonDriver is a PApplet that knows how to interpret a Python
 # Processing sketch, and which delegates Processing callbacks (such as
 # setup(), draw(), keyPressed(), etc.) to the appropriate Python code.
@@ -86,35 +88,82 @@ __builtin__.PShapeOpenGL = PShapeOpenGL
 from processing.opengl import Texture
 __builtin__.Texture = Texture
 
-
+from processing.data import Table
+__builtin__.Table = Table
 
 # PVector requires special handling, because it exposes the same method names
 # as static methods and instance methods.
 from processing.core import PVector as __pvector__
-class PVector(object):
-    @classmethod
-    def __new__(cls, *args):
-        return __pvector__(*args[1:])
+class PVector(__pvector__):
+    def __instance_add__(self, o):
+        PVector.add(self, o, self)
+        
+    def __instance_sub__(self, o):
+        PVector.sub(self, o, self)
+
+    def __instance_mult__(self, o):
+        PVector.mult(self, o, self)
+
+    def __instance_div__(self, f):
+        PVector.div(self, f, self)
+
+    def __instance_cross__(self, o):
+        return PVector.cross(self, o, self)
+
+    def __instance_dist__(self, o):
+        return PVector.dist(self, o)
+
+    def __instance_dot__(self, o):
+        return PVector.dot(self, o)
+
+    def __init__(self, x=0, y=0, z=0):
+        __pvector__.__init__(self, x, y, z)
+        self.add = self.__instance_add__
+        self.sub = self.__instance_sub__
+        self.mult = self.__instance_mult__
+        self.div = self.__instance_div__
+        self.cross = self.__instance_cross__
+        self.dist = self.__instance_dist__
+
+    def get(self):
+        return PVector(self.x, self.y, self.z)
+
+    def copy(self):
+        return PVector(self.x, self.y, self.z)
+
+    def __copy__(self):
+        return PVector(self.x, self.y, self.z)
+
+    def __deepcopy__(self, memo):
+        return PVector(self.x, self.y, self.z)
 
     @classmethod
     def add(cls, a, b, dest=None):
-        return __pvector__.add(a, b, dest)
-
+        if dest is None:
+            return PVector(a.x + b.x, a.y + b.y, a.z + b.z)
+        dest.set(a.x + b.x, a.y + b.y, a.z + b.z)
+        return dest
+    
     @classmethod
     def sub(cls, a, b, dest=None):
-        return __pvector__.sub(a, b, dest)
+        if dest is None:
+            return PVector(a.x - b.x, a.y - b.y, a.z - b.z)
+        dest.set(a.x - b.x, a.y - b.y, a.z - b.z)
+        return dest
 
     @classmethod
     def mult(cls, a, b, dest=None):
-        return __pvector__.mult(a, float(b), dest)
+        if dest is None:
+            return PVector(a.x * b, a.y * b, a.z * b)
+        dest.set(a.x * b, a.y * b, a.z * b)
+        return dest
 
     @classmethod
     def div(cls, a, b, dest=None):
-        return __pvector__.div(a, float(b), dest)
-
-    @classmethod
-    def cross(cls, a, b, dest=None):
-        return __pvector__.cross(a, b, dest)
+        if dest is None:
+            return PVector(a.x / b, a.y / b, a.z / b)
+        dest.set(a.x / b, a.y / b, a.z / b)
+        return dest
 
     @classmethod
     def dist(cls, a, b):
@@ -125,104 +174,70 @@ class PVector(object):
         return __pvector__.dot(a, b)
 
     @classmethod
-    def angleBetween(cls, a, b):
-        return __pvector__.angleBetween(a, b)
+    def cross(cls, a, b, dest=None):
+        x = a.y * b.z - b.y * a.z
+        y = a.z * b.x - b.z * a.x
+        z = a.x * b.y - b.x * a.y
+        if dest is None:
+            return PVector(x, y, z)
+        dest.set(x, y, z)
+        return dest
 
-    @classmethod
-    def random2D(cls):
-        return __pvector__.random2D()
+    def __add__(a, b):
+        return PVector.add(a, b, None)
 
-    @classmethod
-    def random3D(cls):
-        return __pvector__.random3D()
-
-    @classmethod
-    def fromAngle(cls, a, target=None):
-        return __pvector__.fromAngle(a, target)
-
-# Thanks, Guido!
-# http://mail.python.org/pipermail/python-dev/2008-January/076194.html
-def monkeypatch_method(cls):
-    def decorator(func):
-        setattr(cls, func.__name__, func)
-        return func
-    return decorator
-
-@monkeypatch_method(__pvector__)
-def __sub__(a, b):
-    return __pvector__.sub(a, b, None)
-
-@monkeypatch_method(__pvector__)
-def __isub__(a, b):
-    a.sub(b)
-    return a
-
-@monkeypatch_method(__pvector__)
-def __add__(a, b):
-    return __pvector__.add(a, b, None)
-
-@monkeypatch_method(__pvector__)
-def __iadd__(a, b):
-    a.add(b)
-    return a
-
-@monkeypatch_method(__pvector__)
-def __mul__(a, b):
-    if isinstance(b, __pvector__):
-        raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
-    return __pvector__.mult(a, float(b), None)
-
-@monkeypatch_method(__pvector__)
-def __rmul__(a, b):
-    if isinstance(b, __pvector__):
-        raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
-    return __pvector__.mult(a, float(b), None)
-
-@monkeypatch_method(__pvector__)
-def __imul__(a, b):
-    if isinstance(b, __pvector__):
-        raise TypeError("The *= operator can only be used to multiply a PVector by a scalar")
-    a.mult(float(b))
-    return a
-
-@monkeypatch_method(__pvector__)
-def __div__(a, b):
-    if isinstance(b, __pvector__):
-        raise TypeError("The / operator can only be used to divide a PVector by a scalar")
-    return __pvector__.div(a, float(b), None)
-
-@monkeypatch_method(__pvector__)
-def __idiv__(a, b):
-    if isinstance(b, __pvector__):
-        raise TypeError("The /= operator can only be used to divide a PVector by a scalar")
-    a.div(float(b))
-    return a
-
-@monkeypatch_method(__pvector__)
-def __magSq__(a):
-    return __pvector__.magSq(a)
-
-@monkeypatch_method(__pvector__)
-def __eq__(a, b):
-    return a.x == b.x and a.y == b.y and a.z == b.z
-
-@monkeypatch_method(__pvector__)
-def __lt__(a, b):
-    return a.magSq() < b.magSq()
-
-@monkeypatch_method(__pvector__)
-def __le__(a, b):
-    return a.magSq() <= b.magSq()
-
-@monkeypatch_method(__pvector__)
-def __gt__(a, b):
-    return a.magSq() > b.magSq()
-
-@monkeypatch_method(__pvector__)
-def __ge__(a, b):
-    return a.magSq() >= b.magSq()
-
-del __sub__, __isub__, __add__, __iadd__, __mul__, __rmul__, __imul__, __div__, __idiv__, __magSq__
+    def __sub__(a, b):
+        return PVector.sub(a, b, None)
+    
+    def __isub__(a, b):
+        a.sub(b)
+        return a
+    
+    def __iadd__(a, b):
+        a.add(b)
+        return a
+    
+    def __mul__(a, b):
+        if not isinstance(b, Number):
+            raise TypeError("The * operator can only be used to multiply a PVector by a number")
+        return PVector.mult(a, float(b), None)
+    
+    def __rmul__(a, b):
+        if not isinstance(b, Number):
+            raise TypeError("The * operator can only be used to multiply a PVector by a number")
+        return PVector.mult(a, float(b), None)
+    
+    def __imul__(a, b):
+        if not isinstance(b, Number):
+            raise TypeError("The *= operator can only be used to multiply a PVector by a number")
+        a.mult(float(b))
+        return a
+    
+    def __div__(a, b):
+        if not isinstance(b, Number):
+            raise TypeError("The / operator can only be used to divide a PVector by a number")
+        return PVector.div(a, float(b), None)
+    
+    def __idiv__(a, b):
+        if not isinstance(b, Number):
+            raise TypeError("The /= operator can only be used to divide a PVector by a number")
+        a.div(float(b))
+        return a
+    
+    def __eq__(a, b):
+        return a.x == b.x and a.y == b.y and a.z == b.z
+    
+    def __lt__(a, b):
+        return a.magSq() < b.magSq()
+    
+    def __le__(a, b):
+        return a.magSq() <= b.magSq()
+    
+    def __gt__(a, b):
+        return a.magSq() > b.magSq()
+    
+    def __ge__(a, b):
+        return a.magSq() >= b.magSq()
 
 # Now expose the funky PVector class as a builtin.
 __builtin__.PVector = PVector
@@ -565,7 +580,7 @@ def __saveBytes__(where, data):
     return PApplet.saveBytes(where, data)
 __builtin__.saveBytes = __saveBytes__
 
-del monkeypatch_method, PAppletJythonDriver
+del PAppletJythonDriver
 
 # Due to a seeming bug in Jython, the print builtin ignores the the setting of
 # interp.setOut and interp.setErr.

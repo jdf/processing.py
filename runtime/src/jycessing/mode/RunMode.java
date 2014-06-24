@@ -19,9 +19,16 @@ public enum RunMode {
 
     @Override
     public String[] args(final SketchInfo info) {
-      final String locArg =
-          info.sketchLoc == null ? locArg(PApplet.ARGS_EDITOR_LOCATION, info.editorLoc) : locArg(
-              PApplet.ARGS_LOCATION, info.sketchLoc);
+      final String locArg;
+      if (info.sketchLoc == null) {
+        if (info.editorLoc == null) {
+          locArg = locArg(PApplet.ARGS_LOCATION, new Point(0,0));
+        } else {
+          locArg = locArg(PApplet.ARGS_EDITOR_LOCATION, info.editorLoc);
+        }
+      } else {
+        locArg = locArg(PApplet.ARGS_LOCATION, info.sketchLoc);
+      }
       return new String[] {PApplet.ARGS_EXTERNAL, locArg, info.sketchName, pathArg(info)};
     }
   },
@@ -35,7 +42,7 @@ public enum RunMode {
   abstract public String[] args(SketchInfo info);
 
   private static String pathArg(final SketchInfo info) {
-    return PApplet.ARGS_SKETCH_FOLDER + "=" + info.mainSketchFile.getParent();
+    return PApplet.ARGS_SKETCH_FOLDER + "=" + info.sketchHome.getAbsolutePath();
   }
 
 }
