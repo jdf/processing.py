@@ -86,7 +86,8 @@ public class SketchInfo implements Serializable {
     }
 
     public Builder mainSketchFile(final File mainSketchFile) {
-      this.mainSketchFile = mainSketchFile;
+      // Just to make sure we can call getParentFile() safely
+      this.mainSketchFile = mainSketchFile.getAbsoluteFile();
       return this;
     }
 
