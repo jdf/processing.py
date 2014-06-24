@@ -306,6 +306,14 @@ public class Runner {
         return new File(m.group(1), "libraries");
       }
     }
+    // That didn't work.
+    // Maybe we're an exported sketch?
+    {
+      final File libDir = new File("lib");
+      if (libDir.exists()) {
+        return libDir;
+      }
+    }
     System.err.println("WARNING: I can't figure out where my libraries directory is.");
     return new File("libraries");
   }

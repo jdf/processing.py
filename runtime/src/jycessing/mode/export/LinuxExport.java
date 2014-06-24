@@ -127,7 +127,7 @@ public class LinuxExport extends PlatformExport {
       File scriptFile = new File(destFolder, sketch.getName());
       PrintWriter script = new PrintWriter(scriptFile);
       script.println("#!/bin/sh");
-      script.println("APPDIR=$(dirname \"$0\")");
+      script.println("APPDIR=$( cd $( dirname \"$0\" ) && pwd )");
       
       if (embedJava) {
         script.println("JAVA=$APPDIR/jre/bin/java");
