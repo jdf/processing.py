@@ -7,7 +7,11 @@ before_install:
   - cd processing/build
   - ant
   - cd ../..
+  - git clone --depth=1 https://github.com/processing/processing-video
+  - cd processing-video
+  - ant
+  - cd ..
   - "sh -e /etc/init.d/xvfb start"
 
-script: ant -Dprocessing=processing test
+script: ant -Dprocessing=processing -Dprocessing-video=processing-video test
 
