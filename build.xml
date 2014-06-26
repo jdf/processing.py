@@ -98,6 +98,8 @@
       <fileset dir="mode/" />
     </copy>
 
+    <copy todir="${bundle}/theme" file="libraries/runtime/splash.png"/>
+
     <zip destfile="${bundle}/src.zip" basedir="."
         includes="runtime/src/**,testing/src/**,testing/resources/**"
         excludes="**/_DS.Store" />

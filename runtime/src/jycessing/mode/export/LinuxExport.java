@@ -119,6 +119,9 @@ public class LinuxExport extends PlatformExport {
     {
       log("Copying core processing.py .jars to export.");
       Base.copyDir(editor.getModeFolder(), libFolder);
+      log("Copying splash screen to export");
+      Base.copyFile(editor.getSplashFile(), new File(libFolder, "splash.png"));
+      // (In the "lib" folder just in case the user has a splash.png
     }
     
     // Make shell script
@@ -162,6 +165,8 @@ public class LinuxExport extends PlatformExport {
       }
       options.add("-cp");
       options.add(classpath.toString().substring(0, classpath.toString().length()-1));
+      
+      options.add("-splash:$APPDIR/lib/splash.png");
       
       // Class to run
       options.add("jycessing.Runner");

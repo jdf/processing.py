@@ -255,6 +255,10 @@ public class PyEditor extends Editor {
     return pyMode.getContentFile("mode");
   }
   
+  public File getSplashFile() {
+    return pyMode.getContentFile("theme/splash.png");
+  }
+  
   /**
    * Save the current state of the sketch code into a temp dir, and return
    * the created directory.

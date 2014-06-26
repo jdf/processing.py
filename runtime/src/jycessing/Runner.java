@@ -260,11 +260,6 @@ public class Runner {
     final RunMode runMode = new RunMode(isExported ? RunMode.SketchType.EXPORT : RunMode.SketchType.SCRIPT,
         isPresentation ? RunMode.DisplayType.PRESENTATION : RunMode.DisplayType.WINDOWED);
 
-    // Hide the splash, if possible
-    final SplashScreen splash = SplashScreen.getSplashScreen();
-    if (splash != null) {
-      splash.close();
-    }
     final SketchInfo info = new SketchInfo.Builder()
         .sketchName(new File(sketchPath).getName())
         .addLibraryDir(getLibraries(runMode, sketchPath))
@@ -492,6 +487,12 @@ public class Runner {
 
       applet.findSketchMethods();
 
+      // Hide the splash before we run the sketch, if possible
+      final SplashScreen splash = SplashScreen.getSplashScreen();
+      if (splash != null) {
+        splash.close();
+      }
+      
       try {
         if (!info.sketchName.equals(WARMUP_SKETCH_NAME)) {
           applet.runAndBlock(args);
