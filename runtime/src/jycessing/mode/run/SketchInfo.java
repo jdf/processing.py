@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import jycessing.RunMode;
 import jycessing.Runner.LibraryPolicy;
-import jycessing.mode.RunMode;
 
 public class SketchInfo implements Serializable {
 

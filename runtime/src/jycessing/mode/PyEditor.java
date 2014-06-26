@@ -20,6 +20,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import jycessing.IOUtil;
+import jycessing.RunMode;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.export.ExportDialog;
 import jycessing.mode.run.SketchInfo;
@@ -320,11 +321,11 @@ public class PyEditor extends Editor {
   }
 
   public void handleRun() {
-    runSketch(RunMode.WINDOWED);
+    runSketch(new RunMode(RunMode.SketchType.FROM_PDE, RunMode.DisplayType.WINDOWED));
   }
 
   public void handlePresent() {
-    runSketch(RunMode.PRESENTATION);
+    runSketch(new RunMode(RunMode.SketchType.FROM_PDE, RunMode.DisplayType.PRESENTATION));
   }
 
   public void handleStop() {

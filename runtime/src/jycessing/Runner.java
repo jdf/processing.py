@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
 
 import jycessing.annotations.PythonUsage;
 import jycessing.launcher.LaunchHelper;
-import jycessing.mode.RunMode;
 import jycessing.mode.run.SketchInfo;
 
 import org.python.core.Py;
@@ -256,17 +255,24 @@ public class Runner {
     final boolean isPresentation =
         argsList.contains(PApplet.ARGS_PRESENT) || argsList.contains(PApplet.ARGS_FULL_SCREEN);
 
+    final boolean isExported = argsList.contains("--exported");
+
+    final RunMode runMode = new RunMode(isExported ? RunMode.SketchType.EXPORT : RunMode.SketchType.SCRIPT,
+        isPresentation ? RunMode.DisplayType.PRESENTATION : RunMode.DisplayType.WINDOWED);
+
     // Hide the splash, if possible
     final SplashScreen splash = SplashScreen.getSplashScreen();
     if (splash != null) {
       splash.close();
     }
-    final SketchInfo info =
-        new SketchInfo.Builder().sketchName(new File(sketchPath).getName())
-            .addLibraryDir(getLibraries())
-            .libraryPolicy(LibraryPolicy.PROMISCUOUS)
-            .runMode(isPresentation ? RunMode.PRESENTATION : RunMode.WINDOWED)
-            .mainSketchFile(new File(sketchPath)).code(sketchSource).build();
+    final SketchInfo info = new SketchInfo.Builder()
+        .sketchName(new File(sketchPath).getName())
+        .addLibraryDir(getLibraries(runMode, sketchPath))
+        .addLibraryDir(getSourceDir(runMode, sketchPath))
+        .sketchHome(getHomeDir(runMode, sketchPath))
+        .libraryPolicy(LibraryPolicy.PROMISCUOUS)
+        .runMode(runMode).mainSketchFile(new File(sketchPath))
+        .code(sketchSource).build();
     runSketchBlocking(info, new StreamPrinter(System.out), new StreamPrinter(System.err));
   }
 
@@ -283,39 +289,77 @@ public class Runner {
    * @return the processing.py libraries directory.
    */
   @PythonUsage(methodName = "getLibrariesDir")
-  public static File getLibraries() {
-    final String propsResource;
-    try {
-      propsResource =
-          URLDecoder.decode(Runner.class.getResource(BUILD_PROPERTIES).toString(), "UTF-8");
-    } catch (final UnsupportedEncodingException e) {
-      throw new RuntimeException("Impossible: " + e);
-    }
+  public static File getLibraries(RunMode runMode, String sketchPath) {
+    switch (runMode.sketchType) {
+    case SCRIPT:
 
-    {
-      final Matcher m = JAR_RESOURCE.matcher(propsResource);
-      if (m.matches()) {
-        log("We're running from a JAR file.");
-        return new File(m.group(1), "libraries");
+      final String propsResource;
+      try {
+        propsResource = URLDecoder.decode(
+            Runner.class.getResource(BUILD_PROPERTIES).toString(), "UTF-8");
+      } catch (final UnsupportedEncodingException e) {
+        throw new RuntimeException("Impossible: " + e);
       }
-    }
-    {
-      final Matcher m = FILE_RESOURCE.matcher(propsResource);
-      if (m.matches()) {
-        log("We're running from class files.");
-        return new File(m.group(1), "libraries");
+
+      {
+        final Matcher m = JAR_RESOURCE.matcher(propsResource);
+        if (m.matches()) {
+          log("We're running from a JAR file.");
+          return new File(m.group(1), "libraries");
+        }
       }
-    }
-    // That didn't work.
-    // Maybe we're an exported sketch?
-    {
-      final File libDir = new File("lib");
+      {
+        final Matcher m = FILE_RESOURCE.matcher(propsResource);
+        if (m.matches()) {
+          log("We're running from class files.");
+          return new File(m.group(1), "libraries");
+        }
+      }
+      break;
+      
+    case EXPORT:
+      final File exportDir = new File(sketchPath).getAbsoluteFile().getParentFile().getParentFile();
+      final File libDir = new File(exportDir, "lib");
       if (libDir.exists()) {
         return libDir;
       }
+      break;
+      
+    default:
+      break;
     }
     System.err.println("WARNING: I can't figure out where my libraries directory is.");
     return new File("libraries");
+  }
+
+  /**
+   * 
+   * 
+   * @param runMode
+   * @param sketchPath
+   * @return the directory containing sketch sources
+   */
+  public static File getSourceDir(RunMode runMode, String sketchPath) {
+    
+    return new File(sketchPath).getAbsoluteFile().getParentFile();
+  }
+
+  /**
+   * 
+   * 
+   * @param runMode
+   * @param sketchPath
+   * @return the "home" directory of the sketch
+   */
+  public static File getHomeDir(RunMode runMode, String sketchPath) {
+    switch (runMode.sketchType) {
+    case SCRIPT:
+      return new File(sketchPath).getAbsoluteFile().getParentFile();
+    case EXPORT:
+      return new File(sketchPath).getAbsoluteFile().getParentFile().getParentFile();
+    default:
+      return null; //this can't happen
+    }
   }
 
   /**
@@ -339,12 +383,13 @@ public class Runner {
    */
   public static void warmup() {
     try {
-      final SketchInfo info =
-          new SketchInfo.Builder().code("exit()").runMode(RunMode.WINDOWED)
-              .mainSketchFile(new File("/tmp/warmup.pyde")).sketchName(WARMUP_SKETCH_NAME)
-              .sketchLoc(new Point(0, 0)).build();
+      final SketchInfo info = new SketchInfo.Builder()
+          .code("exit()")
+          .runMode(new RunMode(RunMode.SketchType.FROM_PDE, RunMode.DisplayType.NONE))
+          .mainSketchFile(File.createTempFile("warmup", ".pyde"))
+          .sketchName(WARMUP_SKETCH_NAME).sketchLoc(new Point(0, 0)).build();
       runSketchBlocking(info, new DevNullPrinter(), new DevNullPrinter());
-    } catch (final PythonSketchError e) {
+    } catch (final PythonSketchError | IOException e) {
       // drop
     }
   }
@@ -397,6 +442,7 @@ public class Runner {
 
       // Add the add_library function to the sketch namespace.
       if (info.libraryDirs != null) {
+        @SuppressWarnings("unused")
         final LibraryImporter libraryImporter = new LibraryImporter(info.libraryDirs, interp);
 
         if (info.libraryPolicy == LibraryPolicy.PROMISCUOUS) {

@@ -168,6 +168,7 @@ public class LinuxExport extends PlatformExport {
       
       // Runner arguments
       options.add("--noredirect");
+      options.add("--exported");
       options.add("$APPDIR/source/"+sketch.getCode(0).getFileName());
       
       script.print("$JAVA");

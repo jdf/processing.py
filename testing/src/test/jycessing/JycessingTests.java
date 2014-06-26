@@ -15,7 +15,7 @@ import jycessing.Printer;
 import jycessing.Runner;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.StreamPrinter;
-import jycessing.mode.RunMode;
+import jycessing.RunMode;
 import jycessing.mode.run.SketchInfo;
 
 import org.junit.Test;
@@ -49,7 +49,9 @@ public class JycessingTests {
         new SketchInfo.Builder().sketchName("test " + testResource)
             .libraryPolicy(LibraryPolicy.SELECTIVE).code(sourceText)
             .sketchHome(Paths.get("testing/resources/").toFile().getAbsoluteFile())
-            .mainSketchFile(source.toFile()).runMode(RunMode.UNIT_TEST).build();
+            .mainSketchFile(source.toFile())
+            .runMode(new RunMode(RunMode.SketchType.UNIT_TEST, RunMode.DisplayType.NONE))
+            .build();
     final CapturingPrinter out = new CapturingPrinter();
     Runner.runSketchBlocking(info, out, new StreamPrinter(System.err));
     return out.getText();
@@ -66,8 +68,11 @@ public class JycessingTests {
       System.err.println("Running import " + module + " test.");
       final SketchInfo info =
           new SketchInfo.Builder().sketchName("test import " + module)
-              .libraryPolicy(LibraryPolicy.SELECTIVE).code(testText).mainSketchFile(src.toFile())
-              .runMode(RunMode.UNIT_TEST).build();
+              .libraryPolicy(LibraryPolicy.SELECTIVE)
+              .code(testText)
+              .mainSketchFile(src.toFile())
+              .runMode(new RunMode(RunMode.SketchType.UNIT_TEST, RunMode.DisplayType.NONE))
+              .build();
       Runner.runSketchBlocking(info, out, new StreamPrinter(System.err));
       assertEquals("OK\n", out.getText());
     } finally {
