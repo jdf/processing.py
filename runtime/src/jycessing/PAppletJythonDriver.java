@@ -35,6 +35,9 @@ import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 
+import jycessing.mode.run.WrappedPrintStream;
+import jycessing.mode.run.WrappedPrintStream.PushedOut;
+
 import org.python.antlr.ast.Global;
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
@@ -91,6 +94,7 @@ public class PAppletJythonDriver extends PApplet {
   protected final InteractiveConsole interp;
   private final String pySketchPath;
   private final String programText;
+  private final WrappedPrintStream wrappedStdout;
 
   private final CountDownLatch finishedLatch = new CountDownLatch(1);
 
@@ -287,7 +291,13 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   public PAppletJythonDriver(final InteractiveConsole interp, final String pySketchPath,
-      final String programText) {
+      final String programText, final Printer stdout) {
+    this.wrappedStdout = new WrappedPrintStream(System.out) {
+      @Override
+      public void doPrint(final String s) {
+        stdout.print(s);
+      }
+    };
     this.programText = programText;
     this.pySketchPath = pySketchPath;
     this.mode = ACTIVE_METHOD_DEF.matcher(programText).find() ? Mode.DRAW_LOOP : Mode.STATIC;
@@ -1134,6 +1144,31 @@ public class PAppletJythonDriver extends PApplet {
   public void selectOutput(final String prompt, final String callback, final File file) {
     super.selectOutput(prompt, "handleCallback", file, new FileSelectCallbackProxy(callback));
   }
+
+  // Some PApplet builtins print directly to stdout rather than using PApplet's print()
+  @Override
+  public void printMatrix() {
+    try (PushedOut w = wrappedStdout.pushStdout()) {
+      super.printMatrix();
+    }
+  }
+
+  @Override
+  public void printCamera() {
+    try (PushedOut w = wrappedStdout.pushStdout()) {
+      super.printCamera();
+    }
+  }
+
+  @Override
+  public void printProjection() {
+    try (PushedOut w = wrappedStdout.pushStdout()) {
+      super.printProjection();
+    }
+  }
+
+  // TODO(feinberg): Patch PApplet to make printArray non-static, so we can
+  // implement it here.
 
   // Video library callbacks.
   public void captureEvent(final Object capture) {

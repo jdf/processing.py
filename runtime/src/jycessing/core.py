@@ -4,11 +4,6 @@ import __builtin__
 
 from numbers import Number
 
-# PAppletJythonDriver is a PApplet that knows how to interpret a Python
-# Processing sketch, and which delegates Processing callbacks (such as
-# setup(), draw(), keyPressed(), etc.) to the appropriate Python code.
-from jycessing import PAppletJythonDriver
-
 # Bring all of the core Processing classes by name into the builtin namespace.
 from processing.core import PApplet
 __builtin__.PApplet = PApplet
@@ -242,8 +237,6 @@ class PVector(__pvector__):
 # Now expose the funky PVector class as a builtin.
 __builtin__.PVector = PVector
 
-# Construct the PApplet.
-__papplet__ = PAppletJythonDriver(__interp__, __path__, __source__)
 # Make it available to sketches by the name "this", to better match existing
 # Java-based documentation for third-party libraries, and such.
 __builtin__.this = __papplet__
@@ -579,8 +572,6 @@ def __saveBytes__(where, data):
         return __papplet__.saveBytes(where, data)
     return PApplet.saveBytes(where, data)
 __builtin__.saveBytes = __saveBytes__
-
-del PAppletJythonDriver
 
 # Due to a seeming bug in Jython, the print builtin ignores the the setting of
 # interp.setOut and interp.setErr.
