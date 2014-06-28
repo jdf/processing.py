@@ -25,16 +25,12 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import jycessing.annotations.PythonUsage;
 import jycessing.launcher.LaunchHelper;
@@ -262,99 +258,13 @@ public class Runner {
 
     final SketchInfo info = new SketchInfo.Builder()
         .sketchName(new File(sketchPath).getName())
-        .addLibraryDir(getLibraries(runMode, sketchPath))
-        .addLibraryDir(getSourceDir(runMode, sketchPath))
-        .sketchHome(getHomeDir(runMode, sketchPath))
+        .addLibraryDir(runMode.getSourceDir(sketchPath))
+        .addLibraryDir(runMode.getLibraryDir(sketchPath))
+        .sketchHome(runMode.getHomeDir(sketchPath))
         .libraryPolicy(LibraryPolicy.PROMISCUOUS)
         .runMode(runMode).mainSketchFile(new File(sketchPath))
         .code(sketchSource).build();
     runSketchBlocking(info, new StreamPrinter(System.out), new StreamPrinter(System.err));
-  }
-
-  private static final Pattern JAR_RESOURCE = Pattern
-      .compile("jar:file:(.+?)/processing-py\\.jar!/jycessing/" + Pattern.quote(BUILD_PROPERTIES));
-  private static final Pattern FILE_RESOURCE = Pattern.compile("file:(.+?)/bin/jycessing/"
-      + Pattern.quote(BUILD_PROPERTIES));
-
-  /**
-   * Returns the library dir, when run as a command-line app.
-   * 
-   * Used from launcher.py
-   * 
-   * @return the processing.py libraries directory.
-   */
-  @PythonUsage(methodName = "getLibrariesDir")
-  public static File getLibraries(RunMode runMode, String sketchPath) {
-    switch (runMode.sketchType) {
-    case SCRIPT:
-
-      final String propsResource;
-      try {
-        propsResource = URLDecoder.decode(
-            Runner.class.getResource(BUILD_PROPERTIES).toString(), "UTF-8");
-      } catch (final UnsupportedEncodingException e) {
-        throw new RuntimeException("Impossible: " + e);
-      }
-
-      {
-        final Matcher m = JAR_RESOURCE.matcher(propsResource);
-        if (m.matches()) {
-          log("We're running from a JAR file.");
-          return new File(m.group(1), "libraries");
-        }
-      }
-      {
-        final Matcher m = FILE_RESOURCE.matcher(propsResource);
-        if (m.matches()) {
-          log("We're running from class files.");
-          return new File(m.group(1), "libraries");
-        }
-      }
-      break;
-      
-    case EXPORT:
-      final File exportDir = new File(sketchPath).getAbsoluteFile().getParentFile().getParentFile();
-      final File libDir = new File(exportDir, "lib");
-      if (libDir.exists()) {
-        return libDir;
-      }
-      break;
-      
-    default:
-      break;
-    }
-    System.err.println("WARNING: I can't figure out where my libraries directory is.");
-    return new File("libraries");
-  }
-
-  /**
-   * 
-   * 
-   * @param runMode
-   * @param sketchPath
-   * @return the directory containing sketch sources
-   */
-  public static File getSourceDir(RunMode runMode, String sketchPath) {
-    
-    return new File(sketchPath).getAbsoluteFile().getParentFile();
-  }
-
-  /**
-   * 
-   * 
-   * @param runMode
-   * @param sketchPath
-   * @return the "home" directory of the sketch
-   */
-  public static File getHomeDir(RunMode runMode, String sketchPath) {
-    switch (runMode.sketchType) {
-    case SCRIPT:
-      return new File(sketchPath).getAbsoluteFile().getParentFile();
-    case EXPORT:
-      return new File(sketchPath).getAbsoluteFile().getParentFile().getParentFile();
-    default:
-      return null; //this can't happen
-    }
   }
 
   /**
@@ -378,10 +288,12 @@ public class Runner {
    */
   public static void warmup() {
     try {
+      final File temp = File.createTempFile("warmup", ".pyde");
       final SketchInfo info = new SketchInfo.Builder()
           .code("exit()")
           .runMode(new RunMode(RunMode.SketchType.FROM_PDE, RunMode.DisplayType.NONE))
-          .mainSketchFile(File.createTempFile("warmup", ".pyde"))
+          .mainSketchFile(temp)
+          .sketchHome(temp.getAbsoluteFile().getParentFile())
           .sketchName(WARMUP_SKETCH_NAME).sketchLoc(new Point(0, 0)).build();
       runSketchBlocking(info, new DevNullPrinter(), new DevNullPrinter());
     } catch (final PythonSketchError | IOException e) {

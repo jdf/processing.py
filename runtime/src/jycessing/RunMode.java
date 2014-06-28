@@ -1,7 +1,13 @@
 package jycessing;
 
 import java.awt.Point;
+import java.io.File;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.ObjectArrays;
 
@@ -9,6 +15,12 @@ import jycessing.mode.run.SketchInfo;
 import processing.core.PApplet;
 
 public class RunMode implements Serializable {
+  
+  private static void log(String message) {
+    if (Runner.VERBOSE) {
+      System.err.println(message);
+    }
+  }
   
   public final SketchType sketchType;
   public final DisplayType displayType;
@@ -22,12 +34,39 @@ public class RunMode implements Serializable {
     return ObjectArrays.concat(displayType.args(info), sketchType.args(info), String.class);
   }
   
-  public enum SketchType {
+  public String toString() {
+    return "RunMode("+sketchType+","+displayType+")";
+  }
+  
+  public File getLibraryDir(final String sketchPath){
+    return sketchType.getLibraryDir(sketchPath);
+  }
+  
+  public File getHomeDir(final String sketchPath){
+    return sketchType.getHomeDir(sketchPath);
+  }
+  
+  public File getSourceDir(final String sketchPath){
+    return sketchType.getSourceDir(sketchPath);
+  }
+  
+  public static enum SketchType {
     FROM_PDE {
       @Override
       public String[] args(final SketchInfo info) {
-        return new String[] { info.sketchName, pathArg(info), PApplet.ARGS_EXTERNAL,
-            info.sketchName, pathArg(info) };
+        return new String[] { info.sketchName, pathArg(info), PApplet.ARGS_EXTERNAL };
+      }
+      @Override
+      public File getLibraryDir(final String sketchPath){
+        return null;
+      }
+      @Override
+      public File getHomeDir(final String sketchPath){
+        return null;
+      }
+      @Override
+      public File getSourceDir(final String sketchPath){
+        return null;
       }
     },
     EXPORT {
@@ -35,10 +74,70 @@ public class RunMode implements Serializable {
       public String[] args(final SketchInfo info) {
         return new String[] { info.sketchName, pathArg(info) };
       }
+      @Override
+      public File getLibraryDir(final String sketchPath){
+        final File exportDir = new File(sketchPath).getAbsoluteFile().getParentFile().getParentFile();
+        final File libDir = new File(exportDir, "lib");
+        if (libDir.exists()) {
+          return libDir;
+        }
+        
+        return null;
+      }
+      @Override
+      public File getHomeDir(final String sketchPath){
+        return new File(sketchPath).getAbsoluteFile().getParentFile().getParentFile();
+      }
+      @Override
+      public File getSourceDir(final String sketchPath){
+        return new File(sketchPath).getAbsoluteFile().getParentFile();
+      }
     },
     SCRIPT {
+      @Override
       public String[] args(final SketchInfo info) {
         return new String[] { info.sketchName, pathArg(info) };
+      }
+      
+      @Override
+      public File getLibraryDir(final String sketchPath){
+        final String BUILD_PROPERTIES = "build.properties";
+        final Pattern JAR_RESOURCE = Pattern.compile("jar:file:(.+?)/processing-py\\.jar!/jycessing/" 
+            + Pattern.quote(BUILD_PROPERTIES));
+        final Pattern FILE_RESOURCE = Pattern.compile("file:(.+?)/bin/jycessing/"
+            + Pattern.quote(BUILD_PROPERTIES));
+        
+        final String propsResource;
+        try {
+          propsResource = URLDecoder.decode(
+              Runner.class.getResource(BUILD_PROPERTIES).toString(), "UTF-8");
+        } catch (final UnsupportedEncodingException e) {
+          throw new RuntimeException("Impossible: " + e);
+        }
+
+        {
+          final Matcher m = JAR_RESOURCE.matcher(propsResource);
+          if (m.matches()) {
+            log("We're running from a JAR file.");
+            return new File(m.group(1), "libraries");
+          }
+        }
+        {
+          final Matcher m = FILE_RESOURCE.matcher(propsResource);
+          if (m.matches()) {
+            log("We're running from class files.");
+            return new File(m.group(1), "libraries");
+          }
+        }
+        return null;
+      }
+      @Override
+      public File getHomeDir(final String sketchPath){
+        return new File(sketchPath).getAbsoluteFile().getParentFile();
+      }
+      @Override
+      public File getSourceDir(final String sketchPath){
+        return new File(sketchPath).getAbsoluteFile().getParentFile();
       }
     },
     UNIT_TEST {
@@ -46,13 +145,28 @@ public class RunMode implements Serializable {
       public String[] args(final SketchInfo info) {
         return new String[] { info.sketchName, pathArg(info) };
       }
+      @Override
+      public File getLibraryDir(final String sketchPath){
+        return null;
+      }
+      @Override
+      public File getHomeDir(final String sketchPath){
+        return null;
+      }
+      @Override
+      public File getSourceDir(final String sketchPath){
+        return null;
+      }
     };
     private static String pathArg(final SketchInfo info) {
       return PApplet.ARGS_SKETCH_FOLDER + "="
           + info.sketchHome.getAbsolutePath();
     }
 
-    abstract public String[] args(SketchInfo info);
+    abstract public String[] args(final SketchInfo info);
+    abstract public File getLibraryDir(final String sketchPath);
+    abstract public File getHomeDir(final String sketchPath);
+    abstract public File getSourceDir(final String sketchPath);
   }
 
   public static enum DisplayType {
