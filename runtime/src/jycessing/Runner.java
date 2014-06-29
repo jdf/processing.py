@@ -197,6 +197,8 @@ public class Runner {
     return getMainJarFile().getParentFile();
   }
 
+  public static SketchInfo sketchInfo;
+  
   /**
    * @param args
    * @throws IOException
@@ -264,6 +266,8 @@ public class Runner {
         .libraryPolicy(LibraryPolicy.PROMISCUOUS)
         .runMode(runMode).mainSketchFile(new File(sketchPath))
         .code(sketchSource).build();
+    // "Launcher" uses this
+    sketchInfo = info;
     runSketchBlocking(info, new StreamPrinter(System.out), new StreamPrinter(System.err));
   }
 

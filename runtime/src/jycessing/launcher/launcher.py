@@ -50,7 +50,7 @@ class __launcher(object):
             """Copy jars & co"""
             _mainjar = Runner.getMainJarFile()
             mainjar, mainjarname = _mainjar.getAbsolutePath(), _mainjar.getName()
-            libraries = Runner.getLibrariesDir().getAbsolutePath()
+            libraries = Runner.sketchInfo.runMode.getLibraryDir(None).getAbsolutePath()
 
             shutil.copyfile(mainjar, root + "/" + mainjarname)
             shutil.copytree(libraries, root + "/libraries", ignore=shutil.ignore_patterns(*ignorelibs))

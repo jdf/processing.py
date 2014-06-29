@@ -168,7 +168,7 @@ public class JycessingTests {
 
   @Test
   public void launcher() throws Exception {
-    assertEquals("CMLx\n", run("launcher"));
+    assertEquals("CMx\n", run("launcher"));
   }
 
   @Test
