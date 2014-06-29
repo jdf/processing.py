@@ -22,14 +22,18 @@ public enum RunMode {
       final String locArg;
       if (info.sketchLoc == null) {
         if (info.editorLoc == null) {
-          locArg = locArg(PApplet.ARGS_LOCATION, new Point(0,0));
+          locArg = null; //Let PApplet figure it out
         } else {
           locArg = locArg(PApplet.ARGS_EDITOR_LOCATION, info.editorLoc);
         }
       } else {
         locArg = locArg(PApplet.ARGS_LOCATION, info.sketchLoc);
       }
-      return new String[] {PApplet.ARGS_EXTERNAL, locArg, info.sketchName, pathArg(info)};
+      if (locArg != null) {
+        return new String[] {PApplet.ARGS_EXTERNAL, locArg, info.sketchName, pathArg(info)};
+      } else {
+        return new String[] {PApplet.ARGS_EXTERNAL, info.sketchName, pathArg(info)};
+      }
     }
   },
   PRESENTATION {
