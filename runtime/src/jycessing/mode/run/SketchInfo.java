@@ -22,6 +22,9 @@ public class SketchInfo implements Serializable {
 
   public final File mainSketchFile;
 
+  public final String backgroundColor;
+  public final String stopColor;
+  
   public final String sketchName;
   public final String code;
   public final String[] codeFileNames;
@@ -29,10 +32,12 @@ public class SketchInfo implements Serializable {
   public final Point sketchLoc;
   public final LibraryPolicy libraryPolicy;
 
+  
+  
   private SketchInfo(final String sketchName, final RunMode runMode, final List<File> libDirs,
       final File sketchHome, final File mainSketchFile, final String code,
       final String[] codeFileNames, final Point editorLoc, final Point sketchLoc,
-      final LibraryPolicy libraryPolicy) {
+      final LibraryPolicy libraryPolicy, final String backgroundColor, final String stopColor) {
     this.sketchName = sketchName;
     this.runMode = runMode;
     this.libraryDirs = Collections.unmodifiableList(libDirs);
@@ -43,6 +48,8 @@ public class SketchInfo implements Serializable {
     this.editorLoc = editorLoc;
     this.sketchLoc = sketchLoc;
     this.libraryPolicy = libraryPolicy;
+    this.backgroundColor = backgroundColor;
+    this.stopColor = stopColor;
   }
 
   public static class Builder {
@@ -51,6 +58,8 @@ public class SketchInfo implements Serializable {
     private final List<File> libDirs = new ArrayList<>();
     private File sketchHome;
     private File mainSketchFile;
+    private String backgroundColor;
+    private String stopColor;
     private String code;
     private String[] codeFileNames;
     private Point editorLoc;
@@ -58,11 +67,8 @@ public class SketchInfo implements Serializable {
     private LibraryPolicy libraryPolicy;
 
     public SketchInfo build() {
-      if (sketchHome == null) {
-        sketchHome = mainSketchFile.getParentFile();
-      }
       return new SketchInfo(sketchName, runMode, libDirs, sketchHome, mainSketchFile, code,
-          codeFileNames, editorLoc, sketchLoc, libraryPolicy);
+          codeFileNames, editorLoc, sketchLoc, libraryPolicy, backgroundColor, stopColor);
     }
 
     public Builder sketchName(final String sketchName) {
@@ -113,6 +119,16 @@ public class SketchInfo implements Serializable {
 
     public Builder libraryPolicy(final LibraryPolicy libraryPolicy) {
       this.libraryPolicy = libraryPolicy;
+      return this;
+    }
+    
+    public Builder backgroundColor(final String backgroundColor) {
+      this.backgroundColor = backgroundColor;
+      return this;
+    }
+    
+    public Builder stopColor(final String stopColor) {
+      this.stopColor = stopColor;
       return this;
     }
   }

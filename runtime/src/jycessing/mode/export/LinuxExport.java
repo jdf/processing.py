@@ -2,6 +2,7 @@ package jycessing.mode.export;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -48,6 +49,8 @@ public class LinuxExport extends PlatformExport {
     final boolean hasCode = sketch.hasCodeFolder();
     final boolean deletePrevious = Preferences.getBoolean("export.delete_target_folder");
     final boolean setMemory = Preferences.getBoolean("run.options.memory");
+    final boolean presentMode = Preferences.getBoolean("export.application.fullscreen");
+    final boolean stopButton = Preferences.getBoolean("export.application.stop") && presentMode;
     
     // Work out the folders we'll be (maybe) using
     final File destFolder = new File(sketch.getFolder(), "application."+name);
@@ -175,6 +178,19 @@ public class LinuxExport extends PlatformExport {
       // Runner arguments
       options.add("--noredirect");
       options.add("--exported");
+      
+      if (presentMode) {
+        options.add(PApplet.ARGS_FULL_SCREEN);
+        
+        options.add(PApplet.ARGS_BGCOLOR+"="+Preferences.get("run.present.bgcolor"));
+      }
+      
+      if (stopButton) {
+        options.add(PApplet.ARGS_STOP_COLOR+"="+Preferences.get("run.present.stop.color"));
+      } else {
+        options.add(PApplet.ARGS_HIDE_STOP);
+      }
+      
       options.add("$APPDIR/source/"+sketch.getCode(0).getFileName());
       
       script.print("$JAVA");

@@ -254,6 +254,16 @@ public class Runner {
         argsList.contains(PApplet.ARGS_PRESENT) || argsList.contains(PApplet.ARGS_FULL_SCREEN);
 
     final boolean isExported = argsList.contains("--exported");
+    String backgroundColor = null;
+    String stopColor = null;
+        
+    for (String arg : argsList) {
+      if (arg.contains(PApplet.ARGS_BGCOLOR)) {
+        backgroundColor = arg.substring(arg.indexOf("=") + 1);
+      } else if (arg.contains(PApplet.ARGS_STOP_COLOR)) {
+        stopColor = arg.substring(arg.indexOf("=") + 1);
+      }
+    }
 
     final RunMode runMode = new RunMode(isExported ? RunMode.SketchType.EXPORT : RunMode.SketchType.SCRIPT,
         isPresentation ? RunMode.DisplayType.PRESENTATION : RunMode.DisplayType.WINDOWED);
@@ -264,7 +274,10 @@ public class Runner {
         .addLibraryDir(runMode.getLibraryDir(sketchPath))
         .sketchHome(runMode.getHomeDir(sketchPath))
         .libraryPolicy(LibraryPolicy.PROMISCUOUS)
-        .runMode(runMode).mainSketchFile(new File(sketchPath))
+        .runMode(runMode)
+        .backgroundColor(backgroundColor)
+        .stopColor(stopColor)
+        .mainSketchFile(new File(sketchPath))
         .code(sketchSource).build();
     // "Launcher" uses this
     sketchInfo = info;

@@ -180,7 +180,20 @@ public class RunMode implements Serializable {
     PRESENTATION {
       @Override
       public String[] args(final SketchInfo info) {
-        return new String[] { PApplet.ARGS_FULL_SCREEN };
+        ArrayList<String> args = new ArrayList<>();
+        if (info.backgroundColor != null) {
+          args.add(PApplet.ARGS_BGCOLOR+"="+info.backgroundColor);
+        }
+        
+        if (info.stopColor != null) {
+          args.add(PApplet.ARGS_STOP_COLOR+"="+info.stopColor);
+        } else {
+          args.add(PApplet.ARGS_HIDE_STOP);
+        }
+        
+        args.add(PApplet.ARGS_FULL_SCREEN);
+        
+        return args.toArray(new String[0]);
       }
     };
 
