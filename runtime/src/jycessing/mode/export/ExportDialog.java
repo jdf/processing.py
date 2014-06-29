@@ -341,7 +341,6 @@ public class ExportDialog extends JDialog {
     public void actionPerformed(ActionEvent e) {
       Color color = chooser.getColor();
       Preferences.setColor(prefName, color);
-      //presentColorPanel.repaint();
       repaint();
       chooser.hide();
     }

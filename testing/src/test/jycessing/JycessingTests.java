@@ -69,6 +69,7 @@ public class JycessingTests {
       final SketchInfo info =
           new SketchInfo.Builder().sketchName("test import " + module)
               .libraryPolicy(LibraryPolicy.SELECTIVE)
+              .sketchHome(Paths.get("testing/resources/").toFile().getAbsoluteFile())
               .code(testText)
               .mainSketchFile(src.toFile())
               .runMode(new RunMode(RunMode.SketchType.UNIT_TEST, RunMode.DisplayType.NONE))

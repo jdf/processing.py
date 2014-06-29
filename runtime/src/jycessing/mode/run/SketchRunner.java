@@ -37,7 +37,7 @@ public class SketchRunner implements SketchService {
       public void run() {
         Runner.warmup();
       }
-    }, "SketchRuner Warmup Thread").start();
+    }, "SketchRunner Warmup Thread").start();
   }
 
   /**

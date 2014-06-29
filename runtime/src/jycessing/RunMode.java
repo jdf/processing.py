@@ -50,23 +50,11 @@ public class RunMode implements Serializable {
     return sketchType.getSourceDir(sketchPath);
   }
   
-  public static enum SketchType {
+  public enum SketchType {
     FROM_PDE {
       @Override
       public String[] args(final SketchInfo info) {
         return new String[] { info.sketchName, pathArg(info), PApplet.ARGS_EXTERNAL };
-      }
-      @Override
-      public File getLibraryDir(final String sketchPath){
-        return null;
-      }
-      @Override
-      public File getHomeDir(final String sketchPath){
-        return null;
-      }
-      @Override
-      public File getSourceDir(final String sketchPath){
-        return null;
       }
     },
     EXPORT {
@@ -145,18 +133,6 @@ public class RunMode implements Serializable {
       public String[] args(final SketchInfo info) {
         return new String[] { info.sketchName, pathArg(info) };
       }
-      @Override
-      public File getLibraryDir(final String sketchPath){
-        return null;
-      }
-      @Override
-      public File getHomeDir(final String sketchPath){
-        return null;
-      }
-      @Override
-      public File getSourceDir(final String sketchPath){
-        return null;
-      }
     };
     private static String pathArg(final SketchInfo info) {
       return PApplet.ARGS_SKETCH_FOLDER + "="
@@ -164,12 +140,18 @@ public class RunMode implements Serializable {
     }
 
     abstract public String[] args(final SketchInfo info);
-    abstract public File getLibraryDir(final String sketchPath);
-    abstract public File getHomeDir(final String sketchPath);
-    abstract public File getSourceDir(final String sketchPath);
+    public File getLibraryDir(final String sketchPath) {
+      return null;
+    }
+    public File getHomeDir(final String sketchPath) {
+      return null;
+    }
+    public File getSourceDir(final String sketchPath) {
+      return null;
+    }
   }
 
-  public static enum DisplayType {
+  public enum DisplayType {
     NONE {
       @Override
       public String[] args(final SketchInfo info) {

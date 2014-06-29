@@ -27,9 +27,10 @@ public class LinuxExport extends PlatformExport {
     }
   }
   
-  private Sketch sketch;
-  private List<Library> libraries;
-  private PyEditor editor;
+  private final Sketch sketch;
+  private final List<Library> libraries;
+  private final PyEditor editor;
+  private final int bits;
   
   public LinuxExport(int bits, Sketch sketch, PyEditor editor, List<Library> libraries) {
     this.id = PConstants.LINUX;
@@ -133,13 +134,13 @@ public class LinuxExport extends PlatformExport {
       script.println("APPDIR=$( cd $( dirname \"$0\" ) && pwd )");
       
       if (embedJava) {
-        script.println("JAVA=$APPDIR/jre/bin/java");
+        script.println("JAVA=$APPDIR/java/bin/java");
       } else {
         script.println("JAVA=$(which java)");
       }
       
       // Make options for java
-      List<String> options = new ArrayList<String>();
+      List<String> options = new ArrayList<>();
       
       // https://github.com/processing/processing/issues/2239
       options.add("-Djna.nosys=true");
