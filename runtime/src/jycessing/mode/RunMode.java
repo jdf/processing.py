@@ -19,20 +19,12 @@ public enum RunMode {
 
     @Override
     public String[] args(final SketchInfo info) {
-      final String locArg;
-      if (info.sketchLoc == null) {
-        if (info.editorLoc == null) {
-          locArg = null; //Let PApplet figure it out
-        } else {
-          locArg = locArg(PApplet.ARGS_EDITOR_LOCATION, info.editorLoc);
-        }
+      if (info.sketchLoc != null) {
+        return new String[] { PApplet.ARGS_EXTERNAL, locArg(PApplet.ARGS_LOCATION, info.sketchLoc), info.sketchName, pathArg(info) };
+      } else if (info.editorLoc != null) {
+        return new String[] { PApplet.ARGS_EXTERNAL, locArg(PApplet.ARGS_EDITOR_LOCATION, info.editorLoc), info.sketchName, pathArg(info) };
       } else {
-        locArg = locArg(PApplet.ARGS_LOCATION, info.sketchLoc);
-      }
-      if (locArg != null) {
-        return new String[] {PApplet.ARGS_EXTERNAL, locArg, info.sketchName, pathArg(info)};
-      } else {
-        return new String[] {PApplet.ARGS_EXTERNAL, info.sketchName, pathArg(info)};
+        return new String[] { PApplet.ARGS_EXTERNAL, info.sketchName, pathArg(info) };
       }
     }
   },
