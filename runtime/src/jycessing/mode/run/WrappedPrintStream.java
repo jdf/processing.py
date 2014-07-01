@@ -5,13 +5,39 @@ import java.io.PrintStream;
 
 public abstract class WrappedPrintStream extends PrintStream {
 
+  public class PushedOut implements AutoCloseable {
+    private final PrintStream saved;
+
+    private PushedOut() {
+      saved = System.out;
+      System.setOut(WrappedPrintStream.this);
+    }
+
+    @Override
+    public void close() {
+      System.setOut(saved);
+    }
+  }
+
   public WrappedPrintStream(final OutputStream out) {
     super(out);
   }
 
+  /**
+   * {@link #pushStdout()} swaps this {@link WrappedPrintStream} in for System.out,
+   * and then puts the original stream back when the {@link PushedOut} is closed.
+   * @return an AutoCloseable context that restores System.out.
+   */
+  public PushedOut pushStdout() {
+    return new PushedOut();
+  }
+
   public abstract void doPrint(String s);
 
-  public abstract void doPrintln(String s);
+  public void doPrintln(final String s) {
+    doPrint(s);
+    doPrint("\n");
+  }
 
   @Override
   public void print(final String s) {

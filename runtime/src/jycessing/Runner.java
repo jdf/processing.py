@@ -378,7 +378,7 @@ public class Runner {
             searchForExtraStuff(dir, libs);
           }
           for (final String lib : libs) {
-            interp.exec(String.format("sys.path.append(\"%s\")\n", lib));
+            sys.path.insert(0, Py.newString(lib));
           }
         }
       }
@@ -389,25 +389,19 @@ public class Runner {
        * Here's what core.py does:
        * Bring all of the core Processing classes into the python builtins namespace,
        * so they'll be available, without qualification, from all modules.
-       * Construct a PAppletJythonDriver (which is a PApplet), then expose all of its
+       * Expose all of the PAppletJythonDriver's
        * bound methods (such as loadImage(), noSmooth(), noise(), etc.) in the builtins
        * namespace.
-       * 
-       * We provide the Jython interpreter and sketch source code to the environment
-       * so that core.py can construct the PAppletJythonDriver with all the stuff it
-       * needs. 
        */
-      interp.set("__interp__", interp);
-      interp.set("__path__", info.mainSketchFile.getAbsolutePath());
       interp.set("__cwd__", info.mainSketchFile.getParentFile().getAbsolutePath());
-      interp.set("__source__", info.code);
       interp.set("__python_mode_build__", BUILD_NUMBER);
       interp.set("__stdout__", stdout);
       interp.set("__stderr__", stderr);
+      final PAppletJythonDriver applet =
+          new PAppletJythonDriver(interp, info.mainSketchFile.getAbsolutePath(), info.code, stdout);
+      interp.set("__papplet__", applet);
       interp.exec(CORE_TEXT);
 
-      final PAppletJythonDriver applet =
-          (PAppletJythonDriver)interp.get("__papplet__").__tojava__(PAppletJythonDriver.class);
       // We have to do this because static mode sketches may load data
       // files during parsing!
       applet.sketchPath = info.sketchHome.getAbsolutePath();
