@@ -122,10 +122,7 @@ class LibraryImporter {
     if (file.isDirectory()) {
       addDirectoryToNativeSearchPath(file);
     }
-    final String appendStatement =
-        String.format("sys.path.append(\"%s\")\n", file.getAbsolutePath());
-    log(appendStatement);
-    interp.exec(appendStatement);
+    Py.getSystemState().path.insert(0, Py.newString(file.getAbsolutePath()));
     if (file.isDirectory()) {
       for (final File f : file.listFiles()) {
         if (f.isDirectory() || f.getName().endsWith(".jar")) {

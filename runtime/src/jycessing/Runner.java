@@ -399,7 +399,7 @@ public class Runner {
             searchForExtraStuff(dir, libs);
           }
           for (final String lib : libs) {
-            interp.exec(String.format("sys.path.append(\"%s\")\n", lib));
+            sys.path.insert(0, Py.newString(lib));
           }
         }
       }
