@@ -589,8 +589,7 @@ sys.stderr = FakeStdErr()
 del FakeStdOut, FakeStdErr
 
 def __println__(o):
-    sys.stdout.write(o)
-    sys.stdout.write('\n')
+    print o
 __builtin__.println = __println__
 
 
