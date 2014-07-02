@@ -23,6 +23,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -221,7 +223,9 @@ public class PAppletJythonDriver extends PApplet {
       }
       return new PythonSketchError(Py.formatException(e.type, e.value), file, line);
     }
-    return new PythonSketchError(t.getClass().getSimpleName() + ": " + t.getMessage());
+    final StringWriter stackTrace = new StringWriter();
+    t.printStackTrace(new PrintWriter(stackTrace));
+    return new PythonSketchError(stackTrace.toString());
   }
 
   private static PythonSketchError extractSketchErrorFromPyExceptionValue(final PyTuple tup) {
