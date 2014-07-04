@@ -15,17 +15,14 @@
  */
 package jycessing;
 
-import java.awt.Point;
 import java.awt.SplashScreen;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +31,8 @@ import java.util.Set;
 
 import jycessing.annotations.PythonUsage;
 import jycessing.launcher.LaunchHelper;
-import jycessing.mode.run.SketchInfo;
+import jycessing.launcher.StandaloneSketch;
+import jycessing.mode.export.ExportedSketch;
 
 import org.python.core.Py;
 import org.python.core.PyList;
@@ -83,7 +81,6 @@ public class Runner {
   private static final String CORE_TEXT = IOUtil.readResourceAsText(Runner.class, "core.py");
 
   // A beautiful cursive L, not possibly part of any real sketch name.
-  private static final String WARMUP_SKETCH_NAME = "\u2112";
 
   static boolean VERBOSE = false;
 
@@ -157,7 +154,29 @@ public class Runner {
   }
 
   public static void main(final String[] args) throws Exception {
-    runFromCommandLineArguments(args);
+    
+    if (args.length < 1) {
+      throw new RuntimeException("I need the path of your Python script as an argument.");
+    }
+    // -Dverbose=true for some logging
+    VERBOSE = Boolean.getBoolean("verbose");
+    
+    final Properties buildnum = new Properties();
+    try (InputStream buildnumberStream = Runner.class.getResourceAsStream(BUILD_PROPERTIES)) {
+      buildnum.load(buildnumberStream);
+    }
+    log("processing.py build ", buildnum.getProperty("build.number"));
+    
+    final RunnableSketch sketch;
+    
+    if (Arrays.asList(args).contains(ExportedSketch.ARGS_EXPORTED)) {
+      sketch = new ExportedSketch(args);
+    } else {
+      sketch = new StandaloneSketch(args);
+    }
+    
+    runSketchBlocking(sketch, new StreamPrinter(System.out), new StreamPrinter(System.err));
+    
     System.exit(0);
   }
 
@@ -197,93 +216,6 @@ public class Runner {
     return getMainJarFile().getParentFile();
   }
 
-  public static SketchInfo sketchInfo;
-  
-  /**
-   * @param args
-   * @throws IOException
-   * @throws FileNotFoundException
-   * @throws Exception
-   */
-  public static void runFromCommandLineArguments(final String[] args) throws Exception {
-
-    // In case we have no args, throw Exception. Also, since we don't know which script
-    // to run, we cannot redirect our input at this point.
-    if (args.length < 1) {
-      throw new RuntimeException("I need the path of your Python script as an argument.");
-    }
-
-    // The last argument is the path to the Python sketch
-    String sketchPath = args[args.length - 1];
-
-    final List<String> argsList = Arrays.asList(args);
-
-    // In case the sketch path points to "internal" we get it from the wrapper
-    if (argsList.contains("--internal")) {
-      sketchPath = new File(getRuntimeRoot(), "Runtime/sketch.py").getAbsolutePath();
-    }
-
-    // Debug when using launcher
-    if (argsList.contains("--redirect")) {
-      // Get sketch path, name, out and err names
-      final File file = new File(sketchPath).getCanonicalFile();
-      final String name = file.getName().replaceAll("\\.py", "");
-      final String out = file.getParent() + "/" + name + ".out.txt";
-      final String err = file.getParent() + "/" + name + ".err.txt";
-
-      // Redirect actual input
-      System.setOut(new PrintStream(new FileOutputStream(out)));
-      System.setErr(new PrintStream(new FileOutputStream(err)));
-    }
-
-    // -Dverbose=true for some logging
-    VERBOSE = Boolean.getBoolean("verbose");
-
-    final Properties buildnum = new Properties();
-    try (InputStream buildnumberStream = Runner.class.getResourceAsStream(BUILD_PROPERTIES)) {
-      buildnum.load(buildnumberStream);
-    }
-    log("processing.py build ", buildnum.getProperty("build.number"));
-
-    // This will throw an exception and die if the given file is not there
-    // or not readable.
-    final String sketchSource = IOUtil.readText(new File(sketchPath).toPath());
-
-    @SuppressWarnings("deprecation")
-    final boolean isPresentation =
-        argsList.contains(PApplet.ARGS_PRESENT) || argsList.contains(PApplet.ARGS_FULL_SCREEN);
-
-    final boolean isExported = argsList.contains("--exported");
-    String backgroundColor = null;
-    String stopColor = null;
-        
-    for (String arg : argsList) {
-      if (arg.contains(PApplet.ARGS_BGCOLOR)) {
-        backgroundColor = arg.substring(arg.indexOf("=") + 1);
-      } else if (arg.contains(PApplet.ARGS_STOP_COLOR)) {
-        stopColor = arg.substring(arg.indexOf("=") + 1);
-      }
-    }
-
-    final RunMode runMode = new RunMode(isExported ? RunMode.SketchType.EXPORT : RunMode.SketchType.SCRIPT,
-        isPresentation ? RunMode.DisplayType.PRESENTATION : RunMode.DisplayType.WINDOWED);
-
-    final SketchInfo info = new SketchInfo.Builder()
-        .sketchName(new File(sketchPath).getName())
-        .addLibraryDir(runMode.getSourceDir(sketchPath))
-        .addLibraryDir(runMode.getLibraryDir(sketchPath))
-        .sketchHome(runMode.getHomeDir(sketchPath))
-        .libraryPolicy(LibraryPolicy.PROMISCUOUS)
-        .runMode(runMode)
-        .backgroundColor(backgroundColor)
-        .stopColor(stopColor)
-        .mainSketchFile(new File(sketchPath))
-        .code(sketchSource).build();
-    // "Launcher" uses this
-    sketchInfo = info;
-    runSketchBlocking(info, new StreamPrinter(System.out), new StreamPrinter(System.err));
-  }
-
   /**
    * Specifies how to deal with the libraries directory.
    */
@@ -299,31 +231,66 @@ public class Runner {
     SELECTIVE
   }
 
+  private static class WarmupSketch implements RunnableSketch {
+    final File sketchFile;
+    WarmupSketch() {
+      File temp;
+      try {
+        temp = File.createTempFile("warmup", ".pyde");
+      } catch (IOException e){
+        temp = null;
+        // drop
+      }
+      this.sketchFile = temp;
+    }
+    @Override
+    public File getMainFile() {
+      return sketchFile;
+    }
+    @Override
+    public String getMainCode() {
+      return "print \"warming up!\"\nexit()";
+    }
+    @Override
+    public File getHomeDirectory() {
+      return sketchFile.getAbsoluteFile().getParentFile();
+    }
+    @Override
+    public String[] getPAppletArguments() {
+      return new String[] {"warmup.pyde"};
+    }
+    @Override
+    public List<File> getLibraryDirectories() {
+      return new ArrayList<>();
+    }
+    @Override
+    public LibraryPolicy getLibraryPolicy() {
+      return LibraryPolicy.PROMISCUOUS;
+    }
+    @Override
+    public boolean shouldRun() {
+      return false;
+    }
+  }
+  
   /**
    * warmup() front-loads a huge amount of slow IO so that when the user gets around
    * to running a sketch, most of the slow work is already done. 
    */
   public static void warmup() {
     try {
-      final File temp = File.createTempFile("warmup", ".pyde");
-      final SketchInfo info = new SketchInfo.Builder()
-          .code("exit()")
-          .runMode(new RunMode(RunMode.SketchType.FROM_PDE, RunMode.DisplayType.NONE))
-          .mainSketchFile(temp)
-          .sketchHome(temp.getAbsoluteFile().getParentFile())
-          .sketchName(WARMUP_SKETCH_NAME).sketchLoc(new Point(0, 0)).build();
-      runSketchBlocking(info, new DevNullPrinter(), new DevNullPrinter());
-    } catch (final PythonSketchError | IOException e) {
+      runSketchBlocking(new WarmupSketch(), new DevNullPrinter(), new DevNullPrinter());
+    } catch (final PythonSketchError e) {
       // drop
     }
   }
 
-  public synchronized static void runSketchBlocking(final SketchInfo info, final Printer stdout,
+  public synchronized static void runSketchBlocking(final RunnableSketch sketch, final Printer stdout,
       final Printer stderr) throws PythonSketchError {
-    runSketchBlocking(info, stdout, stderr, null);
+    runSketchBlocking(sketch, stdout, stderr, null);
   }
 
-  public synchronized static void runSketchBlocking(final SketchInfo info, final Printer stdout,
+  public synchronized static void runSketchBlocking(final RunnableSketch sketch, final Printer stdout,
       final Printer stderr, final SketchPositionListener sketchPositionListener)
       throws PythonSketchError {
     final Properties props = new Properties();
@@ -335,17 +302,17 @@ public class Runner {
     // props.setProperty("python.verbose", "debug");
 
     final StringBuilder pythonPath = new StringBuilder();
-    for (final File dir : info.libraryDirs) {
+    for (final File dir : sketch.getLibraryDirectories()) {
       pythonPath.append(dir.getAbsolutePath());
     }
-    final String sketchDirPath = info.mainSketchFile.getParentFile().getAbsolutePath();
+    final String sketchDirPath = sketch.getHomeDirectory().toString();
     pythonPath.append(File.pathSeparator).append(sketchDirPath);
 
     props.setProperty("python.path", pythonPath.toString());
-    props.setProperty("python.main", info.mainSketchFile.getAbsolutePath());
+    props.setProperty("python.main", sketch.getMainFile().toString());
     props.setProperty("python.main.root", sketchDirPath);
 
-    final String[] args = info.runMode.args(info);
+    final String[] args = sketch.getPAppletArguments();
     PythonInterpreter.initialize(null, props, args);
 
     final PySystemState sys = Py.getSystemState();
@@ -360,21 +327,23 @@ public class Runner {
       sys.path.insert(0, Py.newString(sketchDirPath));
 
       // For moar useful error messages.
-      interp.set("__file__", info.mainSketchFile.getAbsolutePath());
+      interp.set("__file__", sketch.getMainFile().toString());
 
       interp.exec("import sys\n");
 
+      final List<File> libDirs = sketch.getLibraryDirectories();
+      
       // Add the add_library function to the sketch namespace.
-      if (info.libraryDirs != null) {
+      if (libDirs != null) {
         @SuppressWarnings("unused")
-        final LibraryImporter libraryImporter = new LibraryImporter(info.libraryDirs, interp);
+        final LibraryImporter libraryImporter = new LibraryImporter(sketch.getLibraryDirectories(), interp);
 
-        if (info.libraryPolicy == LibraryPolicy.PROMISCUOUS) {
-          log("Promiscusouly adding all libraries in " + info.libraryDirs);
+        if (sketch.getLibraryPolicy() == LibraryPolicy.PROMISCUOUS) {
+          log("Promiscusouly adding all libraries in " + libDirs);
           // Recursively search the "libraries" directory for jar files and
           // directories containing dynamic libraries.
           final Set<String> libs = new HashSet<>();
-          for (final File dir : info.libraryDirs) {
+          for (final File dir : libDirs) {
             searchForExtraStuff(dir, libs);
           }
           for (final String lib : libs) {
@@ -384,7 +353,7 @@ public class Runner {
       }
 
       interp.exec(LAUNCHER_TEXT);
-
+      
       /*
        * Here's what core.py does:
        * Bring all of the core Processing classes into the python builtins namespace,
@@ -393,18 +362,18 @@ public class Runner {
        * bound methods (such as loadImage(), noSmooth(), noise(), etc.) in the builtins
        * namespace.
        */
-      interp.set("__cwd__", info.mainSketchFile.getParentFile().getAbsolutePath());
+      interp.set("__cwd__", sketch.getHomeDirectory().getAbsolutePath());
       interp.set("__python_mode_build__", BUILD_NUMBER);
       interp.set("__stdout__", stdout);
       interp.set("__stderr__", stderr);
       final PAppletJythonDriver applet =
-          new PAppletJythonDriver(interp, info.mainSketchFile.getAbsolutePath(), info.code, stdout);
+          new PAppletJythonDriver(interp, sketch.getMainFile().toString(), sketch.getMainCode(), stdout);
       interp.set("__papplet__", applet);
       interp.exec(CORE_TEXT);
 
       // We have to do this because static mode sketches may load data
       // files during parsing!
-      applet.sketchPath = info.sketchHome.getAbsolutePath();
+      applet.sketchPath = sketch.getHomeDirectory().toString();
 
       applet.setSketchPositionListener(sketchPositionListener);
 
@@ -417,13 +386,16 @@ public class Runner {
       }
       
       try {
-        if (!info.sketchName.equals(WARMUP_SKETCH_NAME)) {
+        if (sketch.shouldRun()) {
+          stdout.print("applet.runAndBlock()\n");
           applet.runAndBlock(args);
         }
       } finally {
+        stdout.print("interp.cleanup()\n");
         interp.cleanup();
       }
     } finally {
+      stdout.print("cleaning up, resetting things...\n");
       sys.modules = originalModules;
       sys.path.clear();
       sys.path.addAll(originalPath);
@@ -432,6 +404,7 @@ public class Runner {
         builtins.__setitem__(k, originalBuiltins.get(k));
       }
       resetCodecsModule();
+      stdout.print("done\n");
     }
   }
 

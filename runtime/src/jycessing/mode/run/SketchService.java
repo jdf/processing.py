@@ -3,8 +3,10 @@ package jycessing.mode.run;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+import jycessing.RunnableSketch;
+
 public interface SketchService extends Remote {
-  void startSketch(SketchInfo info) throws RemoteException;
+  void startSketch(PdeSketch sketch) throws RemoteException;
 
   void stopSketch() throws RemoteException;
 

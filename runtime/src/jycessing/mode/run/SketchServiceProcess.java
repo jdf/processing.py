@@ -121,6 +121,8 @@ public class SketchServiceProcess {
 
     command.add("-Djava.library.path=" + System.getProperty("java.library.path"));
 
+    command.add("-agentlib:jdwp=transport=dt_socket,address=localhost:8888,server=y,suspend=n");
+    
     final List<String> cp = new ArrayList<>();
     cp.addAll(filter(
         Arrays.asList(System.getProperty("java.class.path")
@@ -152,20 +154,20 @@ public class SketchServiceProcess {
     command.add(editor.getId());
 
     return new ProcessBuilder(command);
-  }
+  } 
 
   private void restartServerProcess() {
     shutdown();
     start();
   }
 
-  public void runSketch(final SketchInfo info) throws SketchException {
+  public void runSketch(final PdeSketch sketch) throws SketchException {
     // Create a pending request in case of various failure modes.
     pendingSketchRequest = new Runnable() {
       @Override
       public void run() {
         try {
-          runSketch(info);
+          runSketch(sketch);
         } catch (final SketchException e) {
           editor.statusError(e);
         }
@@ -177,7 +179,7 @@ public class SketchServiceProcess {
       return;
     }
     try {
-      sketchService.startSketch(info);
+      sketchService.startSketch(sketch);
       // If and only if we've successully request a sketch start, nuke the pending request.
       pendingSketchRequest = null;
       return;

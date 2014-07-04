@@ -19,10 +19,12 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+import jycessing.DisplayType;
 import jycessing.IOUtil;
 import jycessing.RunMode;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.export.ExportDialog;
+import jycessing.mode.run.PdeSketch;
 import jycessing.mode.run.SketchInfo;
 import jycessing.mode.run.SketchInfo.Builder;
 import jycessing.mode.run.SketchService;
@@ -274,45 +276,37 @@ public class PyEditor extends Editor {
     return tmp;
   }
 
-  private void runSketch(final RunMode mode) {
+  private void runSketch(final DisplayType displayType) {
     prepareRun();
     toolbar.activate(PyToolbar.RUN);
-    final String sketchPath;
+    final File sketchPath;
     if (sketch.isModified()) {
       log("Sketch is modified; must copy it to temp dir.");
       final String sketchMainFileName = sketch.getCode(0).getFile().getName();
       try {
         tempSketch = createTempSketch();
-        sketchPath = tempSketch.resolve(sketchMainFileName).toString();
+        sketchPath = tempSketch.resolve(sketchMainFileName).toFile();
       } catch (final IOException e) {
         Base.showError("Sketchy Behavior", "I can't copy your unsaved work\n"
             + "to a temp directory.", e);
         return;
       }
     } else {
-      sketchPath = sketch.getCode(0).getFile().getAbsolutePath();
+      sketchPath = sketch.getCode(0).getFile().getAbsoluteFile();
     }
-
+    
+    final boolean isEditorLocation;
+    final Point location;
+    if (getSketchLocation() != null) {
+      isEditorLocation = false;
+      location = new Point(getSketchLocation());
+    } else { // assume editor has a position - is that safe?
+      isEditorLocation = true;
+      location = new Point(getLocation());
+    }
+    
     try {
-      final String[] codeFileNames = new String[sketch.getCodeCount()];
-      for (int i = 0; i < codeFileNames.length; i++) {
-        codeFileNames[i] = sketch.getCode(i).getFile().getName();
-      }
-      final Builder infoBuilder =
-          new SketchInfo.Builder().sketchName(sketch.getName()).runMode(mode)
-              .addLibraryDir(Base.getContentFile("modes/java/libraries"))
-              .addLibraryDir(Base.getSketchbookLibrariesFolder())
-              .sketchHome(sketch.getFolder().getAbsoluteFile())
-              .mainSketchFile(new File(sketchPath).getAbsoluteFile())
-              .code(sketch.getCode(0).getProgram()).codeFileNames(codeFileNames)
-              .libraryPolicy(LibraryPolicy.SELECTIVE);
-
-      if (getSketchLocation() != null) {
-        infoBuilder.sketchLoc(getSketchLocation());
-      } else if (getLocation() != null) {
-        infoBuilder.editorLoc(new Point(getLocation()));
-      }
-      sketchService.runSketch(infoBuilder.build());
+      sketchService.runSketch(new PdeSketch(sketch, sketchPath, displayType, location, isEditorLocation));
     } catch (final SketchException e) {
       statusError(e);
     }
@@ -325,11 +319,11 @@ public class PyEditor extends Editor {
   }
 
   public void handleRun() {
-    runSketch(new RunMode(RunMode.SketchType.FROM_PDE, RunMode.DisplayType.WINDOWED));
+    runSketch(DisplayType.WINDOWED);
   }
 
   public void handlePresent() {
-    runSketch(new RunMode(RunMode.SketchType.FROM_PDE, RunMode.DisplayType.PRESENTATION));
+    runSketch(DisplayType.PRESENTATION);
   }
 
   public void handleStop() {
