@@ -21,16 +21,6 @@ import jycessing.Runner.LibraryPolicy;
  * from complaining that it doesn't know about Base.
  */
 
-/*
- * ew SketchInfo.Builder().sketchName(sketch.getName()).runMode(mode)
-              .addLibraryDir(Base.getContentFile("modes/java/libraries"))
-              .addLibraryDir(Base.getSketchbookLibrariesFolder())
-              .sketchHome(sketch.getFolder().getAbsoluteFile())
-              .mainSketchFile(new File(sketchPath).getAbsoluteFile())
-              .code(sketch.getCode(0).getProgram()).codeFileNames(codeFileNames)
-              .libraryPolicy(LibraryPolicy.SELECTIVE);
-
- */
 public class PdeSketch implements RunnableSketch, Serializable {
   
   private final List<File> libraryDirs;
