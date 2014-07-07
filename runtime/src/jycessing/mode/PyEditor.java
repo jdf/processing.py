@@ -21,12 +21,9 @@ import javax.swing.JOptionPane;
 
 import jycessing.DisplayType;
 import jycessing.IOUtil;
-import jycessing.RunMode;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.export.ExportDialog;
 import jycessing.mode.run.PdeSketch;
-import jycessing.mode.run.SketchInfo;
-import jycessing.mode.run.SketchInfo.Builder;
 import jycessing.mode.run.SketchService;
 import jycessing.mode.run.SketchServiceManager;
 import jycessing.mode.run.SketchServiceProcess;

@@ -89,7 +89,6 @@ public class PdeSketch implements RunnableSketch, Serializable {
   public String[] getPAppletArguments() {
     List<String> args = new ArrayList<>();
     
-    args.add(mainFile.getName()); // sketch name
     args.add(PApplet.ARGS_EXTERNAL);
     args.add(PApplet.ARGS_SKETCH_FOLDER + "=" + sketchHome);
     
@@ -107,6 +106,8 @@ public class PdeSketch implements RunnableSketch, Serializable {
       break;
     }
     
+    args.add(mainFile.getName()); // sketch name; has to be last argument
+        
     return args.toArray(new String[0]);
   }
 

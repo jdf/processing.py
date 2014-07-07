@@ -21,7 +21,6 @@ import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import jycessing.annotations.PythonUsage;
 import jycessing.launcher.LaunchHelper;
 import jycessing.launcher.StandaloneSketch;
 import jycessing.mode.export.ExportedSketch;
@@ -80,9 +78,7 @@ public class Runner {
       "launcher.py");
   private static final String CORE_TEXT = IOUtil.readResourceAsText(Runner.class, "core.py");
 
-  // A beautiful cursive L, not possibly part of any real sketch name.
-
-  static boolean VERBOSE = false;
+  static public boolean VERBOSE = false;
 
   static void log(final Object... objs) {
     if (!VERBOSE) {
@@ -153,6 +149,8 @@ public class Runner {
     }
   }
 
+  public static RunnableSketch sketch;
+  
   public static void main(final String[] args) throws Exception {
     
     if (args.length < 1) {
@@ -166,9 +164,6 @@ public class Runner {
       buildnum.load(buildnumberStream);
     }
     log("processing.py build ", buildnum.getProperty("build.number"));
-    
-    final RunnableSketch sketch;
-    
     if (Arrays.asList(args).contains(ExportedSketch.ARGS_EXPORTED)) {
       sketch = new ExportedSketch(args);
     } else {
@@ -178,42 +173,6 @@ public class Runner {
     runSketchBlocking(sketch, new StreamPrinter(System.out), new StreamPrinter(System.err));
     
     System.exit(0);
-  }
-
-  /**
-   * Returns the path of the main processing-py.jar file.
-   * 
-   * Used from launcher.py
-   * 
-   * @return the path of processing-py.jar.
-   */
-  @PythonUsage(methodName = "getMainJarFile")
-  public static File getMainJarFile() {
-    // On a Mac, when launched as an app, this will contain ".app/Contents/Java/processing-py.jar"
-    try {
-      return new File(Runner.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-    } catch (final URISyntaxException e) {
-      e.printStackTrace();
-    }
-    return null;
-  }
-
-  /**
-   * Returns the 'root' folder of this instance. Used when running with a
-   * wrapper.
-   * 
-   * @return the distribution root directory.
-   */
-  public static File getRuntimeRoot() {
-    final File jar = getMainJarFile();
-
-    // If we are on a mac
-    if (jar.getAbsolutePath().contains(".app/Contents/")) {
-      return getMainJarFile().getParentFile().getParentFile();
-    }
-
-    // If we are on Windows
-    return getMainJarFile().getParentFile();
   }
 
   /**
@@ -302,8 +261,13 @@ public class Runner {
     // props.setProperty("python.verbose", "debug");
 
     final StringBuilder pythonPath = new StringBuilder();
-    for (final File dir : sketch.getLibraryDirectories()) {
-      pythonPath.append(dir.getAbsolutePath());
+    
+    final List<File> libDirs = sketch.getLibraryDirectories();
+    
+    if (libDirs != null) {
+      for (final File dir : sketch.getLibraryDirectories()) {
+        pythonPath.append(dir.getAbsolutePath());
+      }
     }
     final String sketchDirPath = sketch.getHomeDirectory().toString();
     pythonPath.append(File.pathSeparator).append(sketchDirPath);
@@ -330,8 +294,6 @@ public class Runner {
       interp.set("__file__", sketch.getMainFile().toString());
 
       interp.exec("import sys\n");
-
-      final List<File> libDirs = sketch.getLibraryDirectories();
       
       // Add the add_library function to the sketch namespace.
       if (libDirs != null) {
@@ -352,6 +314,7 @@ public class Runner {
         }
       }
 
+      // Make fake "launcher" module available to sketches - will only work with standalone sketches
       interp.exec(LAUNCHER_TEXT);
       
       /*
@@ -387,15 +350,12 @@ public class Runner {
       
       try {
         if (sketch.shouldRun()) {
-          stdout.print("applet.runAndBlock()\n");
           applet.runAndBlock(args);
         }
       } finally {
-        stdout.print("interp.cleanup()\n");
         interp.cleanup();
       }
     } finally {
-      stdout.print("cleaning up, resetting things...\n");
       sys.modules = originalModules;
       sys.path.clear();
       sys.path.addAll(originalPath);
@@ -404,7 +364,6 @@ public class Runner {
         builtins.__setitem__(k, originalBuiltins.get(k));
       }
       resetCodecsModule();
-      stdout.print("done\n");
     }
   }
 

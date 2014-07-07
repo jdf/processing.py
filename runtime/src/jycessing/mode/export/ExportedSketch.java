@@ -96,8 +96,6 @@ public class ExportedSketch implements RunnableSketch {
   public String[] getPAppletArguments() {
     List<String> args = new ArrayList<>();
     
-    args.add(sketchPath.getName());
-    
     if (displayType == DisplayType.PRESENTATION) {
       args.add(PApplet.ARGS_FULL_SCREEN);
       args.add(PApplet.ARGS_BGCOLOR + "=" + backgroundColor);
@@ -110,6 +108,9 @@ public class ExportedSketch implements RunnableSketch {
     }
     
     args.add(PApplet.ARGS_SKETCH_FOLDER + "=" + getHomeDirectory());
+    
+    args.add(sketchPath.getName()); // sketch name; must be last argument
+    
     return args.toArray(new String[0]);
   }
 
