@@ -74,6 +74,10 @@ public class ExportedSketch implements RunnableSketch {
     if (libDir.exists()) {
       libraryDirs.add(libDir); // "$APPDIR/lib"
     }
+    final File codeDir = new File(getHomeDirectory(), "code");
+    if (codeDir.exists()) {
+      libraryDirs.add(codeDir); // "$APPDIR/lib"
+    }
     this.libraryDirs = libraryDirs;
   }
 

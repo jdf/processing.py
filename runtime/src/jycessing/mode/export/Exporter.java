@@ -30,9 +30,7 @@ public class Exporter {
   
   public void export() {
     // Do export-common things - work out libraries, etc.
-    List<Library> libraries = new ArrayList<>();
-    Library core = new Library(Base.getContentFile("core"));
-    libraries.add(core);
+    List<Library> libraries = new ImportExtractor(sketch).getLibraries();
     
     // Now, do this for each platform:
     if (Preferences.getBoolean("export.application.platform.linux")) {
