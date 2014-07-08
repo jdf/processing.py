@@ -17,10 +17,9 @@ public class MacExport extends PlatformExport {
     }
   }
   
-  
-  private Sketch sketch;
-  private List<Library> libraries;
-  private PyEditor editor;
+  private final Sketch sketch;
+  private final List<Library> libraries;
+  private final PyEditor editor;
   
   public MacExport(Sketch sketch, PyEditor editor, List<Library> libraries) {
     this.id = PConstants.MACOSX;

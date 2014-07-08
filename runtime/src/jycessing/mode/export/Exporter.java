@@ -37,13 +37,13 @@ public class Exporter {
     // Now, do this for each platform:
     if (Preferences.getBoolean("export.application.platform.linux")) {
       try {
-        new LinuxExport(32, sketch, editor, libraries).export();
+        new LinuxExport(Arch.X86, sketch, editor, libraries).export();
       } catch (IOException e) {
         e.printStackTrace();
         editor.statusError("Export to linux32 failed!");
       }
       try {
-        new LinuxExport(64, sketch, editor, libraries).export();
+        new LinuxExport(Arch.AMD64, sketch, editor, libraries).export();
       } catch (IOException e) {
         e.printStackTrace();
         editor.statusError("Export to linux64 failed!");
@@ -51,13 +51,13 @@ public class Exporter {
     }
     if (Preferences.getBoolean("export.application.platform.windows")) {
       try {
-        new WindowsExport(32, sketch, editor, libraries).export();
+        new WindowsExport(Arch.X86, sketch, editor, libraries).export();
       } catch (IOException e) {
         e.printStackTrace();
         editor.statusError("Export to windows32 failed!");
       }
       try {
-        new WindowsExport(64, sketch, editor, libraries).export();
+        new WindowsExport(Arch.AMD64, sketch, editor, libraries).export();
       } catch (IOException e) {
         e.printStackTrace();
         editor.statusError("Export to windows64 failed!");

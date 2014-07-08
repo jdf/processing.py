@@ -18,15 +18,15 @@ public class WindowsExport extends PlatformExport {
   }
   
   
-  private Sketch sketch;
-  private List<Library> libraries;
-  private PyEditor editor;
-  private int bits;
+  private final Sketch sketch;
+  private final List<Library> libraries;
+  private final PyEditor editor;
+  private final Arch arch;
 
-  public WindowsExport(int bits, Sketch sketch, PyEditor editor, List<Library> libraries) {
+  public WindowsExport(Arch arch, Sketch sketch, PyEditor editor, List<Library> libraries) {
     this.id = PConstants.WINDOWS;
-    this.bits = bits;
-    this.name = PConstants.platformNames[id] + bits;
+    this.arch = arch;
+    this.name = PConstants.platformNames[id] + arch.bits;
     this.sketch = sketch;
     this.editor = editor;
     this.libraries = libraries;

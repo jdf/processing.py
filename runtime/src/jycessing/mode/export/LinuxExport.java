@@ -31,12 +31,12 @@ public class LinuxExport extends PlatformExport {
   private final Sketch sketch;
   private final List<Library> libraries;
   private final PyEditor editor;
-  private final int bits;
+  private final Arch arch;
   
-  public LinuxExport(int bits, Sketch sketch, PyEditor editor, List<Library> libraries) {
+  public LinuxExport(Arch arch, Sketch sketch, PyEditor editor, List<Library> libraries) {
     this.id = PConstants.LINUX;
-    this.bits = bits;
-    this.name = PConstants.platformNames[id] + bits;
+    this.arch = arch;
+    this.name = PConstants.platformNames[id] + arch.bits;
     this.sketch = sketch;
     this.editor = editor;
     this.libraries = libraries;
@@ -103,7 +103,7 @@ public class LinuxExport extends PlatformExport {
       log("Copying libraries to export.");
       libFolder.mkdirs();
       for (Library library : libraries) {
-        for (File exportFile : library.getApplicationExports(id, bits)) {
+        for (File exportFile : library.getApplicationExports(id, arch.bits)) {
           final String exportName = exportFile.getName();
           if (!exportFile.exists()) {
             System.err.println("The file "+exportName+" is mentioned in the export.txt from "
