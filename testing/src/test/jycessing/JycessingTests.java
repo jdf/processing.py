@@ -153,11 +153,6 @@ public class JycessingTests {
   }
 
   @Test
-  public void launcher() throws Exception {
-    assertEquals("CMx\n", run("launcher"));
-  }
-
-  @Test
   public void millis() throws Exception {
     expectOK("millis");
   }
