@@ -28,7 +28,7 @@ public class PdeSketch implements RunnableSketch, Serializable {
   private final String mainCode;
   private final File sketchHome;
   private final Point location;
-  private final boolean isEditorLocation;
+  private final LocationType locationType;
   private final DisplayType displayType;
   
   public final String[] codeFileNames; // unique to PdeSketch - leave as public field?
@@ -37,11 +37,11 @@ public class PdeSketch implements RunnableSketch, Serializable {
                     final File sketchPath,
                     final DisplayType displayType,
                     final Point location,
-                    final boolean isEditorLocation) {
+                    final LocationType locationType) {
     
     this.displayType = displayType;
     this.location = location;
-    this.isEditorLocation = isEditorLocation;
+    this.locationType = locationType;
     
     this.mainFile = sketchPath.getAbsoluteFile();
     this.mainCode = sketch.getMainProgram();
@@ -58,6 +58,11 @@ public class PdeSketch implements RunnableSketch, Serializable {
       codeFileNames[i] = sketch.getCode(i).getFile().getName();
     }
     this.codeFileNames = codeFileNames;
+  }
+  
+  public static enum LocationType {
+    EDITOR_LOCATION,
+    SKETCH_LOCATION;
   }
 
   @Override
@@ -84,9 +89,9 @@ public class PdeSketch implements RunnableSketch, Serializable {
     
     switch (displayType) {
     case WINDOWED:
-      if (isEditorLocation) {
+      if (locationType == LocationType.EDITOR_LOCATION) {
         args.add(String.format("%s=%d,%d", PApplet.ARGS_EDITOR_LOCATION, location.x, location.y));
-      } else {
+      } else if (locationType == LocationType.SKETCH_LOCATION) {
         args.add(String.format("%s=%d,%d", PApplet.ARGS_LOCATION, location.x, location.y));
       }
       break;

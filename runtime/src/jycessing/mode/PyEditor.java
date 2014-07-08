@@ -24,6 +24,7 @@ import jycessing.IOUtil;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.export.ExportDialog;
 import jycessing.mode.run.PdeSketch;
+import jycessing.mode.run.PdeSketch.LocationType;
 import jycessing.mode.run.SketchService;
 import jycessing.mode.run.SketchServiceManager;
 import jycessing.mode.run.SketchServiceProcess;
@@ -292,18 +293,18 @@ public class PyEditor extends Editor {
       sketchPath = sketch.getCode(0).getFile().getAbsoluteFile();
     }
     
-    final boolean isEditorLocation;
+    final LocationType locationType;
     final Point location;
     if (getSketchLocation() != null) {
-      isEditorLocation = false;
+      locationType = LocationType.SKETCH_LOCATION;
       location = new Point(getSketchLocation());
     } else { // assume editor has a position - is that safe?
-      isEditorLocation = true;
+      locationType = LocationType.EDITOR_LOCATION;
       location = new Point(getLocation());
     }
     
     try {
-      sketchService.runSketch(new PdeSketch(sketch, sketchPath, displayType, location, isEditorLocation));
+      sketchService.runSketch(new PdeSketch(sketch, sketchPath, displayType, location, locationType));
     } catch (final SketchException e) {
       statusError(e);
     }
