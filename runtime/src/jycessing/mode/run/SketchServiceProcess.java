@@ -118,6 +118,10 @@ public class SketchServiceProcess {
       // Suppress dock icon.
       command.add("-Dapple.awt.UIElement=true");
     }
+    
+    if (PythonMode.VERBOSE) {
+      command.add("-Dverbose=true");
+    }
 
     command.add("-Djava.library.path=" + System.getProperty("java.library.path"));
     

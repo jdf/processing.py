@@ -22,8 +22,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import jycessing.mode.PythonMode;
-
 /**
  * {@link LibraryImporter} contributes the add_library function to processing.py.
  * 
@@ -39,7 +37,7 @@ import jycessing.mode.PythonMode;
  */
 class LibraryImporter {
   private static void log(final String msg) {
-    if (PythonMode.VERBOSE) {
+    if (Runner.VERBOSE) {
       System.err.println(LibraryImporter.class.getSimpleName() + ": " + msg);
     }
   }
