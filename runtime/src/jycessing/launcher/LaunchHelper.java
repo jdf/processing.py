@@ -3,6 +3,7 @@ package jycessing.launcher;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import jycessing.IOUtil;
@@ -21,9 +22,9 @@ public class LaunchHelper {
    * @param path
    * @throws IOException
    */
-  public static void copyResourceTo(final String name, final String path) throws IOException {
+  public static void copyResourceTo(final String name, final Path path) throws IOException {
     try (InputStream in = LaunchHelper.class.getResourceAsStream(name)) {
-      Files.write(Paths.get(path), IOUtil.readFully(LaunchHelper.class.getResourceAsStream(name)));
+      Files.write(path, IOUtil.readFully(LaunchHelper.class.getResourceAsStream(name)));
     }
   }
 }

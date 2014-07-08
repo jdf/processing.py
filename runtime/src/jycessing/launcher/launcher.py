@@ -29,6 +29,7 @@ class __launcher(object):
         import jycessing.launcher.LaunchHelper as LaunchHelper
         
         import java.lang.System as System
+        import java.nio.file.Paths as Paths
         import os, shutil, zipfile, inspect, stat, glob, errno
 
         main = System.getProperty("python.main")
@@ -93,7 +94,7 @@ class __launcher(object):
             os.mkdir(pdir)
 
             # Copy archive
-            LaunchHelper.copyResourceTo("launcher." + platform + ".zip", tmpfile)
+            LaunchHelper.copyResourceTo("launcher." + platform + ".zip", Paths.get(tmpfile))
             
             # Unzip
             z = zipfile.ZipFile(tmpfile, "r")

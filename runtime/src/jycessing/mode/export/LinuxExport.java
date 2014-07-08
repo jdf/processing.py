@@ -53,7 +53,7 @@ public class LinuxExport extends PlatformExport {
     final boolean stopButton = Preferences.getBoolean("export.application.stop") && presentMode;
     
     // Work out the folders we'll be (maybe) using
-    final File destFolder = new File(sketch.getFolder(), "application."+name);
+    final File destFolder = new File(sketch.getFolder(), "application." + name);
     final File libFolder = new File(destFolder, "lib");
     final File codeFolder = new File(destFolder, "code");
     final File sourceFolder = new File(destFolder, "source");
@@ -106,8 +106,8 @@ public class LinuxExport extends PlatformExport {
         for (File exportFile : library.getApplicationExports(id, arch.bits)) {
           final String exportName = exportFile.getName();
           if (!exportFile.exists()) {
-            System.err.println("The file "+exportName+" is mentioned in the export.txt from "
-                          +library+" but does not actually exist. Moving on.");
+            System.err.println("The file " + exportName + " is mentioned in the export.txt from "
+                          + library + " but does not actually exist. Moving on.");
             continue;
           }
           if (exportFile.isDirectory()) {
@@ -164,7 +164,7 @@ public class LinuxExport extends PlatformExport {
       StringWriter classpath = new StringWriter();
       for (File f : libFolder.listFiles()) {
         if (f.getName().toLowerCase().endsWith(".jar") || f.getName().toLowerCase().endsWith(".zip")) {
-          classpath.append("$APPDIR/lib/"+f.getName()+":");
+          classpath.append("$APPDIR/lib/" + f.getName() + ":");
         }
       }
       options.add("-cp");
@@ -182,20 +182,20 @@ public class LinuxExport extends PlatformExport {
       if (presentMode) {
         options.add(PApplet.ARGS_FULL_SCREEN);
         
-        options.add(PApplet.ARGS_BGCOLOR+"="+Preferences.get("run.present.bgcolor"));
+        options.add(PApplet.ARGS_BGCOLOR + "=" + Preferences.get("run.present.bgcolor"));
       }
       
       if (stopButton) {
-        options.add(PApplet.ARGS_STOP_COLOR+"="+Preferences.get("run.present.stop.color"));
+        options.add(PApplet.ARGS_STOP_COLOR + "=" + Preferences.get("run.present.stop.color"));
       } else {
         options.add(PApplet.ARGS_HIDE_STOP);
       }
       
-      options.add("$APPDIR/source/"+sketch.getCode(0).getFileName());
+      options.add("$APPDIR/source/" + sketch.getCode(0).getFileName());
       
       script.print("$JAVA");
       for (String o : options) {
-        script.print(" "+o);
+        script.print(" " + o);
       }
       script.println();
       script.close();

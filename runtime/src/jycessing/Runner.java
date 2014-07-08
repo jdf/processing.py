@@ -269,11 +269,11 @@ public class Runner {
         pythonPath.append(dir.getAbsolutePath());
       }
     }
-    final String sketchDirPath = sketch.getHomeDirectory().toString();
+    final String sketchDirPath = sketch.getHomeDirectory().getAbsolutePath();
     pythonPath.append(File.pathSeparator).append(sketchDirPath);
 
     props.setProperty("python.path", pythonPath.toString());
-    props.setProperty("python.main", sketch.getMainFile().toString());
+    props.setProperty("python.main", sketch.getMainFile().getAbsolutePath());
     props.setProperty("python.main.root", sketchDirPath);
 
     final String[] args = sketch.getPAppletArguments();
@@ -291,14 +291,13 @@ public class Runner {
       sys.path.insert(0, Py.newString(sketchDirPath));
 
       // For moar useful error messages.
-      interp.set("__file__", sketch.getMainFile().toString());
+      interp.set("__file__", sketch.getMainFile().getAbsolutePath());
 
       interp.exec("import sys\n");
       
       // Add the add_library function to the sketch namespace.
       if (libDirs != null) {
-        @SuppressWarnings("unused")
-        final LibraryImporter libraryImporter = new LibraryImporter(sketch.getLibraryDirectories(), interp);
+        new LibraryImporter(sketch.getLibraryDirectories(), interp);
 
         if (sketch.getLibraryPolicy() == LibraryPolicy.PROMISCUOUS) {
           log("Promiscusouly adding all libraries in " + libDirs);
@@ -336,7 +335,7 @@ public class Runner {
 
       // We have to do this because static mode sketches may load data
       // files during parsing!
-      applet.sketchPath = sketch.getHomeDirectory().toString();
+      applet.sketchPath = sketch.getHomeDirectory().getAbsolutePath();
 
       applet.setSketchPositionListener(sketchPositionListener);
 
