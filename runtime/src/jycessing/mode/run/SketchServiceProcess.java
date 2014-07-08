@@ -120,8 +120,6 @@ public class SketchServiceProcess {
     }
 
     command.add("-Djava.library.path=" + System.getProperty("java.library.path"));
-
-    command.add("-agentlib:jdwp=transport=dt_socket,address=localhost:8888,server=y,suspend=n");
     
     final List<String> cp = new ArrayList<>();
     cp.addAll(filter(
