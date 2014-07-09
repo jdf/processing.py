@@ -2,6 +2,7 @@ package jycessing.mode.export;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import processing.app.Library;
 import processing.app.Sketch;
@@ -17,13 +18,12 @@ public class WindowsExport extends PlatformExport {
     }
   }
   
-  
   private final Sketch sketch;
-  private final List<Library> libraries;
+  private final Set<Library> libraries;
   private final PyEditor editor;
   private final Arch arch;
 
-  public WindowsExport(Arch arch, Sketch sketch, PyEditor editor, List<Library> libraries) {
+  public WindowsExport(Arch arch, Sketch sketch, PyEditor editor, Set<Library> libraries) {
     this.id = PConstants.WINDOWS;
     this.arch = arch;
     this.name = PConstants.platformNames[id] + arch.bits;

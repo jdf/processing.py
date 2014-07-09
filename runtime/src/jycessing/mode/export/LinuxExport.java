@@ -2,6 +2,7 @@ package jycessing.mode.export;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -25,15 +26,17 @@ public class LinuxExport extends PlatformExport {
   private static void log(final String msg) {
     if (PythonMode.VERBOSE) {
       System.err.println(LinuxExport.class.getSimpleName() + ": " + msg);
+    } else {
+      System.err.println("Not logging.");
     }
   }
   
   private final Sketch sketch;
-  private final List<Library> libraries;
+  private final Set<Library> libraries;
   private final PyEditor editor;
   private final Arch arch;
   
-  public LinuxExport(Arch arch, Sketch sketch, PyEditor editor, List<Library> libraries) {
+  public LinuxExport(Arch arch, Sketch sketch, PyEditor editor, Set<Library> libraries) {
     this.id = PConstants.LINUX;
     this.arch = arch;
     this.name = PConstants.platformNames[id] + arch.bits;
@@ -59,6 +62,7 @@ public class LinuxExport extends PlatformExport {
     final File sourceFolder = new File(destFolder, "source");
     final File dataFolder = new File(destFolder, "data");
     final File javaFolder = new File(destFolder, "java");
+    final File jycessingFolder = new File(libFolder, "jycessing");
     
     // Delete previous export (if the user wants to, and it exists) and make a new one
     if (deletePrevious) {
@@ -98,12 +102,14 @@ public class LinuxExport extends PlatformExport {
     }
     
     // Handle imported libraries
-    // For now, all we have is the core library
     {
       log("Copying libraries to export.");
       libFolder.mkdirs();
       for (Library library : libraries) {
+        final File libraryExportFolder = new File(libFolder, library.getFolder().getName()+"/library/");
+        libraryExportFolder.mkdirs();
         for (File exportFile : library.getApplicationExports(id, arch.bits)) {
+          log("Exporting: "+exportFile);
           final String exportName = exportFile.getName();
           if (!exportFile.exists()) {
             System.err.println("The file " + exportName + " is mentioned in the export.txt from "
@@ -111,9 +117,9 @@ public class LinuxExport extends PlatformExport {
             continue;
           }
           if (exportFile.isDirectory()) {
-            Base.copyDir(exportFile, new File(libFolder, exportName));
+            Base.copyDir(exportFile, new File(libraryExportFolder, exportName));
           } else {
-            Base.copyFile(exportFile, new File(libFolder, exportName));
+            Base.copyFile(exportFile, new File(libraryExportFolder, exportName));
           }
         }
       }
@@ -121,11 +127,20 @@ public class LinuxExport extends PlatformExport {
     
     // Handle Python Mode stuff
     {
-      log("Copying core processing.py .jars to export.");
-      Base.copyDir(editor.getModeFolder(), libFolder);
+      jycessingFolder.mkdirs();
+      log("Copying core processing stuff to export");
+      for (File exportFile : new Library(Base.getContentFile("core")).getApplicationExports(id, arch.bits)) {
+        if (exportFile.isDirectory()) {
+          Base.copyDir(exportFile, new File(jycessingFolder, exportFile.getName()));
+        } else {
+          Base.copyFile(exportFile, new File(jycessingFolder, exportFile.getName()));
+        }
+      }
+      log("Copying core processing.py .jars to export");
+      Base.copyDir(editor.getModeFolder(), jycessingFolder);
       log("Copying splash screen to export");
-      Base.copyFile(editor.getSplashFile(), new File(libFolder, "splash.png"));
-      // (In the "lib" folder just in case the user has a splash.png
+      // (In the "lib" folder just in case the user has a splash.png)
+      Base.copyFile(editor.getSplashFile(), new File(jycessingFolder, "splash.png"));
     }
     
     // Make shell script
@@ -160,17 +175,17 @@ public class LinuxExport extends PlatformExport {
         options.add("-Xmx" + Preferences.get("run.options.memory.maximum") + "m");
       }
       
-      // Work out classpath
+      // Work out classpath - only add core stuff, the rest will be found by add_library
       StringWriter classpath = new StringWriter();
-      for (File f : libFolder.listFiles()) {
+      for (File f : jycessingFolder.listFiles()) {
         if (f.getName().toLowerCase().endsWith(".jar") || f.getName().toLowerCase().endsWith(".zip")) {
-          classpath.append("$APPDIR/lib/" + f.getName() + ":");
+          classpath.append("$APPDIR/lib/jycessing/" + f.getName() + ":");
         }
       }
       options.add("-cp");
       options.add(classpath.toString().substring(0, classpath.toString().length()-1));
       
-      options.add("-splash:$APPDIR/lib/splash.png");
+      options.add("-splash:$APPDIR/lib/jycessing/splash.png");
       
       // Class to run
       options.add("jycessing.Runner");

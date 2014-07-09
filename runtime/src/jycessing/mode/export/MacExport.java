@@ -2,6 +2,7 @@ package jycessing.mode.export;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import processing.app.Library;
 import processing.app.Sketch;
@@ -18,10 +19,10 @@ public class MacExport extends PlatformExport {
   }
   
   private final Sketch sketch;
-  private final List<Library> libraries;
+  private final Set<Library> libraries;
   private final PyEditor editor;
   
-  public MacExport(Sketch sketch, PyEditor editor, List<Library> libraries) {
+  public MacExport(Sketch sketch, PyEditor editor, Set<Library> libraries) {
     this.id = PConstants.MACOSX;
     this.name = PConstants.platformNames[id];
     this.sketch = sketch;

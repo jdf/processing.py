@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jycessing.mode.PythonMode;
 
@@ -35,16 +37,15 @@ public class ImportExtractor {
   };
   
   private final Sketch sketch;
-  private final List<Library> libraries;
+  private final Set<Library> libraries;
   
   public ImportExtractor(Sketch sketch) {
     this.sketch = sketch;
-    this.libraries = new ArrayList<>();
-    libraries.add(new Library(Base.getContentFile("core"))); // always add core
+    this.libraries = new HashSet<>();
     extract();
   }
   
-  public List<Library> getLibraries() {
+  public Set<Library> getLibraries() {
     return libraries;
   }
   
@@ -98,11 +99,11 @@ public class ImportExtractor {
   
   
   private static class ImportVisitor extends org.python.antlr.Visitor {
-    public final List<String> importNames;
+    public final Set<String> importNames;
     public boolean failure;
     
     public ImportVisitor() {
-      importNames = new ArrayList<>();
+      importNames = new HashSet<>();
       failure = false;
     }
     

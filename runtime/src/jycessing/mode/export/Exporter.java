@@ -3,6 +3,7 @@ package jycessing.mode.export;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
@@ -30,7 +31,7 @@ public class Exporter {
   
   public void export() {
     // Do export-common things - work out libraries, etc.
-    List<Library> libraries = new ImportExtractor(sketch).getLibraries();
+    Set<Library> libraries = new ImportExtractor(sketch).getLibraries();
     
     // Now, do this for each platform:
     if (Preferences.getBoolean("export.application.platform.linux")) {
