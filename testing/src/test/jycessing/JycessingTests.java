@@ -228,4 +228,9 @@ public class JycessingTests {
   public void loadThings() throws Exception {
     expectOK("loadthings");
   }
+
+  @Test
+  public void constrain() throws Exception {
+    expectOK("constrain");
+  }
 }
