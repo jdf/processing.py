@@ -19,6 +19,11 @@ import jycessing.Runner;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.annotations.PythonUsage;
 
+/**
+ * 
+ * An old-school processing.py script.
+ *
+ */
 public class StandaloneSketch implements RunnableSketch {
   
   static void log(final Object... objs) {
@@ -104,8 +109,8 @@ public class StandaloneSketch implements RunnableSketch {
       final String BUILD_PROPERTIES = "build.properties";
       final String propsResource;
       try {
-        propsResource = URLDecoder.decode(
-            Runner.class.getResource(BUILD_PROPERTIES).toString(), "UTF-8");
+        propsResource =
+            URLDecoder.decode(Runner.class.getResource(BUILD_PROPERTIES).toString(), "UTF-8");
       } catch (final UnsupportedEncodingException e) {
         throw new RuntimeException("Impossible: " + e);
       }

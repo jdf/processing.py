@@ -35,6 +35,14 @@ import processing.app.Sketch;
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 
+/**
+ * 
+ * This is the export window that pops up when the user clicks [=>].
+ * It tries to look as much as possible like java mode's exporter.
+ * Rather than passing the options they select directly to Exporter, it sets them in their user preferences, which Exporter and the various
+ * Export classes reference later.
+ *
+ */
 @SuppressWarnings("serial")
 public class ExportDialog extends JDialog {
   
@@ -108,9 +116,8 @@ public class ExportDialog extends JDialog {
     log("Launching export dialog");
     
     this.setVisible(true);
-    
-    // wait until they click "Export". This stops the main editor from working -
-    // do we want that?
+
+    // Wait until they click "Export" or "Cancel"
     Object value = optionPane.getValue();
     
     if (value.equals("Export")) {
@@ -232,16 +239,14 @@ public class ExportDialog extends JDialog {
     
     boolean embed = Preferences.getBoolean("export.application.embed_java");
     final String embedWarning =
-      "<html><div width=\"" + divWidth + "\"><font size=\"2\">" +
-      "Embedding Java will make the " + platformName + " application " +
-      "larger, but it will be far more likely to work. " +
-      "Users on other platforms will need to <a href=\"\">install Java 7</a>.";
+        "<html><div width=\"" + divWidth + "\"><font size=\"2\">" + "Embedding Java will make the "
+            + platformName + " application " + "larger, but it will be far more likely to work. "
+            + "Users on other platforms will need to <a href=\"\">install Java 7</a>.";
     final String nopeWarning =
-      "<html><div width=\"" + divWidth + "\"><font size=\"2\">" +
-      "Users on all platforms will have to install the latest " +
-      "version of Java 7 from <a href=\"\">http://java.com/download</a>. " +
-      "<br/>&nbsp;";
-      //"from <a href=\"http://java.com/download\">java.com/download</a>.";
+        "<html><div width=\"" + divWidth + "\"><font size=\"2\">"
+            + "Users on all platforms will have to install the latest "
+            + "version of Java 7 from <a href=\"\">http://java.com/download</a>. " + "<br/>&nbsp;";
+    // "from <a href=\"http://java.com/download\">java.com/download</a>.";
     final JLabel warningLabel = new JLabel(embed ? embedWarning : nopeWarning);
     warningLabel.addMouseListener(new MouseAdapter() {
       public void mousePressed(MouseEvent event) {
@@ -250,8 +255,7 @@ public class ExportDialog extends JDialog {
     });
     warningLabel.setBorder(new EmptyBorder(3, 13, 3, 13));
 
-    final JCheckBox embedJavaButton =
-      new JCheckBox("Embed Java for " + platformName);
+    final JCheckBox embedJavaButton = new JCheckBox("Embed Java for " + platformName);
     embedJavaButton.setSelected(embed);
     embedJavaButton.addItemListener(new ItemListener() {
       public void itemStateChanged(ItemEvent e) {
@@ -279,27 +283,29 @@ public class ExportDialog extends JDialog {
     signPanel.setBorder(new TitledBorder("Code Signing"));
     
     String thePain =
-      "In recent versions of OS X, Apple has introduced the \u201CGatekeeper\u201D system, " +
-      "which makes it more difficult to run applications like those exported from Processing. ";
-    
+        "In recent versions of OS X, Apple has introduced the \u201CGatekeeper\u201D system, "
+            + "which makes it more difficult to run applications like those exported from Processing. ";
+
     if (new File("/usr/bin/codesign_allocate").exists()) {
       thePain +=
-        "This application will be \u201Cself-signed\u201D which means that Finder may report that the " +
-        "application is from an \u201Cunidentified developer\u201D. If the application will not " +
-        "run, try right-clicking the app and selecting Open from the pop-up menu. Or you can visit " +
-        "System Preferences \u2192 Security & Privacy and select Allow apps downloaded from: anywhere. ";
+          "This application will be \u201Cself-signed\u201D which means that Finder may report that the "
+              + "application is from an \u201Cunidentified developer\u201D. If the application will not "
+              + "run, try right-clicking the app and selecting Open from the pop-up menu. Or you can visit "
+              + "System Preferences \u2192 Security & Privacy and select Allow apps downloaded from: anywhere. ";
     } else {
       thePain +=
-        "Gatekeeper requires applications to be \u201Csigned\u201D, or they will be reported as damaged. " +
-        "To prevent this message, install Xcode (and the Command Line Tools) from the App Store, or visit " +
-        "System Preferences \u2192 Security & Privacy and select Allow apps downloaded from: anywhere. ";
+          "Gatekeeper requires applications to be \u201Csigned\u201D, or they will be reported as damaged. "
+              + "To prevent this message, install Xcode (and the Command Line Tools) from the App Store, or visit "
+              + "System Preferences \u2192 Security & Privacy and select Allow apps downloaded from: anywhere. ";
     }
     thePain +=
-      "To avoid the messages entirely, manually code sign your app. " +
-      "For more information: <a href=\"\">https://developer.apple.com/developer-id/</a>";
-    
-    JLabel area = new JLabel("<html><div width=\"" + divWidth + "\"><font size=\"2\">" + thePain + "</div></html>");
-    
+        "To avoid the messages entirely, manually code sign your app. "
+            + "For more information: <a href=\"\">https://developer.apple.com/developer-id/</a>";
+
+    JLabel area =
+        new JLabel("<html><div width=\"" + divWidth + "\"><font size=\"2\">" + thePain
+            + "</div></html>");
+
     area.setBorder(new EmptyBorder(3, 13, 3, 13));
     signPanel.add(area);
     signPanel.setAlignmentX(Component.LEFT_ALIGNMENT);

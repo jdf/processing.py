@@ -14,6 +14,7 @@ import jycessing.RunnableSketch;
 import jycessing.Runner.LibraryPolicy;
 
 /**
+ * A sketch run from the PDE.
  * This class is a little bit wacky.
  * It's created in the PDE process, serialized, and then used in 
  * the sketch process.

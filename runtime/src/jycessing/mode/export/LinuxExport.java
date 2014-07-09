@@ -1,15 +1,14 @@
 package jycessing.mode.export;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
@@ -21,6 +20,26 @@ import processing.app.SketchCode;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
+
+/**
+ * 
+ * Performs an export to Linux (32/64).
+ * The linux export folder layout is as follows:
+ * 
+ * $appdir/                        (e.g. $sketchname/application.linux32)
+ *        /$sketchname             (executable shell script to run the application)
+ *        /source/                 (the source code of the sketch; used to run it)
+ *        /lib/                    (where java imports are stored)
+ *            /jycessing/          (where stuff necessary to jycessing is stored;
+ *                                  everything in here is added to the classpath.)
+ *            /$libname/library/   (where resources for $libname - imported with
+ *                                  add_library - are stored. Not added to classpath.)
+ *        /code/                   (any other code resources the user wanted to add;
+ *                                  copied verbatim.)
+ *        /data/                   (all non-code resources; copied verbatim.)
+ *        
+ *
+ */
 public class LinuxExport extends PlatformExport {
 
   private static void log(final String msg) {
@@ -47,7 +66,8 @@ public class LinuxExport extends PlatformExport {
   
   public void export() throws IOException {
     // Work out user preferences and other possibilities we care about
-    final boolean embedJava = (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
+    final boolean embedJava =
+        (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
     final boolean hasData = sketch.hasDataFolder();
     final boolean hasCode = sketch.hasCodeFolder();
     final boolean deletePrevious = Preferences.getBoolean("export.delete_target_folder");
@@ -96,7 +116,7 @@ public class LinuxExport extends PlatformExport {
     {
       log("Copying source to export.");
       sourceFolder.mkdirs();
-      for (SketchCode code : sketch.getCode()){
+      for (SketchCode code : sketch.getCode()) {
         code.copyTo(new File(sourceFolder, code.getFileName()));
       }
     }
@@ -106,14 +126,15 @@ public class LinuxExport extends PlatformExport {
       log("Copying libraries to export.");
       libFolder.mkdirs();
       for (Library library : libraries) {
-        final File libraryExportFolder = new File(libFolder, library.getFolder().getName()+"/library/");
+        final File libraryExportFolder =
+            new File(libFolder, library.getFolder().getName() + "/library/");
         libraryExportFolder.mkdirs();
         for (File exportFile : library.getApplicationExports(id, arch.bits)) {
-          log("Exporting: "+exportFile);
+          log("Exporting: " + exportFile);
           final String exportName = exportFile.getName();
           if (!exportFile.exists()) {
             System.err.println("The file " + exportName + " is mentioned in the export.txt from "
-                          + library + " but does not actually exist. Moving on.");
+                + library + " but does not actually exist. Moving on.");
             continue;
           }
           if (exportFile.isDirectory()) {
@@ -178,13 +199,14 @@ public class LinuxExport extends PlatformExport {
       // Work out classpath - only add core stuff, the rest will be found by add_library
       StringWriter classpath = new StringWriter();
       for (File f : jycessingFolder.listFiles()) {
-        if (f.getName().toLowerCase().endsWith(".jar") || f.getName().toLowerCase().endsWith(".zip")) {
+        if (f.getName().toLowerCase().endsWith(".jar")
+            || f.getName().toLowerCase().endsWith(".zip")) {
           classpath.append("$APPDIR/lib/jycessing/" + f.getName() + ":");
         }
       }
       options.add("-cp");
-      options.add(classpath.toString().substring(0, classpath.toString().length()-1));
-      
+      options.add(classpath.toString().substring(0, classpath.toString().length() - 1));
+
       options.add("-splash:$APPDIR/lib/jycessing/splash.png");
       
       // Class to run
@@ -216,7 +238,8 @@ public class LinuxExport extends PlatformExport {
       script.close();
       
       log("Setting script executable.");
-      Files.setPosixFilePermissions(scriptFile.toPath(), PosixFilePermissions.fromString("rwxrwxrwx"));
+      Files.setPosixFilePermissions(scriptFile.toPath(),
+          PosixFilePermissions.fromString("rwxrwxrwx"));
     }
     log("Done.");
   }

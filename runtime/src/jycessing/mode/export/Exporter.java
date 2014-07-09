@@ -1,8 +1,6 @@
 package jycessing.mode.export;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import jycessing.mode.PyEditor;
@@ -12,6 +10,13 @@ import processing.app.Library;
 import processing.app.Preferences;
 import processing.app.Sketch;
 
+
+/**
+ * 
+ * Class that handles doing the actual exporting.
+ * All this currently does is figure out libraries and then hand off to each platform export.
+ *
+ */
 public class Exporter {
   
   @SuppressWarnings("unused")
@@ -23,14 +28,14 @@ public class Exporter {
   
   private Sketch sketch;
   private PyEditor editor; // I don't really want to pass this around but there's some functionality I need
-  
-  public Exporter(PyEditor editor, Sketch sketch){
+
+  public Exporter(PyEditor editor, Sketch sketch) {
     this.sketch = sketch;
     this.editor = editor;
   }
   
   public void export() {
-    // Do export-common things - work out libraries, etc.
+    // Work out the libraries the sketch exports - we only need to do this once.
     Set<Library> libraries = new ImportExtractor(sketch).getLibraries();
     
     // Now, do this for each platform:

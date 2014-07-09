@@ -1,16 +1,23 @@
 package jycessing.mode.export;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
+import jycessing.mode.PyEditor;
+import jycessing.mode.PythonMode;
 import processing.app.Library;
 import processing.app.Sketch;
 import processing.core.PConstants;
-import jycessing.mode.PyEditor;
-import jycessing.mode.PythonMode;
 
+
+/**
+ * 
+ * A Mac export.
+ * TODO implement.
+ *
+ */
 public class MacExport extends PlatformExport {
+  public static final Arch arch = Arch.AMD64; // macs only run x86_64 nowadays
 
   private static void log(final String msg) {
     if (PythonMode.VERBOSE) {

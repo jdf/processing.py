@@ -9,6 +9,11 @@ import processing.core.PApplet;
 import jycessing.RunnableSketch;
 import jycessing.Runner.LibraryPolicy;
 
+/**
+ * 
+ * Encapsulates a unit test so that it can be run by Runner.
+ *
+ */
 public class TestSketch implements RunnableSketch {
 
   private final Path sourcePath;
@@ -38,11 +43,7 @@ public class TestSketch implements RunnableSketch {
 
   @Override
   public String[] getPAppletArguments() {
-    // TODO Auto-generated method stub
-    return new String[] {
-        PApplet.ARGS_SKETCH_FOLDER + "=" + getHomeDirectory(),
-        name
-    };
+    return new String[] {PApplet.ARGS_SKETCH_FOLDER + "=" + getHomeDirectory(), name};
   }
 
   @Override

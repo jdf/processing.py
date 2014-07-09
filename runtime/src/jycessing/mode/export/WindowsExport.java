@@ -1,15 +1,20 @@
 package jycessing.mode.export;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
+import jycessing.mode.PyEditor;
+import jycessing.mode.PythonMode;
 import processing.app.Library;
 import processing.app.Sketch;
 import processing.core.PConstants;
-import jycessing.mode.PyEditor;
-import jycessing.mode.PythonMode;
 
+/**
+ * 
+ * Perform an export to Windows.
+ * TODO implement.
+ *
+ */
 public class WindowsExport extends PlatformExport {
 
   private static void log(final String msg) {

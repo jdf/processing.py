@@ -15,6 +15,9 @@ import jycessing.Runner.LibraryPolicy;
 import jycessing.DisplayType;
 
 /**
+ * A sketch that's been exported from the PDE.
+ * Runner.main() will create one of these if ARGS_EXPORTED is in argv.
+ * 
  * This class tries to make sure that the exported sketch is in the right configuration - if it isn't,
  * it will warn the user and fail.
  */
@@ -36,12 +39,13 @@ public class ExportedSketch implements RunnableSketch {
   public ExportedSketch(final String[] args) throws Exception {
     // The last argument is the path to the sketch
     this.sketchPath = new File(args[args.length - 1]).getAbsoluteFile();
-    
+
     if (!sketchPath.exists()) {
       throw new FileNotFoundException("Something is terribly wrong - I can't find your sketch!");
     }
-    
-    final List<String> codeLines = Files.readAllLines(sketchPath.toPath(), Charset.forName("UTF-8"));
+
+    final List<String> codeLines =
+        Files.readAllLines(sketchPath.toPath(), Charset.forName("UTF-8"));
 
     StringBuilder code = new StringBuilder();
     for (String line : codeLines) {

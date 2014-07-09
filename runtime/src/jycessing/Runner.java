@@ -150,7 +150,14 @@ public class Runner {
   }
 
   public static RunnableSketch sketch;
-  
+
+  /**
+   * 
+   * Entrypoint for non-PDE sketches. If we find ARGS_EXPORTED in the argument list,
+   * Launch as an exported sketch.
+   * Otherwise, launch as a standalone processing.py sketch.
+   * 
+   */
   public static void main(final String[] args) throws Exception {
     
     if (args.length < 1) {
@@ -192,11 +199,12 @@ public class Runner {
 
   private static class WarmupSketch implements RunnableSketch {
     final File sketchFile;
+
     WarmupSketch() {
       File temp;
       try {
         temp = File.createTempFile("warmup", ".pyde");
-      } catch (IOException e){
+      } catch (IOException e) {
         temp = null;
         // drop
       }
