@@ -574,15 +574,18 @@ def __saveBytes__(where, data):
     return PApplet.saveBytes(where, data)
 __builtin__.saveBytes = __saveBytes__
 
-# Make "open" able to find files in the "data" folder
+# Make "open" able to find files in the "data" folder, and also other folders if the sketch is in a temp directory
 __realopen__ = open
 def __open__(filename, *args, **kwargs):
     if os.path.isfile(filename):
         return __realopen__(filename, *args, **kwargs)
     if not os.path.isabs(filename):
-        datafilename = os.path.join(__cwd__, "data", filename)
+        datafilename = __papplet__.dataPath(filename)
         if os.path.isfile(datafilename):
             return __realopen__(datafilename, *args, **kwargs)
+        sketchfilename = __papplet__.sketchPath(filename)
+	if os.path.isfile(sketchfilename):
+		return __realopen__(sketchfilename, *args, **kwargs)
     # Fail naturally
     return __realopen__(filename, *args, **kwargs)
 __builtin__.open = __open__
