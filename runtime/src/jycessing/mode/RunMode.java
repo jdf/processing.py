@@ -21,11 +21,13 @@ public enum RunMode {
     public String[] args(final SketchInfo info) {
       if (info.sketchLoc != null) {
         return new String[] { PApplet.ARGS_EXTERNAL, locArg(PApplet.ARGS_LOCATION, info.sketchLoc), info.sketchName, pathArg(info) };
-      } else if (info.editorLoc != null) {
-        return new String[] { PApplet.ARGS_EXTERNAL, locArg(PApplet.ARGS_EDITOR_LOCATION, info.editorLoc), info.sketchName, pathArg(info) };
-      } else {
-        return new String[] { PApplet.ARGS_EXTERNAL, info.sketchName, pathArg(info) };
       }
+
+      if (info.editorLoc != null) {
+        return new String[] { PApplet.ARGS_EXTERNAL, locArg(PApplet.ARGS_EDITOR_LOCATION, info.editorLoc), info.sketchName, pathArg(info) };
+      }
+
+      return new String[] { PApplet.ARGS_EXTERNAL, info.sketchName, pathArg(info) };
     }
   },
   PRESENTATION {
