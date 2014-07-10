@@ -462,7 +462,7 @@ __builtin__.binary = PApplet.binary
 __builtin__.blendColor = PApplet.blendColor
 __builtin__.ceil = PApplet.ceil
 __builtin__.concat = PApplet.concat
-__builtin__.constrain = PApplet.constrain
+__builtin__.constrain = lambda x, a, b: max(min(x, b), a)
 __builtin__.cos = PApplet.cos
 __builtin__.createInput = PApplet.createInput
 __builtin__.createOutput = PApplet.createOutput
@@ -589,8 +589,7 @@ sys.stderr = FakeStdErr()
 del FakeStdOut, FakeStdErr
 
 def __println__(o):
-    sys.stdout.write(o)
-    sys.stdout.write('\n')
+    print o
 __builtin__.println = __println__
 
 
