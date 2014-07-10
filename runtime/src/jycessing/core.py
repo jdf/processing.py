@@ -1,6 +1,7 @@
 # We expose many Processing-related names as builtins, so that no imports
 # are necessary, even in auxilliary modules.
 import __builtin__
+import os.path
 
 from numbers import Number
 
@@ -573,8 +574,6 @@ def __saveBytes__(where, data):
     return PApplet.saveBytes(where, data)
 __builtin__.saveBytes = __saveBytes__
 
-import os.path
-
 # Make "open" able to find files in the "data" folder
 __realopen__ = open
 def __open__(filename, *args, **kwargs):
@@ -585,7 +584,6 @@ def __open__(filename, *args, **kwargs):
         if os.path.isfile(datafilename):
             return __realopen__(datafilename, *args, **kwargs)
     # Fail naturally
-    print "failing..."
     return __realopen__(filename, *args, **kwargs)
 __builtin__.open = __open__
 
