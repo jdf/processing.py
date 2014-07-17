@@ -40,9 +40,7 @@ import processing.core.PConstants;
  *
  */
 public class MacExport extends PlatformExport {
-  public static final Arch arch = Arch.AMD64; // macs only run x86_64 nowadays
-
-  private static void log(final String msg) {
+  protected void log(final String msg) {
     if (PythonMode.VERBOSE) {
       System.err.println(MacExport.class.getSimpleName() + ": " + msg);
     }
@@ -58,6 +56,7 @@ public class MacExport extends PlatformExport {
     this.sketch = sketch;
     this.editor = editor;
     this.libraries = libraries;
+    this.arch = Arch.AMD64;
   }
   
   /**
@@ -72,9 +71,6 @@ public class MacExport extends PlatformExport {
     // Work out user preferences and other possibilities we care about
     final boolean embedJava =
         (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
-    final boolean hasData = sketch.hasDataFolder();
-    final boolean hasCode = sketch.hasCodeFolder();
-    final boolean deletePrevious = Preferences.getBoolean("export.delete_target_folder");
     final boolean setMemory = Preferences.getBoolean("run.options.memory");
     final boolean presentMode = Preferences.getBoolean("export.application.fullscreen");
     final boolean stopButton = Preferences.getBoolean("export.application.stop") && presentMode;
@@ -86,15 +82,15 @@ public class MacExport extends PlatformExport {
     final File binFolder = new File(contentsFolder, "MacOS");
     final File resourcesFolder = new File(contentsFolder, "Resources");
     final File processingFolder = new File(contentsFolder, "Processing");
-    final File libFolder = new File(processingFolder, "lib");
-    final File codeFolder = new File(processingFolder, "code");
-    final File sourceFolder = new File(processingFolder, "source");
-    final File dataFolder = new File(processingFolder, "data");
-    final File javaFolder = new File(processingFolder, "java");
-    final File jycessingFolder = new File(libFolder, "jycessing");
     
-    if (deletePrevious) {
-      Base.removeDir(destFolder);
+    final File infoPlist = new File(contentsFolder, "Info.plist");
+    final File script = new File(binFolder, sketch.getName());
+    final File icon = new File(resourcesFolder, sketch.getName()+".icns");
+    
+    copyBasicStructure(processingFolder);
+    
+    if (embedJava) {
+      copyJDKPlugin();
     }
     
     

@@ -17,16 +17,11 @@ import processing.core.PConstants;
  */
 public class WindowsExport extends PlatformExport {
 
-  private static void log(final String msg) {
+  protected void log(final String msg) {
     if (PythonMode.VERBOSE) {
       System.err.println(WindowsExport.class.getSimpleName() + ": " + msg);
     }
   }
-  
-  private final Sketch sketch;
-  private final Set<Library> libraries;
-  private final PyEditor editor;
-  private final Arch arch;
 
   public WindowsExport(Arch arch, Sketch sketch, PyEditor editor, Set<Library> libraries) {
     this.id = PConstants.WINDOWS;
