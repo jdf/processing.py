@@ -17,6 +17,7 @@ import processing.core.PConstants;
  */
 public class WindowsExport extends PlatformExport {
 
+  @Override
   protected void log(final String msg) {
     if (PythonMode.VERBOSE) {
       System.err.println(WindowsExport.class.getSimpleName() + ": " + msg);

@@ -40,15 +40,13 @@ import processing.core.PConstants;
  *
  */
 public class MacExport extends PlatformExport {
+  
+  @Override
   protected void log(final String msg) {
     if (PythonMode.VERBOSE) {
       System.err.println(MacExport.class.getSimpleName() + ": " + msg);
     }
   }
-  
-  private final Sketch sketch;
-  private final Set<Library> libraries;
-  private final PyEditor editor;
   
   public MacExport(Sketch sketch, PyEditor editor, Set<Library> libraries) {
     this.id = PConstants.MACOSX;
