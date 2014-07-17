@@ -78,7 +78,8 @@ public class Runner {
       "launcher.py");
   private static final String CORE_TEXT = IOUtil.readResourceAsText(Runner.class, "core.py");
 
-  static public boolean VERBOSE = false;
+  // -Dverbose=true for some logging
+  static public boolean VERBOSE = Boolean.getBoolean("verbose");
 
   static void log(final Object... objs) {
     if (!VERBOSE) {
@@ -160,11 +161,11 @@ public class Runner {
    */
   public static void main(final String[] args) throws Exception {
     
+    
+    
     if (args.length < 1) {
       throw new RuntimeException("I need the path of your Python script as an argument.");
     }
-    // -Dverbose=true for some logging
-    VERBOSE = Boolean.getBoolean("verbose");
     
     final Properties buildnum = new Properties();
     try (InputStream buildnumberStream = Runner.class.getResourceAsStream(BUILD_PROPERTIES)) {
@@ -272,11 +273,6 @@ public class Runner {
     
     final List<File> libDirs = sketch.getLibraryDirectories();
     
-    if (libDirs != null) {
-      for (final File dir : sketch.getLibraryDirectories()) {
-        pythonPath.append(dir.getAbsolutePath());
-      }
-    }
     final String sketchDirPath = sketch.getHomeDirectory().getAbsolutePath();
     pythonPath.append(File.pathSeparator).append(sketchDirPath);
 
