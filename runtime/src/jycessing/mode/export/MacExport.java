@@ -1,6 +1,7 @@
 package jycessing.mode.export;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Set;
 
@@ -58,9 +59,39 @@ public class MacExport extends PlatformExport {
   }
   
   /**
-   * It only makes sense to copy the JDK when we're on a Mac, running Processing from a .app bundle.
+   * Copy Processing's builtin JDK to the export.
+   * 
+   * (This only makes sense when we're on a Mac, running Processing from a .app bundle.)
    */
-  private void copyJDKPlugin (final File pluginsFolder) {
+  private void copyJDKPlugin(final File targetPluginsFolder) throws IOException {
+    // This is how Java Mode finds it... basically
+    final File sourceJDKFolder = Base.getContentFile("../PlugIns").listFiles(
+        new FilenameFilter() {
+          public boolean accept(File dir, String name){
+            return name.endsWith(".jdk") && !name.startsWith(".");
+          }
+        })[0].getAbsoluteFile();
+    
+    log("Copying JDK from "+sourceJDKFolder);
+    
+    targetPluginsFolder.mkdirs();
+    final File targetJDKFolder = new File(targetPluginsFolder, sourceJDKFolder.getName());
+    Base.copyDirNative(sourceJDKFolder, targetJDKFolder);
+  }
+  
+  /**
+   * Copy the resources folder skeleton from $mode/application/macosx/Resources.
+   */
+  private void copyResourcesFolder(final File targetResourcesFolder) throws IOException {
+    final File sourceResourcesFolder = new File(editor.getModeFolder(), "application/macosx/Resources").getAbsoluteFile();
+    log("Copying resources from"+sourceResourcesFolder);
+    Base.copyDir(sourceResourcesFolder, targetResourcesFolder);
+  }
+  
+  /**
+   * Read in Info.plist.tmpl, modify fields, package away in .app
+   */
+  private void setUpInfoPlist(final File targetInfoPlist) throws IOException {
     
   }
   
@@ -83,14 +114,13 @@ public class MacExport extends PlatformExport {
     
     final File infoPlist = new File(contentsFolder, "Info.plist");
     final File script = new File(binFolder, sketch.getName());
-    final File icon = new File(resourcesFolder, sketch.getName()+".icns");
     
     copyBasicStructure(processingFolder);
+    copyResourcesFolder(resourcesFolder);
     
     if (embedJava) {
       copyJDKPlugin(new File(contentsFolder, "PlugIns"));
     }
-    
     
     
     log("I would do a mac export here... if I knew how :(");
