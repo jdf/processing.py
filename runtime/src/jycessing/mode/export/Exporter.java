@@ -36,7 +36,7 @@ public class Exporter {
   
   public void export() {
     // Work out the libraries the sketch exports - we only need to do this once.
-    Set<Library> libraries = new ImportExtractor(sketch).getLibraries();
+    final Set<Library> libraries = new ImportExtractor(sketch).getLibraries();
     
     // Now, do this for each platform:
     if (Preferences.getBoolean("export.application.platform.linux")) {

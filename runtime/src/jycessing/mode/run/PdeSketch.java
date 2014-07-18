@@ -83,7 +83,7 @@ public class PdeSketch implements RunnableSketch, Serializable {
 
   @Override
   public String[] getPAppletArguments() {
-    List<String> args = new ArrayList<>();
+    final List<String> args = new ArrayList<>();
     
     args.add(PApplet.ARGS_EXTERNAL);
     args.add(PApplet.ARGS_SKETCH_FOLDER + "=" + sketchHome);

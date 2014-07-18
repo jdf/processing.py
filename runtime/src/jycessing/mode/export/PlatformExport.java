@@ -71,7 +71,7 @@ public abstract class PlatformExport {
     {
       log("Copying source to export.");
       sourceFolder.mkdirs();
-      for (SketchCode code : sketch.getCode()) {
+      for (final SketchCode code : sketch.getCode()) {
         code.copyTo(new File(sourceFolder, code.getFileName()));
       }
     }
@@ -80,11 +80,11 @@ public abstract class PlatformExport {
     {
       log("Copying libraries to export.");
       libFolder.mkdirs();
-      for (Library library : libraries) {
+      for (final Library library : libraries) {
         final File libraryExportFolder =
             new File(libFolder, library.getFolder().getName() + "/library/");
         libraryExportFolder.mkdirs();
-        for (File exportFile : library.getApplicationExports(id, arch.bits)) {
+        for (final File exportFile : library.getApplicationExports(id, arch.bits)) {
           log("Exporting: " + exportFile);
           final String exportName = exportFile.getName();
           if (!exportFile.exists()) {
@@ -105,7 +105,7 @@ public abstract class PlatformExport {
     {
       jycessingFolder.mkdirs();
       log("Copying core processing stuff to export");
-      for (File exportFile : new Library(Base.getContentFile("core")).getApplicationExports(id, arch.bits)) {
+      for (final File exportFile : new Library(Base.getContentFile("core")).getApplicationExports(id, arch.bits)) {
         if (exportFile.isDirectory()) {
           Base.copyDir(exportFile, new File(jycessingFolder, exportFile.getName()));
         } else {

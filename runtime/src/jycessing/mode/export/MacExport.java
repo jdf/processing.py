@@ -60,7 +60,7 @@ public class MacExport extends PlatformExport {
   /**
    * It only makes sense to copy the JDK when we're on a Mac, running Processing from a .app bundle.
    */
-  public void copyJDKPlugin () {
+  private void copyJDKPlugin (final File pluginsFolder) {
     
   }
   
@@ -88,7 +88,7 @@ public class MacExport extends PlatformExport {
     copyBasicStructure(processingFolder);
     
     if (embedJava) {
-      copyJDKPlugin();
+      copyJDKPlugin(new File(contentsFolder, "PlugIns"));
     }
     
     

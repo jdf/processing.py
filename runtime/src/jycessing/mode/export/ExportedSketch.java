@@ -47,8 +47,8 @@ public class ExportedSketch implements RunnableSketch {
     final List<String> codeLines =
         Files.readAllLines(sketchPath.toPath(), Charset.forName("UTF-8"));
 
-    StringBuilder code = new StringBuilder();
-    for (String line : codeLines) {
+    final StringBuilder code = new StringBuilder();
+    for (final String line : codeLines) {
       code.append(line);
       code.append('\n');
     }
@@ -62,7 +62,7 @@ public class ExportedSketch implements RunnableSketch {
     
     String backgroundColor = null;
     String stopColor = null;
-    for (String arg : args) {
+    for (final String arg : args) {
       if (arg.contains(PApplet.ARGS_BGCOLOR)) {
         backgroundColor = arg.substring(arg.indexOf("=") + 1);
       } else if (arg.contains(PApplet.ARGS_STOP_COLOR)) {
@@ -72,7 +72,7 @@ public class ExportedSketch implements RunnableSketch {
     this.backgroundColor = backgroundColor;
     this.stopColor = stopColor;
     
-    List<File> libraryDirs = new ArrayList<>();
+    final List<File> libraryDirs = new ArrayList<>();
     libraryDirs.add(sketchPath.getParentFile()); // "$APPDIR/source"
     final File libDir = new File(getHomeDirectory(), "lib");
     if (libDir.exists()) {
@@ -102,7 +102,7 @@ public class ExportedSketch implements RunnableSketch {
 
   @Override
   public String[] getPAppletArguments() {
-    List<String> args = new ArrayList<>();
+    final List<String> args = new ArrayList<>();
     
     if (displayType == DisplayType.PRESENTATION) {
       args.add(PApplet.ARGS_FULL_SCREEN);

@@ -82,7 +82,7 @@ public class ExportDialog extends JDialog {
       center.add(signingProblems);
     }
     
-    String[] options = { "Export", "Cancel" };
+    final String[] options = { "Export", "Cancel" };
     optionPane = new JOptionPane(center,
                                  JOptionPane.PLAIN_MESSAGE,
                                  JOptionPane.YES_NO_OPTION,
@@ -93,7 +93,7 @@ public class ExportDialog extends JDialog {
     this.setContentPane(optionPane);
     optionPane.addPropertyChangeListener(new PropertyChangeListener() {
       public void propertyChange(PropertyChangeEvent e) {
-        String prop = e.getPropertyName();
+        final String prop = e.getPropertyName();
 
         if (isVisible() &&
             (e.getSource() == optionPane) &&
@@ -105,8 +105,8 @@ public class ExportDialog extends JDialog {
     this.pack();
     this.setResizable(false);
     
-    Rectangle bounds = editor.getBounds();
-    Dimension size = this.getSize();
+    final Rectangle bounds = editor.getBounds();
+    final Dimension size = this.getSize();
     this.setLocation(bounds.x + (bounds.width - size.width) / 2,
                        bounds.y + (bounds.height - size.height) / 2);
     
@@ -118,7 +118,7 @@ public class ExportDialog extends JDialog {
     this.setVisible(true);
 
     // Wait until they click "Export" or "Cancel"
-    Object value = optionPane.getValue();
+    final Object value = optionPane.getValue();
     
     if (value.equals("Export")) {
       new Exporter(editor, sketch).export();
@@ -128,13 +128,13 @@ public class ExportDialog extends JDialog {
   }
   
   private JPanel createCenterPanel() {
-    JPanel panel = new JPanel();
+    final JPanel panel = new JPanel();
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
     panel.add(Box.createVerticalStrut(6));
-    String line1 = "Export to Application creates double-clickable,";
-    String line2 = "standalone applications for the selected plaforms.";
-    JLabel label1 = new JLabel(line1, SwingConstants.CENTER);
-    JLabel label2 = new JLabel(line2, SwingConstants.CENTER);
+    final String line1 = "Export to Application creates double-clickable,";
+    final String line2 = "standalone applications for the selected plaforms.";
+    final JLabel label1 = new JLabel(line1, SwingConstants.CENTER);
+    final JLabel label2 = new JLabel(line2, SwingConstants.CENTER);
     label1.setAlignmentX(Component.LEFT_ALIGNMENT);
     label2.setAlignmentX(Component.LEFT_ALIGNMENT);
     panel.add(label1);
@@ -168,7 +168,7 @@ public class ExportDialog extends JDialog {
       }
     });
 
-    JPanel platformPanel = new JPanel();
+    final JPanel platformPanel = new JPanel();
     platformPanel.add(windowsButton);
     platformPanel.add(Box.createHorizontalStrut(6));
     platformPanel.add(macosxButton);
@@ -180,7 +180,7 @@ public class ExportDialog extends JDialog {
   }
   
   private JPanel createPresentPanel() {
-    JPanel presentPanel = new JPanel();
+    final JPanel presentPanel = new JPanel();
     presentPanel.setLayout(new BoxLayout(presentPanel, BoxLayout.Y_AXIS));
     
     final JCheckBox showStopButton = new JCheckBox("Show a Stop button");
@@ -197,21 +197,21 @@ public class ExportDialog extends JDialog {
     fullScreenButton.setSelected(Preferences.getBoolean("export.application.fullscreen"));
     fullScreenButton.addItemListener(new ItemListener() {
       public void itemStateChanged(ItemEvent e) {
-        boolean sal = fullScreenButton.isSelected();
-        Preferences.setBoolean("export.application.fullscreen", sal);
-        showStopButton.setEnabled(sal);
+        final boolean selected = fullScreenButton.isSelected();
+        Preferences.setBoolean("export.application.fullscreen", selected);
+        showStopButton.setEnabled(selected);
       }
     });
     fullScreenButton.setBorder(new EmptyBorder(3, 13, 3, 13));
 
-    Box fullScreenBox = Box.createHorizontalBox();
+    final Box fullScreenBox = Box.createHorizontalBox();
     fullScreenBox.add(fullScreenButton);
     fullScreenBox.add(new ColorPreference("run.present.bgcolor", editor));
     fullScreenBox.add(Box.createHorizontalStrut(10));
     fullScreenBox.add(Box.createHorizontalGlue());
     presentPanel.add(fullScreenBox);
     
-    Box showStopBox = Box.createHorizontalBox();
+    final Box showStopBox = Box.createHorizontalBox();
     showStopBox.add(showStopButton);
     showStopBox.add(new ColorPreference("run.present.stop.color", editor));
     showStopBox.add(Box.createHorizontalStrut(10));
@@ -225,7 +225,7 @@ public class ExportDialog extends JDialog {
   }
   
   private JPanel createEmbedJavaPanel(final int divWidth) {
-    JPanel embedPanel = new JPanel();
+    final JPanel embedPanel = new JPanel();
     embedPanel.setLayout(new BoxLayout(embedPanel, BoxLayout.Y_AXIS));
     
     String platformName = null;
@@ -237,7 +237,7 @@ public class ExportDialog extends JDialog {
       platformName = "Linux (" + Base.getNativeBits() + "-bit)";
     }
     
-    boolean embed = Preferences.getBoolean("export.application.embed_java");
+    final boolean embed = Preferences.getBoolean("export.application.embed_java");
     final String embedWarning =
         "<html><div width=\"" + divWidth + "\"><font size=\"2\">" + "Embedding Java will make the "
             + platformName + " application " + "larger, but it will be far more likely to work. "
@@ -259,7 +259,7 @@ public class ExportDialog extends JDialog {
     embedJavaButton.setSelected(embed);
     embedJavaButton.addItemListener(new ItemListener() {
       public void itemStateChanged(ItemEvent e) {
-        boolean selected = embedJavaButton.isSelected();
+        final boolean selected = embedJavaButton.isSelected();
         Preferences.setBoolean("export.application.embed_java", selected);
         if (selected) {
           warningLabel.setText(embedWarning);
@@ -278,32 +278,28 @@ public class ExportDialog extends JDialog {
   }
   
   private JPanel createMacSigningWarning(int divWidth) {
-    JPanel signPanel = new JPanel();
+    final JPanel signPanel = new JPanel();
     signPanel.setLayout(new BoxLayout(signPanel, BoxLayout.Y_AXIS));
     signPanel.setBorder(new TitledBorder("Code Signing"));
     
-    String thePain =
-        "In recent versions of OS X, Apple has introduced the \u201CGatekeeper\u201D system, "
-            + "which makes it more difficult to run applications like those exported from Processing. ";
+    final StringBuilder thePain = new StringBuilder("In recent versions of OS X, Apple has introduced the \u201CGatekeeper\u201D system, "
+            + "which makes it more difficult to run applications like those exported from Processing. ");
 
     if (new File("/usr/bin/codesign_allocate").exists()) {
-      thePain +=
-          "This application will be \u201Cself-signed\u201D which means that Finder may report that the "
+      thePain.append("This application will be \u201Cself-signed\u201D which means that Finder may report that the "
               + "application is from an \u201Cunidentified developer\u201D. If the application will not "
               + "run, try right-clicking the app and selecting Open from the pop-up menu. Or you can visit "
-              + "System Preferences \u2192 Security & Privacy and select Allow apps downloaded from: anywhere. ";
+              + "System Preferences \u2192 Security & Privacy and select Allow apps downloaded from: anywhere. ");
     } else {
-      thePain +=
-          "Gatekeeper requires applications to be \u201Csigned\u201D, or they will be reported as damaged. "
+      thePain.append("Gatekeeper requires applications to be \u201Csigned\u201D, or they will be reported as damaged. "
               + "To prevent this message, install Xcode (and the Command Line Tools) from the App Store, or visit "
-              + "System Preferences \u2192 Security & Privacy and select Allow apps downloaded from: anywhere. ";
+              + "System Preferences \u2192 Security & Privacy and select Allow apps downloaded from: anywhere. ");
     }
-    thePain +=
-        "To avoid the messages entirely, manually code sign your app. "
-            + "For more information: <a href=\"\">https://developer.apple.com/developer-id/</a>";
+    thePain.append("To avoid the messages entirely, manually code sign your app. "
+            + "For more information: <a href=\"\">https://developer.apple.com/developer-id/</a>");
 
-    JLabel area =
-        new JLabel("<html><div width=\"" + divWidth + "\"><font size=\"2\">" + thePain
+    final JLabel area =
+        new JLabel("<html><div width=\"" + divWidth + "\"><font size=\"2\">" + thePain.toString()
             + "</div></html>");
 
     area.setBorder(new EmptyBorder(3, 13, 3, 13));
@@ -331,7 +327,7 @@ public class ExportDialog extends JDialog {
       
       addMouseListener(new MouseAdapter() {
         public void mouseReleased(MouseEvent e) {
-          Color color = Preferences.getColor(prefName);
+          final Color color = Preferences.getColor(prefName);
           chooser = new ColorChooser(editor, true, color, "Select", ColorPreference.this);
           chooser.show();
         }
@@ -340,12 +336,12 @@ public class ExportDialog extends JDialog {
     
     public void paintComponent(Graphics g) {
       g.setColor(Preferences.getColor(prefName));
-      Dimension size = getSize();
+      final Dimension size = getSize();
       g.fillRect(0, 0, size.width, size.height);
     }
 
     public void actionPerformed(ActionEvent e) {
-      Color color = chooser.getColor();
+      final Color color = chooser.getColor();
       Preferences.setColor(prefName, color);
       repaint();
       chooser.hide();

@@ -16,7 +16,6 @@ import processing.app.Base;
 import processing.app.Library;
 import processing.app.Preferences;
 import processing.app.Sketch;
-import processing.app.SketchCode;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
@@ -86,8 +85,8 @@ public class LinuxExport extends PlatformExport {
     // Make shell script
     {
       log("Creating shell script.");
-      File scriptFile = new File(destFolder, sketch.getName());
-      PrintWriter script = new PrintWriter(scriptFile);
+      final File scriptFile = new File(destFolder, sketch.getName());
+      final PrintWriter script = new PrintWriter(scriptFile);
       script.println("#!/bin/sh");
       script.println("APPDIR=$( cd $( dirname \"$0\" ) && pwd )");
       
@@ -98,7 +97,7 @@ public class LinuxExport extends PlatformExport {
       }
       
       // Make options for java
-      List<String> options = new ArrayList<>();
+      final List<String> options = new ArrayList<>();
       
       // https://github.com/processing/processing/issues/2239
       options.add("-Djna.nosys=true");
@@ -116,8 +115,8 @@ public class LinuxExport extends PlatformExport {
       }
       
       // Work out classpath - only add core stuff, the rest will be found by add_library
-      StringWriter classpath = new StringWriter();
-      for (File f : jycessingFolder.listFiles()) {
+      final StringWriter classpath = new StringWriter();
+      for (final File f : jycessingFolder.listFiles()) {
         if (f.getName().toLowerCase().endsWith(".jar")
             || f.getName().toLowerCase().endsWith(".zip")) {
           classpath.append("$APPDIR/lib/jycessing/" + f.getName() + ":");
@@ -150,7 +149,7 @@ public class LinuxExport extends PlatformExport {
       options.add("$APPDIR/source/" + sketch.getCode(0).getFileName());
       
       script.print("$JAVA");
-      for (String o : options) {
+      for (final String o : options) {
         script.print(" " + o);
       }
       script.println();

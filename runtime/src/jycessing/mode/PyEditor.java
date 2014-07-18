@@ -21,7 +21,6 @@ import javax.swing.JOptionPane;
 
 import jycessing.DisplayType;
 import jycessing.IOUtil;
-import jycessing.Runner.LibraryPolicy;
 import jycessing.mode.export.ExportDialog;
 import jycessing.mode.run.PdeSketch;
 import jycessing.mode.run.PdeSketch.LocationType;

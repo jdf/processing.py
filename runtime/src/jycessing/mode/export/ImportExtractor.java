@@ -42,7 +42,7 @@ public class ImportExtractor {
   private final Sketch sketch;
   private final Set<Library> libraries;
   
-  public ImportExtractor(Sketch sketch) {
+  public ImportExtractor(final Sketch sketch) {
     this.sketch = sketch;
     this.libraries = new HashSet<>();
     extract();
@@ -53,8 +53,8 @@ public class ImportExtractor {
   }
   
   private void extract() {
-    ImportVisitor visitor = new ImportVisitor();
-    for (SketchCode code : sketch.getCode()) {
+    final ImportVisitor visitor = new ImportVisitor();
+    for (final SketchCode code : sketch.getCode()) {
       log("Examining " + code.getFileName());
       final mod ast;
       try {
@@ -80,9 +80,9 @@ public class ImportExtractor {
           "I can't figure out all of the java libraries you're using. Your exported sketch might not work.");
     }
 
-    for (String libName : visitor.importNames) {
+    for (final String libName : visitor.importNames) {
       boolean found = false;
-      for (File parent : libLocations) {
+      for (final File parent : libLocations) {
         final File libDir = new File(parent, libName);
         if (libDir.exists()) {
           if (found) {
@@ -112,7 +112,7 @@ public class ImportExtractor {
       failure = false;
     }
 
-    public Object visitCall(Call funcall) throws Exception {
+    public Object visitCall(final Call funcall) throws Exception {
       if (funcall.getInternalFunc().getToken().getText().equals("add_library")) {
         if (funcall.getInternalArgs().get(0) instanceof Str) {
           final String text = funcall.getInternalArgs().get(0).getToken().getText();
