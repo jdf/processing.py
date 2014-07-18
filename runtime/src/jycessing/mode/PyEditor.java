@@ -244,13 +244,9 @@ public class PyEditor extends Editor {
       }
     }
     
-    //will this get GC'd?
     new ExportDialog(this, sketch).go();
   }
   
-  /**
-   * TODO Restructure mode so that we can have a core Library instead?
-   */
   public File getModeFolder() {
     return pyMode.getContentFile("mode");
   }
