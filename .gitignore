@@ -27,3 +27,7 @@ test.py
 testing/bin
 work
 zamples
+misc/windowsexecutablestub/Debug
+misc/windowsexecutablestub/Release
+*.sdf
+*.suo
