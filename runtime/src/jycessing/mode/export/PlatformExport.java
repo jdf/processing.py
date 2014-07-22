@@ -113,7 +113,7 @@ public abstract class PlatformExport {
         }
       }
       log("Copying core processing.py .jars to export");
-      Base.copyDir(editor.getModeFolder(), jycessingFolder);
+      Base.copyDir(editor.getModeContentFile("mode"), jycessingFolder);
       log("Copying splash screen to export");
       // (In the "lib" folder just in case the user has a splash.png)
       Base.copyFile(editor.getSplashFile(), new File(jycessingFolder, "splash.png"));

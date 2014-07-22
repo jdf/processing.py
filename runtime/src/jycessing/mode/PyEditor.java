@@ -245,9 +245,9 @@ public class PyEditor extends Editor {
     
     new ExportDialog(this, sketch).go();
   }
-  
-  public File getModeFolder() {
-    return pyMode.getContentFile("mode");
+    
+  public File getModeContentFile(String filename) {
+    return pyMode.getContentFile(filename);
   }
   
   public File getSplashFile() {
