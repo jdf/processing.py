@@ -88,12 +88,12 @@ public class LinuxExport extends PlatformExport {
       final File scriptFile = new File(destFolder, sketch.getName());
       final PrintWriter script = new PrintWriter(scriptFile);
       script.println("#!/bin/sh");
-      script.println("APPDIR=$( cd $( dirname \"$0\" ) && pwd )");
+      script.println("APPDIR=\"$( cd $( dirname \"$0\" ) && pwd )\"");
       
       if (embedJava) {
-        script.println("JAVA=$APPDIR/java/bin/java");
+        script.println("JAVA=\"$APPDIR/java/bin/java\"");
       } else {
-        script.println("JAVA=$(which java)");
+        script.println("JAVA=java");
       }
       
       // Make options for java
