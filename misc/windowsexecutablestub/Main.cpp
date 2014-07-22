@@ -4,6 +4,9 @@
 // ALL IT DOES is look for the file lib/run.cmd (well, lib\run.cmd), make
 // sure it exists, and launch it; it only exists so that we can have a
 // pretty icon for our application.
+//
+// To update, open in visual studio, rebuild in Release, and move the resulting
+// windowsexecutablestub.exe to mode/application/windowsexecutablestub.exe.
 
 #define _UNICODE
 
