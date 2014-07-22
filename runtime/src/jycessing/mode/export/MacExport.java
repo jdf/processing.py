@@ -28,23 +28,24 @@ import processing.core.PConstants;
 /**
  * 
  * A Mac export.
- * TODO implement.
  * 
  * If we embed java, we embed Processing's java, since we know it's been properly appbundled
  * and all symlinks work and stuff.
  * 
- * N.B. We don't use Apple's JarBundler format *or* Oracle's AppBundler format, since
- * JarBundler only supports Apple's java and AppBundler only supports Oracle's Java
+ * N.B. We use bash for the executable, so that we can easily include a pile of command line arguments,
+ * as well as being able to prompt the user to install Java.
+ *
+ * Inspired by: https://github.com/tofi86/universalJavaApplicationStub
  * 
  * Layout:
  * $appdir/
  *        /$sketch.app/Contents/
  *              /MacOS/
  *                    /$sketch (shell script that cd's to ../Processing and runs the sketch)
- *                    /dialogs.applescript (called by $sketch script if the user has java problems)
  *              /Info.plist
  *              /Resources/
  *                    /sketch.icns (pretty icon)
+ *                    /dialogs.applescript (used by main script to show native prompts)
  *              /Processing/
  *                    /source/
  *                    /lib/
