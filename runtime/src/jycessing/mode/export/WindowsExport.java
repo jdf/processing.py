@@ -1,17 +1,35 @@
 package jycessing.mode.export;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.lang.ProcessBuilder.Redirect;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
+import processing.app.Base;
 import processing.app.Library;
+import processing.app.Preferences;
 import processing.app.Sketch;
+import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.data.XML;
 
 /**
  * 
  * Perform an export to Windows.
+ * 
+ * N.B. The exported program MUST start in its directory to be able to find the main sketch file, since launch4j doesn't expand %VAR%s in constant arguments.
+ * N.B. We don't use launchh4j's splash screen functionality because it apparently only works with a very specific breed of 24-bit BMPs.
+ * 
  * TODO implement.
  *
  */
@@ -32,10 +50,208 @@ public class WindowsExport extends PlatformExport {
     this.editor = editor;
     this.libraries = libraries;
   }
-  
+
   @Override
   public void export() throws IOException {
-    log("I would do a windows export here... if I knew how :(");
+    final boolean embedJava =
+        (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
+
+    final File destFolder = new File(sketch.getFolder(), "application." + name);
+    final File javaFolder = new File(destFolder, "java");
+
+    copyBasicStructure(destFolder);
+
+    if (embedJava) {
+      log("Embedding java in export.");
+      javaFolder.mkdirs();
+      Base.copyDir(Base.getJavaHome(), javaFolder);
+    }
+
+    final XML l4jConfig = buildLaunch4jConfig(destFolder, embedJava);
+    final File configFile = Files.createTempFile("config", ".xml").toFile();
+    l4jConfig.save(configFile);
+
+    runLaunch4j(configFile);
+
+    //configFile.delete();
+    
+    log("Done.");
   }
-  
+
+  /**
+   * Construct a Processing XML object containing the configuration for launch4j.
+   * Config file docs: http://launch4j.sourceforge.net/docs.html
+   */
+  private XML buildLaunch4jConfig(final File destFolder, final boolean embedJava) {
+    log("Building launch4j configuration.");
+
+    final String sketchName = sketch.getName();
+    final boolean setMemory = Preferences.getBoolean("run.options.memory");
+    final boolean presentMode = Preferences.getBoolean("export.application.fullscreen");
+    final boolean stopButton = Preferences.getBoolean("export.application.stop") && presentMode;
+    final File iconFile = editor.getModeContentFile("application/windows/sketch.ico");
+    final File jycessingFolder = new File(destFolder, "lib/jycessing");
+
+    final XML config = new XML("launch4jConfig");
+    config.addChild("headerType").setContent("gui"); // Not a console application
+    config.addChild("outfile").setContent(new File(destFolder, sketchName + ".exe").getAbsolutePath());
+    config.addChild("dontWrapJar").setContent("true"); // We just want a launcher
+    config.addChild("errTitle").setContent("Sketchy Behavior");
+    config.addChild("icon").setContent(iconFile.getAbsolutePath());
+    config.addChild("chdir").setContent(".");
+    config.addChild(buildJREOptions(embedJava, setMemory));
+    config.addChild(buildRunnerOptions(presentMode, stopButton));
+    config.addChild(buildClassPathOptions(jycessingFolder));
+    log("Configuration done: "+config.format(0));
+    
+    return config;
+  }
+
+  /**
+   * Run launch4j on a given configuration file
+   */
+  private void runLaunch4j(final File configFile) throws IOException {
+    log("Running launch4j.");
+
+    final File javaHome = new File(System.getProperty("java.home"));
+    final File javaExecutable;
+    if (PApplet.platform == PApplet.WINDOWS) {
+      javaExecutable = new File(javaHome, "bin/java.exe");
+    } else {
+      javaExecutable = new File(javaHome, "bin/java");
+    }
+    if (!javaExecutable.exists()) {
+      // I should proooobably throw a FileNotFoundException here
+      throw new IOException("Can't find java executable. Huh?");
+    }
+
+    final File launch4jFolder = Base.getContentFile("modes/java/application/launch4j");
+    if (!launch4jFolder.exists()) {
+      throw new IOException("Can't find launch4j to wrap application with.");
+    }
+
+    final File launch4jJar = new File(launch4jFolder, "launch4j.jar");
+    final File xstreamJar = new File(launch4jFolder, "lib/xstream.jar");
+
+    ProcessBuilder pb =
+        new ProcessBuilder(javaExecutable.getAbsolutePath(), "-cp", launch4jJar.getAbsolutePath()
+            + System.getProperty("path.separator") + xstreamJar.getAbsolutePath(),
+            "net.sf.launch4j.Main", configFile.getAbsolutePath());
+
+    log("Launch4j command:");
+    List<String> command = pb.command();
+    for (String s : command) {
+      System.out.print('"'+s+"\" ");
+    }
+    System.out.println();
+    
+    final Process launch4jProcess = pb.start();
+    
+    if (PythonMode.VERBOSE) {
+      Thread captureOutput = new Thread(new Runnable() {
+        public void run() {
+          BufferedReader stderr =
+              new BufferedReader(new InputStreamReader(launch4jProcess.getInputStream()));
+          String line;
+          try {
+            while ((line = stderr.readLine()) != null) {
+              log(line);
+            }
+          } catch (Exception e) {
+
+          }
+        }
+      });
+      captureOutput.start();
+    }
+    
+    try {
+      int result = launch4jProcess.waitFor();
+      if (result != 0) {
+        throw new IOException("Launch4j seems to have failed.");
+      }
+    } catch (InterruptedException e) {
+      throw new IOException("Launch4j seems to have been interrupted.");  
+    }
+  }
+
+  private XML buildJREOptions(final boolean embedJava, final boolean setMemory) {
+    log("Building JRE options.");
+    final XML jre = new XML("jre");
+    if (embedJava) {
+      // note that "Path" is relative to the output executable at runtime
+      jre.addChild("path").setContent("%EXEDIR%\\java"); // "java" folder is next to the executable? TODO check
+    }
+    // We always add the minVersion tag, which means that the sketch will always try to look for
+    // Java on the system - by default when java isn't embedded, as a fallback when it is
+    jre.addChild("minVersion").setContent("1.7.0_40");
+    
+    switch (arch) {
+      case AMD64: jre.addChild("runtimeBits").setContent("64"); break;
+      case X86:   jre.addChild("runtimeBits").setContent("32");
+    }
+    
+    if (setMemory) {
+      jre.addChild("initialHeapSize").setContent(Preferences.get("run.options.memory.initial"));
+      jre.addChild("maxHeapSize").setContent(Preferences.get("run.options.memory.maximum"));
+    }
+    // https://github.com/processing/processing/issues/2239
+    jre.addChild("opt").setContent("-Djna.nosys=true");
+    // Set library path
+    jre.addChild("opt").setContent("-Djava.library.path=%EXEDIR%;%EXEDIR%\\lib");
+    // Enable assertions
+    jre.addChild("opt").setContent("-ea");
+    // Add splash screen
+    jre.addChild("opt").setContent("-splash:%EXEDIR%/lib/jycessing/splash.png");
+    
+    if (PythonMode.VERBOSE) {
+      jre.addChild("opt").setContent("-Dverbose=true");
+    }
+    return jre;
+  }
+
+  private XML buildRunnerOptions(final boolean presentMode, final boolean stopButton) {
+    log("Building Runner options.");
+    // Options to pass to Runner
+    final List<String> runnerOptions = new ArrayList<>();
+    if (presentMode) {
+      runnerOptions.add(PApplet.ARGS_FULL_SCREEN);
+      runnerOptions.add(PApplet.ARGS_BGCOLOR + "=" + Preferences.get("run.present.bgcolor"));
+    }
+    if (stopButton) {
+      runnerOptions.add(PApplet.ARGS_STOP_COLOR + "=" + Preferences.get("run.present.stop.color"));
+    } else {
+      runnerOptions.add(PApplet.ARGS_HIDE_STOP);
+    }
+    runnerOptions.add("--noredirect");
+    runnerOptions.add("--exported");
+
+    // name of the sketch to run
+    runnerOptions.add("source\\" + sketch.getCode(0).getFileName());
+
+    // Are we in development mode?
+    /*if (PythonMode.VERBOSE) {
+      runnerOptions.add("--l4j-debug-all");
+    }*/
+    
+    StringBuilder runnerOptionsOutput = new StringBuilder();
+    for (String o : runnerOptions) {
+      runnerOptionsOutput.append(" " + o);
+    }
+    final XML result = new XML("cmdLine");
+    result.setContent(runnerOptionsOutput.toString());
+    return result;
+  }
+
+  private XML buildClassPathOptions(final File jycessingFolder) {
+    log("Building classpath options.");
+    XML classPathOptions = new XML("classPath");
+    classPathOptions.addChild("mainClass").setContent("jycessing.Runner");
+    for (final File f : jycessingFolder.listFiles()) {
+      if (f.getName().toLowerCase().endsWith(".jar") || f.getName().toLowerCase().endsWith(".zip")) {
+        classPathOptions.addChild("cp").setContent("%EXEDIR%/lib/jycessing/" + f.getName());
+      }
+    }
+    return classPathOptions;
+  }
 }
