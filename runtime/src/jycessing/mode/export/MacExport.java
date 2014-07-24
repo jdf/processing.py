@@ -192,7 +192,7 @@ public class MacExport extends PlatformExport {
     options.add("-Djna.nosys=true");
     
     // Set library path
-    options.add("-Djava.library.path=\"$APPDIR:$APPDIR/lib\"");
+    options.add("-Djava.library.path=\"$APPDIR:$APPDIR/lib:$APPDIR/lib/jycessing\"");
     
     // Enable assertions
     options.add("-ea");

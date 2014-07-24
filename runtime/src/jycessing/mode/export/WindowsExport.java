@@ -25,12 +25,23 @@ import processing.data.XML;
 
 /**
  * 
- * Perform an export to Windows.
+ * Perform an export to Windows, using launch4j to generate the Windows executable.
  * 
  * N.B. The exported program MUST start in its directory to be able to find the main sketch file, since launch4j doesn't expand %VAR%s in constant arguments.
- * N.B. We don't use launchh4j's splash screen functionality because it apparently only works with a very specific breed of 24-bit BMPs.
+ * N.B. We don't use launch4j's splash screen functionality because it apparently only works with a very specific breed of 24-bit BMPs.
  * 
- * TODO implement.
+ * Structure:
+ * $appdir/                        (e.g. $sketchname/application.windows32)
+ *        /$sketchname.exe         (executable shell script to run the application)
+ *        /source/                 (the source code of the sketch; used to run it)
+ *        /lib/                    (where java imports are stored)
+ *            /jycessing/          (where stuff necessary to jycessing is stored;
+ *                                  everything in here is added to the classpath.)
+ *            /$libname/library/   (where resources for $libname - imported with
+ *                                  add_library - are stored. Not added to classpath.)
+ *        /code/                   (any other code resources the user wanted to add;
+ *                                  copied verbatim.)
+ *        /data/                   (all non-code resources; copied verbatim.)
  *
  */
 public class WindowsExport extends PlatformExport {
@@ -73,7 +84,7 @@ public class WindowsExport extends PlatformExport {
 
     runLaunch4j(configFile);
 
-    //configFile.delete();
+    configFile.delete();
     
     log("Done.");
   }
@@ -99,7 +110,7 @@ public class WindowsExport extends PlatformExport {
     config.addChild("errTitle").setContent("Sketchy Behavior");
     config.addChild("icon").setContent(iconFile.getAbsolutePath());
     config.addChild("chdir").setContent(".");
-    config.addChild(buildJREOptions(embedJava, setMemory));
+    config.addChild(buildJREOptions(embedJava, setMemory, arch));
     config.addChild(buildRunnerOptions(presentMode, stopButton));
     config.addChild(buildClassPathOptions(jycessingFolder));
     log("Configuration done: "+config.format(0));
@@ -138,13 +149,13 @@ public class WindowsExport extends PlatformExport {
             + System.getProperty("path.separator") + xstreamJar.getAbsolutePath(),
             "net.sf.launch4j.Main", configFile.getAbsolutePath());
 
-    log("Launch4j command:");
-    List<String> command = pb.command();
-    for (String s : command) {
-      System.out.print('"'+s+"\" ");
+    if (PythonMode.VERBOSE) {
+      log("Launch4j command:");
+      List<String> command = pb.command();
+      for (String s : command) {
+        log("    " + s);
+      }
     }
-    System.out.println();
-    
     final Process launch4jProcess = pb.start();
     
     if (PythonMode.VERBOSE) {
@@ -157,9 +168,7 @@ public class WindowsExport extends PlatformExport {
             while ((line = stderr.readLine()) != null) {
               log(line);
             }
-          } catch (Exception e) {
-
-          }
+          } catch (Exception e) {}
         }
       });
       captureOutput.start();
@@ -175,7 +184,7 @@ public class WindowsExport extends PlatformExport {
     }
   }
 
-  private XML buildJREOptions(final boolean embedJava, final boolean setMemory) {
+  private XML buildJREOptions(final boolean embedJava, final boolean setMemory, final Arch arch) {
     log("Building JRE options.");
     final XML jre = new XML("jre");
     if (embedJava) {
@@ -198,7 +207,7 @@ public class WindowsExport extends PlatformExport {
     // https://github.com/processing/processing/issues/2239
     jre.addChild("opt").setContent("-Djna.nosys=true");
     // Set library path
-    jre.addChild("opt").setContent("-Djava.library.path=%EXEDIR%;%EXEDIR%\\lib");
+    jre.addChild("opt").setContent("-Djava.library.path=%EXEDIR%;%EXEDIR%\\lib;%EXEDIR%\\lib\\jycessing");
     // Enable assertions
     jre.addChild("opt").setContent("-ea");
     // Add splash screen
@@ -228,11 +237,6 @@ public class WindowsExport extends PlatformExport {
 
     // name of the sketch to run
     runnerOptions.add("source\\" + sketch.getCode(0).getFileName());
-
-    // Are we in development mode?
-    /*if (PythonMode.VERBOSE) {
-      runnerOptions.add("--l4j-debug-all");
-    }*/
     
     StringBuilder runnerOptionsOutput = new StringBuilder();
     for (String o : runnerOptions) {
