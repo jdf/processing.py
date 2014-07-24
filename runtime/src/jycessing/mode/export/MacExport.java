@@ -73,6 +73,35 @@ public class MacExport extends PlatformExport {
     this.arch = Arch.AMD64;
   }
   
+  @Override
+  public void export() throws IOException {
+    // Work out user preferences and other possibilities we care about
+    final boolean embedJava =
+        (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
+    
+    // Work out the folders we'll be (maybe) using
+    final File destFolder = new File(sketch.getFolder(), "application." + name);
+    final File appRootFolder = new File(destFolder, sketch.getName()+".app");
+    final File contentsFolder = new File(appRootFolder, "Contents");    
+    final File binFolder = new File(contentsFolder, "MacOS");
+    final File resourcesFolder = new File(contentsFolder, "Resources");
+    final File processingFolder = new File(contentsFolder, "Processing");
+    
+    copyBasicStructure(processingFolder);
+    
+    copyStaticResources(resourcesFolder);
+    
+    if (embedJava) {
+      copyJDKPlugin(new File(contentsFolder, "PlugIns"));
+    }
+    
+    setUpInfoPlist(new File(contentsFolder, "Info.plist"), sketch.getName());
+    
+    setUpExecutable(binFolder, processingFolder, sketch.getName(), embedJava);
+    
+    log("Done.");
+  }
+  
   /**
    * Copy Processing's builtin JDK to the export.
    * 
@@ -223,34 +252,4 @@ public class MacExport extends PlatformExport {
         PosixFilePermissions.fromString("rwxrwxrwx"));
     
   }
-  
-  @Override
-  public void export() throws IOException {
-    // Work out user preferences and other possibilities we care about
-    final boolean embedJava =
-        (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
-    
-    // Work out the folders we'll be (maybe) using
-    final File destFolder = new File(sketch.getFolder(), "application." + name);
-    final File appRootFolder = new File(destFolder, sketch.getName()+".app");
-    final File contentsFolder = new File(appRootFolder, "Contents");    
-    final File binFolder = new File(contentsFolder, "MacOS");
-    final File resourcesFolder = new File(contentsFolder, "Resources");
-    final File processingFolder = new File(contentsFolder, "Processing");
-    
-    copyBasicStructure(processingFolder);
-    
-    copyStaticResources(resourcesFolder);
-    
-    if (embedJava) {
-      copyJDKPlugin(new File(contentsFolder, "PlugIns"));
-    }
-    
-    setUpInfoPlist(new File(contentsFolder, "Info.plist"), sketch.getName());
-    
-    setUpExecutable(binFolder, processingFolder, sketch.getName(), embedJava);
-    
-    log("Done.");
-  }
-
 }

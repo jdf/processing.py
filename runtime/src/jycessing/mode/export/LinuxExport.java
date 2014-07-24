@@ -63,15 +63,10 @@ public class LinuxExport extends PlatformExport {
     // Work out user preferences and other possibilities we care about
     final boolean embedJava =
         (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
-    final boolean setMemory = Preferences.getBoolean("run.options.memory");
-    final boolean presentMode = Preferences.getBoolean("export.application.fullscreen");
-    final boolean stopButton = Preferences.getBoolean("export.application.stop") && presentMode;
     
     // Work out the folders we'll be (maybe) using
     final File destFolder = new File(sketch.getFolder(), "application." + name);
     final File javaFolder = new File(destFolder, "java");
-    final File libFolder = new File(destFolder, "lib");
-    final File jycessingFolder = new File(libFolder, "jycessing");
 
     copyBasicStructure(destFolder);
     
@@ -82,83 +77,91 @@ public class LinuxExport extends PlatformExport {
       Base.copyDir(Base.getJavaHome(), javaFolder);
     }
     
-    // Make shell script
-    {
-      log("Creating shell script.");
-      final File scriptFile = new File(destFolder, sketch.getName());
-      final PrintWriter script = new PrintWriter(scriptFile);
-      script.println("#!/bin/sh");
-      script.println("APPDIR=\"$( cd $( dirname \"$0\" ) && pwd )\"");
-      
-      if (embedJava) {
-        script.println("JAVA=\"$APPDIR/java/bin/java\"");
-      } else {
-        script.println("JAVA=java");
-      }
-      
-      // Make options for java
-      final List<String> options = new ArrayList<>();
-      
-      // https://github.com/processing/processing/issues/2239
-      options.add("-Djna.nosys=true");
-      
-      // Set library path
-      options.add("-Djava.library.path=\"$APPDIR:$APPDIR/lib\"");
-      
-      // Enable assertions
-      options.add("-ea");
-      
-      // Set memory
-      if (setMemory) {
-        options.add("-Xms" + Preferences.get("run.options.memory.initial") + "m");
-        options.add("-Xmx" + Preferences.get("run.options.memory.maximum") + "m");
-      }
-      
-      // Work out classpath - only add core stuff, the rest will be found by add_library
-      final StringWriter classpath = new StringWriter();
-      for (final File f : jycessingFolder.listFiles()) {
-        if (f.getName().toLowerCase().endsWith(".jar")
-            || f.getName().toLowerCase().endsWith(".zip")) {
-          classpath.append("$APPDIR/lib/jycessing/" + f.getName() + ":");
-        }
-      }
-      options.add("-cp");
-      options.add(classpath.toString().substring(0, classpath.toString().length() - 1));
-
-      options.add("-splash:$APPDIR/lib/jycessing/splash.png");
-      
-      // Class to run
-      options.add("jycessing.Runner");
-      
-      // Runner arguments
-      options.add("--noredirect");
-      options.add("--exported");
-      
-      if (presentMode) {
-        options.add(PApplet.ARGS_FULL_SCREEN);
-        
-        options.add(PApplet.ARGS_BGCOLOR + "=" + Preferences.get("run.present.bgcolor"));
-      }
-      
-      if (stopButton) {
-        options.add(PApplet.ARGS_STOP_COLOR + "=" + Preferences.get("run.present.stop.color"));
-      } else {
-        options.add(PApplet.ARGS_HIDE_STOP);
-      }
-      
-      options.add("$APPDIR/source/" + sketch.getCode(0).getFileName());
-      
-      script.print("$JAVA");
-      for (final String o : options) {
-        script.print(" " + o);
-      }
-      script.println();
-      script.close();
-      
-      log("Setting script executable.");
-      Files.setPosixFilePermissions(scriptFile.toPath(),
-          PosixFilePermissions.fromString("rwxrwxrwx"));
-    }
+    buildShellScript(destFolder, embedJava);
+    
     log("Done.");
+  }
+  
+  private void buildShellScript(final File destFolder, final boolean embedJava) throws IOException {
+    log("Creating shell script.");
+    
+    final boolean setMemory = Preferences.getBoolean("run.options.memory");
+    final boolean presentMode = Preferences.getBoolean("export.application.fullscreen");
+    final boolean stopButton = Preferences.getBoolean("export.application.stop") && presentMode;
+    
+    final File jycessingFolder = new File(destFolder, "lib/jycessing");
+    final File scriptFile = new File(destFolder, sketch.getName());
+    final PrintWriter script = new PrintWriter(scriptFile);
+    script.println("#!/bin/sh");
+    script.println("APPDIR=\"$( cd $( dirname \"$0\" ) && pwd )\"");
+    
+    if (embedJava) {
+      script.println("JAVA=\"$APPDIR/java/bin/java\"");
+    } else {
+      script.println("JAVA=java");
+    }
+    
+    // Make options for java
+    final List<String> options = new ArrayList<>();
+    
+    // https://github.com/processing/processing/issues/2239
+    options.add("-Djna.nosys=true");
+    
+    // Set library path
+    options.add("-Djava.library.path=\"$APPDIR:$APPDIR/lib\"");
+    
+    // Enable assertions
+    options.add("-ea");
+    
+    // Set memory
+    if (setMemory) {
+      options.add("-Xms" + Preferences.get("run.options.memory.initial") + "m");
+      options.add("-Xmx" + Preferences.get("run.options.memory.maximum") + "m");
+    }
+    
+    // Work out classpath - only add core stuff, the rest will be found by add_library
+    final StringWriter classpath = new StringWriter();
+    for (final File f : jycessingFolder.listFiles()) {
+      if (f.getName().toLowerCase().endsWith(".jar")
+          || f.getName().toLowerCase().endsWith(".zip")) {
+        classpath.append("$APPDIR/lib/jycessing/" + f.getName() + ":");
+      }
+    }
+    options.add("-cp");
+    options.add(classpath.toString().substring(0, classpath.toString().length() - 1));
+
+    options.add("-splash:$APPDIR/lib/jycessing/splash.png");
+    
+    // Class to run
+    options.add("jycessing.Runner");
+    
+    // Runner arguments
+    options.add("--noredirect");
+    options.add("--exported");
+    
+    if (presentMode) {
+      options.add(PApplet.ARGS_FULL_SCREEN);
+      
+      options.add(PApplet.ARGS_BGCOLOR + "=" + Preferences.get("run.present.bgcolor"));
+    }
+    
+    if (stopButton) {
+      options.add(PApplet.ARGS_STOP_COLOR + "=" + Preferences.get("run.present.stop.color"));
+    } else {
+      options.add(PApplet.ARGS_HIDE_STOP);
+    }
+    
+    options.add("$APPDIR/source/" + sketch.getCode(0).getFileName());
+    
+    script.print("$JAVA");
+    for (final String o : options) {
+      script.print(" " + o);
+    }
+    script.println();
+    script.close();
+    
+    log("Setting script executable.");
+    Files.setPosixFilePermissions(scriptFile.toPath(),
+        PosixFilePermissions.fromString("rwxrwxrwx"));
   }
 }
