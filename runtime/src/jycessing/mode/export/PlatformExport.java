@@ -28,7 +28,7 @@ public abstract class PlatformExport {
    * Instance so that subclasses can override it.
    */
   protected abstract void log(final String msg);
-  
+
   public abstract void export() throws IOException;
 
   /**
@@ -39,34 +39,34 @@ public abstract class PlatformExport {
     final boolean hasData = sketch.hasDataFolder();
     final boolean hasCode = sketch.hasCodeFolder();
     final boolean deletePrevious = Preferences.getBoolean("export.delete_target_folder");
-    
+
     final File libFolder = new File(destFolder, "lib");
     final File codeFolder = new File(destFolder, "code");
     final File sourceFolder = new File(destFolder, "source");
     final File dataFolder = new File(destFolder, "data");
     final File jycessingFolder = new File(libFolder, "jycessing");
-    
+
     // Delete previous export (if the user wants to, and it exists) and make a new one
     if (deletePrevious) {
       log("Removing old export folder.");
       Base.removeDir(destFolder);
     }
     destFolder.mkdirs();
-    
+
     // Handle data folder
     if (hasData) {
       log("Copying data folder to export.");
       dataFolder.mkdirs();
       Base.copyDir(sketch.getDataFolder(), dataFolder);
     }
-    
+
     // Handle code folder
     if (hasCode) {
       log("Copying code folder to export.");
       codeFolder.mkdirs();
       Base.copyDir(sketch.getCodeFolder(), codeFolder);
     }
-    
+
     // Handle source folder
     {
       log("Copying source to export.");
@@ -75,7 +75,7 @@ public abstract class PlatformExport {
         code.copyTo(new File(sourceFolder, code.getFileName()));
       }
     }
-    
+
     // Handle imported libraries
     {
       log("Copying libraries to export.");
@@ -100,12 +100,13 @@ public abstract class PlatformExport {
         }
       }
     }
-    
+
     // Handle Python Mode stuff
     {
       jycessingFolder.mkdirs();
       log("Copying core processing stuff to export");
-      for (final File exportFile : new Library(Base.getContentFile("core")).getApplicationExports(id, arch.bits)) {
+      for (final File exportFile : new Library(Base.getContentFile("core")).getApplicationExports(
+          id, arch.bits)) {
         if (exportFile.isDirectory()) {
           Base.copyDir(exportFile, new File(jycessingFolder, exportFile.getName()));
         } else {

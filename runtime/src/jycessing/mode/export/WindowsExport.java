@@ -85,7 +85,7 @@ public class WindowsExport extends PlatformExport {
     runLaunch4j(configFile);
 
     configFile.delete();
-    
+
     log("Done.");
   }
 
@@ -105,7 +105,8 @@ public class WindowsExport extends PlatformExport {
 
     final XML config = new XML("launch4jConfig");
     config.addChild("headerType").setContent("gui"); // Not a console application
-    config.addChild("outfile").setContent(new File(destFolder, sketchName + ".exe").getAbsolutePath());
+    config.addChild("outfile").setContent(
+        new File(destFolder, sketchName + ".exe").getAbsolutePath());
     config.addChild("dontWrapJar").setContent("true"); // We just want a launcher
     config.addChild("errTitle").setContent("Sketchy Behavior");
     config.addChild("icon").setContent(iconFile.getAbsolutePath());
@@ -113,8 +114,8 @@ public class WindowsExport extends PlatformExport {
     config.addChild(buildJREOptions(embedJava, setMemory, arch));
     config.addChild(buildRunnerOptions(presentMode, stopButton));
     config.addChild(buildClassPathOptions(jycessingFolder));
-    log("Configuration done: "+config.format(0));
-    
+    log("Configuration done: " + config.format(0));
+
     return config;
   }
 
@@ -157,7 +158,7 @@ public class WindowsExport extends PlatformExport {
       }
     }
     final Process launch4jProcess = pb.start();
-    
+
     if (PythonMode.VERBOSE) {
       Thread captureOutput = new Thread(new Runnable() {
         public void run() {
@@ -168,19 +169,20 @@ public class WindowsExport extends PlatformExport {
             while ((line = stderr.readLine()) != null) {
               log(line);
             }
-          } catch (Exception e) {}
+          } catch (Exception e) {
+          }
         }
       });
       captureOutput.start();
     }
-    
+
     try {
       int result = launch4jProcess.waitFor();
       if (result != 0) {
         throw new IOException("Launch4j seems to have failed.");
       }
     } catch (InterruptedException e) {
-      throw new IOException("Launch4j seems to have been interrupted.");  
+      throw new IOException("Launch4j seems to have been interrupted.");
     }
   }
 
@@ -189,17 +191,21 @@ public class WindowsExport extends PlatformExport {
     final XML jre = new XML("jre");
     if (embedJava) {
       // note that "Path" is relative to the output executable at runtime
-      jre.addChild("path").setContent("%EXEDIR%\\java"); // "java" folder is next to the executable? TODO check
+      jre.addChild("path").setContent("%EXEDIR%\\java"); // "java" folder is next to the executable?
+                                                         // TODO check
     }
     // We always add the minVersion tag, which means that the sketch will always try to look for
     // Java on the system - by default when java isn't embedded, as a fallback when it is
     jre.addChild("minVersion").setContent("1.7.0_40");
-    
+
     switch (arch) {
-      case AMD64: jre.addChild("runtimeBits").setContent("64"); break;
-      case X86:   jre.addChild("runtimeBits").setContent("32");
+      case AMD64:
+        jre.addChild("runtimeBits").setContent("64");
+        break;
+      case X86:
+        jre.addChild("runtimeBits").setContent("32");
     }
-    
+
     if (setMemory) {
       jre.addChild("initialHeapSize").setContent(Preferences.get("run.options.memory.initial"));
       jre.addChild("maxHeapSize").setContent(Preferences.get("run.options.memory.maximum"));
@@ -207,12 +213,13 @@ public class WindowsExport extends PlatformExport {
     // https://github.com/processing/processing/issues/2239
     jre.addChild("opt").setContent("-Djna.nosys=true");
     // Set library path
-    jre.addChild("opt").setContent("-Djava.library.path=%EXEDIR%;%EXEDIR%\\lib;%EXEDIR%\\lib\\jycessing");
+    jre.addChild("opt").setContent(
+        "-Djava.library.path=%EXEDIR%;%EXEDIR%\\lib;%EXEDIR%\\lib\\jycessing");
     // Enable assertions
     jre.addChild("opt").setContent("-ea");
     // Add splash screen
     jre.addChild("opt").setContent("-splash:%EXEDIR%/lib/jycessing/splash.png");
-    
+
     if (PythonMode.VERBOSE) {
       jre.addChild("opt").setContent("-Dverbose=true");
     }
@@ -235,9 +242,9 @@ public class WindowsExport extends PlatformExport {
     runnerOptions.add("--noredirect");
     runnerOptions.add("--exported");
 
-    // name of the sketch to run
+    // path to the sketch to run, relative to executable
     runnerOptions.add("source\\" + sketch.getCode(0).getFileName());
-    
+
     StringBuilder runnerOptionsOutput = new StringBuilder();
     for (String o : runnerOptions) {
       runnerOptionsOutput.append(" " + o);

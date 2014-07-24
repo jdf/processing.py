@@ -56,14 +56,14 @@ import processing.core.PConstants;
  *
  */
 public class MacExport extends PlatformExport {
-  
+
   @Override
   protected void log(final String msg) {
     if (PythonMode.VERBOSE) {
       System.err.println(MacExport.class.getSimpleName() + ": " + msg);
     }
   }
-  
+
   public MacExport(Sketch sketch, PyEditor editor, Set<Library> libraries) {
     this.id = PConstants.MACOSX;
     this.name = PConstants.platformNames[id];
@@ -72,36 +72,36 @@ public class MacExport extends PlatformExport {
     this.libraries = libraries;
     this.arch = Arch.AMD64;
   }
-  
+
   @Override
   public void export() throws IOException {
     // Work out user preferences and other possibilities we care about
     final boolean embedJava =
         (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
-    
+
     // Work out the folders we'll be (maybe) using
     final File destFolder = new File(sketch.getFolder(), "application." + name);
-    final File appRootFolder = new File(destFolder, sketch.getName()+".app");
-    final File contentsFolder = new File(appRootFolder, "Contents");    
+    final File appRootFolder = new File(destFolder, sketch.getName() + ".app");
+    final File contentsFolder = new File(appRootFolder, "Contents");
     final File binFolder = new File(contentsFolder, "MacOS");
     final File resourcesFolder = new File(contentsFolder, "Resources");
     final File processingFolder = new File(contentsFolder, "Processing");
-    
+
     copyBasicStructure(processingFolder);
-    
+
     copyStaticResources(resourcesFolder);
-    
+
     if (embedJava) {
       copyJDKPlugin(new File(contentsFolder, "PlugIns"));
     }
-    
+
     setUpInfoPlist(new File(contentsFolder, "Info.plist"), sketch.getName());
-    
+
     setUpExecutable(binFolder, processingFolder, sketch.getName(), embedJava);
-    
+
     log("Done.");
   }
-  
+
   /**
    * Copy Processing's builtin JDK to the export.
    * 
@@ -109,37 +109,38 @@ public class MacExport extends PlatformExport {
    */
   private void copyJDKPlugin(final File targetPluginsFolder) throws IOException {
     // This is how Java Mode finds it... basically
-    final File sourceJDKFolder = Base.getContentFile("../PlugIns").listFiles(
-        new FilenameFilter() {
-          public boolean accept(File dir, String name){
-            return name.endsWith(".jdk") && !name.startsWith(".");
-          }
-        })[0].getAbsoluteFile();
-    
-    log("Copying JDK from "+sourceJDKFolder);
-    
+    final File sourceJDKFolder = Base.getContentFile("../PlugIns").listFiles(new FilenameFilter() {
+      public boolean accept(File dir, String name) {
+        return name.endsWith(".jdk") && !name.startsWith(".");
+      }
+    })[0].getAbsoluteFile();
+
+    log("Copying JDK from " + sourceJDKFolder);
+
     targetPluginsFolder.mkdirs();
     final File targetJDKFolder = new File(targetPluginsFolder, sourceJDKFolder.getName());
     Base.copyDirNative(sourceJDKFolder, targetJDKFolder);
   }
 
-  
+
   private final static Pattern sketchPattern = Pattern.compile("@@sketch@@");
-  
+
   /**
    * Read in Info.plist.tmpl, modify fields, package away in .app
    */
-  private void setUpInfoPlist(final File targetInfoPlist, final String sketchName) throws IOException {
+  private void setUpInfoPlist(final File targetInfoPlist, final String sketchName)
+      throws IOException {
     log("Setting up Info.plist.");
     targetInfoPlist.getAbsoluteFile().getParentFile().mkdirs();
-    
-    final Path infoPlistTemplate = editor.getModeContentFile("application/macosx/Info.plist.tmpl").toPath();
+
+    final Path infoPlistTemplate =
+        editor.getModeContentFile("application/macosx/Info.plist.tmpl").toPath();
     final String infoPlistTemplateText = new String(Files.readAllBytes(infoPlistTemplate), "UTF-8");
     final Matcher sketchNameMatcher = sketchPattern.matcher(infoPlistTemplateText);
     Files.write(targetInfoPlist.toPath(), sketchNameMatcher.replaceAll(sketchName).getBytes(),
         StandardOpenOption.WRITE, StandardOpenOption.CREATE);
   }
-  
+
   /**
    * Copy things that don't change between runs.
    */
@@ -148,9 +149,10 @@ public class MacExport extends PlatformExport {
     final File osxFolder = editor.getModeContentFile("application/macosx");
     resourcesFolder.mkdirs();
     Base.copyFile(new File(osxFolder, "sketch.icns"), new File(resourcesFolder, "sketch.icns"));
-    Base.copyFile(new File(osxFolder, "dialogs.applescript"), new File(resourcesFolder, "dialogs.applescript"));
+    Base.copyFile(new File(osxFolder, "dialogs.applescript"), new File(resourcesFolder,
+        "dialogs.applescript"));
   }
-  
+
   /**
    * Create the shell script that will run the sketch.
    * 
@@ -158,56 +160,56 @@ public class MacExport extends PlatformExport {
    */
   private void setUpExecutable(final File binFolder, final File processingFolder,
       final String sketchName, final boolean embedJava) throws IOException {
-    
+
     log("Creating shell script.");
-    
+
     final boolean setMemory = Preferences.getBoolean("run.options.memory");
     final boolean presentMode = Preferences.getBoolean("export.application.fullscreen");
     final boolean stopButton = Preferences.getBoolean("export.application.stop") && presentMode;
-    
+
     binFolder.mkdirs();
-    
+
     final File scriptFile = new File(binFolder, sketch.getName());
     final PrintWriter script = new PrintWriter(scriptFile);
-    
+
     script.println("#!/bin/bash");
     script.println("CONTENTS=\"$( cd $( dirname \"$0\" )/.. && pwd )\"");
-    
+
     if (!embedJava) {
       log("Adding java-locating prelude to script.");
-      
+
       final Path findJavaScript = editor.getModeContentFile("application/macosx/findjava").toPath();
       final String findJava = new String(Files.readAllBytes(findJavaScript), "UTF-8");
-      
+
       script.println(findJava);
     } else {
-      script.println("JAVA=\"$(find $CONTENTS/PlugIns -maxdepth 1 -type d -name '*jdk')/Contents/Home/jre/bin/java\"");
+      script
+          .println("JAVA=\"$(find $CONTENTS/PlugIns -maxdepth 1 -type d -name '*jdk')/Contents/Home/jre/bin/java\"");
     }
-    
+
     script.println("APPDIR=\"$CONTENTS/Processing\"");
-    
+
     final List<String> options = new ArrayList<>();
-    
+
     // https://github.com/processing/processing/issues/2239
     options.add("-Djna.nosys=true");
-    
+
     // Set library path
     options.add("-Djava.library.path=\"$APPDIR:$APPDIR/lib:$APPDIR/lib/jycessing\"");
-    
+
     // Enable assertions
     options.add("-ea");
-    
+
     // Set memory
     if (setMemory) {
       options.add("-Xms" + Preferences.get("run.options.memory.initial") + "m");
       options.add("-Xmx" + Preferences.get("run.options.memory.maximum") + "m");
     }
-    
+
     // Work out classpath - only add core stuff, the rest will be found by add_library
     final StringWriter classpath = new StringWriter();
     for (final File f : new File(processingFolder, "lib/jycessing").listFiles()) {
-      if (f.getName().toLowerCase().endsWith(".jar")
-          || f.getName().toLowerCase().endsWith(".zip")) {
+      if (f.getName().toLowerCase().endsWith(".jar") || f.getName().toLowerCase().endsWith(".zip")) {
         classpath.append("$APPDIR/lib/jycessing/" + f.getName() + ":");
       }
     }
@@ -215,41 +217,41 @@ public class MacExport extends PlatformExport {
     options.add(classpath.toString().substring(0, classpath.toString().length() - 1));
 
     options.add("-splash:$APPDIR/lib/jycessing/splash.png");
-    
+
     options.add("-Xdock:icon=\"$CONTENTS/Resources/sketch.icns\"");
-    options.add("-Xdock:name=\""+sketchName+"\"");
-    
+    options.add("-Xdock:name=\"" + sketchName + "\"");
+
     // Class to run
     options.add("jycessing.Runner");
-    
+
     // Runner arguments
     options.add("--noredirect");
     options.add("--exported");
-    
+
     if (presentMode) {
       options.add(PApplet.ARGS_FULL_SCREEN);
-      
+
       options.add(PApplet.ARGS_BGCOLOR + "=" + Preferences.get("run.present.bgcolor"));
     }
-    
+
     if (stopButton) {
       options.add(PApplet.ARGS_STOP_COLOR + "=" + Preferences.get("run.present.stop.color"));
     } else {
       options.add(PApplet.ARGS_HIDE_STOP);
     }
-    
+
     options.add("$APPDIR/source/" + sketch.getCode(0).getFileName());
-    
+
     script.print("$JAVA");
     for (final String o : options) {
       script.print(" " + o);
     }
     script.println();
     script.close();
-    
+
     log("Setting script executable.");
-    Files.setPosixFilePermissions(scriptFile.toPath(),
-        PosixFilePermissions.fromString("rwxrwxrwx"));
-    
+    Files
+        .setPosixFilePermissions(scriptFile.toPath(), PosixFilePermissions.fromString("rwxrwxrwx"));
+
   }
 }

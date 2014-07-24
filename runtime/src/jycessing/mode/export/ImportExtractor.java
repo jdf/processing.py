@@ -33,25 +33,23 @@ public class ImportExtractor {
       System.err.println(ImportExtractor.class.getSimpleName() + ": " + msg);
     }
   }
-  
+
   private final static File[] libLocations = new File[] {
-    Base.getContentFile("modes/java/libraries"),
-    Base.getSketchbookLibrariesFolder()
-  };
-  
+      Base.getContentFile("modes/java/libraries"), Base.getSketchbookLibrariesFolder()};
+
   private final Sketch sketch;
   private final Set<Library> libraries;
-  
+
   public ImportExtractor(final Sketch sketch) {
     this.sketch = sketch;
     this.libraries = new HashSet<>();
     extract();
   }
-  
+
   public Set<Library> getLibraries() {
     return libraries;
   }
-  
+
   private void extract() {
     final ImportVisitor visitor = new ImportVisitor();
     for (final SketchCode code : sketch.getCode()) {

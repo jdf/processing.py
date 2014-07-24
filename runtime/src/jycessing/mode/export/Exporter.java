@@ -18,26 +18,27 @@ import processing.app.Sketch;
  *
  */
 public class Exporter {
-  
+
   @SuppressWarnings("unused")
   private static void log(final String msg) {
     if (PythonMode.VERBOSE) {
       System.err.println(Exporter.class.getSimpleName() + ": " + msg);
     }
   }
-  
+
   private Sketch sketch;
-  private PyEditor editor; // I don't really want to pass this around but there's some functionality I need
+  private PyEditor editor; // I don't really want to pass this around but there's some functionality
+                           // I need
 
   public Exporter(PyEditor editor, Sketch sketch) {
     this.sketch = sketch;
     this.editor = editor;
   }
-  
+
   public void export() {
     // Work out the libraries the sketch exports - we only need to do this once.
     final Set<Library> libraries = new ImportExtractor(sketch).getLibraries();
-    
+
     // Now, do this for each platform:
     if (Preferences.getBoolean("export.application.platform.linux")) {
       try {
