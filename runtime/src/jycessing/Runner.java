@@ -151,7 +151,6 @@ public class Runner {
   }
 
   public static RunnableSketch sketch;
-
   /**
    * 
    * Entrypoint for non-PDE sketches. If we find ARGS_EXPORTED in the argument list,
