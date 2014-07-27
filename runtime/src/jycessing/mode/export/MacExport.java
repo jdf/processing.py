@@ -214,9 +214,9 @@ public class MacExport extends PlatformExport {
       }
     }
     options.add("-cp");
-    options.add(classpath.toString().substring(0, classpath.toString().length() - 1));
+    options.add("\"" + classpath.toString().substring(0, classpath.toString().length() - 1) + "\"");
 
-    options.add("-splash:$APPDIR/lib/jycessing/splash.png");
+    options.add("-splash:\"$APPDIR/lib/jycessing/splash.png\"");
 
     options.add("-Xdock:icon=\"$CONTENTS/Resources/sketch.icns\"");
     options.add("-Xdock:name=\"" + sketchName + "\"");
@@ -240,7 +240,7 @@ public class MacExport extends PlatformExport {
       options.add(PApplet.ARGS_HIDE_STOP);
     }
 
-    options.add("$APPDIR/source/" + sketch.getCode(0).getFileName());
+    options.add("\"$APPDIR/source/" + sketch.getCode(0).getFileName()+"\"");
 
     script.print("$JAVA");
     for (final String o : options) {
