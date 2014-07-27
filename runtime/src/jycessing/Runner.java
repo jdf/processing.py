@@ -160,13 +160,10 @@ public class Runner {
    * 
    */
   public static void main(final String[] args) throws Exception {
-    
-    
-    
     if (args.length < 1) {
       throw new RuntimeException("I need the path of your Python script as an argument.");
     }
-    
+
     final Properties buildnum = new Properties();
     try (InputStream buildnumberStream = Runner.class.getResourceAsStream(BUILD_PROPERTIES)) {
       buildnum.load(buildnumberStream);
@@ -177,9 +174,9 @@ public class Runner {
     } else {
       sketch = new StandaloneSketch(args);
     }
-    
+
     runSketchBlocking(sketch, new StreamPrinter(System.out), new StreamPrinter(System.err));
-    
+
     System.exit(0);
   }
 
@@ -211,36 +208,43 @@ public class Runner {
       }
       this.sketchFile = temp;
     }
+
     @Override
     public File getMainFile() {
       return sketchFile;
     }
+
     @Override
     public String getMainCode() {
       return "print \"warming up!\"\nexit()";
     }
+
     @Override
     public File getHomeDirectory() {
       return sketchFile.getAbsoluteFile().getParentFile();
     }
+
     @Override
     public String[] getPAppletArguments() {
       return new String[] {"warmup.pyde"};
     }
+
     @Override
     public List<File> getLibraryDirectories() {
       return new ArrayList<>();
     }
+
     @Override
     public LibraryPolicy getLibraryPolicy() {
       return LibraryPolicy.PROMISCUOUS;
     }
+
     @Override
     public boolean shouldRun() {
       return false;
     }
   }
-  
+
   /**
    * warmup() front-loads a huge amount of slow IO so that when the user gets around
    * to running a sketch, most of the slow work is already done. 
@@ -253,14 +257,14 @@ public class Runner {
     }
   }
 
-  public synchronized static void runSketchBlocking(final RunnableSketch sketch, final Printer stdout,
-      final Printer stderr) throws PythonSketchError {
+  public synchronized static void runSketchBlocking(final RunnableSketch sketch,
+      final Printer stdout, final Printer stderr) throws PythonSketchError {
     runSketchBlocking(sketch, stdout, stderr, null);
   }
 
-  public synchronized static void runSketchBlocking(final RunnableSketch sketch, final Printer stdout,
-      final Printer stderr, final SketchPositionListener sketchPositionListener)
-      throws PythonSketchError {
+  public synchronized static void runSketchBlocking(final RunnableSketch sketch,
+      final Printer stdout, final Printer stderr,
+      final SketchPositionListener sketchPositionListener) throws PythonSketchError {
     final Properties props = new Properties();
 
     // Suppress sys-package-manager output.
@@ -270,9 +274,9 @@ public class Runner {
     // props.setProperty("python.verbose", "debug");
 
     final StringBuilder pythonPath = new StringBuilder();
-    
+
     final List<File> libDirs = sketch.getLibraryDirectories();
-    
+
     final String sketchDirPath = sketch.getHomeDirectory().getAbsolutePath();
     pythonPath.append(File.pathSeparator).append(sketchDirPath);
 
@@ -298,7 +302,7 @@ public class Runner {
       interp.set("__file__", sketch.getMainFile().getAbsolutePath());
 
       interp.exec("import sys\n");
-      
+
       // Add the add_library function to the sketch namespace.
       if (libDirs != null) {
         new LibraryImporter(sketch.getLibraryDirectories(), interp);
@@ -319,7 +323,7 @@ public class Runner {
 
       // Make fake "launcher" module available to sketches - will only work with standalone sketches
       interp.exec(LAUNCHER_TEXT);
-      
+
       /*
        * Here's what core.py does:
        * Bring all of the core Processing classes into the python builtins namespace,
@@ -333,7 +337,8 @@ public class Runner {
       interp.set("__stdout__", stdout);
       interp.set("__stderr__", stderr);
       final PAppletJythonDriver applet =
-          new PAppletJythonDriver(interp, sketch.getMainFile().toString(), sketch.getMainCode(), stdout);
+          new PAppletJythonDriver(interp, sketch.getMainFile().toString(), sketch.getMainCode(),
+              stdout);
       interp.set("__papplet__", applet);
       interp.exec(CORE_TEXT);
 
@@ -350,7 +355,7 @@ public class Runner {
       if (splash != null) {
         splash.close();
       }
-      
+
       try {
         if (sketch.shouldRun()) {
           applet.runAndBlock(args);
