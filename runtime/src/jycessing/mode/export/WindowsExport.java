@@ -212,9 +212,10 @@ public class WindowsExport extends PlatformExport {
     }
     // https://github.com/processing/processing/issues/2239
     jre.addChild("opt").setContent("-Djna.nosys=true");
-    // Set library path
+    // Set library path; include environment variable %PATH%:
+    // https://github.com/processing/processing/pull/2622
     jre.addChild("opt").setContent(
-        "-Djava.library.path=%EXEDIR%;%EXEDIR%\\lib;%EXEDIR%\\lib\\jycessing");
+        "-Djava.library.path=%EXEDIR%;%EXEDIR%\\lib;%EXEDIR%\\lib\\jycessing;%PATH%");
     // Enable assertions
     jre.addChild("opt").setContent("-ea");
     // Add splash screen
