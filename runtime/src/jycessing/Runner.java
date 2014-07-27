@@ -162,7 +162,12 @@ public class Runner {
   }
 
   public static void main(final String[] args) throws Exception {
-    runFromCommandLineArguments(args);
+    try {
+      runFromCommandLineArguments(args);
+    } catch (final Throwable e) {
+      System.err.println(e);
+      System.exit(-1);
+    }
     System.exit(0);
   }
 
