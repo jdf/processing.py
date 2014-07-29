@@ -27,8 +27,13 @@ import processing.data.XML;
  * 
  * Perform an export to Windows, using launch4j to generate the Windows executable.
  * 
- * N.B. The exported program MUST start in its directory to be able to find the main sketch file, since launch4j doesn't expand %VAR%s in constant arguments.
+ * N.B. We use relative paths for everything. This is not laziness, this solves problems:
+ *      - It allows us to specify the location of the sketch consistently
+ *      - It prevents parent directories with special characters from confusing java / JOGL (which loads libs dynamically)
+ *      - It is guaranteed to work, since we specify working directory with <chdir />
+ * 
  * N.B. We don't use launch4j's splash screen functionality because it apparently only works with a very specific breed of 24-bit BMPs.
+ * Java's works just as well.
  * 
  * Structure:
  * $appdir/                        (e.g. $sketchname/application.windows32)
@@ -212,16 +217,17 @@ public class WindowsExport extends PlatformExport {
     }
     // https://github.com/processing/processing/issues/2239
     jre.addChild("opt").setContent("-Djna.nosys=true");
-    // Set library path; include environment variable %PATH%:
+    // Set library path; NOT including environment variable %PATH%, since it will include that anyway:
     // https://github.com/processing/processing/pull/2622
-    jre.addChild("opt").setContent(
-        "-Djava.library.path=\"%EXEDIR%;%EXEDIR%\\lib;%EXEDIR%\\lib\\jycessing;%PATH%\"");
+    // https://github.com/processing/processing/commit/b951614
+    jre.addChild("opt").setContent("-Djava.library.path=\".\\lib\"");
     // Enable assertions
     jre.addChild("opt").setContent("-ea");
     // Add splash screen
-    jre.addChild("opt").setContent("-splash:\"%EXEDIR%/lib/jycessing/splash.png\"");
+    jre.addChild("opt").setContent("-splash:\"./lib/jycessing/splash.png\"");
 
     if (PythonMode.VERBOSE) {
+      // If we're in debug mode, assume we want our exports to be, too
       jre.addChild("opt").setContent("-Dverbose=true");
     }
     return jre;
@@ -262,7 +268,7 @@ public class WindowsExport extends PlatformExport {
     for (final File f : jycessingFolder.listFiles()) {
       if (f.getName().toLowerCase().endsWith(".jar") || f.getName().toLowerCase().endsWith(".zip")) {
         // Don't need to quote classpath entries, launch4j at least handles that for us
-        classPathOptions.addChild("cp").setContent("%EXEDIR%/lib/jycessing/" + f.getName());
+        classPathOptions.addChild("cp").setContent("./lib/jycessing/" + f.getName());
       }
     }
     return classPathOptions;
