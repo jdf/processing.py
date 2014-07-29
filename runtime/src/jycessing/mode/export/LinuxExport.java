@@ -84,6 +84,7 @@ public class LinuxExport extends PlatformExport {
 
   private void buildShellScript(final File destFolder, final boolean embedJava) throws IOException {
     log("Creating shell script.");
+    
 
     final boolean setMemory = Preferences.getBoolean("run.options.memory");
     final boolean presentMode = Preferences.getBoolean("export.application.fullscreen");
@@ -92,13 +93,16 @@ public class LinuxExport extends PlatformExport {
     final File jycessingFolder = new File(destFolder, "lib/jycessing");
     final File scriptFile = new File(destFolder, sketch.getName());
     final PrintWriter script = new PrintWriter(scriptFile);
-    script.println("#!/bin/sh");
-    script.println("APPDIR=\"$( cd $( dirname \"$0\" ) && pwd )\"");
+    
+    // We explicitly use "\n" because PrintWriter.println() uses the system line ending,
+    // Which will confuse Linux if we're running from Windows.
+    script.print("#!/bin/sh\n");
+    script.print("APPDIR=\"$( cd $( dirname \"$0\" ) && pwd )\"\n");
 
     if (embedJava) {
-      script.println("JAVA=\"$APPDIR/java/bin/java\"");
+      script.print("JAVA=\"$APPDIR/java/bin/java\"\n");
     } else {
-      script.println("JAVA=java");
+      script.print("JAVA=java\n");
     }
 
     // Make options for java
@@ -156,11 +160,16 @@ public class LinuxExport extends PlatformExport {
     for (final String o : options) {
       script.print(" " + o);
     }
-    script.println();
+    script.print("\n");
     script.close();
 
     log("Setting script executable.");
-    Files
+    try {
+      Files
         .setPosixFilePermissions(scriptFile.toPath(), PosixFilePermissions.fromString("rwxrwxrwx"));
+    } catch (UnsupportedOperationException e) {
+      // Windows, probably
+      log("Couldn't set script executable... we'll assume whoever gets it can handle it");
+    }
   }
 }

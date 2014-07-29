@@ -172,22 +172,25 @@ public class MacExport extends PlatformExport {
     final File scriptFile = new File(binFolder, sketch.getName());
     final PrintWriter script = new PrintWriter(scriptFile);
 
-    script.println("#!/bin/bash");
-    script.println("CONTENTS=\"$( cd $( dirname \"$0\" )/.. && pwd )\"");
+    
+    // We explicitly use "\n" because PrintWriter.println() uses the system line ending,
+    // which will confuse Macs if we're running from Windows.
+    script.print("#!/bin/bash\n");
+    script.print("CONTENTS=\"$( cd $( dirname \"$0\" )/.. && pwd )\"\n");
 
     if (!embedJava) {
       log("Adding java-locating prelude to script.");
 
       final Path findJavaScript = editor.getModeContentFile("application/macosx/findjava").toPath();
-      final String findJava = new String(Files.readAllBytes(findJavaScript), "UTF-8");
-
-      script.println(findJava);
+      final String findJava =
+          new String(Files.readAllBytes(findJavaScript), "UTF-8").replaceAll("\\r\\n?", "\n");
+      script.print(findJava + "\n");
     } else {
       script
-          .println("JAVA=\"$(find $CONTENTS/PlugIns -maxdepth 1 -type d -name '*jdk')/Contents/Home/jre/bin/java\"");
+          .print("JAVA=\"$(find $CONTENTS/PlugIns -maxdepth 1 -type d -name '*jdk')/Contents/Home/jre/bin/java\"" + "\n");
     }
 
-    script.println("APPDIR=\"$CONTENTS/Processing\"");
+    script.print("APPDIR=\"$CONTENTS/Processing\"\n");
 
     final List<String> options = new ArrayList<>();
 
@@ -246,12 +249,16 @@ public class MacExport extends PlatformExport {
     for (final String o : options) {
       script.print(" " + o);
     }
-    script.println();
+    script.print("\n");
     script.close();
 
     log("Setting script executable.");
-    Files
+    try {
+      Files
         .setPosixFilePermissions(scriptFile.toPath(), PosixFilePermissions.fromString("rwxrwxrwx"));
-
+    } catch (UnsupportedOperationException e) {
+      // Windows, probably
+      log("Couldn't set script executable... .app should work anyway, though");
+    }
   }
 }
