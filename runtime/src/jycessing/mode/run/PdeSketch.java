@@ -22,6 +22,7 @@ import jycessing.Runner.LibraryPolicy;
  * from complaining that it doesn't know about Base.
  */
 
+@SuppressWarnings("serial")
 public class PdeSketch implements RunnableSketch, Serializable {
   
   private final List<File> libraryDirs;
