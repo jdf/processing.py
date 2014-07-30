@@ -19,6 +19,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -189,6 +190,9 @@ class LibraryImporter {
     }
   }
 
+
+  private static final Pattern validPythonIdentifier = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]+");
+
   /*
   Then create and execute an import statement for each top-level, named class
   in the given jar file. For example, if the library jar contains classes
@@ -229,6 +233,11 @@ class LibraryImporter {
         final String className = path[path.length - 1].replace(".class", "");
         final String packageName =
             Joiner.on(".").join(Arrays.asList(path).subList(0, path.length - 1));
+
+        if (!validPythonIdentifier.matcher(className).matches()) {
+          log("Rejecting " + name);
+          continue;
+        }
 
         final String importStatement = String.format("from %s import %s", packageName, className);
         log(importStatement);
