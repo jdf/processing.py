@@ -235,19 +235,13 @@ class LibraryImporter {
             Joiner.on(".").join(Arrays.asList(path).subList(0, path.length - 1));
 
         if (!validPythonIdentifier.matcher(className).matches()) {
-          System.err.println("Couldn't import " + packageName + "." + className
-              + " because it isn't a valid python identifier; hopefully it's not important");
+          log("Rejecting " + name);
           continue;
         }
 
         final String importStatement = String.format("from %s import %s", packageName, className);
-        try {
-          interp.exec(importStatement);
-          log(importStatement);
-        } catch (Exception e) {
-          System.err.println("Couldn't import " + packageName + "." + className
-              + " for some reason. Maybe it depends on another library?");
-        }
+        log(importStatement);
+        interp.exec(importStatement);
       }
     }
   }
