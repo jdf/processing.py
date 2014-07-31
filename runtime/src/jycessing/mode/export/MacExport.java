@@ -176,7 +176,7 @@ public class MacExport extends PlatformExport {
     // We explicitly use "\n" because PrintWriter.println() uses the system line ending,
     // which will confuse Macs if we're running from Windows.
     script.print("#!/bin/bash\n");
-    script.print("CONTENTS=\"$( cd $( dirname \"$0\" )/.. && pwd )\"\n");
+    script.print("CONTENTS=\"$( cd \"$( dirname \"$0\" )/..\" && pwd )\"\n");
 
     if (!embedJava) {
       log("Adding java-locating prelude to script.");
