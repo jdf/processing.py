@@ -117,6 +117,7 @@ public class SketchServiceProcess {
     if (Base.isMacOS()) {
       // Suppress dock icon.
       command.add("-Dapple.awt.UIElement=true");
+      command.add("-Xdock:name=Processing");
     }
     
     if (PythonMode.VERBOSE) {
