@@ -62,7 +62,8 @@ public class LinuxExport extends PlatformExport {
   public void export() throws IOException {
     // Work out user preferences and other possibilities we care about
     final boolean embedJava =
-        (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
+        (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java")
+            && arch == Exporter.processingArch;
 
     // Work out the folders we'll be (maybe) using
     final File destFolder = new File(sketch.getFolder(), "application." + name);

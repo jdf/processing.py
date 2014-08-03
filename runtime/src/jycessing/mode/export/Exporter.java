@@ -26,6 +26,17 @@ public class Exporter {
     }
   }
 
+  // Architecture of the currently running Processing JRE.
+  // Used to determine what platform we can embed java in.
+  public static final Arch processingArch;
+  static {
+    if (Base.getNativeBits() == Arch.X86.bits) {
+      processingArch = Arch.X86;
+    } else {
+      processingArch = Arch.AMD64;
+    }
+  }
+
   private Sketch sketch;
   private PyEditor editor; // I don't really want to pass this around but there's some functionality
                            // I need

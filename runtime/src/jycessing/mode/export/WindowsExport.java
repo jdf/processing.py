@@ -66,7 +66,8 @@ public class WindowsExport extends PlatformExport {
   @Override
   public void export() throws IOException {
     final boolean embedJava =
-        (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
+        (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java")
+            && arch == Exporter.processingArch;
 
     final File destFolder = new File(sketch.getFolder(), "application." + name);
     final File javaFolder = new File(destFolder, "java");
