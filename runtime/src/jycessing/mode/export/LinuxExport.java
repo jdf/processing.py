@@ -97,7 +97,7 @@ public class LinuxExport extends PlatformExport {
     // We explicitly use "\n" because PrintWriter.println() uses the system line ending,
     // Which will confuse Linux if we're running from Windows.
     script.print("#!/bin/sh\n");
-    script.print("APPDIR=\"$( cd $( dirname \"$0\" ) && pwd )\"\n");
+    script.print("APPDIR=\"$( cd \"$( dirname \"$0\" )\" && pwd )\"\n");
 
     if (embedJava) {
       script.print("JAVA=\"$APPDIR/java/bin/java\"\n");
