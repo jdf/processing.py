@@ -136,6 +136,11 @@ public class LinuxExport extends PlatformExport {
 
     options.add("-splash:\"$APPDIR/lib/jycessing/splash.png\"");
 
+    if (PythonMode.VERBOSE) {
+      // If we're in debug mode, assume we want our exports to be, too
+      options.add("-Dverbose=true");
+    }
+
     // Class to run
     options.add("jycessing.Runner");
 

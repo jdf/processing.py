@@ -26,6 +26,7 @@ public class ExportedSketch implements RunnableSketch {
   public static final String ARGS_EXPORTED = "--exported";
   
   private final File sketchPath;
+  private final File sketchHome;
   private final String code;
   private final DisplayType displayType;
   private final String backgroundColor;
@@ -39,6 +40,7 @@ public class ExportedSketch implements RunnableSketch {
   public ExportedSketch(final String[] args) throws Exception {
     // The last argument is the path to the sketch
     this.sketchPath = new File(args[args.length - 1]).getAbsoluteFile();
+    this.sketchHome = sketchPath.getParentFile().getParentFile();
 
     if (!sketchPath.exists()) {
       throw new FileNotFoundException("Something is terribly wrong - I can't find your sketch!");
@@ -97,7 +99,7 @@ public class ExportedSketch implements RunnableSketch {
 
   @Override
   public File getHomeDirectory() {
-    return sketchPath.getParentFile().getParentFile();
+    return sketchHome;
   }
 
   @Override
@@ -135,6 +137,17 @@ public class ExportedSketch implements RunnableSketch {
   @Override
   public boolean shouldRun() {
     return true;
+  }
+
+  @Override
+  public List<File> getPathEntries() {
+    final List<File> entries = new ArrayList<>();
+    
+    entries.add(sketchHome);
+    entries.add(new File(sketchHome, "source"));
+    entries.add(new File(sketchHome, "lib"));
+    
+    return entries;
   }
 
 }

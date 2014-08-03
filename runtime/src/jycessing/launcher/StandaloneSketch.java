@@ -83,9 +83,9 @@ public class StandaloneSketch implements RunnableSketch {
     
     // In case the sketch path points to "internal" we get it from the wrapper
     if (argsList.contains("--internal")) {
-      this.sketchPath = new File(getRuntimeRoot(), "Runtime/sketch.py");
+      this.sketchPath = new File(getRuntimeRoot(), "Runtime/sketch.py").getAbsoluteFile();
     } else {
-      this.sketchPath = new File(args[args.length - 1]);
+      this.sketchPath = new File(args[args.length - 1]).getAbsoluteFile();
     }
 
     // Debug when using launcher
@@ -173,6 +173,21 @@ public class StandaloneSketch implements RunnableSketch {
   @Override
   public boolean shouldRun() {
     return true;
+  }
+
+  @Override
+  public List<File> getPathEntries() {
+    final List<File> entries = new ArrayList<>();
+    
+    // Main sketch folder
+    entries.add(sketchPath.getParentFile());
+    
+    for (final File dir : getLibraryDirectories()) {
+      // In case the user has added python libraries in their library directories
+      entries.add(dir);
+    }
+    
+    return entries;
   }
 
 }

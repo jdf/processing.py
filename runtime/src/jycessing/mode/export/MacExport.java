@@ -224,6 +224,11 @@ public class MacExport extends PlatformExport {
     options.add("-Xdock:icon=\"$CONTENTS/Resources/sketch.icns\"");
     options.add("-Xdock:name=\"" + sketchName + "\"");
 
+    if (PythonMode.VERBOSE) {
+      // If we're in debug mode, assume we want our exports to be, too
+      options.add("-Dverbose=true");
+    }
+
     // Class to run
     options.add("jycessing.Runner");
 

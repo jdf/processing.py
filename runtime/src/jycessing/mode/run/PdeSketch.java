@@ -124,4 +124,16 @@ public class PdeSketch implements RunnableSketch, Serializable {
   public boolean shouldRun() {
     return true;
   }
+
+  @Override
+  public List<File> getPathEntries() {
+    final List<File> entries = new ArrayList<>();
+    entries.add(sketchHome);
+    entries.add(new File(sketchHome, "source"));
+    final File code = new File(sketchHome, "code");
+    if (code.exists()) {
+      entries.add(code);
+    }
+    return entries;
+  }
 }

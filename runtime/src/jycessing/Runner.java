@@ -242,6 +242,13 @@ public class Runner {
     public boolean shouldRun() {
       return false;
     }
+
+    @Override
+    public List<File> getPathEntries() {
+      final List<File> entries = new ArrayList<>();
+      entries.add(getHomeDirectory());
+      return entries;
+    }
   }
 
   /**
@@ -294,8 +301,10 @@ public class Runner {
     try {
       final InteractiveConsole interp = new InteractiveConsole();
 
-      // Add the sketch directory to the Python library path for auxilliary modules.
-      sys.path.insert(0, Py.newString(sketchDirPath));
+      // Add all of the sketch's requested sys.path entries
+      for (final File entry : sketch.getPathEntries()) {
+        sys.path.insert(0, Py.newString(entry.getAbsolutePath()));
+      }
 
       // For moar useful error messages.
       interp.set("__file__", sketch.getMainFile().getAbsolutePath());

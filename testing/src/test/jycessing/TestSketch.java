@@ -3,6 +3,7 @@ package test.jycessing;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import processing.core.PApplet;
@@ -59,6 +60,13 @@ public class TestSketch implements RunnableSketch {
   @Override
   public boolean shouldRun() {
     return true;
+  }
+
+  @Override
+  public List<File> getPathEntries() {
+    final List<File> entries = new ArrayList<>();
+    entries.add(getHomeDirectory());
+    return entries;
   }
 
 }
