@@ -52,9 +52,9 @@ class LibraryImporter {
     }
   }
 
-  private static final String platform = PApplet.platformNames[PApplet.platform];
-  private static final String bits = System.getProperty("os.arch").contains("64") ? "64" : "32";
-  
+  private static final String PLATFORM = PApplet.platformNames[PApplet.platform];
+  private static final String BITS = System.getProperty("os.arch").contains("64") ? "64" : "32";
+
   /*
    * Directories where libraries may be found.
    */
@@ -170,6 +170,7 @@ class LibraryImporter {
     List<File> resources;
     resources = findResourcesFromExportTxt(contentsDir);
     if (resources == null) {
+      log("Falling back to directory structure.");
       resources = findResourcesFromDirectoryStructure(contentsDir);
     }
     return resources;
@@ -185,19 +186,19 @@ class LibraryImporter {
     try {
       exportTable = parseExportTxt(exportTxt);
     } catch (Exception e) {
-      log("Couldn't parse export.txt for some reason.");
+      log("Couldn't parse export.txt: " + e.getMessage());
       return null;
     }
     
     final String[] resourceNames;
     
     // Check from most-specific to least-specific:
-    if (exportTable.containsKey("application." + platform + bits)) {
-      log("Found 'application." + platform + bits + "' in export.txt");
-      resourceNames = exportTable.get("application." + platform + bits);
-    } else if (exportTable.containsKey("application." + platform)) {
-      log("Found 'application." + platform + "' in export.txt");
-      resourceNames = exportTable.get("application." + platform);
+    if (exportTable.containsKey("application." + PLATFORM + BITS)) {
+      log("Found 'application." + PLATFORM + BITS + "' in export.txt");
+      resourceNames = exportTable.get("application." + PLATFORM + BITS);
+    } else if (exportTable.containsKey("application." + PLATFORM)) {
+      log("Found 'application." + PLATFORM + "' in export.txt");
+      resourceNames = exportTable.get("application." + PLATFORM);
     } else if (exportTable.containsKey("application")) {
       log("Found 'application' in export.txt");
       resourceNames = exportTable.get("application");
@@ -219,21 +220,19 @@ class LibraryImporter {
   }
   
   private List<File> findResourcesFromDirectoryStructure(final File contentsDir) {
-    log("Falling back to directory structure.");
-    
     final List<String> childNames = Arrays.asList(contentsDir.list());
     final List<File> resources = new ArrayList<File>();
     
     // Find platform-specific stuff
     File platformDir = null;
-    if (childNames.contains(platform + bits)) {
-      final File potentialPlatformDir = new File(contentsDir, platform + bits);
+    if (childNames.contains(PLATFORM + BITS)) {
+      final File potentialPlatformDir = new File(contentsDir, PLATFORM + BITS);
       if (potentialPlatformDir.isDirectory()) {
         platformDir = potentialPlatformDir;
       }
     }
-    if (platformDir == null && childNames.contains(platform)) {
-      final File potentialPlatformDir = new File(contentsDir, platform + bits);
+    if (platformDir == null && childNames.contains(PLATFORM)) {
+      final File potentialPlatformDir = new File(contentsDir, PLATFORM + BITS);
       if (potentialPlatformDir.isDirectory()) {
         platformDir = potentialPlatformDir;
       }
