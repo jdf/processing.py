@@ -11,6 +11,7 @@ import processing.core.PApplet;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -24,6 +25,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -179,11 +181,17 @@ class LibraryImporter {
       log("No export.txt in " + contentsDir.getAbsolutePath());
       return null;
     }
-    final HashMap<String, String[]> exportTable = parseExportTxt(exportTxt);
-    // Check from most-specific to least-specific
+    final HashMap<String, String[]> exportTable;
+    try {
+      exportTable = parseExportTxt(exportTxt);
+    } catch (Exception e) {
+      log("Couldn't parse export.txt for some reason.");
+      return null;
+    }
     
     final String[] resourceNames;
     
+    // Check from most-specific to least-specific:
     if (exportTable.containsKey("application." + platform + bits)) {
       log("Found 'application." + platform + bits + "' in export.txt");
       resourceNames = exportTable.get("application." + platform + bits);
@@ -257,34 +265,17 @@ class LibraryImporter {
    * 
    * @param exportTxt The export.txt file; must exist.
    */
-  private HashMap<String, String[]> parseExportTxt(final File exportTxt) {
+  private HashMap<String, String[]> parseExportTxt(final File exportTxt) throws Exception {
     log("Parsing " + exportTxt.getAbsolutePath());
     
-    final String[] lines = PApplet.loadStrings(exportTxt);
+    final Properties exportProps = new Properties();
+    exportProps.load(new FileReader(exportTxt));
+    
     final HashMap<String, String[]> exportTable = new HashMap<>();
-    for (String line : lines) {
-      // Remove comments
-      final int commentMarker = line.indexOf('#');
-      if (commentMarker != -1) {
-        line = line.substring(0, commentMarker);
-      }
-      
-      // Remove extra whitespace
-      line = line.trim();
-
-      // Make sure we have something to read here
-      if (line.length() == 0) {
-        continue;
-      }
-      
-      final int equals = line.indexOf('=');
-      if (equals == -1) {
-          log(String.format("Ignoring illegal line \"%s\" in %s", line, exportTxt.getAbsolutePath()));
-          continue;
-      } 
-      
-      final String platform = line.substring(0, equals).trim();
-      final String[] exports = PApplet.splitTokens(line.substring(equals + 1).trim(), ",");
+    
+    for (final String platform : exportProps.stringPropertyNames()) {
+      final String exportCSV = exportProps.getProperty(platform);
+      final String[] exports = PApplet.splitTokens(exportCSV, ",");
       for (int i = 0; i < exports.length; i++) {
         exports[i] = exports[i].trim();
       }
