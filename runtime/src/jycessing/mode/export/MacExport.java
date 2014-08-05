@@ -219,7 +219,15 @@ public class MacExport extends PlatformExport {
     options.add("-cp");
     options.add("\"" + classpath.toString().substring(0, classpath.toString().length() - 1) + "\"");
 
-    options.add("-splash:\"$APPDIR/lib/jycessing/splash.png\"");
+    if (!presentMode) {
+      // Wait, this seems totally arbitrary.
+      // Why only have a splash screen if we're not in present mode?
+      options.add("-splash:\"$APPDIR/lib/jycessing/splash.png\"");
+      // Because removing the splash screen (see Runner.runSketchBlocking) _and_ being
+      // in OS X full-screen mode causes the sketch to sorta-freeze. (It still runs,
+      // it just doesn't update on screen / respond to keypresses.)
+      // Why? I have no idea. But seriously, don't change this, I just spent 8 hours debugging it.
+    }
 
     options.add("-Xdock:icon=\"$CONTENTS/Resources/sketch.icns\"");
     options.add("-Xdock:name=\"" + sketchName + "\"");
