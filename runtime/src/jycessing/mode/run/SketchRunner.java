@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 
 import jycessing.Printer;
 import jycessing.PythonSketchError;
+import jycessing.RunnableSketch;
 import jycessing.Runner;
 import jycessing.SketchPositionListener;
 import jycessing.mode.PythonMode;
@@ -37,7 +38,7 @@ public class SketchRunner implements SketchService {
       public void run() {
         Runner.warmup();
       }
-    }, "SketchRuner Warmup Thread").start();
+    }, "SketchRunner Warmup Thread").start();
   }
 
   /**
@@ -75,7 +76,7 @@ public class SketchRunner implements SketchService {
   }
 
   @Override
-  public void startSketch(final SketchInfo info) {
+  public void startSketch(final PdeSketch sketch) {
     runner = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -111,18 +112,19 @@ public class SketchRunner implements SketchService {
                 }
               }
             };
-            Runner.runSketchBlocking(info, stdout, stderr, sketchPositionListener);
+            Runner.runSketchBlocking(sketch, stdout, stderr, sketchPositionListener);
           } catch (final PythonSketchError e) {
             log("Sketch runner caught " + e);
-            modeService.handleSketchException(id, convertPythonSketchError(e, info.codeFileNames));
+            modeService.handleSketchException(id, convertPythonSketchError(e, sketch.codeFileNames));
           } catch (final Exception e) {
             if (e.getCause() != null && e.getCause() instanceof PythonSketchError) {
               modeService.handleSketchException(id,
-                  convertPythonSketchError((PythonSketchError)e.getCause(), info.codeFileNames));
+                  convertPythonSketchError((PythonSketchError)e.getCause(), sketch.codeFileNames));
             } else {
               modeService.handleSketchException(id, e);
             }
           } finally {
+            log("Handling sketch stoppage...");
             modeService.handleSketchStopped(id);
           }
         } catch (final RemoteException e) {

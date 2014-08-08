@@ -17,11 +17,13 @@ import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
+import jycessing.DisplayType;
 import jycessing.IOUtil;
-import jycessing.Runner.LibraryPolicy;
-import jycessing.mode.run.SketchInfo;
-import jycessing.mode.run.SketchInfo.Builder;
+import jycessing.mode.export.ExportDialog;
+import jycessing.mode.run.PdeSketch;
+import jycessing.mode.run.PdeSketch.LocationType;
 import jycessing.mode.run.SketchService;
 import jycessing.mode.run.SketchServiceManager;
 import jycessing.mode.run.SketchServiceProcess;
@@ -220,11 +222,38 @@ public class PyEditor extends Editor {
 
   /**
    * TODO(James Gilles): Create this!
+   * Create export GUI and hand off results to performExport()
    */
   public void handleExportApplication() {
-    Base.showMessage("Sorry", "You can't do that yet.");
+    // Leaving this here because it seems like it's more the editor's responsibility
+    if (sketch.isModified()) {
+      Object[] options = { "OK", "Cancel" };
+      int result = JOptionPane.showOptionDialog(this,
+                                                "Save changes before export?",
+                                                "Save",
+                                                JOptionPane.OK_CANCEL_OPTION,
+                                                JOptionPane.QUESTION_MESSAGE,
+                                                null,
+                                                options,
+                                                options[0]);
+      if (result == JOptionPane.OK_OPTION) {
+        handleSave(true);
+      } else {
+        statusNotice("Export canceled, changes must first be saved.");
+      }
+    }
+    
+    new ExportDialog(this, sketch).go();
   }
-
+    
+  public File getModeContentFile(String filename) {
+    return pyMode.getContentFile(filename);
+  }
+  
+  public File getSplashFile() {
+    return pyMode.getContentFile("theme/splash.png");
+  }
+  
   /**
    * Save the current state of the sketch code into a temp dir, and return
    * the created directory.
@@ -240,45 +269,37 @@ public class PyEditor extends Editor {
     return tmp;
   }
 
-  private void runSketch(final RunMode mode) {
+  private void runSketch(final DisplayType displayType) {
     prepareRun();
     toolbar.activate(PyToolbar.RUN);
-    final String sketchPath;
+    final File sketchPath;
     if (sketch.isModified()) {
       log("Sketch is modified; must copy it to temp dir.");
       final String sketchMainFileName = sketch.getCode(0).getFile().getName();
       try {
         tempSketch = createTempSketch();
-        sketchPath = tempSketch.resolve(sketchMainFileName).toString();
+        sketchPath = tempSketch.resolve(sketchMainFileName).toFile();
       } catch (final IOException e) {
         Base.showError("Sketchy Behavior", "I can't copy your unsaved work\n"
             + "to a temp directory.", e);
         return;
       }
     } else {
-      sketchPath = sketch.getCode(0).getFile().getAbsolutePath();
+      sketchPath = sketch.getCode(0).getFile().getAbsoluteFile();
     }
-
+    
+    final LocationType locationType;
+    final Point location;
+    if (getSketchLocation() != null) {
+      locationType = LocationType.SKETCH_LOCATION;
+      location = new Point(getSketchLocation());
+    } else { // assume editor has a position - is that safe?
+      locationType = LocationType.EDITOR_LOCATION;
+      location = new Point(getLocation());
+    }
+    
     try {
-      final String[] codeFileNames = new String[sketch.getCodeCount()];
-      for (int i = 0; i < codeFileNames.length; i++) {
-        codeFileNames[i] = sketch.getCode(i).getFile().getName();
-      }
-      final Builder infoBuilder =
-          new SketchInfo.Builder().sketchName(sketch.getName()).runMode(mode)
-              .addLibraryDir(Base.getContentFile("modes/java/libraries"))
-              .addLibraryDir(Base.getSketchbookLibrariesFolder())
-              .sketchHome(sketch.getFolder().getAbsoluteFile())
-              .mainSketchFile(new File(sketchPath).getAbsoluteFile())
-              .code(sketch.getCode(0).getProgram()).codeFileNames(codeFileNames)
-              .libraryPolicy(LibraryPolicy.SELECTIVE);
-
-      if (getSketchLocation() != null) {
-        infoBuilder.sketchLoc(getSketchLocation());
-      } else if (getLocation() != null) {
-        infoBuilder.editorLoc(new Point(getLocation()));
-      }
-      sketchService.runSketch(infoBuilder.build());
+      sketchService.runSketch(new PdeSketch(sketch, sketchPath, displayType, location, locationType));
     } catch (final SketchException e) {
       statusError(e);
     }
@@ -291,11 +312,11 @@ public class PyEditor extends Editor {
   }
 
   public void handleRun() {
-    runSketch(RunMode.WINDOWED);
+    runSketch(DisplayType.WINDOWED);
   }
 
   public void handlePresent() {
-    runSketch(RunMode.PRESENTATION);
+    runSketch(DisplayType.PRESENTATION);
   }
 
   public void handleStop() {

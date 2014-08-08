@@ -15,8 +15,6 @@ import jycessing.Printer;
 import jycessing.Runner;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.StreamPrinter;
-import jycessing.mode.RunMode;
-import jycessing.mode.run.SketchInfo;
 
 import org.junit.Test;
 
@@ -45,13 +43,9 @@ public class JycessingTests {
     System.err.println("Running " + testResource + " test.");
     final Path source = Paths.get("testing/resources/test_" + testResource + ".py");
     final String sourceText = new String(Files.readAllBytes(source), "utf-8");
-    final SketchInfo info =
-        new SketchInfo.Builder().sketchName("test " + testResource)
-            .libraryPolicy(LibraryPolicy.SELECTIVE).code(sourceText)
-            .sketchHome(Paths.get("testing/resources/").toFile().getAbsoluteFile())
-            .mainSketchFile(source.toFile()).runMode(RunMode.UNIT_TEST).build();
+    final TestSketch sketch = new TestSketch(source, sourceText, "test " + testResource);
     final CapturingPrinter out = new CapturingPrinter();
-    Runner.runSketchBlocking(info, out, new StreamPrinter(System.err));
+    Runner.runSketchBlocking(sketch, out, new StreamPrinter(System.err));
     return out.getText();
   }
 
@@ -64,11 +58,8 @@ public class JycessingTests {
           StandardCopyOption.REPLACE_EXISTING);
       final CapturingPrinter out = new CapturingPrinter();
       System.err.println("Running import " + module + " test.");
-      final SketchInfo info =
-          new SketchInfo.Builder().sketchName("test import " + module)
-              .libraryPolicy(LibraryPolicy.SELECTIVE).code(testText).mainSketchFile(src.toFile())
-              .runMode(RunMode.UNIT_TEST).build();
-      Runner.runSketchBlocking(info, out, new StreamPrinter(System.err));
+      final TestSketch sketch = new TestSketch(src, testText, "test import " + module);
+      Runner.runSketchBlocking(sketch, out, new StreamPrinter(System.err));
       assertEquals("OK\n", out.getText());
     } finally {
       Files.delete(src);
@@ -159,11 +150,6 @@ public class JycessingTests {
   @Test
   public void primitives() throws Exception {
     assertEquals("66.7\n", run("primitives"));
-  }
-
-  @Test
-  public void launcher() throws Exception {
-    assertEquals("CMLx\n", run("launcher"));
   }
 
   @Test

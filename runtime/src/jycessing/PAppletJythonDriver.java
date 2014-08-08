@@ -17,6 +17,7 @@ package jycessing;
 
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
@@ -27,8 +28,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -591,6 +594,13 @@ public class PAppletJythonDriver extends PApplet {
         // fallthrough
       }
     } finally {
+      if(PApplet.platform == PApplet.MACOSX && Arrays.asList(args).contains(PApplet.ARGS_FULL_SCREEN)) {
+        // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm 
+        // exits or we explicitly tell it to minimize. 
+        // (If it's disposed, it'll leave a gray blank window behind it.)
+        Runner.log("Disabling fullscreen.");
+        macosxFullScreenToggle(frame);
+      }
       frame.dispose();
     }
     if (terminalException != null) {
@@ -598,6 +608,28 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
+  /**
+   * Use reflection to call
+   * <code>com.apple.eawt.Application.getApplication().requestToggleFullScreen(window);</code>
+   */
+  static private void macosxFullScreenToggle(final Window window) {
+    try {
+      final Class<?> appClass = Class.forName("com.apple.eawt.Application");
+
+      final Method getAppMethod = appClass.getMethod("getApplication");
+      final Object app = getAppMethod.invoke(null, new Object[0]);
+
+      final Method requestMethod =
+        appClass.getMethod("requestToggleFullScreen", Window.class);
+      requestMethod.invoke(app, window);
+
+    } catch (final ClassNotFoundException cnfe) {
+      // ignored
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  
   /**
    * Permit the punning use of set() by mucking with the builtin "set" Type.
    * If you call it with 3 arguments, it acts like the Processing set(x, y,

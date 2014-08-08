@@ -100,6 +100,8 @@
       <fileset dir="mode/" />
     </copy>
 
+    <copy todir="${bundle}/theme" file="libraries/runtime/splash.png"/>
+
     <zip destfile="${bundle}/src.zip" basedir="."
         includes="runtime/src/**,testing/src/**,testing/resources/**"
         excludes="**/_DS.Store" />
@@ -214,19 +216,21 @@
     <ant dir="${processing-video}" target="build"/>
   </target>
 
-  <target name="clean">
-    <ant dir="${processing}/build" target="clean"/>
+  <target name="clean-self">
     <rm-rf target="bin"/>
     <rm-rf target="dist"/>
     <rm-rf target=".cache"/>
-    <rm-rf target="work"/>
-    <delete file="runtime/generated/jycessing/DriverImpl.java"/>
+    <rm-rf target="work"/> 
     <delete>
       <fileset dir="buildtime/py" includes="*.class"/>
     </delete>
     <exec executable="find" failonerror="true">
       <arg line=". -name .DS_Store -depth -exec rm {} ;"/>
     </exec>
+  </target>
+
+  <target name="clean" depends="clean-self">
+    <ant dir="${processing}/build" target="clean"/>
   </target>
 
   <!--

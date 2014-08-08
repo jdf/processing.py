@@ -13,20 +13,29 @@ class __launcher(object):
         ):
         """Creates a launcher for the given platform"""
 
+        import jycessing.Runner as Runner
+        import jycessing.launcher.StandaloneSketch as StandaloneSketch
+        import sys
+        # Check if we should bail out - we're not running from a standalone sketch
+        if not isinstance(Runner.sketch, StandaloneSketch):
+            print >>sys.stderr, "Don't use launcher.create() from processing - use the export button instead!"
+            return
+
+        # Check if we are already deployed. In that case, 
+        # don't do anything
+        if "--internal" in sys.argv: return
+
         # Our own imports 
         import jycessing.launcher.LaunchHelper as LaunchHelper
-        import jycessing.Runner as Runner
+        
         import java.lang.System as System
-        import os, shutil, zipfile, sys, inspect, stat, glob, errno
+        import java.nio.file.Paths as Paths
+        import os, shutil, zipfile, inspect, stat, glob, errno
 
         main = System.getProperty("python.main")
         mainroot = System.getProperty("python.main.root")
 
         outdir = mainroot + "/" + outdir
-
-        # Quick check if we are already deployed. In that case, 
-        # don't do anything
-        if "--internal" in sys.argv: return
 
         # Clean the outdir ...
         try: shutil.rmtree(outdir) 
@@ -48,12 +57,14 @@ class __launcher(object):
 
         def copyjars(root):
             """Copy jars & co"""
-            _mainjar = Runner.getMainJarFile()
+            sketch = Runner.sketch
+            _mainjar = sketch.getMainJarFile()
             mainjar, mainjarname = _mainjar.getAbsolutePath(), _mainjar.getName()
-            libraries = Runner.getLibrariesDir().getAbsolutePath()
-
             shutil.copyfile(mainjar, root + "/" + mainjarname)
-            shutil.copytree(libraries, root + "/libraries", ignore=shutil.ignore_patterns(*ignorelibs))
+            
+            libraries = sketch.getLibraryDirectories()
+            for lib in libraries:
+                shutil.copytree(lib.getPath(), root + "/libraries", ignore=shutil.ignore_patterns(*ignorelibs))
 
 
         def copydata(runtimedir):
@@ -83,7 +94,7 @@ class __launcher(object):
             os.mkdir(pdir)
 
             # Copy archive
-            LaunchHelper.copyResourceTo("launcher." + platform + ".zip", tmpfile)
+            LaunchHelper.copyResourceTo("launcher." + platform + ".zip", Paths.get(tmpfile))
             
             # Unzip
             z = zipfile.ZipFile(tmpfile, "r")
