@@ -5,7 +5,6 @@ import java.rmi.RemoteException;
 
 import jycessing.Printer;
 import jycessing.PythonSketchError;
-import jycessing.RunnableSketch;
 import jycessing.Runner;
 import jycessing.SketchPositionListener;
 import jycessing.mode.PythonMode;

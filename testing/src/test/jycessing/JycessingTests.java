@@ -13,7 +13,6 @@ import java.nio.file.StandardCopyOption;
 
 import jycessing.Printer;
 import jycessing.Runner;
-import jycessing.Runner.LibraryPolicy;
 import jycessing.StreamPrinter;
 
 import org.junit.Test;
