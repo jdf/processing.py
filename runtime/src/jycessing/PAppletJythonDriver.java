@@ -183,6 +183,15 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
+  /**
+   * Handy method for raising a Python exception in the current interpreter frame.
+   * @param msg TypeError message.
+   */
+  private PyObject raiseTypeError(final String msg) {
+    interp.exec(String.format("raise TypeError('%s')", msg.replace("'", "\\'")));
+    return Py.None;
+  }
+
   private static PythonSketchError toSketchException(Throwable t) {
     if (t instanceof RuntimeException && t.getCause() != null) {
       t = t.getCause();
@@ -485,8 +494,7 @@ public class PAppletJythonDriver extends PApplet {
       public PyObject __call__(final PyObject[] args, final String[] kws) {
         switch (args.length) {
           default:
-            throw new RuntimeException("Can't call \"frameRate\" with " + args.length
-                + " parameters.");
+            return raiseTypeError("Can't call \"frameRate\" with " + args.length + " parameters.");
           case 1:
             frameRate((float)args[0].asDouble());
             return Py.None;
@@ -594,9 +602,10 @@ public class PAppletJythonDriver extends PApplet {
         // fallthrough
       }
     } finally {
-      if(PApplet.platform == PApplet.MACOSX && Arrays.asList(args).contains(PApplet.ARGS_FULL_SCREEN)) {
-        // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm 
-        // exits or we explicitly tell it to minimize. 
+      if (PApplet.platform == PApplet.MACOSX
+          && Arrays.asList(args).contains(PApplet.ARGS_FULL_SCREEN)) {
+        // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm
+        // exits or we explicitly tell it to minimize.
         // (If it's disposed, it'll leave a gray blank window behind it.)
         Runner.log("Disabling fullscreen.");
         macosxFullScreenToggle(frame);
@@ -619,17 +628,16 @@ public class PAppletJythonDriver extends PApplet {
       final Method getAppMethod = appClass.getMethod("getApplication");
       final Object app = getAppMethod.invoke(null, new Object[0]);
 
-      final Method requestMethod =
-        appClass.getMethod("requestToggleFullScreen", Window.class);
+      final Method requestMethod = appClass.getMethod("requestToggleFullScreen", Window.class);
       requestMethod.invoke(app, window);
 
     } catch (final ClassNotFoundException cnfe) {
       // ignored
-    } catch (Exception e) {
+    } catch (final Exception e) {
       e.printStackTrace();
     }
   }
-  
+
   /**
    * Permit the punning use of set() by mucking with the builtin "set" Type.
    * If you call it with 3 arguments, it acts like the Processing set(x, y,
@@ -760,7 +768,7 @@ public class PAppletJythonDriver extends PApplet {
     try {
       return 0xFF000000 | Integer.decode(argbSpec);
     } catch (final NumberFormatException e) {
-      throw new RuntimeException("I can't understand \"" + argbSpec + "\" as a color.");
+      return raiseTypeError("I can't understand \"" + argbSpec + "\" as a color.").asInt();
     }
   }
 
@@ -797,7 +805,7 @@ public class PAppletJythonDriver extends PApplet {
             return pyint(lerpColor(c1, c2, amt, colorMode));
             //$FALL-THROUGH$
           default:
-            throw new RuntimeException("lerpColor takes either 3 or 4 arguments, but I got "
+            return raiseTypeError("lerpColor takes either 3 or 4 arguments, but I got "
                 + args.length + ".");
         }
       }
@@ -854,6 +862,9 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("text", new PyObject() {
       @Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
+        if (args.length < 3 || args.length > 5) {
+          raiseTypeError("text() takes 3-5 arguments, but I got " + args.length + ".");
+        }
         final PyObject a = args[0];
         final float x1 = (float)args[1].asDouble();
         final float y1 = (float)args[2].asDouble();
@@ -869,10 +880,8 @@ public class PAppletJythonDriver extends PApplet {
           } else {
             text((float)a.asDouble(), x1, y1, (float)args[3].asDouble());
           }
-        } else if (args.length == 5) {
+        } else /* 5 */{
           text(a.asString(), x1, y1, (float)args[3].asDouble(), (float)args[4].asDouble());
-        } else {
-          throw new RuntimeException("text() takes 3-5 arguments, but I got " + args.length + ".");
         }
         return Py.None;
       }
@@ -1228,5 +1237,4 @@ public class PAppletJythonDriver extends PApplet {
    */
   @Override
   public void setupExternalMessages() {}
-
 }
