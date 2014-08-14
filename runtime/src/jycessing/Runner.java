@@ -168,14 +168,19 @@ public class Runner {
       buildnum.load(buildnumberStream);
     }
     log("processing.py build ", buildnum.getProperty("build.number"));
-    if (Arrays.asList(args).contains(ExportedSketch.ARGS_EXPORTED)) {
-      sketch = new ExportedSketch(args);
-    } else {
-      sketch = new StandaloneSketch(args);
+
+    // Try / catch to make sure we log errors
+    try {
+      if (Arrays.asList(args).contains(ExportedSketch.ARGS_EXPORTED)) {
+        sketch = new ExportedSketch(args);
+      } else {
+        sketch = new StandaloneSketch(args);
+      }
+      runSketchBlocking(sketch, new StreamPrinter(System.out), new StreamPrinter(System.err));
+    } catch (Throwable t) {
+      System.err.println(t);
+      System.exit(-1);
     }
-
-    runSketchBlocking(sketch, new StreamPrinter(System.out), new StreamPrinter(System.err));
-
     System.exit(0);
   }
 
