@@ -22,6 +22,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -182,7 +183,7 @@ class LibraryImporter {
       log("No export.txt in " + contentsDir.getAbsolutePath());
       return null;
     }
-    final HashMap<String, String[]> exportTable;
+    final Map<String, String[]> exportTable;
     try {
       exportTable = parseExportTxt(exportTxt);
     } catch (Exception e) {
@@ -264,13 +265,15 @@ class LibraryImporter {
    * 
    * @param exportTxt The export.txt file; must exist.
    */
-  private HashMap<String, String[]> parseExportTxt(final File exportTxt) throws Exception {
+  private Map<String, String[]> parseExportTxt(final File exportTxt) throws Exception {
     log("Parsing " + exportTxt.getAbsolutePath());
     
     final Properties exportProps = new Properties();
-    exportProps.load(new FileReader(exportTxt));
+    try (final FileReader in = new FileReader(exportTxt)) {
+      exportProps.load(in);
+    }
     
-    final HashMap<String, String[]> exportTable = new HashMap<>();
+    final Map<String, String[]> exportTable = new HashMap<>();
     
     for (final String platform : exportProps.stringPropertyNames()) {
       final String exportCSV = exportProps.getProperty(platform);
