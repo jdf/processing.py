@@ -279,7 +279,6 @@ __builtin__.createInput = __papplet__.createInput
 __builtin__.createOutput = __papplet__.createOutput
 __builtin__.createReader = __papplet__.createReader
 __builtin__.createShape = __papplet__.createShape
-__builtin__.createWriter = __papplet__.createWriter
 __builtin__.cursor = __papplet__.cursor
 __builtin__.curve = __papplet__.curve
 __builtin__.curveDetail = __papplet__.curveDetail
@@ -468,7 +467,6 @@ __builtin__.cos = PApplet.cos
 __builtin__.createInput = PApplet.createInput
 __builtin__.createOutput = PApplet.createOutput
 __builtin__.createReader = PApplet.createReader
-__builtin__.createWriter = PApplet.createWriter
 __builtin__.day = PApplet.day
 __builtin__.debug = PApplet.debug
 __builtin__.degrees = PApplet.degrees
@@ -531,6 +529,12 @@ def __createReader__(o):
         return __papplet__.createReader(o)
     return PApplet.createReader(o)
 __builtin__.createReader = __createReader__
+
+def __createWriter__(o):
+    if isinstance(o, basestring):
+        return __papplet__.createWriter(o)
+    return PApplet.createWriter(o)
+__builtin__.createWriter = __createWriter__
 
 def __loadStrings__(o):
     if isinstance(o, basestring):
