@@ -107,6 +107,16 @@ v2 = PVector(60, 80, 0)
 d = v.dot(v2)
 assert d == 2200.0
 
+# PVector.add w/multiple arguments
+v = PVector(40, 20, 0)
+v.add(25, 50, 0)
+assert (v.x, v.y, v.z) == (65, 70, 0)
+
+# PVector.sub w/multiple arguments
+v = PVector(40, 20, 0)
+v.sub(25, 50, 0)
+assert (v.x, v.y, v.z) == (15, -30, 0)
+
 print 'OK'
 
 exit()
