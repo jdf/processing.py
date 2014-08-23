@@ -91,11 +91,17 @@ __builtin__.Table = Table
 # as static methods and instance methods.
 from processing.core import PVector as __pvector__
 class PVector(__pvector__):
-    def __instance_add__(self, o):
-        PVector.add(self, o, self)
+    def __instance_add__(self, *args):
+        if len(args) == 1:
+            return PVector.add(self, args[0], self)
+        else:
+            return PVector.add(self, PVector(*args), self)
         
-    def __instance_sub__(self, o):
-        PVector.sub(self, o, self)
+    def __instance_sub__(self, *args):
+        if len(args) == 1:
+            return PVector.sub(self, args[0], self)
+        else:
+            return PVector.sub(self, PVector(*args), self)
 
     def __instance_mult__(self, o):
         PVector.mult(self, o, self)
