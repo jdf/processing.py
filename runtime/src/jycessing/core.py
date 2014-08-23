@@ -109,8 +109,11 @@ class PVector(__pvector__):
     def __instance_dist__(self, o):
         return PVector.dist(self, o)
 
-    def __instance_dot__(self, o):
-        return PVector.dot(self, o)
+    def __instance_dot__(self, *args):
+        if len(args) == 1:
+            v = args[0]
+            return self.x * v.x + self.y * v.y + self.z * v.z
+        return self.x * args[0] + self.y * args[1] + self.z * args[2]
 
     def __init__(self, x=0, y=0, z=0):
         __pvector__.__init__(self, x, y, z)
@@ -120,6 +123,7 @@ class PVector(__pvector__):
         self.div = self.__instance_div__
         self.cross = self.__instance_cross__
         self.dist = self.__instance_dist__
+        self.dot = self.__instance_dot__
 
     def get(self):
         return PVector(self.x, self.y, self.z)

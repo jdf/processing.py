@@ -99,6 +99,14 @@ assert a == 0.17985349893569946  # more or less
 # Regression test for https://github.com/jdf/Processing.py-Bugs/issues/67
 assert isinstance(PVector(1,2), PVector)
 
+# Regression test for https://github.com/jdf/Processing.py-Bugs/issues/101
+v = PVector(10, 20, 0)
+d = v.dot(60, 80, 0)
+assert d == 2200.0
+v2 = PVector(60, 80, 0)
+d = v.dot(v2)
+assert d == 2200.0
+
 print 'OK'
 
 exit()
