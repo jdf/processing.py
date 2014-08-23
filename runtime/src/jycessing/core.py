@@ -104,9 +104,14 @@ class PVector(__pvector__):
         
     def __instance_sub__(self, *args):
         if len(args) == 1:
-            return PVector.sub(self, args[0], self)
+            v = args[0]
+            self.x -= v.x
+            self.y -= v.y
+            self.z -= v.z
         else:
-            return PVector.sub(self, PVector(*args), self)
+            self.x -= args[0]
+            self.y -= args[1]
+            self.z -= args[2]
 
     def __instance_mult__(self, o):
         PVector.mult(self, o, self)
