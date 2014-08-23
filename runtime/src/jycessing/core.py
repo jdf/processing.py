@@ -131,6 +131,22 @@ class PVector(__pvector__):
             return self.x * v.x + self.y * v.y + self.z * v.z
         return self.x * args[0] + self.y * args[1] + self.z * args[2]
 
+    def __instance_lerp__(self, *args):
+        if len(args) == 4:
+            x = args[0]
+            y = args[1]
+            z = args[2]
+            t = args[3]
+        elif len(args) == 2:
+            v = args[0]
+            x = v.x
+            y = v.y
+            z = v.z
+            t = args[1]
+        else:
+            raise Exception('lerp takes either (x, y, z, t) or (v, t)')
+        __pvector__.lerp(self, x, y, z, t)
+
     def __init__(self, x=0, y=0, z=0):
         __pvector__.__init__(self, x, y, z)
         self.add = self.__instance_add__
@@ -140,6 +156,7 @@ class PVector(__pvector__):
         self.cross = self.__instance_cross__
         self.dist = self.__instance_dist__
         self.dot = self.__instance_dot__
+        self.lerp = self.__instance_lerp__
 
     def get(self):
         return PVector(self.x, self.y, self.z)
@@ -188,6 +205,12 @@ class PVector(__pvector__):
     @classmethod
     def dot(cls, a, b):
         return __pvector__.dot(a, b)
+
+    @classmethod
+    def lerp(cls, a, b, f):
+        v = a.copy()
+        v.lerp(b, f)
+        return v
 
     @classmethod
     def cross(cls, a, b, dest=None):

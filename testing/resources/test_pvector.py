@@ -117,6 +117,19 @@ v = PVector(40, 20, 0)
 v.sub(25, 50, 0)
 assert (v.x, v.y, v.z) == (15, -30, 0)
 
+
+# Regression test for https://github.com/jdf/Processing.py-Bugs/issues/102
+start = PVector(0.0, 0.0)
+end = PVector(100.0, 100.0)
+middle = PVector.lerp(start, end, 0.5)
+assert middle == PVector(50.0, 50.0)
+assert start == PVector(0, 0)
+start.lerp(end, .75)
+assert start == PVector(75, 75)
+assert end == PVector(100.0, 100.0)
+end.lerp(200, 200, 0, .5)
+assert end == PVector(150.0, 150.0)
+
 print 'OK'
 
 exit()
