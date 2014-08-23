@@ -93,9 +93,14 @@ from processing.core import PVector as __pvector__
 class PVector(__pvector__):
     def __instance_add__(self, *args):
         if len(args) == 1:
-            return PVector.add(self, args[0], self)
+            v = args[0]
+            self.x += v.x
+            self.y += v.y
+            self.z += v.z
         else:
-            return PVector.add(self, PVector(*args), self)
+            self.x += args[0]
+            self.y += args[1]
+            self.z += args[2]
         
     def __instance_sub__(self, *args):
         if len(args) == 1:
