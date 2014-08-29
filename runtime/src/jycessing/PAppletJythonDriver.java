@@ -871,14 +871,19 @@ public class PAppletJythonDriver extends PApplet {
         if (args.length == 3) {
           if (isString(a)) {
             text(a.asString(), x1, y1);
+          } else if (a.getType() == PyInteger.TYPE) {
+            text(a.asInt(), x1, y1);
           } else {
             text((float)a.asDouble(), x1, y1);
           }
         } else if (args.length == 4) {
+          final float z1 = (float)args[3].asDouble();
           if (isString(a)) {
-            text(a.asString(), x1, y1, (float)args[3].asDouble());
+            text(a.asString(), x1, y1, z1);
+          } else if (a.getType() == PyInteger.TYPE) {
+            text(a.asInt(), x1, y1, z1);
           } else {
-            text((float)a.asDouble(), x1, y1, (float)args[3].asDouble());
+            text((float)a.asDouble(), x1, y1, z1);
           }
         } else /* 5 */{
           text(a.asString(), x1, y1, (float)args[3].asDouble(), (float)args[4].asDouble());
