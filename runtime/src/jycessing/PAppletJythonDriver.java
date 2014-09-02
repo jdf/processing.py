@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 
+import jycessing.IOUtil.ResourceReader;
 import jycessing.mode.run.WrappedPrintStream;
 import jycessing.mode.run.WrappedPrintStream.PushedOut;
 
@@ -84,8 +85,13 @@ import com.google.common.io.Files;
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
 
-  private static final String AUTOGLOBAL_SCRIPT = IOUtil.readResourceAsText(
-      PAppletJythonDriver.class, "add_global_statements.py");
+  private static final ResourceReader resourceReader =
+      new ResourceReader(PAppletJythonDriver.class);
+
+  private static final String AUTOGLOBAL_SCRIPT = resourceReader
+      .readText("add_global_statements.py");
+
+  private static final String DETECT_MODE_SCRIPT = resourceReader.readText("detect_sketch_mode.py");
 
   static {
     // There's some bug that I don't understand yet that causes the native file
@@ -104,18 +110,13 @@ public class PAppletJythonDriver extends PApplet {
   private final CountDownLatch finishedLatch = new CountDownLatch(1);
 
   private enum Mode {
-    STATIC, DRAW_LOOP
+    STATIC, ACTIVE, MIXED
   }
 
   // A static-mode sketch must be interpreted from within the setup() method.
   // All others are interpreted during construction in order to harvest method
   // definitions, which we then invoke during the run loop.
   private final Mode mode;
-
-  // The presence of either setup() or draw() indicates that this is not a
-  // static sketch.
-  private static final Pattern ACTIVE_METHOD_DEF = Pattern.compile(
-      "^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
 
   /**
    * The Processing event handling functions can take 0 or 1 argument.
@@ -164,14 +165,14 @@ public class PAppletJythonDriver extends PApplet {
 
   private SketchPositionListener sketchPositionListener;
 
-  private void interpretSketch() throws PythonSketchError {
+  private void processSketch(final String scriptSource) throws PythonSketchError {
     try {
       /*
        * Run the Python 
        */
       interp.set("__processing_source__", programText);
       final PyCode code =
-          Py.compile_flags(AUTOGLOBAL_SCRIPT, pySketchPath, CompileMode.exec, new CompilerFlags());
+          Py.compile_flags(scriptSource, pySketchPath, CompileMode.exec, new CompilerFlags());
       interp.exec(code);
       Py.flushLine();
     } catch (Throwable t) {
@@ -307,7 +308,7 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   public PAppletJythonDriver(final InteractiveConsole interp, final String pySketchPath,
-      final String programText, final Printer stdout) {
+      final String programText, final Printer stdout) throws PythonSketchError {
     this.wrappedStdout = new WrappedPrintStream(System.out) {
       @Override
       public void doPrint(final String s) {
@@ -316,10 +317,16 @@ public class PAppletJythonDriver extends PApplet {
     };
     this.programText = programText;
     this.pySketchPath = pySketchPath;
-    this.mode = ACTIVE_METHOD_DEF.matcher(programText).find() ? Mode.DRAW_LOOP : Mode.STATIC;
-    Runner.log("Mode: ", mode.name());
-    this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
     this.interp = interp;
+    this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
+
+    processSketch(DETECT_MODE_SCRIPT);
+    this.mode = Mode.valueOf(interp.get("__mode__").asString());
+    Runner.log("Mode: ", mode.name());
+    if (mode == Mode.MIXED) {
+      throw new MixedModeError();
+    }
+
     initializeStatics(builtins);
     setFilter();
     setMap();
@@ -359,11 +366,11 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   public void findSketchMethods() throws PythonSketchError {
-    if (mode == Mode.DRAW_LOOP) {
+    if (mode == Mode.ACTIVE) {
       // Executing the sketch will bind method names ("draw") to PyCode
       // objects (the sketch's draw method), which can then be invoked
       // during the run loop
-      interpretSketch();
+      processSketch(AUTOGLOBAL_SCRIPT);
     }
 
     // Find and cache any PApplet callbacks defined in the Python sketch
@@ -944,7 +951,7 @@ public class PAppletJythonDriver extends PApplet {
       if (mode == Mode.STATIC) {
         // A static sketch gets called once, from this spot.
         Runner.log("Interpreting static-mode sketch.");
-        interpretSketch();
+        processSketch(AUTOGLOBAL_SCRIPT);
       } else if (setupMeth != null) {
         // Call the Python sketch's setup()
         setupMeth.__call__();
@@ -960,7 +967,6 @@ public class PAppletJythonDriver extends PApplet {
   public void draw() {
     wrapProcessingVariables();
     if (drawMeth == null) {
-      Runner.log("Calling super.draw() in what I assume is a static-mode sketch.");
       super.draw();
     } else if (!finished) {
       drawMeth.__call__();

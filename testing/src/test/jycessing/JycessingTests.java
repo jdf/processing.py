@@ -1,6 +1,7 @@
 package test.jycessing;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import jycessing.MixedModeError;
 import jycessing.Printer;
 import jycessing.Runner;
 import jycessing.StreamPrinter;
@@ -217,5 +219,15 @@ public class JycessingTests {
   @Test
   public void constrain() throws Exception {
     expectOK("constrain");
+  }
+
+  @Test
+  public void detectMixedMode() throws Exception {
+    try {
+      run("mixed_mode_error");
+      fail("Expected mixed mode error.");
+    } catch (final MixedModeError expected) {
+      // noop
+    }
   }
 }

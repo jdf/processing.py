@@ -58,25 +58,25 @@ illegalActiveModeCall = re.compile(r"""
     )$
 """, re.X)
 
-module = ast.parse(__processing_source__ + "\n\n", filename=__file__)
-mode = 'STATIC'
-for node in module.body:
-    if isinstance(node, ast.FunctionDef):
-        if activeModeFunc.match(name):
-            mode = 'ACTIVE'
-            break
-
-if mode == 'STATIC':
+def detect_mode(code, filename):
+    module = ast.parse(code + "\n\n", filename=filename)
+    mode = 'STATIC'
+    for node in module.body:
+        if isinstance(node, ast.FunctionDef):
+            if activeModeFunc.match(node.name):
+                mode = 'ACTIVE'
+                break
+    if mode == 'STATIC':
+        return mode
+    for node in module.body:
+        if not isinstance(node, ast.Expr):
+            continue
+        e = node.value
+        if not isinstance(e, ast.Call):
+            continue
+        f = e.func
+        if illegalActiveModeCall.match(f.id):
+            return 'MIXED'
     return mode
 
-for node in module.body:
-    if not isinstance(node, ast.Expr):
-        continue
-    e = node.value
-    if not isinstance(e, ast.Call):
-        continue
-    f = e.func
-    if illegalActiveModeCall.match(f.id):
-        return 'MIXED'
-    
-return mode
+__mode__ = detect_mode(__processing_source__, __file__)
