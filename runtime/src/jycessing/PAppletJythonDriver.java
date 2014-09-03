@@ -547,6 +547,11 @@ public class PAppletJythonDriver extends PApplet {
       @Override
       public void uncaughtException(final Thread t, final Throwable e) {
         terminalException = toSketchException(e);
+        try {
+          handleMethods("dispose");
+        } catch (final Exception noop) {
+          // give up
+        }
         finishedLatch.countDown();
       }
     });
@@ -631,13 +636,10 @@ public class PAppletJythonDriver extends PApplet {
   static private void macosxFullScreenToggle(final Window window) {
     try {
       final Class<?> appClass = Class.forName("com.apple.eawt.Application");
-
       final Method getAppMethod = appClass.getMethod("getApplication");
-      final Object app = getAppMethod.invoke(null, new Object[0]);
-
+      final Object app = getAppMethod.invoke(null);
       final Method requestMethod = appClass.getMethod("requestToggleFullScreen", Window.class);
       requestMethod.invoke(app, window);
-
     } catch (final ClassNotFoundException cnfe) {
       // ignored
     } catch (final Exception e) {
