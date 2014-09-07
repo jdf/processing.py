@@ -87,8 +87,9 @@ public class OSXAdapter implements InvocationHandler {
     // If we're setting a handler, enable the About menu item by calling
     // com.apple.eawt.Application reflectively
     try {
-      final Method enableAboutMethod = macOSXApplication.getClass().getDeclaredMethod(
-          "setEnabledAboutMenu", new Class[] {boolean.class});
+      final Method enableAboutMethod =
+          macOSXApplication.getClass().getDeclaredMethod("setEnabledAboutMenu",
+              new Class[] {boolean.class});
       enableAboutMethod.invoke(macOSXApplication, new Object[] {Boolean.valueOf(enableAboutMenu)});
     } catch (final Exception ex) {
       System.err.println("OSXAdapter could not access the About Menu");
@@ -106,8 +107,9 @@ public class OSXAdapter implements InvocationHandler {
     // If we're setting a handler, enable the Preferences menu item by calling
     // com.apple.eawt.Application reflectively
     try {
-      final Method enablePrefsMethod = macOSXApplication.getClass().getDeclaredMethod(
-          "setEnabledPreferencesMenu", new Class[] {boolean.class});
+      final Method enablePrefsMethod =
+          macOSXApplication.getClass().getDeclaredMethod("setEnabledPreferencesMenu",
+              new Class[] {boolean.class});
       enablePrefsMethod.invoke(macOSXApplication, new Object[] {Boolean.valueOf(enablePrefsMenu)});
     } catch (final Exception ex) {
       System.err.println("OSXAdapter could not access the About Menu: " + ex);
@@ -148,16 +150,19 @@ public class OSXAdapter implements InvocationHandler {
             applicationClass.getConstructor((Class[])null).newInstance((Object[])null);
       }
       final Class<?> applicationListenerClass = Class.forName("com.apple.eawt.ApplicationListener");
-      final Method addListenerMethod = applicationClass.getDeclaredMethod("addApplicationListener",
-          new Class[] {applicationListenerClass});
+      final Method addListenerMethod =
+          applicationClass.getDeclaredMethod("addApplicationListener",
+              new Class[] {applicationListenerClass});
       // Create a proxy object around this handler that can be reflectively added as an Apple
       // ApplicationListener
-      final Object osxAdapterProxy = Proxy.newProxyInstance(OSXAdapter.class.getClassLoader(),
-          new Class[] {applicationListenerClass}, adapter);
+      final Object osxAdapterProxy =
+          Proxy.newProxyInstance(OSXAdapter.class.getClassLoader(),
+              new Class[] {applicationListenerClass}, adapter);
       addListenerMethod.invoke(macOSXApplication, new Object[] {osxAdapterProxy});
     } catch (final ClassNotFoundException cnfe) {
-      System.err.println(
-          "This version of Mac OS X does not support the Apple EAWT.  ApplicationEvent handling has been disabled (" + cnfe + ")");
+      System.err
+          .println("This version of Mac OS X does not support the Apple EAWT.  ApplicationEvent handling has been disabled ("
+              + cnfe + ")");
     } catch (final Exception ex) { // Likely a NoSuchMethodException or an IllegalAccessException
       // loading/invoking eawt.Application methods
       System.err.println("Mac OS X Adapter could not talk to EAWT:" + ex);
@@ -188,6 +193,7 @@ public class OSXAdapter implements InvocationHandler {
   // InvocationHandler implementation
   // This is the entry point for our proxy object; it is called every time an ApplicationListener
   // method is invoked
+  @Override
   public Object invoke(final Object proxy, final Method method, final Object[] args)
       throws Throwable {
     if (isCorrectMethod(method, args)) {

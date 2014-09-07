@@ -50,7 +50,8 @@ public class LinuxExport extends PlatformExport {
     }
   }
 
-  public LinuxExport(Arch arch, Sketch sketch, PyEditor editor, Set<Library> libraries) {
+  public LinuxExport(final Arch arch, final Sketch sketch, final PyEditor editor,
+      final Set<Library> libraries) {
     this.id = PConstants.LINUX;
     this.arch = arch;
     this.name = PConstants.platformNames[id] + arch.bits;
@@ -59,6 +60,7 @@ public class LinuxExport extends PlatformExport {
     this.libraries = libraries;
   }
 
+  @Override
   public void export() throws IOException {
     // Work out user preferences and other possibilities we care about
     final boolean embedJava =
@@ -85,7 +87,7 @@ public class LinuxExport extends PlatformExport {
 
   private void buildShellScript(final File destFolder, final boolean embedJava) throws IOException {
     log("Creating shell script.");
-    
+
 
     final boolean setMemory = Preferences.getBoolean("run.options.memory");
     final boolean presentMode = Preferences.getBoolean("export.application.fullscreen");
@@ -94,7 +96,7 @@ public class LinuxExport extends PlatformExport {
     final File jycessingFolder = new File(destFolder, "lib/jycessing");
     final File scriptFile = new File(destFolder, sketch.getName());
     final PrintWriter script = new PrintWriter(scriptFile);
-    
+
     // We explicitly use "\n" because PrintWriter.println() uses the system line ending,
     // Which will confuse Linux if we're running from Windows.
     script.print("#!/bin/sh\n");
@@ -171,9 +173,9 @@ public class LinuxExport extends PlatformExport {
 
     log("Setting script executable.");
     try {
-      Files
-        .setPosixFilePermissions(scriptFile.toPath(), PosixFilePermissions.fromString("rwxrwxrwx"));
-    } catch (UnsupportedOperationException e) {
+      Files.setPosixFilePermissions(scriptFile.toPath(),
+          PosixFilePermissions.fromString("rwxrwxrwx"));
+    } catch (final UnsupportedOperationException e) {
       // Windows, probably
       log("Couldn't set script executable... we'll assume whoever gets it can handle it");
     }

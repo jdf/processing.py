@@ -119,13 +119,13 @@ public class SketchServiceProcess {
       command.add("-Dapple.awt.UIElement=true");
       command.add("-Xdock:name=Processing");
     }
-    
+
     if (PythonMode.VERBOSE) {
       command.add("-Dverbose=true");
     }
 
     command.add("-Djava.library.path=" + System.getProperty("java.library.path"));
-    
+
     final List<String> cp = new ArrayList<>();
     cp.addAll(filter(
         Arrays.asList(System.getProperty("java.class.path")
@@ -157,7 +157,7 @@ public class SketchServiceProcess {
     command.add(editor.getId());
 
     return new ProcessBuilder(command);
-  } 
+  }
 
   private void restartServerProcess() {
     shutdown();

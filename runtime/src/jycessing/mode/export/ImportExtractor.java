@@ -19,12 +19,13 @@ import processing.app.Sketch;
 import processing.app.SketchCode;
 
 /**
+ * Parses pyde source files using jython's ANTLR parser, goes through all
+ * function calls with a Visitor, finds all calls to add_library, and finds
+ * the libraries that are being imported. This WON'T WORK if add_library
+ * is reassigned or passed not-a-string. We currently only warn the user
+ * if they don't pass a string.
  * 
- * Parses pyde source files using jython's ANTLR parser, goes through all function calls with a Visitor, finds all calls to add_library,
- * and finds the libraries that are being imported.
- * This WON'T WORK if add_library is reassigned or passed not-a-string. We currently only warn the user if they don't pass a string.
  * TODO More stringent warnings.
- *
  */
 public class ImportExtractor {
   @SuppressWarnings("unused")
@@ -59,7 +60,7 @@ public class ImportExtractor {
         ast =
             ParserFacade.parseExpressionOrModule(new StringReader(code.getProgram()),
                 code.getFileName(), new CompilerFlags());
-      } catch (Exception e) {
+      } catch (final Exception e) {
         System.err.println("Couldn't parse " + code.getFileName());
         // I don't like this but I'm not sure what else to do
         // I'm keeping ImportVisitor private so that I can hide visit() from users of this class
@@ -68,14 +69,15 @@ public class ImportExtractor {
       }
       try {
         visitor.visit(ast);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         System.err.println("Couldn't visit " + code.getFileName());
         visitor.failure = true;
       }
     }
     if (visitor.failure) {
       Base.showWarning("Library Problems",
-          "I can't figure out all of the java libraries you're using. Your exported sketch might not work.");
+          "I can't figure out all of the java libraries you're using. "
+              + "Your exported sketch might not work.");
     }
 
     for (final String libName : visitor.importNames) {
@@ -110,6 +112,7 @@ public class ImportExtractor {
       failure = false;
     }
 
+    @Override
     public Object visitCall(final Call funcall) throws Exception {
       if (funcall.getInternalFunc().getToken().getText().equals("add_library")) {
         if (funcall.getInternalArgs().get(0) instanceof Str) {

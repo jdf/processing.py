@@ -37,11 +37,13 @@ public class Exporter {
     }
   }
 
-  private Sketch sketch;
-  private PyEditor editor; // I don't really want to pass this around but there's some functionality
-                           // I need
+  private final Sketch sketch;
+  private final PyEditor editor; // I don't really want to pass this around but there's some
+                                 // functionality
 
-  public Exporter(PyEditor editor, Sketch sketch) {
+  // I need
+
+  public Exporter(final PyEditor editor, final Sketch sketch) {
     this.sketch = sketch;
     this.editor = editor;
   }
@@ -54,13 +56,13 @@ public class Exporter {
     if (Preferences.getBoolean("export.application.platform.linux")) {
       try {
         new LinuxExport(Arch.X86, sketch, editor, libraries).export();
-      } catch (IOException e) {
+      } catch (final IOException e) {
         e.printStackTrace();
         editor.statusError("Export to linux32 failed!");
       }
       try {
         new LinuxExport(Arch.AMD64, sketch, editor, libraries).export();
-      } catch (IOException e) {
+      } catch (final IOException e) {
         e.printStackTrace();
         editor.statusError("Export to linux64 failed!");
       }
@@ -68,13 +70,13 @@ public class Exporter {
     if (Preferences.getBoolean("export.application.platform.windows")) {
       try {
         new WindowsExport(Arch.X86, sketch, editor, libraries).export();
-      } catch (IOException e) {
+      } catch (final IOException e) {
         e.printStackTrace();
         editor.statusError("Export to windows32 failed!");
       }
       try {
         new WindowsExport(Arch.AMD64, sketch, editor, libraries).export();
-      } catch (IOException e) {
+      } catch (final IOException e) {
         e.printStackTrace();
         editor.statusError("Export to windows64 failed!");
       }
@@ -82,7 +84,7 @@ public class Exporter {
     if (Preferences.getBoolean("export.application.platform.macosx")) {
       try {
         new MacExport(sketch, editor, libraries).export();
-      } catch (IOException e) {
+      } catch (final IOException e) {
         e.printStackTrace();
         editor.statusError("Export to macosx failed!");
       }

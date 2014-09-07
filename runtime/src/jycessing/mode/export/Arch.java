@@ -11,7 +11,7 @@ public enum Arch {
 
   public final int bits;
 
-  Arch(int bits) {
+  Arch(final int bits) {
     this.bits = bits;
   }
 }

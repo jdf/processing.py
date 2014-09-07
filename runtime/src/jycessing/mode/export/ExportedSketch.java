@@ -3,16 +3,15 @@ package jycessing.mode.export;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import java.nio.file.Files;
-
-import processing.core.PApplet;
+import jycessing.DisplayType;
 import jycessing.RunnableSketch;
 import jycessing.Runner.LibraryPolicy;
-import jycessing.DisplayType;
+import processing.core.PApplet;
 
 /**
  * A sketch that's been exported from the PDE.
@@ -24,7 +23,7 @@ import jycessing.DisplayType;
 public class ExportedSketch implements RunnableSketch {
 
   public static final String ARGS_EXPORTED = "--exported";
-  
+
   private final File sketchPath;
   private final File sketchHome;
   private final String code;
@@ -32,7 +31,7 @@ public class ExportedSketch implements RunnableSketch {
   private final String backgroundColor;
   private final String stopColor;
   private final List<File> libraryDirs;
-  
+
   /**
    * @param args Command line arguments
    * @throws FileNotFoundException if the main sketch file can't be found
@@ -55,13 +54,13 @@ public class ExportedSketch implements RunnableSketch {
       code.append('\n');
     }
     this.code = code.toString();
-    
+
     if (Arrays.asList(args).contains(PApplet.ARGS_FULL_SCREEN)) {
       this.displayType = DisplayType.PRESENTATION;
     } else {
       this.displayType = DisplayType.WINDOWED;
     }
-    
+
     String backgroundColor = null;
     String stopColor = null;
     for (final String arg : args) {
@@ -73,7 +72,7 @@ public class ExportedSketch implements RunnableSketch {
     }
     this.backgroundColor = backgroundColor;
     this.stopColor = stopColor;
-    
+
     final List<File> libraryDirs = new ArrayList<>();
     libraryDirs.add(sketchPath.getParentFile()); // "$APPDIR/source"
     final File libDir = new File(getHomeDirectory(), "lib");
@@ -91,7 +90,7 @@ public class ExportedSketch implements RunnableSketch {
   public File getMainFile() {
     return sketchPath;
   }
-  
+
   @Override
   public String getMainCode() {
     return code;
@@ -105,22 +104,22 @@ public class ExportedSketch implements RunnableSketch {
   @Override
   public String[] getPAppletArguments() {
     final List<String> args = new ArrayList<>();
-    
+
     if (displayType == DisplayType.PRESENTATION) {
       args.add(PApplet.ARGS_FULL_SCREEN);
       args.add(PApplet.ARGS_BGCOLOR + "=" + backgroundColor);
-      
+
       if (stopColor != null) {
         args.add(PApplet.ARGS_STOP_COLOR + "=" + stopColor);
       } else {
         args.add(PApplet.ARGS_HIDE_STOP);
       }
     }
-    
+
     args.add(PApplet.ARGS_SKETCH_FOLDER + "=" + getHomeDirectory());
-    
+
     args.add(sketchPath.getName()); // sketch name; must be last argument
-    
+
     return args.toArray(new String[0]);
   }
 
@@ -133,7 +132,7 @@ public class ExportedSketch implements RunnableSketch {
   public LibraryPolicy getLibraryPolicy() {
     return LibraryPolicy.PROMISCUOUS;
   }
-  
+
   @Override
   public boolean shouldRun() {
     return true;
@@ -142,11 +141,11 @@ public class ExportedSketch implements RunnableSketch {
   @Override
   public List<File> getPathEntries() {
     final List<File> entries = new ArrayList<>();
-    
+
     entries.add(sketchHome);
     entries.add(new File(sketchHome, "source"));
     entries.add(new File(sketchHome, "lib"));
-    
+
     return entries;
   }
 

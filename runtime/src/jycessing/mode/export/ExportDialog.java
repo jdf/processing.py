@@ -28,12 +28,12 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
+import jycessing.mode.PyEditor;
+import jycessing.mode.PythonMode;
 import processing.app.Base;
 import processing.app.ColorChooser;
 import processing.app.Preferences;
 import processing.app.Sketch;
-import jycessing.mode.PyEditor;
-import jycessing.mode.PythonMode;
 
 /**
  * 
@@ -57,7 +57,7 @@ public class ExportDialog extends JDialog {
   private final PyEditor editor;
   private final JOptionPane optionPane;
 
-  public ExportDialog(PyEditor editor, Sketch sketch) {
+  public ExportDialog(final PyEditor editor, final Sketch sketch) {
     super(editor, "Export Application", true);
 
     this.editor = editor;
@@ -89,7 +89,8 @@ public class ExportDialog extends JDialog {
 
     this.setContentPane(optionPane);
     optionPane.addPropertyChangeListener(new PropertyChangeListener() {
-      public void propertyChange(PropertyChangeEvent e) {
+      @Override
+      public void propertyChange(final PropertyChangeEvent e) {
         final String prop = e.getPropertyName();
 
         if (isVisible() && (e.getSource() == optionPane)
@@ -143,7 +144,8 @@ public class ExportDialog extends JDialog {
     final JCheckBox windowsButton = new JCheckBox("Windows");
     windowsButton.setSelected(Preferences.getBoolean("export.application.platform.windows"));
     windowsButton.addItemListener(new ItemListener() {
-      public void itemStateChanged(ItemEvent e) {
+      @Override
+      public void itemStateChanged(final ItemEvent e) {
         Preferences.setBoolean("export.application.platform.windows", windowsButton.isSelected());
       }
     });
@@ -151,7 +153,8 @@ public class ExportDialog extends JDialog {
     final JCheckBox macosxButton = new JCheckBox("Mac OS X");
     macosxButton.setSelected(Preferences.getBoolean("export.application.platform.macosx"));
     macosxButton.addItemListener(new ItemListener() {
-      public void itemStateChanged(ItemEvent e) {
+      @Override
+      public void itemStateChanged(final ItemEvent e) {
         Preferences.setBoolean("export.application.platform.macosx", macosxButton.isSelected());
       }
     });
@@ -159,7 +162,8 @@ public class ExportDialog extends JDialog {
     final JCheckBox linuxButton = new JCheckBox("Linux");
     linuxButton.setSelected(Preferences.getBoolean("export.application.platform.linux"));
     linuxButton.addItemListener(new ItemListener() {
-      public void itemStateChanged(ItemEvent e) {
+      @Override
+      public void itemStateChanged(final ItemEvent e) {
         Preferences.setBoolean("export.application.platform.linux", linuxButton.isSelected());
       }
     });
@@ -182,7 +186,8 @@ public class ExportDialog extends JDialog {
     final JCheckBox showStopButton = new JCheckBox("Show a Stop button");
     showStopButton.setSelected(Preferences.getBoolean("export.application.stop"));
     showStopButton.addItemListener(new ItemListener() {
-      public void itemStateChanged(ItemEvent e) {
+      @Override
+      public void itemStateChanged(final ItemEvent e) {
         Preferences.setBoolean("export.application.stop", showStopButton.isSelected());
       }
     });
@@ -192,7 +197,8 @@ public class ExportDialog extends JDialog {
     final JCheckBox fullScreenButton = new JCheckBox("Full Screen (Present mode)");
     fullScreenButton.setSelected(Preferences.getBoolean("export.application.fullscreen"));
     fullScreenButton.addItemListener(new ItemListener() {
-      public void itemStateChanged(ItemEvent e) {
+      @Override
+      public void itemStateChanged(final ItemEvent e) {
         final boolean selected = fullScreenButton.isSelected();
         Preferences.setBoolean("export.application.fullscreen", selected);
         showStopButton.setEnabled(selected);
@@ -245,7 +251,8 @@ public class ExportDialog extends JDialog {
     // "from <a href=\"http://java.com/download\">java.com/download</a>.";
     final JLabel warningLabel = new JLabel(embed ? embedWarning : nopeWarning);
     warningLabel.addMouseListener(new MouseAdapter() {
-      public void mousePressed(MouseEvent event) {
+      @Override
+      public void mousePressed(final MouseEvent event) {
         Base.openURL("http://java.com/download");
       }
     });
@@ -254,7 +261,8 @@ public class ExportDialog extends JDialog {
     final JCheckBox embedJavaButton = new JCheckBox("Embed Java for " + platformName);
     embedJavaButton.setSelected(embed);
     embedJavaButton.addItemListener(new ItemListener() {
-      public void itemStateChanged(ItemEvent e) {
+      @Override
+      public void itemStateChanged(final ItemEvent e) {
         final boolean selected = embedJavaButton.isSelected();
         Preferences.setBoolean("export.application.embed_java", selected);
         if (selected) {
@@ -273,7 +281,7 @@ public class ExportDialog extends JDialog {
     return embedPanel;
   }
 
-  private JPanel createMacSigningWarning(int divWidth) {
+  private JPanel createMacSigningWarning(final int divWidth) {
     final JPanel signPanel = new JPanel();
     signPanel.setLayout(new BoxLayout(signPanel, BoxLayout.Y_AXIS));
     signPanel.setBorder(new TitledBorder("Code Signing"));
@@ -307,7 +315,8 @@ public class ExportDialog extends JDialog {
     signPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
     area.addMouseListener(new MouseAdapter() {
-      public void mousePressed(MouseEvent event) {
+      @Override
+      public void mousePressed(final MouseEvent event) {
         Base.openURL("https://developer.apple.com/developer-id/");
       }
     });
@@ -318,7 +327,7 @@ public class ExportDialog extends JDialog {
     ColorChooser chooser;
     String prefName;
 
-    public ColorPreference(String pref, final PyEditor editor) {
+    public ColorPreference(final String pref, final PyEditor editor) {
       prefName = pref;
 
       setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
@@ -326,7 +335,8 @@ public class ExportDialog extends JDialog {
       setMaximumSize(new Dimension(30, 20));
 
       addMouseListener(new MouseAdapter() {
-        public void mouseReleased(MouseEvent e) {
+        @Override
+        public void mouseReleased(final MouseEvent e) {
           final Color color = Preferences.getColor(prefName);
           chooser = new ColorChooser(editor, true, color, "Select", ColorPreference.this);
           chooser.show();
@@ -334,13 +344,15 @@ public class ExportDialog extends JDialog {
       });
     }
 
-    public void paintComponent(Graphics g) {
+    @Override
+    public void paintComponent(final Graphics g) {
       g.setColor(Preferences.getColor(prefName));
       final Dimension size = getSize();
       g.fillRect(0, 0, size.width, size.height);
     }
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+    public void actionPerformed(final ActionEvent e) {
       final Color color = chooser.getColor();
       Preferences.setColor(prefName, color);
       repaint();

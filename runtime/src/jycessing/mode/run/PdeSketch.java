@@ -6,12 +6,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import processing.app.Base;
-import processing.app.Sketch;
-import processing.core.PApplet;
 import jycessing.DisplayType;
 import jycessing.RunnableSketch;
 import jycessing.Runner.LibraryPolicy;
+import processing.app.Base;
+import processing.app.Sketch;
+import processing.core.PApplet;
 
 /**
  * A sketch run from the PDE.
@@ -24,7 +24,7 @@ import jycessing.Runner.LibraryPolicy;
 
 @SuppressWarnings("serial")
 public class PdeSketch implements RunnableSketch, Serializable {
-  
+
   private final List<File> libraryDirs;
   private final File mainFile;
   private final String mainCode;
@@ -32,23 +32,20 @@ public class PdeSketch implements RunnableSketch, Serializable {
   private final Point location;
   private final LocationType locationType;
   private final DisplayType displayType;
-  
+
   public final String[] codeFileNames; // unique to PdeSketch - leave as public field?
-  
-  public PdeSketch(final Sketch sketch,
-                    final File sketchPath,
-                    final DisplayType displayType,
-                    final Point location,
-                    final LocationType locationType) {
-    
+
+  public PdeSketch(final Sketch sketch, final File sketchPath, final DisplayType displayType,
+      final Point location, final LocationType locationType) {
+
     this.displayType = displayType;
     this.location = location;
     this.locationType = locationType;
-    
+
     this.mainFile = sketchPath.getAbsoluteFile();
     this.mainCode = sketch.getMainProgram();
     this.sketchHome = sketch.getFolder().getAbsoluteFile();
-    
+
     final List<File> libraryDirs = new ArrayList<>();
     libraryDirs.add(Base.getContentFile("modes/java/libraries"));
     libraryDirs.add(Base.getSketchbookLibrariesFolder());
@@ -61,17 +58,16 @@ public class PdeSketch implements RunnableSketch, Serializable {
     }
     this.codeFileNames = codeFileNames;
   }
-  
+
   public static enum LocationType {
-    EDITOR_LOCATION,
-    SKETCH_LOCATION;
+    EDITOR_LOCATION, SKETCH_LOCATION;
   }
 
   @Override
   public File getMainFile() {
     return mainFile;
   }
-  
+
   @Override
   public String getMainCode() {
     return mainCode;
@@ -85,25 +81,25 @@ public class PdeSketch implements RunnableSketch, Serializable {
   @Override
   public String[] getPAppletArguments() {
     final List<String> args = new ArrayList<>();
-    
+
     args.add(PApplet.ARGS_EXTERNAL);
     args.add(PApplet.ARGS_SKETCH_FOLDER + "=" + sketchHome);
-    
+
     switch (displayType) {
-    case WINDOWED:
-      if (locationType == LocationType.EDITOR_LOCATION) {
-        args.add(String.format("%s=%d,%d", PApplet.ARGS_EDITOR_LOCATION, location.x, location.y));
-      } else if (locationType == LocationType.SKETCH_LOCATION) {
-        args.add(String.format("%s=%d,%d", PApplet.ARGS_LOCATION, location.x, location.y));
-      }
-      break;
-    case PRESENTATION:
-      args.add(PApplet.ARGS_FULL_SCREEN);
-      break;
+      case WINDOWED:
+        if (locationType == LocationType.EDITOR_LOCATION) {
+          args.add(String.format("%s=%d,%d", PApplet.ARGS_EDITOR_LOCATION, location.x, location.y));
+        } else if (locationType == LocationType.SKETCH_LOCATION) {
+          args.add(String.format("%s=%d,%d", PApplet.ARGS_LOCATION, location.x, location.y));
+        }
+        break;
+      case PRESENTATION:
+        args.add(PApplet.ARGS_FULL_SCREEN);
+        break;
     }
-    
+
     args.add(mainFile.getName()); // sketch name; has to be last argument
-        
+
     return args.toArray(new String[0]);
   }
 
@@ -111,7 +107,7 @@ public class PdeSketch implements RunnableSketch, Serializable {
   public List<File> getLibraryDirectories() {
     return libraryDirs;
   }
-  
+
   /**
    * PDE sketches should be selective - no need to rush, we can just load as we go.
    */
@@ -119,7 +115,7 @@ public class PdeSketch implements RunnableSketch, Serializable {
   public LibraryPolicy getLibraryPolicy() {
     return LibraryPolicy.SELECTIVE;
   }
-  
+
   @Override
   public boolean shouldRun() {
     return true;

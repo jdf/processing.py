@@ -151,6 +151,7 @@ public class Runner {
   }
 
   public static RunnableSketch sketch;
+
   /**
    * 
    * Entrypoint for non-PDE sketches. If we find ARGS_EXPORTED in the argument list,
@@ -177,7 +178,7 @@ public class Runner {
         sketch = new StandaloneSketch(args);
       }
       runSketchBlocking(sketch, new StreamPrinter(System.out), new StreamPrinter(System.err));
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       System.err.println(t);
       System.exit(-1);
     }
@@ -206,7 +207,7 @@ public class Runner {
       File temp;
       try {
         temp = File.createTempFile("warmup", ".pyde");
-      } catch (IOException e) {
+      } catch (final IOException e) {
         temp = null;
         // drop
       }

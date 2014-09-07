@@ -227,33 +227,30 @@ public class PyEditor extends Editor {
   public void handleExportApplication() {
     // Leaving this here because it seems like it's more the editor's responsibility
     if (sketch.isModified()) {
-      Object[] options = { "OK", "Cancel" };
-      int result = JOptionPane.showOptionDialog(this,
-                                                "Save changes before export?",
-                                                "Save",
-                                                JOptionPane.OK_CANCEL_OPTION,
-                                                JOptionPane.QUESTION_MESSAGE,
-                                                null,
-                                                options,
-                                                options[0]);
+      final Object[] options = {"OK", "Cancel"};
+      final int result =
+          JOptionPane
+              .showOptionDialog(this, "Save changes before export?", "Save",
+                  JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+                  options[0]);
       if (result == JOptionPane.OK_OPTION) {
         handleSave(true);
       } else {
         statusNotice("Export canceled, changes must first be saved.");
       }
     }
-    
+
     new ExportDialog(this, sketch).go();
   }
-    
-  public File getModeContentFile(String filename) {
+
+  public File getModeContentFile(final String filename) {
     return pyMode.getContentFile(filename);
   }
-  
+
   public File getSplashFile() {
     return pyMode.getContentFile("theme/splash.png");
   }
-  
+
   /**
    * Save the current state of the sketch code into a temp dir, and return
    * the created directory.
@@ -287,7 +284,7 @@ public class PyEditor extends Editor {
     } else {
       sketchPath = sketch.getCode(0).getFile().getAbsoluteFile();
     }
-    
+
     final LocationType locationType;
     final Point location;
     if (getSketchLocation() != null) {
@@ -297,9 +294,10 @@ public class PyEditor extends Editor {
       locationType = LocationType.EDITOR_LOCATION;
       location = new Point(getLocation());
     }
-    
+
     try {
-      sketchService.runSketch(new PdeSketch(sketch, sketchPath, displayType, location, locationType));
+      sketchService
+          .runSketch(new PdeSketch(sketch, sketchPath, displayType, location, locationType));
     } catch (final SketchException e) {
       statusError(e);
     }

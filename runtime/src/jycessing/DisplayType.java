@@ -1,6 +1,5 @@
 package jycessing;
 
 public enum DisplayType {
-  WINDOWED,
-  PRESENTATION;
+  WINDOWED, PRESENTATION;
 }

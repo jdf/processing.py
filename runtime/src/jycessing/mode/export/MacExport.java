@@ -1,14 +1,14 @@
 package jycessing.mode.export;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +64,7 @@ public class MacExport extends PlatformExport {
     }
   }
 
-  public MacExport(Sketch sketch, PyEditor editor, Set<Library> libraries) {
+  public MacExport(final Sketch sketch, final PyEditor editor, final Set<Library> libraries) {
     this.id = PConstants.MACOSX;
     this.name = PConstants.platformNames[id];
     this.sketch = sketch;
@@ -110,7 +110,8 @@ public class MacExport extends PlatformExport {
   private void copyJDKPlugin(final File targetPluginsFolder) throws IOException {
     // This is how Java Mode finds it... basically
     final File sourceJDKFolder = Base.getContentFile("../PlugIns").listFiles(new FilenameFilter() {
-      public boolean accept(File dir, String name) {
+      @Override
+      public boolean accept(final File dir, final String name) {
         return name.endsWith(".jdk") && !name.startsWith(".");
       }
     })[0].getAbsoluteFile();
@@ -172,7 +173,7 @@ public class MacExport extends PlatformExport {
     final File scriptFile = new File(binFolder, sketch.getName());
     final PrintWriter script = new PrintWriter(scriptFile);
 
-    
+
     // We explicitly use "\n" because PrintWriter.println() uses the system line ending,
     // which will confuse Macs if we're running from Windows.
     script.print("#!/bin/bash\n");
@@ -187,7 +188,8 @@ public class MacExport extends PlatformExport {
       script.print(findJava + "\n");
     } else {
       script
-          .print("JAVA=\"$(find $CONTENTS/PlugIns -maxdepth 1 -type d -name '*jdk')/Contents/Home/jre/bin/java\"" + "\n");
+          .print("JAVA=\"$(find $CONTENTS/PlugIns -maxdepth 1 -type d -name '*jdk')/Contents/Home/jre/bin/java\""
+              + "\n");
     }
 
     script.print("APPDIR=\"$CONTENTS/Processing\"\n");
@@ -256,7 +258,7 @@ public class MacExport extends PlatformExport {
       options.add(PApplet.ARGS_HIDE_STOP);
     }
 
-    options.add("\"$APPDIR/source/" + sketch.getCode(0).getFileName()+"\"");
+    options.add("\"$APPDIR/source/" + sketch.getCode(0).getFileName() + "\"");
 
     script.print("$JAVA");
     for (final String o : options) {
@@ -267,9 +269,9 @@ public class MacExport extends PlatformExport {
 
     log("Setting script executable.");
     try {
-      Files
-        .setPosixFilePermissions(scriptFile.toPath(), PosixFilePermissions.fromString("rwxrwxrwx"));
-    } catch (UnsupportedOperationException e) {
+      Files.setPosixFilePermissions(scriptFile.toPath(),
+          PosixFilePermissions.fromString("rwxrwxrwx"));
+    } catch (final UnsupportedOperationException e) {
       // Windows, probably
       log("Couldn't set script executable... .app should work anyway, though");
     }

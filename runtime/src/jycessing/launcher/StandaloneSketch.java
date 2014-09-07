@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import processing.core.PApplet;
 import jycessing.IOUtil;
 import jycessing.RunnableSketch;
 import jycessing.Runner;
 import jycessing.Runner.LibraryPolicy;
 import jycessing.annotations.PythonUsage;
+import processing.core.PApplet;
 
 /**
  * 
@@ -25,7 +25,7 @@ import jycessing.annotations.PythonUsage;
  *
  */
 public class StandaloneSketch implements RunnableSketch {
-  
+
   static void log(final Object... objs) {
     if (!Runner.VERBOSE) {
       return;
@@ -35,11 +35,11 @@ public class StandaloneSketch implements RunnableSketch {
     }
     System.err.println();
   }
-  
+
   private final File sketchPath;
   private final String code;
   private final List<File> libraryDirs;
-  
+
   /**
    * Returns the path of the main processing-py.jar file.
    * 
@@ -75,12 +75,12 @@ public class StandaloneSketch implements RunnableSketch {
     // If we are on Windows
     return jar.getParentFile();
   }
-  
-  
-  
+
+
+
   public StandaloneSketch(final String[] args) throws Exception {
     final List<String> argsList = Arrays.asList(args);
-    
+
     // In case the sketch path points to "internal" we get it from the wrapper
     if (argsList.contains("--internal")) {
       this.sketchPath = new File(getRuntimeRoot(), "Runtime/sketch.py").getAbsoluteFile();
@@ -114,12 +114,13 @@ public class StandaloneSketch implements RunnableSketch {
       } catch (final UnsupportedEncodingException e) {
         throw new RuntimeException("Impossible: " + e);
       }
-      
-      final Pattern JAR_RESOURCE = Pattern.compile("jar:file:(.+?)/processing-py\\.jar!/jycessing/" 
-          + Pattern.quote(BUILD_PROPERTIES));
-      final Pattern FILE_RESOURCE = Pattern.compile("file:(.+?)/bin/jycessing/"
-          + Pattern.quote(BUILD_PROPERTIES));
-      
+
+      final Pattern JAR_RESOURCE =
+          Pattern.compile("jar:file:(.+?)/processing-py\\.jar!/jycessing/"
+              + Pattern.quote(BUILD_PROPERTIES));
+      final Pattern FILE_RESOURCE =
+          Pattern.compile("file:(.+?)/bin/jycessing/" + Pattern.quote(BUILD_PROPERTIES));
+
       final Matcher jarMatcher = JAR_RESOURCE.matcher(propsResource);
       final Matcher fileMatcher = FILE_RESOURCE.matcher(propsResource);
       if (jarMatcher.matches()) {
@@ -149,8 +150,7 @@ public class StandaloneSketch implements RunnableSketch {
 
   @Override
   public String[] getPAppletArguments() {
-    return new String[] { 
-        PApplet.ARGS_SKETCH_FOLDER + "=" + sketchPath.getAbsolutePath(),
+    return new String[] {PApplet.ARGS_SKETCH_FOLDER + "=" + sketchPath.getAbsolutePath(),
         sketchPath.getName() // must be last argument
     };
   }
@@ -178,15 +178,15 @@ public class StandaloneSketch implements RunnableSketch {
   @Override
   public List<File> getPathEntries() {
     final List<File> entries = new ArrayList<>();
-    
+
     // Main sketch folder
     entries.add(sketchPath.getParentFile());
-    
+
     for (final File dir : getLibraryDirectories()) {
       // In case the user has added python libraries in their library directories
       entries.add(dir);
     }
-    
+
     return entries;
   }
 

@@ -54,7 +54,8 @@ public class WindowsExport extends PlatformExport {
     }
   }
 
-  public WindowsExport(Arch arch, Sketch sketch, PyEditor editor, Set<Library> libraries) {
+  public WindowsExport(final Arch arch, final Sketch sketch, final PyEditor editor,
+      final Set<Library> libraries) {
     this.id = PConstants.WINDOWS;
     this.arch = arch;
     this.name = PConstants.platformNames[id] + arch.bits;
@@ -129,7 +130,7 @@ public class WindowsExport extends PlatformExport {
 
     final File javaHome = new File(System.getProperty("java.home"));
     final File javaExecutable;
-    if (PApplet.platform == PApplet.WINDOWS) {
+    if (PApplet.platform == PConstants.WINDOWS) {
       javaExecutable = new File(javaHome, "bin/java.exe");
     } else {
       javaExecutable = new File(javaHome, "bin/java");
@@ -147,31 +148,32 @@ public class WindowsExport extends PlatformExport {
     final File launch4jJar = new File(launch4jFolder, "launch4j.jar");
     final File xstreamJar = new File(launch4jFolder, "lib/xstream.jar");
 
-    ProcessBuilder pb =
+    final ProcessBuilder pb =
         new ProcessBuilder(javaExecutable.getAbsolutePath(), "-cp", launch4jJar.getAbsolutePath()
             + System.getProperty("path.separator") + xstreamJar.getAbsolutePath(),
             "net.sf.launch4j.Main", configFile.getAbsolutePath());
 
     if (PythonMode.VERBOSE) {
       log("Launch4j command:");
-      List<String> command = pb.command();
-      for (String s : command) {
+      final List<String> command = pb.command();
+      for (final String s : command) {
         log("    " + s);
       }
     }
     final Process launch4jProcess = pb.start();
 
     if (PythonMode.VERBOSE) {
-      Thread captureOutput = new Thread(new Runnable() {
+      final Thread captureOutput = new Thread(new Runnable() {
+        @Override
         public void run() {
-          BufferedReader stderr =
+          final BufferedReader stderr =
               new BufferedReader(new InputStreamReader(launch4jProcess.getInputStream()));
           String line;
           try {
             while ((line = stderr.readLine()) != null) {
               log(line);
             }
-          } catch (Exception e) {
+          } catch (final Exception e) {
           }
         }
       });
@@ -179,11 +181,11 @@ public class WindowsExport extends PlatformExport {
     }
 
     try {
-      int result = launch4jProcess.waitFor();
+      final int result = launch4jProcess.waitFor();
       if (result != 0) {
         throw new IOException("Launch4j seems to have failed.");
       }
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       throw new IOException("Launch4j seems to have been interrupted.");
     }
   }
@@ -193,8 +195,9 @@ public class WindowsExport extends PlatformExport {
     final XML jre = new XML("jre");
     if (embedJava) {
       // note that "Path" is relative to the output executable at runtime
-      jre.addChild("path").setContent("\"%EXEDIR%\\java\""); // "java" folder is next to the executable?
-                                                         // TODO check
+      jre.addChild("path").setContent("\"%EXEDIR%\\java\""); // "java" folder is next to the
+                                                             // executable?
+      // TODO check
     }
     // We always add the minVersion tag, which means that the sketch will always try to look for
     // Java on the system - by default when java isn't embedded, as a fallback when it is
@@ -214,7 +217,8 @@ public class WindowsExport extends PlatformExport {
     }
     // https://github.com/processing/processing/issues/2239
     jre.addChild("opt").setContent("-Djna.nosys=true");
-    // Set library path; NOT including environment variable %PATH%, since it will include that anyway:
+    // Set library path; NOT including environment variable %PATH%, since it will include that
+    // anyway:
     // https://github.com/processing/processing/pull/2622
     // https://github.com/processing/processing/commit/b951614
     jre.addChild("opt").setContent("-Djava.library.path=\".\\lib\"");
@@ -249,8 +253,8 @@ public class WindowsExport extends PlatformExport {
     // path to the sketch to run, relative to executable
     runnerOptions.add("\"source\\" + sketch.getCode(0).getFileName() + "\"");
 
-    StringBuilder runnerOptionsOutput = new StringBuilder();
-    for (String o : runnerOptions) {
+    final StringBuilder runnerOptionsOutput = new StringBuilder();
+    for (final String o : runnerOptions) {
       runnerOptionsOutput.append(" " + o);
     }
     final XML result = new XML("cmdLine");
@@ -260,7 +264,7 @@ public class WindowsExport extends PlatformExport {
 
   private XML buildClassPathOptions(final File jycessingFolder) {
     log("Building classpath options.");
-    XML classPathOptions = new XML("classPath");
+    final XML classPathOptions = new XML("classPath");
     classPathOptions.addChild("mainClass").setContent("jycessing.Runner");
     for (final File f : jycessingFolder.listFiles()) {
       if (f.getName().toLowerCase().endsWith(".jar") || f.getName().toLowerCase().endsWith(".zip")) {

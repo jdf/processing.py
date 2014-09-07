@@ -17,6 +17,7 @@ package jycessing;
 
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -37,8 +38,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.swing.JFrame;
 
 import jycessing.IOUtil.ResourceReader;
 import jycessing.mode.run.WrappedPrintStream;
@@ -580,7 +579,7 @@ public class PAppletJythonDriver extends PApplet {
       public void run() {
         frame.setVisible(true);
         int state = frame.getExtendedState();
-        state &= ~JFrame.ICONIFIED;
+        state &= ~Frame.ICONIFIED;
         frame.setExtendedState(state);
         frame.setAlwaysOnTop(true);
         frame.toFront();
@@ -614,7 +613,7 @@ public class PAppletJythonDriver extends PApplet {
         // fallthrough
       }
     } finally {
-      if (PApplet.platform == PApplet.MACOSX
+      if (PApplet.platform == PConstants.MACOSX
           && Arrays.asList(args).contains(PApplet.ARGS_FULL_SCREEN)) {
         // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm
         // exits or we explicitly tell it to minimize.
