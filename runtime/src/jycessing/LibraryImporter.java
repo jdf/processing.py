@@ -1,14 +1,5 @@
 package jycessing;
 
-import org.python.core.Py;
-import org.python.core.PyObject;
-import org.python.core.PyStringMap;
-import org.python.core.PySystemState;
-import org.python.google.common.base.Joiner;
-import org.python.util.InteractiveConsole;
-
-import processing.core.PApplet;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
@@ -22,15 +13,24 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import org.python.core.Py;
+import org.python.core.PyObject;
+import org.python.core.PyStringMap;
+import org.python.core.PySystemState;
+import org.python.google.common.base.Joiner;
+import org.python.util.InteractiveConsole;
+
+import processing.core.PApplet;
 
 /**
  * {@link LibraryImporter} contributes the add_library function to processing.py.
@@ -66,7 +66,7 @@ class LibraryImporter {
   private final Set<String> loadedLibs = new HashSet<>();
 
   /*
-   * The interpreter to exec "from com.foo import Bar" statements.
+   * The interpreter into which we inject import statements.
    */
   private final InteractiveConsole interp;
 
@@ -85,7 +85,7 @@ class LibraryImporter {
       }
     });
   }
-  
+
   /**
    * Locate the library in the library folder "libName", find what
    * it exports for the current platform, and add exports to the
@@ -104,11 +104,18 @@ class LibraryImporter {
       return;
     }
     loadedLibs.add(libName);
-    
 
-    
     File libDir = null;
     for (final File searchDir : libSearchPath) {
+      // Permit hand-rolled single-jar libraries:
+      final File handRolledJar = new File(searchDir.getAbsoluteFile(), libName + ".jar");
+      if (handRolledJar.exists()) {
+        log("Found hand-rolled jar lib " + handRolledJar);
+        addJarToClassLoader(handRolledJar);
+        importPublicClassesFromJar(handRolledJar);
+        return;
+      }
+
       final File potentialDir = new File(searchDir.getAbsoluteFile(), libName);
       if (potentialDir.exists()) {
         if (libDir == null) {
@@ -119,7 +126,7 @@ class LibraryImporter {
         }
       }
     }
-    
+
     if (libDir == null) {
       interp.exec("raise Exception('This sketch requires the \"" + libName + "\" library.')");
     }
@@ -128,7 +135,7 @@ class LibraryImporter {
       interp.exec("raise Exception('The library " + libName + " is malformed and won't import.')");
     }
     final File mainJar = new File(contentsDir, libName + ".jar");
-    
+
     final List<File> resources = findResources(contentsDir);
     final PySystemState sys = Py.getSystemState();
     for (final File resource : resources) {
@@ -136,22 +143,19 @@ class LibraryImporter {
       if (name.endsWith(".jar") || name.endsWith(".zip")) {
         // Contains stuff we want
         addJarToClassLoader(resource.getAbsoluteFile());
-        
+
         log("Appending " + resource.getAbsolutePath() + " to sys.path.");
         sys.path.append(Py.newString(resource.getAbsolutePath()));
-        
+
         // Are we missing any extensions?
-      } else if (name.endsWith(".so") || name.endsWith(".dll") || name.endsWith(".dylib") || name.endsWith(".jnilib")) {
+      } else if (name.endsWith(".so") || name.endsWith(".dll") || name.endsWith(".dylib")
+          || name.endsWith(".jnilib")) {
         // Add *containing directory* to native search path
         addDirectoryToNativeSearchPath(resource.getAbsoluteFile().getParentFile());
       }
     }
 
-    try {
-      importPublicClassesFromJar(mainJar);
-    } catch (final Exception e) {
-      throw new RuntimeException("While trying to add " + libName + " library:", e);
-    }
+    importPublicClassesFromJar(mainJar);
   }
 
   /**
@@ -175,7 +179,7 @@ class LibraryImporter {
     }
     return resources;
   }
-  
+
   private List<File> findResourcesFromExportTxt(final File contentsDir) {
     final File exportTxt = new File(contentsDir, "export.txt");
     if (!exportTxt.exists()) {
@@ -185,13 +189,13 @@ class LibraryImporter {
     final Map<String, String[]> exportTable;
     try {
       exportTable = parseExportTxt(exportTxt);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       log("Couldn't parse export.txt: " + e.getMessage());
       return null;
     }
-    
+
     final String[] resourceNames;
-    
+
     // Check from most-specific to least-specific:
     if (exportTable.containsKey("application." + PLATFORM + BITS)) {
       log("Found 'application." + PLATFORM + BITS + "' in export.txt");
@@ -212,17 +216,18 @@ class LibraryImporter {
       if (resource.exists()) {
         resources.add(resource);
       } else {
-        log(resourceName + " is mentioned in " + exportTxt.getAbsolutePath() + "but doesn't actually exist. Moving on.");
+        log(resourceName + " is mentioned in " + exportTxt.getAbsolutePath()
+            + "but doesn't actually exist. Moving on.");
         continue;
       }
     }
     return resources;
   }
-  
+
   private List<File> findResourcesFromDirectoryStructure(final File contentsDir) {
     final List<String> childNames = Arrays.asList(contentsDir.list());
     final List<File> resources = new ArrayList<File>();
-    
+
     // Find platform-specific stuff
     File platformDir = null;
     if (childNames.contains(PLATFORM + BITS)) {
@@ -243,11 +248,11 @@ class LibraryImporter {
         resources.add(resource);
       }
     }
-    
+
     // Find multi-platform stuff; always do this
     final File[] commonResources = contentsDir.listFiles(new FileFilter() {
       @Override
-      public boolean accept(File file) {
+      public boolean accept(final File file) {
         return !file.isDirectory();
       }
     });
@@ -256,7 +261,7 @@ class LibraryImporter {
     }
     return resources;
   }
-  
+
   /**
    * Parse an export.txt file to figure out what we need to load for this platform.
    * This is all duplicated from processing.app.Library / processing.app.Base,
@@ -266,14 +271,14 @@ class LibraryImporter {
    */
   private Map<String, String[]> parseExportTxt(final File exportTxt) throws Exception {
     log("Parsing " + exportTxt.getAbsolutePath());
-    
+
     final Properties exportProps = new Properties();
     try (final FileReader in = new FileReader(exportTxt)) {
       exportProps.load(in);
     }
-    
+
     final Map<String, String[]> exportTable = new HashMap<>();
-    
+
     for (final String platform : exportProps.stringPropertyNames()) {
       final String exportCSV = exportProps.getProperty(platform);
       final String[] exports = PApplet.splitTokens(exportCSV, ",");
@@ -343,7 +348,7 @@ class LibraryImporter {
   }
 
 
-  private static final Pattern validPythonIdentifier = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]+");
+  private static final Pattern validPythonIdentifier = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
 
   /*
   Then create and execute an import statement for each top-level, named class
@@ -359,7 +364,7 @@ class LibraryImporter {
     from com.foo import Banana
     from com.bar import Kiwi
   */
-  private void importPublicClassesFromJar(final File jarPath) throws IOException {
+  private void importPublicClassesFromJar(final File jarPath) {
     log("Importing public classes from " + jarPath.getAbsolutePath());
     try (final ZipFile file = new ZipFile(jarPath)) {
       final Enumeration<? extends ZipEntry> entries = file.entries();
@@ -396,6 +401,8 @@ class LibraryImporter {
         log(importStatement);
         interp.exec(importStatement);
       }
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
     }
   }
 }
