@@ -26,8 +26,10 @@
       You can specify the location of the Processing source code by passing
       it to ant via -Dprocessing=/path/to/processing
       By default, we'll look in a directory next to this one.
+      The same goes for processing-video (https://github.com/processing/processing-video).
   -->
   <property name="processing" value="../processing"/>
+  <property name="processing-video" value="../processing-video"/>
 
   <!-- for <if> and <foreach> tags. -->
   <taskdef
@@ -38,6 +40,7 @@
   <property name="corejar" value="${processing}/core/library/core.jar"/>
   <property name="jython" value="buildtime/lib/jython/jython.jar"/>
   <property name="jython.license" value="buildtime/lib/jython/LICENSE.txt"/>
+  <property name="guava" value="buildtime/lib/java/guava-17.0.jar"/>
 
   <taskdef name="bundleapp"
     classname="com.oracle.appbundler.AppBundlerTask"
@@ -89,12 +92,15 @@
 
    	<mkdir dir="${bundle}/mode" />
     <copy todir="${bundle}/mode" file="work/PythonMode.jar"/>
+    <copy todir="${bundle}/mode" file="${guava}"/>
     <copy todir="${bundle}/mode" file="${jython}"/>
     <copy tofile="${bundle}/mode/LICENSE.jython" file="${jython.license}"/>
 
     <copy todir="${bundle}">
       <fileset dir="mode/" />
     </copy>
+
+    <copy todir="${bundle}/theme" file="libraries/runtime/splash.png"/>
 
     <zip destfile="${bundle}/src.zip" basedir="."
         includes="runtime/src/**,testing/src/**,testing/resources/**"
@@ -129,6 +135,7 @@
   <target name="jar" depends="build">
     <jar destfile="work/processing-py.jar">
       <fileset dir="bin" excludes="jycessing/build/**,test/**"/>
+      <zipgroupfileset file="${guava}"/>
       <zipgroupfileset file="${jython}"/>
       <zipgroupfileset file="${corejar}"/>
       <zipgroupfileset file="${processing}/core/library/gluegen-rt.jar"/>
@@ -152,7 +159,7 @@
     </jar>
   </target>
 
-  <target name="build" depends="build-processing,build-pde">
+  <target name="build" depends="build-processing,build-pde,build-video">
     <mkdir dir="bin"/>
     <javac destdir="bin" includeantruntime="false">
       <src path="runtime/src"/>
@@ -160,6 +167,7 @@
         <pathelement location="${jython}"/>
         <pathelement location="${corejar}"/>
         <pathelement location="${pdejar}"/>
+        <pathelement location="${guava}"/>
       </classpath>
     </javac>
     <copy todir="bin">
@@ -195,20 +203,34 @@
     <echo message="Building processing." />
     <ant dir="${processing}/build" target="build" inheritAll="false"/>
   </target>
+  <target name="check-video-needs-build">
+    <uptodate property="video-is-uptodate"
+              targetfile="${processing-video}/library/video.jar">
+      <srcfiles dir="${processing-video}/src/processing/video"/>
+    </uptodate>
+  </target>
+  <target name="build-video"
+    depends="check-video-needs-build"
+    unless="video-is-uptodate">
+    <echo message="Building processing-video." />
+    <ant dir="${processing-video}" target="build"/>
+  </target>
 
-  <target name="clean">
-    <ant dir="${processing}/build" target="clean"/>
+  <target name="clean-self">
     <rm-rf target="bin"/>
     <rm-rf target="dist"/>
     <rm-rf target=".cache"/>
-    <rm-rf target="work"/>
-    <delete file="runtime/generated/jycessing/DriverImpl.java"/>
+    <rm-rf target="work"/> 
     <delete>
       <fileset dir="buildtime/py" includes="*.class"/>
     </delete>
     <exec executable="find" failonerror="true">
       <arg line=". -name .DS_Store -depth -exec rm {} ;"/>
     </exec>
+  </target>
+
+  <target name="clean" depends="clean-self">
+    <ant dir="${processing}/build" target="clean"/>
   </target>
 
   <!--
@@ -375,9 +397,14 @@
   </macrodef>
 
   <target name="check-for-platform-lib-cache">
-    <uptodate property="platform-lib-cache-exists"
-              srcfile="${processing}/core/library/gluegen-rt.jar"
-              targetfile=".cache/libs/${platform}/opengl/gluegen-rt.jar"/>
+    <condition property="platform-lib-cache-exists">
+      <and>
+        <uptodate srcfile="${processing}/core/library/gluegen-rt.jar"
+                  targetfile=".cache/libs/${platform}/opengl/gluegen-rt.jar"/>
+        <uptodate srcfile="${processing-video}/library/video.jar"
+                  targetfile=".cache/libs/${platform}/video/video.jar"/>
+      </and>
+    </condition>
   </target>
   <target name="platform-lib-cache"
       depends="check-for-platform-lib-cache"
@@ -389,13 +416,16 @@
     <copy todir="${cache}/opengl">
       <fileset dir="${processing}/core/library" includes="*.jar" excludes="core.jar"/>
     </copy>
+    <copy todir="${cache}/video">
+      <fileset dir="${processing-video}/library"
+               includes="*.txt,*.jar,${platform}/**,${platform}64/**"/>
+    </copy>
     <copy-processing-library dir="${cache}" library="dxf"/>
     <copy-processing-library dir="${cache}" library="lwjgl"/>
     <copy-processing-library dir="${cache}" library="minim"/>
     <copy-processing-library dir="${cache}" library="net"/>
     <copy-processing-library dir="${cache}" library="pdf"/>
     <copy-processing-library dir="${cache}" library="serial"/>
-    <copy-processing-library dir="${cache}" library="video"/>
   </target>
 
   <target name="make-one-distribution" depends="jar,platform-lib-cache">
@@ -488,6 +518,7 @@
 			<pathelement location="${processing}/core/library/gluegen-rt.jar"/>
 			<pathelement location="${processing}/core/library/jogl-all.jar"/>
 			<pathelement location="work/PythonMode.jar"/>
+			<pathelement location="${guava}"/>
 			<pathelement location="${jython}"/>
 			<pathelement location="testing/library/junit-4.11.jar"/>
 			<pathelement location="testing/library/hamcrest-core-1.3.jar"/>

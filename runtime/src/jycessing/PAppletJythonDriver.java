@@ -15,14 +15,45 @@
  */
 package jycessing;
 
+import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.Window;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.JFrame;
+
+import jycessing.IOUtil.ResourceReader;
+import jycessing.mode.run.WrappedPrintStream;
+import jycessing.mode.run.WrappedPrintStream.PushedOut;
+
 import org.python.antlr.ast.Global;
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
+import org.python.core.PyBaseCode;
 import org.python.core.PyBoolean;
 import org.python.core.PyCode;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
+import org.python.core.PyFunction;
 import org.python.core.PyIndentationError;
 import org.python.core.PyInteger;
 import org.python.core.PyJavaType;
@@ -39,26 +70,12 @@ import org.python.util.InteractiveConsole;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
+import processing.event.KeyEvent;
+import processing.event.MouseEvent;
 import processing.opengl.PShader;
 
-import java.awt.EventQueue;
-import java.awt.Window;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.swing.SwingUtilities;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
 /**
  *
@@ -68,8 +85,13 @@ import javax.swing.SwingUtilities;
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
 
-  private static final String GLOBAL_STATEMENT_TEXT = IOUtil.readResourceAsText(
-      PAppletJythonDriver.class, "add_global_statements.py");
+  private static final ResourceReader resourceReader =
+      new ResourceReader(PAppletJythonDriver.class);
+
+  private static final String AUTOGLOBAL_SCRIPT = resourceReader
+      .readText("add_global_statements.py");
+
+  private static final String DETECT_MODE_SCRIPT = resourceReader.readText("detect_sketch_mode.py");
 
   static {
     // There's some bug that I don't understand yet that causes the native file
@@ -83,11 +105,12 @@ public class PAppletJythonDriver extends PApplet {
   protected final InteractiveConsole interp;
   private final String pySketchPath;
   private final String programText;
+  private final WrappedPrintStream wrappedStdout;
 
   private final CountDownLatch finishedLatch = new CountDownLatch(1);
 
   private enum Mode {
-    STATIC, DRAW_LOOP
+    STATIC, ACTIVE, MIXED
   }
 
   // A static-mode sketch must be interpreted from within the setup() method.
@@ -95,27 +118,61 @@ public class PAppletJythonDriver extends PApplet {
   // definitions, which we then invoke during the run loop.
   private final Mode mode;
 
-  // The presence of either setup() or draw() indicates that this is not a
-  // static sketch.
-  private static final Pattern ACTIVE_METHOD_DEF = Pattern.compile(
-      "^def\\s+(setup|draw)\\s*\\(\\s*\\)\\s*:", Pattern.MULTILINE);
+  /**
+   * The Processing event handling functions can take 0 or 1 argument.
+   * This class represents such a function.
+   * <p>If the user did not implement the variant that takes an event,
+   * then we have to pass through to the super implementation, or else
+   * the zero-arg version won't get called.
+   */
+  private abstract class EventFunction<T> {
+    private final PyFunction func;
+    private final int argCount;
+
+    protected abstract void callSuper(T event);
+
+    public EventFunction(final String funcName) {
+      func = (PyFunction)interp.get(funcName);
+      argCount = func == null ? -1 : ((PyBaseCode)(func).__code__).co_argcount;
+    }
+
+    public void invoke() {
+      if (func != null && argCount == 0) {
+        func.__call__();
+      }
+    }
+
+    public void invoke(final T event) {
+      if (func != null && argCount == 1) {
+        func.__call__(Py.java2py(event));
+      } else {
+        callSuper(event);
+      }
+    }
+  }
 
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
-  private PyObject setupMeth, drawMeth, mousePressedMeth, mouseClickedMeth, mouseMovedMeth,
-      mouseReleasedMeth, mouseDraggedMeth, keyPressedMeth, keyReleasedMeth, keyTypedMeth, initMeth,
-      pauseMeth, resumeMeth, stopMeth, destroyMeth, sketchFullScreenMeth, sketchWidthMeth,
-      sketchHeightMeth, sketchRendererMeth;
+  private PyObject setupMeth, drawMeth, initMeth, pauseMeth, resumeMeth, stopMeth, destroyMeth,
+      sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
+  private EventFunction<KeyEvent> keyPressedFunc, keyReleasedFunc, keyTypedFunc;
+  private EventFunction<MouseEvent> mousePressedFunc, mouseClickedFunc, mouseMovedFunc,
+      mouseReleasedFunc, mouseDraggedFunc;
+  private PyObject mouseWheelMeth; // Can only be called with a MouseEvent; no need for shenanigans
 
   // Implement the Video library's callback.
   private PyObject captureEventMeth, movieEventMeth;
 
-  private void interpretSketch() throws PythonSketchError {
+  private SketchPositionListener sketchPositionListener;
+
+  private void processSketch(final String scriptSource) throws PythonSketchError {
     try {
+      /*
+       * Run the Python 
+       */
       interp.set("__processing_source__", programText);
       final PyCode code =
-          Py.compile_flags(GLOBAL_STATEMENT_TEXT, pySketchPath, CompileMode.exec,
-              new CompilerFlags());
+          Py.compile_flags(scriptSource, pySketchPath, CompileMode.exec, new CompilerFlags());
       interp.exec(code);
       Py.flushLine();
     } catch (Throwable t) {
@@ -125,6 +182,15 @@ public class PAppletJythonDriver extends PApplet {
       }
       throw toSketchException(t);
     }
+  }
+
+  /**
+   * Handy method for raising a Python exception in the current interpreter frame.
+   * @param msg TypeError message.
+   */
+  private PyObject raiseTypeError(final String msg) {
+    interp.exec(String.format("raise TypeError('%s')", msg.replace("'", "\\'")));
+    return Py.None;
   }
 
   private static PythonSketchError toSketchException(Throwable t) {
@@ -170,21 +236,69 @@ public class PAppletJythonDriver extends PApplet {
       }
       return new PythonSketchError(Py.formatException(e.type, e.value), file, line);
     }
-    return new PythonSketchError(t.getClass().getSimpleName() + ": " + t.getMessage());
+    final StringWriter stackTrace = new StringWriter();
+    t.printStackTrace(new PrintWriter(stackTrace));
+    return new PythonSketchError(stackTrace.toString());
   }
 
   private static PythonSketchError extractSketchErrorFromPyExceptionValue(final PyTuple tup) {
-    final String message = maybeMakeFriendlyMessage((String)tup.get(0));
+    final String pyMessage = (String)tup.get(0);
+    final String message = maybeMakeFriendlyMessage(pyMessage);
     final PyTuple context = (PyTuple)tup.get(1);
-    final String file = new File((String)context.get(0)).getName();
+    final File file = new File((String)context.get(0));
+    final String fileName = file.getName();
     final int line = ((Integer)context.get(1)).intValue() - 1;
     final int column = ((Integer)context.get(2)).intValue();
-    return new PythonSketchError(message, file, line, column);
+    if (pyMessage.startsWith("no viable alternative")) {
+      return noViableAlternative(file, line, column);
+    }
+
+    return new PythonSketchError(message, fileName, line, column);
+  }
+
+  private static final Pattern NAKED_COLOR = Pattern.compile("[(,]\\s*#([0-9a-fA-F]{6})\\b");
+
+  /**
+   * The message "no vialble alternative" is a strong indication that there's an unclosed
+   * paren somewhere before the triggering line. Maybe the user tried to specify a color
+   * as in Java Processing, like <code>fill(#FFAA55)</code>, which Python sees as an open
+   * paren followed by a comment.
+   * <p>This function takes a stab at finding such a thing, and reporting it. Otherwise,
+   * it throws a slightly less cryptic error message.
+   * @param file
+   * @param line
+   * @param column
+   * @return
+   */
+  private static PythonSketchError noViableAlternative(final File file, final int lineNo,
+      final int column) {
+    final PythonSketchError defaultException =
+        new PythonSketchError(
+            "Maybe there's an unclosed paren or quote mark somewhere before this line?",
+            file.getName(), lineNo, column);
+    try {
+      int lineIndex = 0;
+      for (final String line : Files.readLines(file, Charsets.UTF_8)) {
+        final Matcher m = NAKED_COLOR.matcher(line);
+        if (m.find()) {
+          final String color = m.group(1);
+          return new PythonSketchError("Did you try to name a color here? "
+              + "Colors in Python mode are either strings, like '#" + color + "', or "
+              + "large hex integers, like 0xFF" + color.toUpperCase() + ".", file.getName(),
+              lineIndex, m.start(1));
+        }
+        lineIndex++;
+      }
+    } catch (final IOException e) {
+      System.err.println("While trying to read " + file + ": " + e.getMessage());
+      return defaultException;
+    }
+    return defaultException;
   }
 
   private static String maybeMakeFriendlyMessage(final String message) {
     if (message.contains("expecting INDENT")) {
-      return "This line needs be indented.";
+      return "This line probably needs to be indented.";
     }
     if (message.contains("mismatched input '//'")) {
       return "Did you mean to make a comment? "
@@ -193,15 +307,26 @@ public class PAppletJythonDriver extends PApplet {
     return message;
   }
 
-  public PAppletJythonDriver(final InteractiveConsole interp, final String sketchPath,
-      final String programText) {
+  public PAppletJythonDriver(final InteractiveConsole interp, final String pySketchPath,
+      final String programText, final Printer stdout) throws PythonSketchError {
+    this.wrappedStdout = new WrappedPrintStream(System.out) {
+      @Override
+      public void doPrint(final String s) {
+        stdout.print(s);
+      }
+    };
     this.programText = programText;
-    this.pySketchPath = sketchPath;
-    this.sketchPath = new File(sketchPath).getParent();
-    this.mode = ACTIVE_METHOD_DEF.matcher(programText).find() ? Mode.DRAW_LOOP : Mode.STATIC;
-    Runner.log("Mode: ", mode.name());
-    this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
+    this.pySketchPath = pySketchPath;
     this.interp = interp;
+    this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
+
+    processSketch(DETECT_MODE_SCRIPT);
+    this.mode = Mode.valueOf(interp.get("__mode__").asString());
+    Runner.log("Mode: ", mode.name());
+    if (mode == Mode.MIXED) {
+      throw new MixedModeError();
+    }
+
     initializeStatics(builtins);
     setFilter();
     setMap();
@@ -241,24 +366,67 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   public void findSketchMethods() throws PythonSketchError {
-    if (mode == Mode.DRAW_LOOP) {
+    if (mode == Mode.ACTIVE) {
       // Executing the sketch will bind method names ("draw") to PyCode
       // objects (the sketch's draw method), which can then be invoked
       // during the run loop
-      interpretSketch();
+      processSketch(AUTOGLOBAL_SCRIPT);
     }
 
     // Find and cache any PApplet callbacks defined in the Python sketch
     drawMeth = interp.get("draw");
     setupMeth = interp.get("setup");
-    mousePressedMeth = interp.get("mousePressed");
-    mouseClickedMeth = interp.get("mouseClicked");
-    mouseMovedMeth = interp.get("mouseMoved");
-    mouseReleasedMeth = interp.get("mouseReleased");
-    mouseDraggedMeth = interp.get("mouseDragged");
-    keyPressedMeth = interp.get("keyPressed");
-    keyReleasedMeth = interp.get("keyReleased");
-    keyTypedMeth = interp.get("keyTyped");
+
+    mousePressedFunc = new EventFunction<MouseEvent>("mousePressed") {
+      @Override
+      protected void callSuper(final MouseEvent event) {
+        PAppletJythonDriver.super.mousePressed(event);
+      }
+    };
+    mouseClickedFunc = new EventFunction<MouseEvent>("mouseClicked") {
+      @Override
+      protected void callSuper(final MouseEvent event) {
+        PAppletJythonDriver.super.mouseClicked(event);
+      }
+    };
+    mouseMovedFunc = new EventFunction<MouseEvent>("mouseMoved") {
+      @Override
+      protected void callSuper(final MouseEvent event) {
+        PAppletJythonDriver.super.mouseMoved(event);
+      }
+    };
+    mouseReleasedFunc = new EventFunction<MouseEvent>("mouseReleased") {
+      @Override
+      protected void callSuper(final MouseEvent event) {
+        PAppletJythonDriver.super.mouseReleased(event);
+      }
+    };
+    mouseDraggedFunc = new EventFunction<MouseEvent>("mouseDragged") {
+      @Override
+      protected void callSuper(final MouseEvent event) {
+        PAppletJythonDriver.super.mouseDragged(event);
+      }
+    };
+
+    keyPressedFunc = new EventFunction<KeyEvent>("keyPressed") {
+      @Override
+      protected void callSuper(final KeyEvent event) {
+        PAppletJythonDriver.super.keyPressed(event);
+      }
+    };
+    keyReleasedFunc = new EventFunction<KeyEvent>("keyReleased") {
+      @Override
+      protected void callSuper(final KeyEvent event) {
+        PAppletJythonDriver.super.keyReleased(event);
+      }
+    };
+    keyTypedFunc = new EventFunction<KeyEvent>("keyTyped") {
+      @Override
+      protected void callSuper(final KeyEvent event) {
+        PAppletJythonDriver.super.keyTyped(event);
+      }
+    };
+
     sketchFullScreenMeth = interp.get("sketchFullScreen");
     sketchWidthMeth = interp.get("sketchWidth");
     sketchHeightMeth = interp.get("sketchHeight");
@@ -268,7 +436,8 @@ public class PAppletJythonDriver extends PApplet {
     pauseMeth = interp.get("pause");
     resumeMeth = interp.get("resume");
     destroyMeth = interp.get("destroy");
-    if (mousePressedMeth != null) {
+    mouseWheelMeth = interp.get("mouseWheel");
+    if (mousePressedFunc.func != null) {
       // The user defined a mousePressed() method, which will hide the magical
       // Processing variable boolean mousePressed. We have to do some magic.
       interp.getLocals().__setitem__("mousePressed", new PyBoolean(false) {
@@ -279,7 +448,7 @@ public class PAppletJythonDriver extends PApplet {
 
         @Override
         public PyObject __call__(final PyObject[] args, final String[] kws) {
-          return mousePressedMeth.__call__(args, kws);
+          return mousePressedFunc.func.__call__(args, kws);
         }
       });
     }
@@ -320,8 +489,11 @@ public class PAppletJythonDriver extends PApplet {
   protected void wrapProcessingVariables() {
     wrapMouseVariables();
     wrapKeyVariables();
+    builtins.__setitem__("width", pyint(width));
+    builtins.__setitem__("height", pyint(height));
     builtins.__setitem__("displayWidth", pyint(displayWidth));
     builtins.__setitem__("displayHeight", pyint(displayHeight));
+    builtins.__setitem__("focused", Py.newBoolean(focused));
     builtins.__setitem__("keyPressed", Py.newBoolean(keyPressed));
     builtins.__setitem__("frameCount", pyint(frameCount));
     builtins.__setitem__("frameRate", new PyFloat(frameRate) {
@@ -329,8 +501,7 @@ public class PAppletJythonDriver extends PApplet {
       public PyObject __call__(final PyObject[] args, final String[] kws) {
         switch (args.length) {
           default:
-            throw new RuntimeException("Can't call \"frameRate\" with " + args.length
-                + " parameters.");
+            return raiseTypeError("Can't call \"frameRate\" with " + args.length + " parameters.");
           case 1:
             frameRate((float)args[0].asDouble());
             return Py.None;
@@ -363,7 +534,7 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("pmouseX", pyint(pmouseX));
     builtins.__setitem__("pmouseY", pyint(pmouseY));
     builtins.__setitem__("mouseButton", pyint(mouseButton));
-    if (mousePressedMeth == null) {
+    if (mousePressedFunc.func == null) {
       builtins.__setitem__("mousePressed", Py.newBoolean(mousePressed));
     }
   }
@@ -376,6 +547,11 @@ public class PAppletJythonDriver extends PApplet {
       @Override
       public void uncaughtException(final Thread t, final Throwable e) {
         terminalException = toSketchException(e);
+        try {
+          handleMethods("dispose");
+        } catch (final Exception noop) {
+          // give up
+        }
         finishedLatch.countDown();
       }
     });
@@ -396,16 +572,35 @@ public class PAppletJythonDriver extends PApplet {
 
   public void runAndBlock(final String[] args) throws PythonSketchError {
     PApplet.runSketch(args, this);
+    // Thank you, rogerdpack.
+    // http://stackoverflow.com/a/596141
+    // This brings the sketch window to front!
     EventQueue.invokeLater(new Runnable() {
       @Override
       public void run() {
+        frame.setVisible(true);
+        int state = frame.getExtendedState();
+        state &= ~JFrame.ICONIFIED;
+        frame.setExtendedState(state);
+        frame.setAlwaysOnTop(true);
         frame.toFront();
+        frame.requestFocus();
+        frame.setAlwaysOnTop(false);
+        requestFocus();
       }
     });
     frame.addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(final WindowEvent e) {
         exit();
+      }
+    });
+    frame.addComponentListener(new ComponentAdapter() {
+      @Override
+      public void componentMoved(final ComponentEvent e) {
+        if (sketchPositionListener != null) {
+          sketchPositionListener.sketchMoved(((Component)e.getSource()).getLocation());
+        }
       }
     });
     try {
@@ -419,10 +614,36 @@ public class PAppletJythonDriver extends PApplet {
         // fallthrough
       }
     } finally {
-      ((Window)SwingUtilities.getRoot(this)).dispose();
+      if (PApplet.platform == PApplet.MACOSX
+          && Arrays.asList(args).contains(PApplet.ARGS_FULL_SCREEN)) {
+        // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm
+        // exits or we explicitly tell it to minimize.
+        // (If it's disposed, it'll leave a gray blank window behind it.)
+        Runner.log("Disabling fullscreen.");
+        macosxFullScreenToggle(frame);
+      }
+      frame.dispose();
     }
     if (terminalException != null) {
       throw terminalException;
+    }
+  }
+
+  /**
+   * Use reflection to call
+   * <code>com.apple.eawt.Application.getApplication().requestToggleFullScreen(window);</code>
+   */
+  static private void macosxFullScreenToggle(final Window window) {
+    try {
+      final Class<?> appClass = Class.forName("com.apple.eawt.Application");
+      final Method getAppMethod = appClass.getMethod("getApplication");
+      final Object app = getAppMethod.invoke(null);
+      final Method requestMethod = appClass.getMethod("requestToggleFullScreen", Window.class);
+      requestMethod.invoke(app, window);
+    } catch (final ClassNotFoundException cnfe) {
+      // ignored
+    } catch (final Exception e) {
+      e.printStackTrace();
     }
   }
 
@@ -556,7 +777,7 @@ public class PAppletJythonDriver extends PApplet {
     try {
       return 0xFF000000 | Integer.decode(argbSpec);
     } catch (final NumberFormatException e) {
-      throw new RuntimeException("I can't understand \"" + argbSpec + "\" as a color.");
+      return raiseTypeError("I can't understand \"" + argbSpec + "\" as a color.").asInt();
     }
   }
 
@@ -593,7 +814,7 @@ public class PAppletJythonDriver extends PApplet {
             return pyint(lerpColor(c1, c2, amt, colorMode));
             //$FALL-THROUGH$
           default:
-            throw new RuntimeException("lerpColor takes either 3 or 4 arguments, but I got "
+            return raiseTypeError("lerpColor takes either 3 or 4 arguments, but I got "
                 + args.length + ".");
         }
       }
@@ -650,25 +871,31 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("text", new PyObject() {
       @Override
       public PyObject __call__(final PyObject[] args, final String[] kws) {
+        if (args.length < 3 || args.length > 5) {
+          raiseTypeError("text() takes 3-5 arguments, but I got " + args.length + ".");
+        }
         final PyObject a = args[0];
         final float x1 = (float)args[1].asDouble();
         final float y1 = (float)args[2].asDouble();
         if (args.length == 3) {
           if (isString(a)) {
             text(a.asString(), x1, y1);
+          } else if (a.getType() == PyInteger.TYPE) {
+            text(a.asInt(), x1, y1);
           } else {
             text((float)a.asDouble(), x1, y1);
           }
         } else if (args.length == 4) {
+          final float z1 = (float)args[3].asDouble();
           if (isString(a)) {
-            text(a.asString(), x1, y1, (float)args[3].asDouble());
+            text(a.asString(), x1, y1, z1);
+          } else if (a.getType() == PyInteger.TYPE) {
+            text(a.asInt(), x1, y1, z1);
           } else {
-            text((float)a.asDouble(), x1, y1, (float)args[3].asDouble());
+            text((float)a.asDouble(), x1, y1, z1);
           }
-        } else if (args.length == 5) {
+        } else /* 5 */{
           text(a.asString(), x1, y1, (float)args[3].asDouble(), (float)args[4].asDouble());
-        } else {
-          throw new RuntimeException("text() takes 3-5 arguments, but I got " + args.length + ".");
         }
         return Py.None;
       }
@@ -726,7 +953,7 @@ public class PAppletJythonDriver extends PApplet {
       if (mode == Mode.STATIC) {
         // A static sketch gets called once, from this spot.
         Runner.log("Interpreting static-mode sketch.");
-        interpretSketch();
+        processSketch(AUTOGLOBAL_SCRIPT);
       } else if (setupMeth != null) {
         // Call the Python sketch's setup()
         setupMeth.__call__();
@@ -742,7 +969,6 @@ public class PAppletJythonDriver extends PApplet {
   public void draw() {
     wrapProcessingVariables();
     if (drawMeth == null) {
-      Runner.log("Calling super.draw() in what I assume is a static-mode sketch.");
       super.draw();
     } else if (!finished) {
       drawMeth.__call__();
@@ -793,83 +1019,108 @@ public class PAppletJythonDriver extends PApplet {
 
   @Override
   public void mouseClicked() {
-    if (mouseClickedMeth == null) {
-      super.mouseClicked();
-    } else {
-      wrapMouseVariables();
-      mouseClickedMeth.__call__();
-    }
+    wrapMouseVariables();
+    mouseClickedFunc.invoke();
+  }
+
+  @Override
+  public void mouseClicked(final MouseEvent e) {
+    wrapMouseVariables();
+    mouseClickedFunc.invoke(e);
   }
 
   @Override
   public void mouseMoved() {
-    if (mouseMovedMeth == null) {
-      super.mouseMoved();
-    } else {
-      wrapMouseVariables();
-      mouseMovedMeth.__call__();
-    }
+    wrapMouseVariables();
+    mouseMovedFunc.invoke();
   }
 
+  @Override
+  public void mouseMoved(final MouseEvent e) {
+    wrapMouseVariables();
+    mouseMovedFunc.invoke(e);
+  }
 
   @Override
   public void mousePressed() {
-    if (mousePressedMeth == null) {
-      super.mousePressed();
-    } else {
-      wrapMouseVariables();
-      mousePressedMeth.__call__();
-    }
+    wrapMouseVariables();
+    mousePressedFunc.invoke();
+  }
+
+  @Override
+  public void mousePressed(final MouseEvent e) {
+    wrapMouseVariables();
+    mousePressedFunc.invoke(e);
   }
 
   @Override
   public void mouseReleased() {
-    if (mouseReleasedMeth == null) {
-      super.mouseReleased();
-    } else {
-      wrapMouseVariables();
-      mouseReleasedMeth.__call__();
-    }
+    wrapMouseVariables();
+    mouseReleasedFunc.invoke();
   }
 
   @Override
+  public void mouseReleased(final MouseEvent e) {
+    wrapMouseVariables();
+    mouseReleasedFunc.invoke(e);
+  }
+
+
+  @Override
   public void mouseDragged() {
-    if (mouseDraggedMeth == null) {
-      super.mouseDragged();
-    } else {
+    wrapMouseVariables();
+    mouseDraggedFunc.invoke();
+  }
+
+  @Override
+  public void mouseDragged(final MouseEvent e) {
+    wrapMouseVariables();
+    mouseDraggedFunc.invoke(e);
+  }
+
+  @Override
+  public void mouseWheel(final MouseEvent e) {
+    if (mouseWheelMeth != null) {
       wrapMouseVariables();
-      mouseDraggedMeth.__call__();
+      mouseWheelMeth.__call__(Py.java2py(e));
     }
   }
 
   @Override
   public void keyPressed() {
-    if (keyPressedMeth == null) {
-      super.keyPressed();
-    } else {
-      wrapKeyVariables();
-      keyPressedMeth.__call__();
-    }
+    wrapKeyVariables();
+    keyPressedFunc.invoke();
+  }
+
+  @Override
+  public void keyPressed(final KeyEvent e) {
+    wrapKeyVariables();
+    keyPressedFunc.invoke(e);
   }
 
   @Override
   public void keyReleased() {
-    if (keyReleasedMeth == null) {
-      super.keyReleased();
-    } else {
-      wrapKeyVariables();
-      keyReleasedMeth.__call__();
-    }
+    wrapKeyVariables();
+    keyReleasedFunc.invoke();
   }
 
   @Override
+  public void keyReleased(final KeyEvent e) {
+    wrapKeyVariables();
+    keyReleasedFunc.invoke(e);
+  }
+
+
+  @Override
   public void keyTyped() {
-    if (keyTypedMeth == null) {
-      super.keyTyped();
-    } else {
-      wrapKeyVariables();
-      keyTypedMeth.__call__();
-    }
+    wrapKeyVariables();
+    keyTypedFunc.invoke();
+  }
+
+  @Override
+  public void keyTyped(final KeyEvent e) {
+    wrapKeyVariables();
+    keyTypedFunc.invoke(e);
   }
 
   @Override
@@ -952,6 +1203,31 @@ public class PAppletJythonDriver extends PApplet {
     super.selectOutput(prompt, "handleCallback", file, new FileSelectCallbackProxy(callback));
   }
 
+  // Some PApplet builtins print directly to stdout rather than using PApplet's print()
+  @Override
+  public void printMatrix() {
+    try (PushedOut w = wrappedStdout.pushStdout()) {
+      super.printMatrix();
+    }
+  }
+
+  @Override
+  public void printCamera() {
+    try (PushedOut w = wrappedStdout.pushStdout()) {
+      super.printCamera();
+    }
+  }
+
+  @Override
+  public void printProjection() {
+    try (PushedOut w = wrappedStdout.pushStdout()) {
+      super.printProjection();
+    }
+  }
+
+  // TODO(feinberg): Patch PApplet to make printArray non-static, so we can
+  // implement it here.
+
   // Video library callbacks.
   public void captureEvent(final Object capture) {
     if (captureEventMeth != null) {
@@ -965,15 +1241,13 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
-  // These two functions are a workaround for a Jython bug that prevents the print statement
-  // from using the stdout and stderr set on the interpreter. See core.py.
-  public void printout(final Object o) {
-    System.out.print(String.valueOf(o));
-    System.out.flush();
+  public void setSketchPositionListener(final SketchPositionListener sketchPositionListener) {
+    this.sketchPositionListener = sketchPositionListener;
   }
 
-  public void printerr(final Object o) {
-    System.err.print(String.valueOf(o));
-    System.err.flush();
-  }
+  /**
+   * Replace PApplet's behavior, since we don't use the __MOVE__ thingy.
+   */
+  @Override
+  public void setupExternalMessages() {}
 }

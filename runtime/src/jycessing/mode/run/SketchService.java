@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface SketchService extends Remote {
-  void startSketch(SketchInfo info) throws RemoteException;
+  void startSketch(PdeSketch sketch) throws RemoteException;
 
   void stopSketch() throws RemoteException;
 

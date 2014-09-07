@@ -1,10 +1,12 @@
 package jycessing.mode.run;
 
-import java.io.PrintStream;
+import java.awt.Point;
 import java.rmi.RemoteException;
 
+import jycessing.Printer;
 import jycessing.PythonSketchError;
 import jycessing.Runner;
+import jycessing.SketchPositionListener;
 import jycessing.mode.PythonMode;
 import jycessing.mode.run.RMIUtils.RMIProblem;
 import processing.app.SketchException;
@@ -35,7 +37,7 @@ public class SketchRunner implements SketchService {
       public void run() {
         Runner.warmup();
       }
-    }, "SketchRuner Warmup Thread").start();
+    }, "SketchRunner Warmup Thread").start();
   }
 
   /**
@@ -73,36 +75,55 @@ public class SketchRunner implements SketchService {
   }
 
   @Override
-  public void startSketch(final SketchInfo info) {
+  public void startSketch(final PdeSketch sketch) {
     runner = new Thread(new Runnable() {
       @Override
       public void run() {
         try {
           try {
-            final PrintStream syserr = System.err;
-            final PrintStream sysout = System.out;
-            System.setErr(new ForwardingPrintStream(id, modeService, Stream.ERR));
-            try {
-              System.setOut(new ForwardingPrintStream(id, modeService, Stream.OUT));
-              try {
-                Runner.runSketchBlocking(info);
-              } finally {
-                System.setOut(sysout);
+            final Printer stdout = new Printer() {
+              @Override
+              public void print(final Object o) {
+                try {
+                  modeService.printStdOut(id, String.valueOf(o));
+                } catch (final RemoteException e) {
+                  System.err.println(e);
+                }
               }
-            } finally {
-              System.setErr(syserr);
-            }
+            };
+            final Printer stderr = new Printer() {
+              @Override
+              public void print(final Object o) {
+                try {
+                  modeService.printStdErr(id, String.valueOf(o));
+                } catch (final RemoteException e) {
+                  System.err.println(e);
+                }
+              }
+            };
+            final SketchPositionListener sketchPositionListener = new SketchPositionListener() {
+              @Override
+              public void sketchMoved(final Point leftTop) {
+                try {
+                  modeService.handleSketchMoved(id, leftTop);
+                } catch (final RemoteException e) {
+                  System.err.println(e);
+                }
+              }
+            };
+            Runner.runSketchBlocking(sketch, stdout, stderr, sketchPositionListener);
           } catch (final PythonSketchError e) {
             log("Sketch runner caught " + e);
-            modeService.handleSketchException(id, convertPythonSketchError(e, info.codeFileNames));
+            modeService.handleSketchException(id, convertPythonSketchError(e, sketch.codeFileNames));
           } catch (final Exception e) {
             if (e.getCause() != null && e.getCause() instanceof PythonSketchError) {
               modeService.handleSketchException(id,
-                  convertPythonSketchError((PythonSketchError)e.getCause(), info.codeFileNames));
+                  convertPythonSketchError((PythonSketchError)e.getCause(), sketch.codeFileNames));
             } else {
               modeService.handleSketchException(id, e);
             }
           } finally {
+            log("Handling sketch stoppage...");
             modeService.handleSketchStopped(id);
           }
         } catch (final RemoteException e) {

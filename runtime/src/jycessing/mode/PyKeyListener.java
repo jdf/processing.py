@@ -100,8 +100,7 @@ public class PyKeyListener extends PdeKeyListener {
 
       case KeyEvent.VK_ENTER: // return
         final String text = textArea.getText(); // text
-        final int cursor = thisPos;
-        textArea.setSelectedText(getIndent(cursor, text));
+        textArea.setSelectedText(newline());
         break;
     }
 
@@ -243,6 +242,13 @@ public class PyKeyListener extends PdeKeyListener {
   private static final Pattern TERMINAL_COLON = Pattern.compile(":\\s*(#.*)?$");
   private static final Pattern POP_CONTEXT = Pattern.compile("^\\s*(return|break|continue)\\b");
 
+  private boolean isOpen(final char c) {
+    return c == '(' || c == '[' || c == '{';
+  }
+
+  private boolean isClose(final char c) {
+    return c == ')' || c == ']' || c == '}';
+  }
 
   /**
    * Search for an unterminated paren or bracket. If found, return
@@ -253,14 +259,16 @@ public class PyKeyListener extends PdeKeyListener {
    * @param text The text to search for an unterminated paren or bracket.
    * @return The index of the unterminated paren, or -1.
    */
-  private int indexOfUnclosedParen(final int cursor, final String text) {
+  private int indexOfUnclosedParen() {
+    final int cursor = textArea.getCaretPosition();
+    final String text = textArea.getText();
     final Stack<Integer> stack = new Stack<Integer>();
     int column = 0;
     for (int i = 0; i < cursor; i++) {
       final char c = text.charAt(i);
-      if (c == '(' || c == '[' || c == '{') {
+      if (isOpen(c)) {
         stack.push(column);
-      } else if (c == ')' || c == ']' || c == '}') {
+      } else if (isClose(c)) {
         if (stack.size() == 0) {
           // Syntax error; bail.
           return -1;
@@ -277,46 +285,84 @@ public class PyKeyListener extends PdeKeyListener {
     return stack.size() > 0 ? stack.pop() : -1;
   }
 
-  private String getIndent(final int cursor, final String text) {
+  private String indentOf(final String line) {
+    final Matcher m = INITIAL_WHITESPACE.matcher(line);
+    if (!m.find()) {
+      throw new AssertionError("How can there be nothing?");
+    }
+    return m.group();
+  }
+
+  private String getInitialWhitespace() {
+    final String text = textArea.getText();
+    final int cursor = textArea.getCaretPosition();
+    final int lineNumber = textArea.getLineOfOffset(cursor);
+    final int lineStart = textArea.getLineStartOffset(lineNumber);
+    final int lineEnd = textArea.getLineStopOffset(lineNumber);
+    final String line = textArea.getLineText(lineNumber);
+
+    final String defaultIndent = indentOf(line);
+
+    // Search for an unmatched closing paren on this line.
+    int balance = 0;
+    for (int i = cursor - 1; i >= lineStart; i--) {
+      if (isClose(text.charAt(i))) {
+        balance++;
+      } else if (isOpen(text.charAt(i))) {
+        balance--;
+      }
+    }
+    if (balance == 0) {
+      return defaultIndent;
+    }
+    if (balance > 0) {
+      int index = lineStart - 1;
+      while (balance > 0 && index >= 0) {
+        if (isClose(text.charAt(index))) {
+          balance++;
+        } else if (isOpen(text.charAt(index))) {
+          balance--;
+        }
+        index--;
+      }
+      if (balance != 0) {
+        // Syntax error
+        return defaultIndent;
+      }
+      return indentOf(textArea.getLineText(textArea.getLineOfOffset(index)));
+    }
+    final int parenColumn = indexOfUnclosedParen();
+    if (parenColumn > -1) {
+      return nSpaces(parenColumn + 1);
+    }
+    return defaultIndent;
+  }
+
+  private String newline() {
+    final int cursor = textArea.getCaretPosition();
+
     if (cursor <= 1) {
       return "\n";
     }
 
-    int lineStart = cursor;
-    while (lineStart > 0 && text.charAt(lineStart - 1) != '\n') {
-      lineStart--;
+    final int lineNumber = textArea.getLineOfOffset(cursor);
+    final int lineStart = textArea.getLineStartOffset(lineNumber);
+    final String line = textArea.getLineText(lineNumber);
+    final String initialWhitespace = getInitialWhitespace();
+
+    final String lineTextBeforeCursor = line.substring(0, cursor - lineStart);
+    if (Pattern.matches("\\s*", lineTextBeforeCursor)) {
+      return "\n" + initialWhitespace;
     }
 
-    int lineEnd = cursor - 1;
-    while (lineEnd < text.length() && text.charAt(lineEnd) != '\n') {
-      lineEnd++;
-    }
-
-    if (lineEnd <= lineStart) {
-      return "\n";
-    }
-
-    final String line = text.substring(lineStart, lineEnd);
-
-    final Matcher f = INITIAL_WHITESPACE.matcher(line);
-    if (!f.find()) {
-      throw new AssertionError("How can there be nothing?");
-    }
-    final String initialWhitespace = f.group();
     if (TERMINAL_COLON.matcher(line).find()) {
-      // This isn't right, yet. If there's an unbalanced close paren
-      // on the colon line, we have to search back for the indent of
-      // the line where the paren is opened!
       return "\n" + initialWhitespace + TAB;
     }
+    // TODO: popping context on return should return to the indent of the last def.
     if (POP_CONTEXT.matcher(line).find()) {
       final int currentIndentLength = initialWhitespace.length();
       final int spaceCount = Math.max(0, currentIndentLength - 4);
       return "\n" + nSpaces(spaceCount);
-    }
-    final int parenColumn = indexOfUnclosedParen(cursor, text);
-    if (parenColumn > -1) {
-      return "\n" + nSpaces(parenColumn + 1);
     }
     return "\n" + initialWhitespace;
   }

@@ -53,10 +53,12 @@ public class RMIUtils {
   public static void bind(final Remote remote, final Class<? extends Remote> remoteInterface)
       throws RMIProblem {
     final String registryKey = remoteInterface.getSimpleName();
-    log("Binding instance of " + remote.getClass().getName() + " to registry as " + registryKey);
     try {
       final Remote stub = export(remote);
+      log("Attempting to bind instance of " + remote.getClass().getName() + " to registry as "
+          + registryKey);
       registry().bind(registryKey, stub);
+      log("Bound.");
       Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
         @Override
         public void run() {

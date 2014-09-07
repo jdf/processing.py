@@ -1,11 +1,9 @@
 # We expose many Processing-related names as builtins, so that no imports
 # are necessary, even in auxilliary modules.
 import __builtin__
+import os.path
 
-# PAppletJythonDriver is a PApplet that knows how to interpret a Python
-# Processing sketch, and which delegates Processing callbacks (such as
-# setup(), draw(), keyPressed(), etc.) to the appropriate Python code.
-from jycessing import PAppletJythonDriver
+from numbers import Number
 
 # Bring all of the core Processing classes by name into the builtin namespace.
 from processing.core import PApplet
@@ -86,35 +84,119 @@ __builtin__.PShapeOpenGL = PShapeOpenGL
 from processing.opengl import Texture
 __builtin__.Texture = Texture
 
-
+from processing.data import Table
+__builtin__.Table = Table
 
 # PVector requires special handling, because it exposes the same method names
 # as static methods and instance methods.
 from processing.core import PVector as __pvector__
-class PVector(object):
-    @classmethod
-    def __new__(cls, *args):
-        return __pvector__(*args[1:])
+class PVector(__pvector__):
+    def __instance_add__(self, *args):
+        if len(args) == 1:
+            v = args[0]
+            self.x += v.x
+            self.y += v.y
+            self.z += v.z
+        else:
+            self.x += args[0]
+            self.y += args[1]
+            self.z += args[2]
+        
+    def __instance_sub__(self, *args):
+        if len(args) == 1:
+            v = args[0]
+            self.x -= v.x
+            self.y -= v.y
+            self.z -= v.z
+        else:
+            self.x -= args[0]
+            self.y -= args[1]
+            self.z -= args[2]
+
+    def __instance_mult__(self, o):
+        PVector.mult(self, o, self)
+
+    def __instance_div__(self, f):
+        PVector.div(self, f, self)
+
+    def __instance_cross__(self, o):
+        return PVector.cross(self, o, self)
+
+    def __instance_dist__(self, o):
+        return PVector.dist(self, o)
+
+    def __instance_dot__(self, *args):
+        if len(args) == 1:
+            v = args[0]
+            return self.x * v.x + self.y * v.y + self.z * v.z
+        return self.x * args[0] + self.y * args[1] + self.z * args[2]
+
+    def __instance_lerp__(self, *args):
+        if len(args) == 4:
+            x = args[0]
+            y = args[1]
+            z = args[2]
+            t = args[3]
+        elif len(args) == 2:
+            v = args[0]
+            x = v.x
+            y = v.y
+            z = v.z
+            t = args[1]
+        else:
+            raise Exception('lerp takes either (x, y, z, t) or (v, t)')
+        __pvector__.lerp(self, x, y, z, t)
+
+    def __init__(self, x=0, y=0, z=0):
+        __pvector__.__init__(self, x, y, z)
+        self.add = self.__instance_add__
+        self.sub = self.__instance_sub__
+        self.mult = self.__instance_mult__
+        self.div = self.__instance_div__
+        self.cross = self.__instance_cross__
+        self.dist = self.__instance_dist__
+        self.dot = self.__instance_dot__
+        self.lerp = self.__instance_lerp__
+
+    def get(self):
+        return PVector(self.x, self.y, self.z)
+
+    def copy(self):
+        return PVector(self.x, self.y, self.z)
+
+    def __copy__(self):
+        return PVector(self.x, self.y, self.z)
+
+    def __deepcopy__(self, memo):
+        return PVector(self.x, self.y, self.z)
 
     @classmethod
     def add(cls, a, b, dest=None):
-        return __pvector__.add(a, b, dest)
-
+        if dest is None:
+            return PVector(a.x + b.x, a.y + b.y, a.z + b.z)
+        dest.set(a.x + b.x, a.y + b.y, a.z + b.z)
+        return dest
+    
     @classmethod
     def sub(cls, a, b, dest=None):
-        return __pvector__.sub(a, b, dest)
+        if dest is None:
+            return PVector(a.x - b.x, a.y - b.y, a.z - b.z)
+        dest.set(a.x - b.x, a.y - b.y, a.z - b.z)
+        return dest
 
     @classmethod
     def mult(cls, a, b, dest=None):
-        return __pvector__.mult(a, float(b), dest)
+        if dest is None:
+            return PVector(a.x * b, a.y * b, a.z * b)
+        dest.set(a.x * b, a.y * b, a.z * b)
+        return dest
 
     @classmethod
     def div(cls, a, b, dest=None):
-        return __pvector__.div(a, float(b), dest)
-
-    @classmethod
-    def cross(cls, a, b, dest=None):
-        return __pvector__.cross(a, b, dest)
+        if dest is None:
+            return PVector(a.x / b, a.y / b, a.z / b)
+        dest.set(a.x / b, a.y / b, a.z / b)
+        return dest
 
     @classmethod
     def dist(cls, a, b):
@@ -125,110 +207,80 @@ class PVector(object):
         return __pvector__.dot(a, b)
 
     @classmethod
-    def angleBetween(cls, a, b):
-        return __pvector__.angleBetween(a, b)
+    def lerp(cls, a, b, f):
+        v = a.copy()
+        v.lerp(b, f)
+        return v
 
     @classmethod
-    def random2D(cls):
-        return __pvector__.random2D()
+    def cross(cls, a, b, dest=None):
+        x = a.y * b.z - b.y * a.z
+        y = a.z * b.x - b.z * a.x
+        z = a.x * b.y - b.x * a.y
+        if dest is None:
+            return PVector(x, y, z)
+        dest.set(x, y, z)
+        return dest
 
-    @classmethod
-    def random3D(cls):
-        return __pvector__.random3D()
+    def __add__(a, b):
+        return PVector.add(a, b, None)
 
-    @classmethod
-    def fromAngle(cls, a, target=None):
-        return __pvector__.fromAngle(a, target)
-
-# Thanks, Guido!
-# http://mail.python.org/pipermail/python-dev/2008-January/076194.html
-def monkeypatch_method(cls):
-    def decorator(func):
-        setattr(cls, func.__name__, func)
-        return func
-    return decorator
-
-@monkeypatch_method(__pvector__)
-def __sub__(a, b):
-    return __pvector__.sub(a, b, None)
-
-@monkeypatch_method(__pvector__)
-def __isub__(a, b):
-    a.sub(b)
-    return a
-
-@monkeypatch_method(__pvector__)
-def __add__(a, b):
-    return __pvector__.add(a, b, None)
-
-@monkeypatch_method(__pvector__)
-def __iadd__(a, b):
-    a.add(b)
-    return a
-
-@monkeypatch_method(__pvector__)
-def __mul__(a, b):
-    if isinstance(b, __pvector__):
-        raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
-    return __pvector__.mult(a, float(b), None)
-
-@monkeypatch_method(__pvector__)
-def __rmul__(a, b):
-    if isinstance(b, __pvector__):
-        raise TypeError("The * operator can only be used to multiply a PVector by a scalar")
-    return __pvector__.mult(a, float(b), None)
-
-@monkeypatch_method(__pvector__)
-def __imul__(a, b):
-    if isinstance(b, __pvector__):
-        raise TypeError("The *= operator can only be used to multiply a PVector by a scalar")
-    a.mult(float(b))
-    return a
-
-@monkeypatch_method(__pvector__)
-def __div__(a, b):
-    if isinstance(b, __pvector__):
-        raise TypeError("The / operator can only be used to divide a PVector by a scalar")
-    return __pvector__.div(a, float(b), None)
-
-@monkeypatch_method(__pvector__)
-def __idiv__(a, b):
-    if isinstance(b, __pvector__):
-        raise TypeError("The /= operator can only be used to divide a PVector by a scalar")
-    a.div(float(b))
-    return a
-
-@monkeypatch_method(__pvector__)
-def __magSq__(a):
-    return __pvector__.magSq(a)
-
-@monkeypatch_method(__pvector__)
-def __eq__(a, b):
-    return a.x == b.x and a.y == b.y and a.z == b.z
-
-@monkeypatch_method(__pvector__)
-def __lt__(a, b):
-    return a.magSq() < b.magSq()
-
-@monkeypatch_method(__pvector__)
-def __le__(a, b):
-    return a.magSq() <= b.magSq()
-
-@monkeypatch_method(__pvector__)
-def __gt__(a, b):
-    return a.magSq() > b.magSq()
-
-@monkeypatch_method(__pvector__)
-def __ge__(a, b):
-    return a.magSq() >= b.magSq()
-
-del __sub__, __isub__, __add__, __iadd__, __mul__, __rmul__, __imul__, __div__, __idiv__, __magSq__
+    def __sub__(a, b):
+        return PVector.sub(a, b, None)
+    
+    def __isub__(a, b):
+        a.sub(b)
+        return a
+    
+    def __iadd__(a, b):
+        a.add(b)
+        return a
+    
+    def __mul__(a, b):
+        if not isinstance(b, Number):
+            raise TypeError("The * operator can only be used to multiply a PVector by a number")
+        return PVector.mult(a, float(b), None)
+    
+    def __rmul__(a, b):
+        if not isinstance(b, Number):
+            raise TypeError("The * operator can only be used to multiply a PVector by a number")
+        return PVector.mult(a, float(b), None)
+    
+    def __imul__(a, b):
+        if not isinstance(b, Number):
+            raise TypeError("The *= operator can only be used to multiply a PVector by a number")
+        a.mult(float(b))
+        return a
+    
+    def __div__(a, b):
+        if not isinstance(b, Number):
+            raise TypeError("The / operator can only be used to divide a PVector by a number")
+        return PVector.div(a, float(b), None)
+    
+    def __idiv__(a, b):
+        if not isinstance(b, Number):
+            raise TypeError("The /= operator can only be used to divide a PVector by a number")
+        a.div(float(b))
+        return a
+    
+    def __eq__(a, b):
+        return a.x == b.x and a.y == b.y and a.z == b.z
+    
+    def __lt__(a, b):
+        return a.magSq() < b.magSq()
+    
+    def __le__(a, b):
+        return a.magSq() <= b.magSq()
+    
+    def __gt__(a, b):
+        return a.magSq() > b.magSq()
+    
+    def __ge__(a, b):
+        return a.magSq() >= b.magSq()
 
 # Now expose the funky PVector class as a builtin.
 __builtin__.PVector = PVector
 
-# Construct the PApplet.
-__papplet__ = PAppletJythonDriver(__interp__, __path__, __source__)
 # Make it available to sketches by the name "this", to better match existing
 # Java-based documentation for third-party libraries, and such.
 __builtin__.this = __papplet__
@@ -259,6 +311,7 @@ __builtin__.blendMode = __papplet__.blendMode
 __builtin__.box = __papplet__.box
 __builtin__.camera = __papplet__.camera
 __builtin__.clear = __papplet__.clear
+__builtin__.clip = __papplet__.clip
 __builtin__.color = __papplet__.color
 __builtin__.colorMode = __papplet__.colorMode
 __builtin__.copy = __papplet__.copy
@@ -269,7 +322,6 @@ __builtin__.createInput = __papplet__.createInput
 __builtin__.createOutput = __papplet__.createOutput
 __builtin__.createReader = __papplet__.createReader
 __builtin__.createShape = __papplet__.createShape
-__builtin__.createWriter = __papplet__.createWriter
 __builtin__.cursor = __papplet__.cursor
 __builtin__.curve = __papplet__.curve
 __builtin__.curveDetail = __papplet__.curveDetail
@@ -321,6 +373,7 @@ __builtin__.millis = __papplet__.millis
 __builtin__.modelX = __papplet__.modelX
 __builtin__.modelY = __papplet__.modelY
 __builtin__.modelZ = __papplet__.modelZ
+__builtin__.noClip = __papplet__.noClip
 __builtin__.noCursor = __papplet__.noCursor
 __builtin__.noFill = __papplet__.noFill
 __builtin__.noLights = __papplet__.noLights
@@ -441,7 +494,7 @@ __builtin__.brightness = __papplet__.brightness
 
 # And these are PApplet static methods. Some are commented out to indicate
 # that we prefer or require Jython's implementation.
-__builtin__.abs = PApplet.abs
+#__builtin__.abs = PApplet.abs
 __builtin__.acos = PApplet.acos
 __builtin__.append = PApplet.append
 __builtin__.arrayCopy = PApplet.arrayCopy
@@ -452,12 +505,11 @@ __builtin__.binary = PApplet.binary
 __builtin__.blendColor = PApplet.blendColor
 __builtin__.ceil = PApplet.ceil
 __builtin__.concat = PApplet.concat
-__builtin__.constrain = PApplet.constrain
+__builtin__.constrain = lambda x, a, b: max(min(x, b), a)
 __builtin__.cos = PApplet.cos
 __builtin__.createInput = PApplet.createInput
 __builtin__.createOutput = PApplet.createOutput
 __builtin__.createReader = PApplet.createReader
-__builtin__.createWriter = PApplet.createWriter
 __builtin__.day = PApplet.day
 __builtin__.debug = PApplet.debug
 __builtin__.degrees = PApplet.degrees
@@ -488,7 +540,7 @@ __builtin__.nfs = PApplet.nfs
 __builtin__.norm = PApplet.norm
 __builtin__.pow = PApplet.pow
 # __builtin__.print = PApplet.print
-__builtin__.println = PApplet.println
+#__builtin__.println = PApplet.println
 __builtin__.radians = PApplet.radians
 __builtin__.reverse = PApplet.reverse
 # __builtin__.round = PApplet.round
@@ -520,6 +572,12 @@ def __createReader__(o):
         return __papplet__.createReader(o)
     return PApplet.createReader(o)
 __builtin__.createReader = __createReader__
+
+def __createWriter__(o):
+    if isinstance(o, basestring):
+        return __papplet__.createWriter(o)
+    return PApplet.createWriter(o)
+__builtin__.createWriter = __createWriter__
 
 def __loadStrings__(o):
     if isinstance(o, basestring):
@@ -563,22 +621,41 @@ def __saveBytes__(where, data):
     return PApplet.saveBytes(where, data)
 __builtin__.saveBytes = __saveBytes__
 
-del monkeypatch_method, PAppletJythonDriver
+# Make "open" able to find files in the "data" folder, and also other folders if the sketch is in a temp directory
+__realopen__ = open
+def __open__(filename, *args, **kwargs):
+    if os.path.isfile(filename):
+        return __realopen__(filename, *args, **kwargs)
+    if not os.path.isabs(filename):
+        datafilename = __papplet__.dataPath(filename)
+        if os.path.isfile(datafilename):
+            return __realopen__(datafilename, *args, **kwargs)
+        sketchfilename = __papplet__.sketchPath(filename)
+	if os.path.isfile(sketchfilename):
+		return __realopen__(sketchfilename, *args, **kwargs)
+    # Fail naturally
+    return __realopen__(filename, *args, **kwargs)
+__builtin__.open = __open__
 
 # Due to a seeming bug in Jython, the print builtin ignores the the setting of
 # interp.setOut and interp.setErr.
 
 class FakeStdOut():
     def write(self, s):
-        __papplet__.printout(s)
+        __stdout__.print(s)
 sys.stdout = FakeStdOut()
 
 class FakeStdErr():
     def write(self, s):
-        __papplet__.printerr(s)
+        __stderr__.print(s)
 sys.stderr = FakeStdErr()
 
 del FakeStdOut, FakeStdErr
+
+def __println__(o):
+    print o
+__builtin__.println = __println__
+
 
 # Implement
 #
@@ -598,17 +675,28 @@ def makePopper(pushName, popName, exposed_name=None, close_args=None):
     bound_pop = getattr(__papplet__, popName)
     
     class Popper(object):
-        def __init__(self): pass
+        def __init__(self, delegate):
+            self.delegate = delegate
             
-        def __enter__(self): pass
+        def __enter__(self):
+            # The result of pushFoo/beginFoo is made available to
+            # the "as" clause of the "with" statement.
+            return self.delegate
         
         def __exit__(self, exc_type, exc_val, exc_tb):
             bound_pop(*close_args)
             return False
-        
+
+        # If you say
+        #    foo = beginPGL()
+        # foo now is a Popper object, but the user will want
+        # PGL methods and properties, so we delegate those
+        # attribute fetches to the actual PGL object.        
+        def __getattr__(self, attr):
+            return getattr(self.delegate, attr)
+
     def shim(*args):
-        bound_push(*args)
-        return Popper()
+        return Popper(bound_push(*args))
     
     setattr(__builtin__, exposed_name, shim)
 

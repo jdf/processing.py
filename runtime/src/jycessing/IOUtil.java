@@ -18,6 +18,18 @@ public class IOUtil {
 
   private static final Charset UTF8 = Charset.forName("utf-8");
 
+  public static class ResourceReader {
+    private final Class<?> clazz;
+
+    public ResourceReader(final Class<?> clazz) {
+      this.clazz = clazz;
+    }
+
+    public String readText(final String resource) {
+      return IOUtil.readResourceAsText(clazz, resource);
+    }
+  }
+
   public static String readResourceAsText(final Class<?> clazz, final String resource) {
     try (final InputStream in = clazz.getResourceAsStream(resource)) {
       return readText(in);

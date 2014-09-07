@@ -1,13 +1,14 @@
 package jycessing.mode;
 
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryIteratorException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -16,10 +17,13 @@ import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
+import jycessing.DisplayType;
 import jycessing.IOUtil;
-import jycessing.Runner.LibraryPolicy;
-import jycessing.mode.run.SketchInfo;
+import jycessing.mode.export.ExportDialog;
+import jycessing.mode.run.PdeSketch;
+import jycessing.mode.run.PdeSketch.LocationType;
 import jycessing.mode.run.SketchService;
 import jycessing.mode.run.SketchServiceManager;
 import jycessing.mode.run.SketchServiceProcess;
@@ -71,9 +75,7 @@ public class PyEditor extends Editor {
     pyMode = (PythonMode)mode;
 
     // Provide horizontal scrolling.
-    // TODO: Enable this when Ben releases a PDE with support for this
-    // turned on.
-    // textarea.addMouseWheelListener(createHorizontalScrollListener());
+    textarea.addMouseWheelListener(createHorizontalScrollListener());
 
     // Create a sketch service affiliated with this editor.
     final SketchServiceManager sketchServiceManager = pyMode.getSketchServiceManager();
@@ -106,7 +108,6 @@ public class PyEditor extends Editor {
     return id;
   }
 
-  /*
   private MouseWheelListener createHorizontalScrollListener() {
     return new MouseWheelListener() {
       @Override
@@ -119,7 +120,6 @@ public class PyEditor extends Editor {
       }
     };
   }
-  */
 
   @Override
   public String getCommentPrefix() {
@@ -229,16 +229,43 @@ public class PyEditor extends Editor {
 
   /**
    * TODO(James Gilles): Create this!
+   * Create export GUI and hand off results to performExport()
    */
   public void handleExportApplication() {
-    Base.showMessage("Sorry", "You can't do that yet.");
+    // Leaving this here because it seems like it's more the editor's responsibility
+    if (sketch.isModified()) {
+      Object[] options = { "OK", "Cancel" };
+      int result = JOptionPane.showOptionDialog(this,
+                                                "Save changes before export?",
+                                                "Save",
+                                                JOptionPane.OK_CANCEL_OPTION,
+                                                JOptionPane.QUESTION_MESSAGE,
+                                                null,
+                                                options,
+                                                options[0]);
+      if (result == JOptionPane.OK_OPTION) {
+        handleSave(true);
+      } else {
+        statusNotice("Export canceled, changes must first be saved.");
+      }
+    }
+    
+    new ExportDialog(this, sketch).go();
   }
-
+    
+  public File getModeContentFile(String filename) {
+    return pyMode.getContentFile(filename);
+  }
+  
+  public File getSplashFile() {
+    return pyMode.getContentFile("theme/splash.png");
+  }
+  
   /**
-   * Save the current state of the sketch into a temp dir, and return
+   * Save the current state of the sketch code into a temp dir, and return
    * the created directory.
    * @return a new directory containing a saved version of the current
-   * (presumably modified) sketch.
+   * (presumably modified) sketch code.
    * @throws IOException 
    */
   private Path createTempSketch() throws IOException {
@@ -246,51 +273,40 @@ public class PyEditor extends Editor {
     for (final SketchCode code : sketch.getCode()) {
       Files.write(tmp.resolve(code.getFileName()), code.getProgram().getBytes("utf-8"));
     }
-    final Path sketchFolder = sketch.getFolder().toPath();
-    try (final DirectoryStream<Path> stream = Files.newDirectoryStream(sketchFolder)) {
-      for (final Path entry : stream) {
-        if (!mode.canEdit(entry.toFile())) {
-          IOUtil.copy(entry, tmp);
-        }
-      }
-    } catch (final DirectoryIteratorException ex) {
-      throw ex.getCause();
-    }
     return tmp;
   }
 
-  private void runSketch(final RunMode mode) {
+  private void runSketch(final DisplayType displayType) {
     prepareRun();
     toolbar.activate(PyToolbar.RUN);
-    final String sketchPath;
+    final File sketchPath;
     if (sketch.isModified()) {
       log("Sketch is modified; must copy it to temp dir.");
       final String sketchMainFileName = sketch.getCode(0).getFile().getName();
       try {
         tempSketch = createTempSketch();
-        sketchPath = tempSketch.resolve(sketchMainFileName).toString();
+        sketchPath = tempSketch.resolve(sketchMainFileName).toFile();
       } catch (final IOException e) {
         Base.showError("Sketchy Behavior", "I can't copy your unsaved work\n"
             + "to a temp directory.", e);
         return;
       }
     } else {
-      sketchPath = sketch.getCode(0).getFile().getAbsolutePath();
+      sketchPath = sketch.getCode(0).getFile().getAbsoluteFile();
     }
-
+    
+    final LocationType locationType;
+    final Point location;
+    if (getSketchLocation() != null) {
+      locationType = LocationType.SKETCH_LOCATION;
+      location = new Point(getSketchLocation());
+    } else { // assume editor has a position - is that safe?
+      locationType = LocationType.EDITOR_LOCATION;
+      location = new Point(getLocation());
+    }
+    
     try {
-      final String[] codeFileNames = new String[sketch.getCodeCount()];
-      for (int i = 0; i < codeFileNames.length; i++) {
-        codeFileNames[i] = sketch.getCode(i).getFile().getName();
-      }
-      final SketchInfo info =
-          new SketchInfo.Builder().sketchName(sketch.getName()).runMode(mode)
-              .addLibraryDir(Base.getContentFile("modes/java/libraries"))
-              .addLibraryDir(Base.getSketchbookLibrariesFolder())
-              .mainSketchFile(new File(sketchPath).getAbsoluteFile())
-              .code(sketch.getCode(0).getProgram()).codeFileNames(codeFileNames).x(getX())
-              .y(getY()).libraryPolicy(LibraryPolicy.SELECTIVE).build();
-      sketchService.runSketch(info);
+      sketchService.runSketch(new PdeSketch(sketch, sketchPath, displayType, location, locationType));
     } catch (final SketchException e) {
       statusError(e);
     }
@@ -303,11 +319,11 @@ public class PyEditor extends Editor {
   }
 
   public void handleRun() {
-    runSketch(RunMode.WINDOWED);
+    runSketch(DisplayType.WINDOWED);
   }
 
   public void handlePresent() {
-    runSketch(RunMode.PRESENTATION);
+    runSketch(DisplayType.PRESENTATION);
   }
 
   public void handleStop() {

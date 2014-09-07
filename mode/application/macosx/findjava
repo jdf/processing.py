@@ -1,0 +1,23 @@
+# if java not packaged:
+if [ -n "$JAVA_HOME" ]; then
+    JAVA="$JAVA_HOME/bin/java"
+elif [ -x "/usr/libexec/java_home" ]; then
+    JAVA="$(/usr/libexec/java_home)/bin/java"
+elif test -h "/Library/Java/Home"; then
+    JAVA="/Library/Java/Home/bin/java"
+else
+    JAVA="/Library/Internet Plugins/JavaAppletPlugin.plugin/Contents/Home/bin/java"
+fi
+
+if [ ! -x $JAVA ]; then
+    osascript "$CONTENTS/Resources/dialogs.applescript" nojava "$CONTENTS/Resources/sketch.icns"
+    exit 1
+fi
+
+JAVA_VERSION=$($JAVA -version 2>&1)
+
+if [[ "$JAVA_VERSION" =~ ("1.4"|"1.5"|"1.6") ]]; then
+    osascript "$CONTENTS/Resources/dialogs.applescript" oldjava "$CONTENTS/Resources/sketch.icns"
+    exit 1
+fi
+

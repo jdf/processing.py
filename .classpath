@@ -6,6 +6,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/processing-app"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/processing-core"/>
-	<classpathentry kind="lib" path="buildtime/lib/jython/jython.jar" sourcepath="buildtime/lib/jython/processing-jython-src.zip"/>
+	<classpathentry kind="lib" path="buildtime/lib/jython/jython.jar" sourcepath="/Users/feinberg/jython-processing-mode"/>
+	<classpathentry kind="lib" path="buildtime/lib/java/guava-17.0.jar" sourcepath="buildtime/lib/java/guava-17.0-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
