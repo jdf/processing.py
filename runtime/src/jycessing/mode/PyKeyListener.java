@@ -340,12 +340,21 @@ public class PyKeyListener extends PdeKeyListener {
 
   private String newline() {
     final int cursor = textArea.getCaretPosition();
+
     if (cursor <= 1) {
       return "\n";
     }
 
+    final int lineNumber = textArea.getLineOfOffset(cursor);
+    final int lineStart = textArea.getLineStartOffset(lineNumber);
+    final String line = textArea.getLineText(lineNumber);
     final String initialWhitespace = getInitialWhitespace();
-    final String line = textArea.getLineText(textArea.getCaretLine());
+
+    final String lineTextBeforeCursor = line.substring(0, cursor - lineStart);
+    if (Pattern.matches("\\s*", lineTextBeforeCursor)) {
+      return "\n" + initialWhitespace;
+    }
+
     if (TERMINAL_COLON.matcher(line).find()) {
       return "\n" + initialWhitespace + TAB;
     }
