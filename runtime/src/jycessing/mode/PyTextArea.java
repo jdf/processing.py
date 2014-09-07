@@ -1,15 +1,15 @@
 package jycessing.mode;
 
+import java.awt.Color;
+import java.awt.Graphics;
+
+import javax.swing.text.Segment;
+
 import processing.app.syntax.JEditTextArea;
 import processing.app.syntax.SyntaxStyle;
 import processing.app.syntax.TextAreaDefaults;
 import processing.app.syntax.TextAreaPainter;
 import processing.app.syntax.Token;
-
-import java.awt.Color;
-import java.awt.Graphics;
-
-import javax.swing.text.Segment;
 
 public class PyTextArea extends JEditTextArea {
 
@@ -31,7 +31,7 @@ public class PyTextArea extends JEditTextArea {
         final int origOffset = line.offset;
         final int origCount = line.count;
         final int newXPosition = super.paintSyntaxLine(gfx, line, x, y, tokens, styles);
-        int xOffset = x + fm.charWidth(' ') / 2;
+        int xOffset = x + 2;// + fm.charWidth(' ') / 2;
         for (int i = 0; i <= origCount - 4; i += 4) {
           final String nextFour = String.copyValueOf(line.array, origOffset + i, 4);
           if (!nextFour.equals("    ")) {
@@ -39,7 +39,7 @@ public class PyTextArea extends JEditTextArea {
           }
           if (i > 0) {
             gfx.setColor(TAB_COLOR);
-            gfx.drawLine(xOffset, y - fm.getHeight(), xOffset, y);
+            gfx.drawLine(xOffset, y - fm.getHeight() + 1, xOffset, y);
           }
           xOffset += fm.stringWidth("    ");
         }
