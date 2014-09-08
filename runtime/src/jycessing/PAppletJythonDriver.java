@@ -319,11 +319,12 @@ public class PAppletJythonDriver extends PApplet {
     this.interp = interp;
     this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
 
+    interp.set("__file__", new File(pySketchPath).getName());
     processSketch(DETECT_MODE_SCRIPT);
     this.mode = Mode.valueOf(interp.get("__mode__").asString());
     Runner.log("Mode: ", mode.name());
     if (mode == Mode.MIXED) {
-      throw new MixedModeError();
+      throw interp.get("__error__", MixedModeError.class);
     }
 
     initializeStatics(builtins);

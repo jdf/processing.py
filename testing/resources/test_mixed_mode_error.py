@@ -1,6 +1,8 @@
 # should throw a mixed mode exception
 
+size(400,400)
 def setup():
-    pass
+    x = 0
 
-line(10, 10, 40, 40)
+def draw():
+    rect(200,200,100,100)

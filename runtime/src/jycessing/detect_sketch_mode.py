@@ -1,6 +1,7 @@
 import ast
 import re
 
+from jycessing import MixedModeError
 """
 Determines the sketch mode, namely:
 
@@ -27,6 +28,8 @@ activeModeFunc = re.compile(r"""
 # outside a function body.
 illegalActiveModeCall = re.compile(r"""
     ^(
+        size
+        |
         bezier(Detail|Point|Tangent)?
         |
         curve(Detail|Point|Tangent|Tightness)?
@@ -36,7 +39,7 @@ illegalActiveModeCall = re.compile(r"""
         box|sphere(Detail)?
         (begin|end)(Countour|Shape)
         |
-        (quadratic|bezier|curve)?Vertex
+        (quadratic|bezier|curve)?Vertex | vertex
         |
         (apply|pop|print|push|reset)Matrix
         |
@@ -67,7 +70,7 @@ def detect_mode(code, filename):
                 mode = 'ACTIVE'
                 break
     if mode == 'STATIC':
-        return mode
+        return mode, None
     for node in module.body:
         if not isinstance(node, ast.Expr):
             continue
@@ -76,7 +79,9 @@ def detect_mode(code, filename):
             continue
         f = e.func
         if illegalActiveModeCall.match(f.id):
-            return 'MIXED'
-    return mode
+            return 'MIXED', MixedModeError(
+                "You can't call %s() outside a function in \"active mode\"." % f.id,
+                __file__, node.lineno - 1)
+    return mode, None
 
-__mode__ = detect_mode(__processing_source__, __file__)
+__mode__, __error__ = detect_mode(__processing_source__, __file__)
