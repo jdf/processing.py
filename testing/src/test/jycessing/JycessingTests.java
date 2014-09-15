@@ -13,7 +13,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import jycessing.MixedModeError;
+import jycessing.PAppletJythonDriver;
 import jycessing.Printer;
+import jycessing.PythonSketchError;
 import jycessing.Runner;
 import jycessing.StreamPrinter;
 
@@ -228,6 +230,26 @@ public class JycessingTests {
       fail("Expected mixed mode error.");
     } catch (final MixedModeError expected) {
       // noop
+    }
+  }
+
+  @Test
+  public void c_logical_and() throws Exception {
+    try {
+      run("c_logical_and");
+      fail("Expected syntax error.");
+    } catch (final PythonSketchError expected) {
+      assertEquals(PAppletJythonDriver.C_LIKE_LOGICAL_AND_ERROR_MESSAGE, expected.getMessage());
+    }
+  }
+
+  @Test
+  public void c_logical_or() throws Exception {
+    try {
+      run("c_logical_or");
+      fail("Expected syntax error.");
+    } catch (final PythonSketchError expected) {
+      assertEquals(PAppletJythonDriver.C_LIKE_LOGICAL_OR_ERROR_MESSAGE, expected.getMessage());
     }
   }
 }

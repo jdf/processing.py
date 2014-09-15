@@ -84,6 +84,11 @@ import com.google.common.io.Files;
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
 
+  public static final String C_LIKE_LOGICAL_AND_ERROR_MESSAGE =
+      "Did you maybe use \"&&\" instead of \"and\"?";
+  public static final String C_LIKE_LOGICAL_OR_ERROR_MESSAGE =
+      "Did you maybe use \"||\" instead of \"or\"?";
+
   private static final ResourceReader resourceReader =
       new ResourceReader(PAppletJythonDriver.class);
 
@@ -246,13 +251,13 @@ public class PAppletJythonDriver extends PApplet {
     final PyTuple context = (PyTuple)tup.get(1);
     final File file = new File((String)context.get(0));
     final String fileName = file.getName();
-    final int line = ((Integer)context.get(1)).intValue() - 1;
+    final int lineNumber = ((Integer)context.get(1)).intValue() - 1;
     final int column = ((Integer)context.get(2)).intValue();
     if (pyMessage.startsWith("no viable alternative")) {
-      return noViableAlternative(file, line, column);
+      return noViableAlternative(file, lineNumber, column, pyMessage);
     }
 
-    return new PythonSketchError(message, fileName, line, column);
+    return new PythonSketchError(message, fileName, lineNumber, column);
   }
 
   private static final Pattern NAKED_COLOR = Pattern.compile("[(,]\\s*#([0-9a-fA-F]{6})\\b");
@@ -270,7 +275,13 @@ public class PAppletJythonDriver extends PApplet {
    * @return
    */
   private static PythonSketchError noViableAlternative(final File file, final int lineNo,
-      final int column) {
+      final int column, final String message) {
+    if (message.equals("no viable alternative at input '&'")) {
+      return new PythonSketchError(C_LIKE_LOGICAL_AND_ERROR_MESSAGE, file.getName(), lineNo, column);
+    }
+    if (message.equals("no viable alternative at input '|'")) {
+      return new PythonSketchError(C_LIKE_LOGICAL_OR_ERROR_MESSAGE, file.getName(), lineNo, column);
+    }
     final PythonSketchError defaultException =
         new PythonSketchError(
             "Maybe there's an unclosed paren or quote mark somewhere before this line?",
