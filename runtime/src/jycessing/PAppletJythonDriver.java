@@ -772,6 +772,10 @@ public class PAppletJythonDriver extends PApplet {
     stroke((int)(argb & 0xFFFFFFFF));
   }
 
+  public void background(final long argb) {
+    background((int)(argb & 0xFFFFFFFF));
+  }
+
   /*
    * Python can't parse web colors, so we let the user do '#RRGGBB'
    * as a string.
@@ -782,6 +786,10 @@ public class PAppletJythonDriver extends PApplet {
 
   public void stroke(final String argbSpec) {
     stroke(parseColorSpec(argbSpec));
+  }
+
+  public void background(final String argbSpec) {
+    background(parseColorSpec(argbSpec));
   }
 
   private int parseColorSpec(final String argbSpec) {
