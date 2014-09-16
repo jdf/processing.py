@@ -21,13 +21,14 @@ def setup():
 
 
 def draw():
+    global mx, my
+
     background(51)
 
     if abs(mouseX - mx) > 0.1:
         mx = mx + (mouseX - mx) * easing
     if abs(mouseY - my) > 0.1:
         my = my + (mouseY - my) * easing
-
     mx = constrain(mx, inner, width - inner)
     my = constrain(my, inner, height - inner)
     fill(76)

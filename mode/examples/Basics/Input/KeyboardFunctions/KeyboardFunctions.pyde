@@ -25,7 +25,7 @@ y = 0  # Y position of the letters
 newletter = False
 
 numChars = 26  # There are 26 characters in the alphabet
-colors = [color for c in range(numChars)]
+colors = []
 
 
 def setup():
@@ -35,10 +35,11 @@ def setup():
     background(numChars / 2)
     # Set a gray value for each key
     for i in range(0, numChars, 1):
-        colors[i] = color(i, numChars, numChars)
+        colors.append(color(i, numChars, numChars))
 
 
 def draw():
+    global newletter
     if newletter:
         # Draw the letter
         if letterHeight == maxHeight:
@@ -53,6 +54,8 @@ def draw():
 
 
 def keyPressed():
+    global newletter, x, y, letterHeight
+
     # If the key is between 'A'(65) to 'Z' and 'a' to 'z'(122)
     key_code = ord(key)
     if (key_code >= A_code and key_code <= Z_code) or (key_code >= a_code and key_code <= z_code):

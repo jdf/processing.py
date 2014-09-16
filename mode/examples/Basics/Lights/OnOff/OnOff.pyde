@@ -15,6 +15,7 @@ def setup():
 
 
 def draw():
+    global spin
     background(51)
 
     if not mousePressed:

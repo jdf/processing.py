@@ -52,6 +52,7 @@ def mouseDragged():
 
 
 def checkButtons():
+    global overLeftButton, overRightButton
     overLeftButton = 20 < mouseX < 95 and 60 < mouseY < 135;
     overRightButton = 105 < mouseX < 180 and 60 < mouseY < 135;
 

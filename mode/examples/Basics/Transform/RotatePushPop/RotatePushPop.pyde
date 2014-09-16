@@ -3,7 +3,9 @@ Rotate Push Pop.
 
 The push() and pop() functions allow for more control over transformations.
 The push function saves the current coordinate system to the stack 
-and pop() restores the prior coordinate system. 
+and pop() restores the prior coordinate system.
+
+If you use "with", then pop() happens for you automatically.
 """
 
 a = 0                 # Angle of rotation
@@ -17,6 +19,8 @@ def setup():
 
 
 def draw():
+    global a
+    
     lights()
 
     background(0, 0, 26)

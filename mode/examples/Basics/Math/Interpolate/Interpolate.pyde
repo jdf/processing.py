@@ -18,6 +18,7 @@ def setup():
 
 
 def draw():
+    global x, y
     background(51)
 
     # lerp() calculates a number between two numbers at a specific increment.

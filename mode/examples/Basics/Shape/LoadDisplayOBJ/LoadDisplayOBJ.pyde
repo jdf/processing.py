@@ -16,6 +16,7 @@ def setup():
 
 
 def draw():
+    global ry
     background(0)
     lights()
 

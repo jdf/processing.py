@@ -7,8 +7,6 @@ are also applied to the second segment because they are inside
 the same pushMatrix() and popMatrix() group.
 """
 
-angle1 = 0.0
-angle2 = 0.0
 segLength = 100
 
 

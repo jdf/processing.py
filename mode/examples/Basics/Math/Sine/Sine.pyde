@@ -16,6 +16,7 @@ def setup():
 
 
 def draw():
+    global angle
     background(0)
     d1 = 10 + (sin(angle) * diameter / 2) + diameter / 2
     d2 = 10 + (sin(angle + PI / 2) * diameter / 2) + diameter / 2

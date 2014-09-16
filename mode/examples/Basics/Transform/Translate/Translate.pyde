@@ -17,6 +17,7 @@ def setup():
 
 
 def draw():
+    global x, y
     background(102)
 
     x = x + 0.8

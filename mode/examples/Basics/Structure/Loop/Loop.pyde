@@ -28,6 +28,7 @@ def draw():
     sequence and after the last line is read, the first
     line is run again.
     """
+    global y
     background(0)     # Set the background to black
     line(0, y, width, y)
     y = y - 1

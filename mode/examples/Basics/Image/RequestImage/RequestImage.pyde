@@ -40,7 +40,7 @@ def draw():
             loadStates[i] = True
 
     # When all images are loaded draw them to the screen
-    if checkLoadStates():
+    if all(loadStates):
         drawImages()
 
 
@@ -56,8 +56,10 @@ loaderX, loaderY = 0, 0
 theta = 0
 
 def runLoaderAni():
+    global loaderX, loaderY, theta
+    
     # Only run when images are loading
-    if not checkLoadStates():
+    if not all(loadStates):
         ellipse(loaderX, loaderY, 10, 10)
         loaderX += 2
         loaderY = height / 2 + sin(theta) * (height / 8)
@@ -65,12 +67,4 @@ def runLoaderAni():
         # Reposition ellipse if it goes off the screen
         if loaderX > width + 5:
             loaderX = -5
-
-
-# Return True when all images are loaded - no False values left in array
-def checkLoadStates():
-    for state in loadStates:
-        if not state:
-            return False
-    return True
 

@@ -16,10 +16,12 @@ theta_acc = 0.0001
 
 def setup():
     size(640, 360)
+    global r
     r = height * 0.45
 
 
 def draw():
+    global theta, theta_vel
 
     background(0)
 
@@ -40,4 +42,3 @@ def draw():
     # example)
     theta_vel += theta_acc
     theta += theta_vel
-
