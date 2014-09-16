@@ -19,6 +19,7 @@ def setup():
 
 
 def draw():
+    global zoff
     # Optional: adjust noise detail here
     # noiseDetail(8,0.65f)
     loadPixels()

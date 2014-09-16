@@ -38,5 +38,6 @@ def draw():
 
 
 def mousePressed():
+    global showPerspective
     showPerspective = not showPerspective
 

@@ -191,18 +191,6 @@ public class JycessingTests {
     testImport("csv");
   }
 
-
-  @Test
-  public void autoglobal() throws Exception {
-    /*
-    * Python Mode changes the semantics of Python by treating the main
-    * module (the "sketch" file) as a special case in which any reference
-    * to an existing global (module local) is treated as global, so that
-    * you can mutate a global without the "global" keyword.
-    */
-    expectOK("autoglobal");
-  }
-
   @Test
   public void hex() throws Exception {
     expectOK("hex");

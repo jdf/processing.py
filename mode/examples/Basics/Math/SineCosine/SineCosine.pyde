@@ -19,6 +19,7 @@ def setup():
 
 
 def draw():
+    global angle1, angle2
     background(0)
     ang1 = radians(angle1)
     ang2 = radians(angle2)

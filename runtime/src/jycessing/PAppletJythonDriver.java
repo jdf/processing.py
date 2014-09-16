@@ -31,10 +31,8 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,7 +41,6 @@ import jycessing.IOUtil.ResourceReader;
 import jycessing.mode.run.WrappedPrintStream;
 import jycessing.mode.run.WrappedPrintStream.PushedOut;
 
-import org.python.antlr.ast.Global;
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
@@ -91,9 +88,6 @@ public class PAppletJythonDriver extends PApplet {
 
   private static final ResourceReader resourceReader =
       new ResourceReader(PAppletJythonDriver.class);
-
-  private static final String AUTOGLOBAL_SCRIPT = resourceReader
-      .readText("add_global_statements.py");
 
   private static final String DETECT_MODE_SCRIPT = resourceReader.readText("detect_sketch_mode.py");
 
@@ -345,22 +339,6 @@ public class PAppletJythonDriver extends PApplet {
     setColorMethods();
     setText();
     builtins.__setitem__("g", Py.java2py(g));
-    // There's a bug in ast.Global that makes it impossible to construct a valid Global
-    // using the constructor that takes a list of names. This crazy thing is a workaround
-    // for that.
-    builtins.__setitem__("__global__", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject names) {
-        final List<String> newNames = new ArrayList<>();
-        for (final Object o : names.asIterable()) {
-          newNames.add(o.toString());
-        }
-        final Global glowball = new Global();
-        ReflectionUtil.setObject(glowball, "names", newNames);
-        return glowball;
-      }
-    });
-
     addComponentListener(new ComponentAdapter() {
       @Override
       public void componentHidden(final ComponentEvent e) {
@@ -381,7 +359,7 @@ public class PAppletJythonDriver extends PApplet {
       // Executing the sketch will bind method names ("draw") to PyCode
       // objects (the sketch's draw method), which can then be invoked
       // during the run loop
-      processSketch(AUTOGLOBAL_SCRIPT);
+      processSketch(programText);
     }
 
     // Find and cache any PApplet callbacks defined in the Python sketch
@@ -972,7 +950,7 @@ public class PAppletJythonDriver extends PApplet {
       if (mode == Mode.STATIC) {
         // A static sketch gets called once, from this spot.
         Runner.log("Interpreting static-mode sketch.");
-        processSketch(AUTOGLOBAL_SCRIPT);
+        processSketch(programText);
       } else if (setupMeth != null) {
         // Call the Python sketch's setup()
         setupMeth.__call__();

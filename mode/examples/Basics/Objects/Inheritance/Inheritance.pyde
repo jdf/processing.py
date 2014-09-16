@@ -7,12 +7,9 @@ An object that inherits from another is called a subclass, and the object it
 inherits from is called a superclass. A subclass extends the superclass.
 """
 
-spots = None
-arm = None
-
-
 def setup():
     size(640, 360)
+    global arm, spots
     arm = SpinArm(width / 2, height / 2, 0.01)
     spots = SpinSpots(width / 2, height / 2, -0.02, 90.0)
 
@@ -26,7 +23,6 @@ def draw():
 
 
 class Spin(object):
-
     def __init__(self, xpos, ypos, s):
         self.angle = 0.0
         self.x = xpos
@@ -38,7 +34,6 @@ class Spin(object):
 
 
 class SpinArm(Spin):
-
     def __init__(self, x, y, s):
         super(SpinArm, self).__init__(x, y, s)
 
@@ -53,9 +48,6 @@ class SpinArm(Spin):
 
 
 class SpinSpots(Spin):
-
-    dim = None
-
     def __init__(self, x, y, s, d):
         super(SpinSpots, self).__init__(x, y, s)
         self.dim = d

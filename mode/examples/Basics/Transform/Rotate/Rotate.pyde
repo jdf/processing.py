@@ -22,10 +22,13 @@ def setup():
 
 def draw():
     background(51)
+
+    global jitter
     # during even-numbered seconds (0, 2, 4, 6...)
     if second() % 2 == 0:
         jitter = random(-0.1, 0.1)
 
+    global angle
     angle = angle + jitter
     c = cos(angle)
     translate(width / 2, height / 2)

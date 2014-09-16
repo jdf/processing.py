@@ -32,6 +32,7 @@ def draw():
 
 
 def calcWave():
+    global theta
     # Increment theta (try different values for 'angular velocity' here
     theta += 0.02
     # For every x value, calculate a y value with sine function

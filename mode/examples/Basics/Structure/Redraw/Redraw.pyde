@@ -25,6 +25,7 @@ def draw():
     sequence and after the last line is read, the first
     line is executed again.
     """
+    global y
     background(0)     # Set the background to black
     y = y - 4
     if (y < 0):

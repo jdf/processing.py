@@ -19,6 +19,8 @@ def setup():
 
 
 def draw():
+    global a, b
+    
     background(0)
 
     a = a + 1

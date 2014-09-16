@@ -5,7 +5,7 @@ Move the mouse left and right to control the
 speed and direction of the moving shapes.
 """
 
-xpos1, xpos2, xpos3, xpos4 = 0, 0, 0, 0
+xpos = [0, 0, 0, 0]
 thin = 8
 thick = 36
 
@@ -13,45 +13,37 @@ thick = 36
 def setup():
     size(640, 360)
     noStroke()
-    xpos1 = width / 2
-    xpos2 = width / 2
-    xpos3 = width / 2
-    xpos4 = width / 2
+    for i in range(len(xpos)):
+        xpos[i] = width / 2
 
 
 def draw():
     background(0)
 
     mx = mouseX * 0.4 - width / 5.0
-
     fill(102)
-    rect(xpos2, 0, thick, height / 2)
+    rect(xpos[1], 0, thick, height / 2)
     fill(204)
-    rect(xpos1, 0, thin, height / 2)
+    rect(xpos[0], 0, thin, height / 2)
     fill(102)
-    rect(xpos4, height / 2, thick, height / 2)
+    rect(xpos[3], height / 2, thick, height / 2)
     fill(204)
-    rect(xpos3, height / 2, thin, height / 2)
+    rect(xpos[2], height / 2, thin, height / 2)
 
-    xpos1 += mx / 16
-    xpos2 += mx / 64
-    xpos3 -= mx / 16
-    xpos4 -= mx / 64
+    xpos[0] += mx / 16
+    xpos[1] += mx / 64
+    xpos[2] -= mx / 16
+    xpos[3] -= mx / 64
+    
+    for i in (0, 2):
+        if xpos[i] < -thin:
+            xpos[i] = width
+        if xpos[i] > width:
+            xpos[i] = -thin
 
-    if xpos1 < -thin:
-        xpos1 = width
-    if xpos1 > width:
-        xpos1 = -thin
-    if xpos2 < -thick:
-        xpos2 = width
-    if xpos2 > width:
-        xpos2 = -thick
-    if xpos3 < -thin:
-        xpos3 = width
-    if xpos3 > width:
-        xpos3 = -thin
-    if xpos4 < -thick:
-        xpos4 = width
-    if xpos4 > width:
-        xpos4 = -thick
+    for i in (1, 3):
+        if xpos[i] < -thick:
+            xpos[i] = width
+        if xpos[i] > width:
+            xpos[i] = -thick
 

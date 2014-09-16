@@ -18,6 +18,7 @@ def setup():
 
 
 def draw():
+    global lastBar
     whichBar = mouseX / barWidth
     if whichBar != lastBar:
         barX = whichBar * barWidth

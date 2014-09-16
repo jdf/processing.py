@@ -36,6 +36,7 @@ def draw():
 
 
 def calcWave():
+    global theta
     # Increment theta (try different values for 'angular velocity' here
     theta += 0.02
     # Set all height values to zero

@@ -15,6 +15,7 @@ def setup():
 
 
 def draw():
+    global xoff
     # Create an alpha blended background
     fill(0, 10)
     rect(0, 0, width, height)

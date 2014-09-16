@@ -17,6 +17,7 @@ def setup():
 
 
 def draw():
+    global direction, a, b
     a += 1
     if a > width:
         a = 0

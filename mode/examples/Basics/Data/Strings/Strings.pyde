@@ -37,6 +37,8 @@ def draw():
     text(words, 50, 120)
     
 def keyPressed(): 
+    global letter, words
+
     # The variable "key" always contains the value 
     # of the most recent key pressed.
     if ('A' <= key <= 'z') or key == ' ':
