@@ -11,7 +11,7 @@ Tested on Mac OS 10.8 & 10.9, Windows XP, 7 & 8, and Ubuntu 12.10.
 
 ## Quick Start ##
 
-### Processing Develpment Environment ###
+### Processing Development Environment ###
 
 If you're looking to write Processing sketches in Python, your best bet is to use
 Python Mode. The project is still in its early days, and documentation is lacking,
