@@ -1,16 +1,17 @@
 """
-PolygonPShapeOOP. 
+PolygonPShapeOOP.
 
-Wrapping a PShape inside a custom class 
+Wrapping a PShape inside a custom class
 and demonstrating how we can have a multiple objects each
 using the same PShape.
 """
 from polygon import Polygon
-# A list of objects
-polygons = []
+
+polygons = None
 
 
 def setup():
+    global polygons
     size(640, 360, P2D)
     smooth()
     # Make a PShape.
@@ -29,13 +30,10 @@ def setup():
     star.vertex(-47, -15)
     star.vertex(-14, -20)
     star.endShape(CLOSE)
-    # Make an ArrayList.
-    polygons = []
     # Add a bunch of objects to the ArrayList.
     # Pass in reference to the PShape.
-    # We coud make polygons with different PShapes.
-    for i in range(25):
-        polygons.append(Polygon(star))
+    # We could make polygons with different PShapes.
+    polygons = [Polygon(star) for _ in range(25)]
 
 
 def draw():
@@ -44,4 +42,3 @@ def draw():
     for poly in polygons:
         poly.display()
         poly.move()
-

@@ -8,6 +8,7 @@ path = None
 
 
 def setup():
+    global path
     size(640, 360, P2D)
     smooth()
     # Create the shape.

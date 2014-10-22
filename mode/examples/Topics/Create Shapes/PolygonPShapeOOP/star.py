@@ -6,24 +6,24 @@ class Star(object):
         self.y = random(100, height - 100)
         self.speed = random(0.5, 3)
         # First create the shape.
-        self.s = createShape()
-        self.s.beginShape()
+        self.shape = createShape()
+        self.shape.beginShape()
         # You can set fill and stroke.
-        self.s.fill(255, 204)
-        self.s.noStroke()
+        self.shape.fill(255, 204)
+        self.shape.noStroke()
         # Here, we are hardcoding a series of vertices.
-        self.s.vertex(0, -50)
-        self.s.vertex(14, -20)
-        self.s.vertex(47, -15)
-        self.s.vertex(23, 7)
-        self.s.vertex(29, 40)
-        self.s.vertex(0, 25)
-        self.s.vertex(-29, 40)
-        self.s.vertex(-23, 7)
-        self.s.vertex(-47, -15)
-        self.s.vertex(-14, -20)
+        self.shape.vertex(0, -50)
+        self.shape.vertex(14, -20)
+        self.shape.vertex(47, -15)
+        self.shape.vertex(23, 7)
+        self.shape.vertex(29, 40)
+        self.shape.vertex(0, 25)
+        self.shape.vertex(-29, 40)
+        self.shape.vertex(-23, 7)
+        self.shape.vertex(-47, -15)
+        self.shape.vertex(-14, -20)
         # The shape is complete.
-        self.s.endShape(CLOSE)
+        self.shape.endShape(CLOSE)
 
     def move(self):
         # Demonstrating some simple motion.
@@ -35,5 +35,4 @@ class Star(object):
         # Locating and drawing the shape.
         with pushMatrix():
             translate(self.x, self.y)
-            shape(self.s)
-
+            shape(self.shape)

@@ -4,31 +4,32 @@ BeginEndContour
 This example shows how to cut a shape out of another using beginContour() and endContour().
 """
 
-s = None
+shape = None
 
 def setup():
+    global shape
     size(640, 360, P2D)
     smooth()
     # Make a shape
-    s = createShape()
-    s.beginShape()
-    s.fill(0)
-    s.stroke(255)
-    s.strokeWeight(2)
+    shape = createShape()
+    shape.beginShape()
+    shape.fill(0)
+    shape.stroke(255)
+    shape.strokeWeight(2)
     # Exterior part of shape
-    s.vertex(-100, -100)
-    s.vertex(100, -100)
-    s.vertex(100, 100)
-    s.vertex(-100, 100)
+    shape.vertex(-100, -100)
+    shape.vertex(100, -100)
+    shape.vertex(100, 100)
+    shape.vertex(-100, 100)
     # Interior part of shape
-    s.beginContour()
-    s.vertex(-10, -10)
-    s.vertex(10, -10)
-    s.vertex(10, 10)
-    s.vertex(-10, 10)
-    s.endContour()
+    shape.beginContour()
+    shape.vertex(-10, -10)
+    shape.vertex(10, -10)
+    shape.vertex(10, 10)
+    shape.vertex(-10, 10)
+    shape.endContour()
     # Finishing off shape
-    s.endShape(CLOSE)
+    shape.endShape(CLOSE)
 
 
 def draw():
@@ -36,6 +37,6 @@ def draw():
     # Display shape
     translate(width / 2, height / 2)
     # Shapes can be rotated
-    s.rotate(0.01)
-    shape(s)
+    shape.rotate(0.01)
+    shape(shape)
 

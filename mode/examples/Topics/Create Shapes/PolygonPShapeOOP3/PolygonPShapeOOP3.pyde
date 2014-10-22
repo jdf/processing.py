@@ -10,12 +10,13 @@ import random
 from polygon import Polygon
 
 # A list of objects
-polygons = []
+polygons = None
 # Three possible shapes
 shapes = [None] * 3
 
 
 def setup():
+    global polygons
     size(640, 360, P2D)
     smooth()
     shapes[0] = createShape(ELLIPSE, 0, 0, 100, 100)
@@ -40,9 +41,7 @@ def setup():
     shapes[2].vertex(-14, -20)
     shapes[2].endShape(CLOSE)
     # Make a list.
-    polygons = []
-    for i in range(25):
-        polygons.append(Polygon(random.choice(shapes)))
+    polygons = [Polygon(random.choice(shapes)) for _ in range(25)]
 
 
 def draw():
@@ -51,4 +50,3 @@ def draw():
     for poly in polygons:
         poly.display()
         poly.move()
-

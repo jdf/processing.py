@@ -9,6 +9,7 @@ group = None
 
 
 def setup():
+    global group
     size(640, 360, P2D)
     smooth()
     # Create the shape as a group.
