@@ -6,8 +6,6 @@ A particle system optimized for drawing using PShape.
 
 from particle_system import ParticleSystem
 
-# Particle System object
-ps = None
 
 def setup():
     global ps

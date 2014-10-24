@@ -18,19 +18,19 @@ class Wiggler(object):
             self.original.append(vec)
         # The PShape to be "wiggled".
         # Make the PShape with those vertices.
-        self.shape = createShape()
-        self.shape.beginShape()
-        self.shape.fill(127)
-        self.shape.stroke(0)
-        self.shape.strokeWeight(2)
+        self.shp = createShape()
+        self.shp.beginShape()
+        self.shp.fill(127)
+        self.shp.stroke(0)
+        self.shp.strokeWeight(2)
         for vert in self.original:
-            self.shape.vertex(vert.x, vert.y)
-        self.shape.endShape(CLOSE)
+            self.shp.vertex(vert.x, vert.y)
+        self.shp.endShape(CLOSE)
 
     def wiggle(self):
         xoff = 0
         # Apply an offset to each vertex.
-        for i in range(self.shape.getVertexCount()):
+        for i in range(self.shp.getVertexCount()):
             # Calculate a vertex location based on noise around "original"
             # location.
             pos = self.original[i]
@@ -39,7 +39,7 @@ class Wiggler(object):
             radius.mult(4)
             radius.add(pos)
             # Set the location of each vertex to the one.
-            self.shape.setVertex(i, radius)
+            self.shp.setVertex(i, radius)
             # Increment perlin noise x value.
             xoff += 0.5
         # Increment perlin noise y value.
@@ -48,4 +48,4 @@ class Wiggler(object):
     def display(self):
         with pushMatrix():
             translate(self.x, self.y)
-            shape(self.shape)
+            shape(self.shp)

@@ -1,10 +1,6 @@
 """
 PrimitivePShape.
-
-Using a PShape to display a custom polygon.
 """
-# The PShape object
-star = None
 
 
 def setup():

@@ -9,23 +9,21 @@ using the same PShape.
 import random
 from polygon import Polygon
 
-# A list of objects
-polygons = None
-# Three possible shapes
-shapes = [None] * 3
+shapes = []
 
 
 def setup():
     global polygons
     size(640, 360, P2D)
     smooth()
-    shapes[0] = createShape(ELLIPSE, 0, 0, 100, 100)
+    # Three possible shapes
+    shapes.append(createShape(ELLIPSE, 0, 0, 100, 100))
+    shapes.append(createShape(RECT, 0, 0, 100, 100))
+    shapes.append(createShape())
     shapes[0].setFill(color(255, 127))
     shapes[0].setStroke(False)
-    shapes[1] = createShape(RECT, 0, 0, 100, 100)
     shapes[1].setFill(color(255, 127))
     shapes[1].setStroke(False)
-    shapes[2] = createShape()
     shapes[2].beginShape()
     shapes[2].fill(0, 127)
     shapes[2].noStroke()

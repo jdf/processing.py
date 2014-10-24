@@ -3,8 +3,6 @@ PrimitivePShape.
 
 Using a PShape to display a primitive shape (in this case, ellipse).
 """
-# The PShape object
-circle = None
 
 
 def setup():

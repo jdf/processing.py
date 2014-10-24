@@ -1,13 +1,10 @@
 """
 PolygonPShapeOOP.
 
-Wrapping a PShape inside a custom class
-and demonstrating how we can have a multiple objects each
-using the same PShape.
+Wrapping a PShape inside a custom class and demonstrating how we can have
+multiple objects each using the same PShape.
 """
 from polygon import Polygon
-
-polygons = None
 
 
 def setup():

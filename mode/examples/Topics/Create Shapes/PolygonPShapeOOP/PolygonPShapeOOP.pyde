@@ -3,12 +3,7 @@ PolygonPShapeOOP.
 
 Wrapping a PShape inside a custom class.
 """
-
 from star import Star
-
-# A Star object
-s1 = None
-s2 = None
 
 
 def setup():

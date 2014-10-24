@@ -3,8 +3,6 @@ PathPShape
 
 A simple path using PShape
 """
-# A PShape object
-path = None
 
 
 def setup():
@@ -33,4 +31,3 @@ def draw():
     # Draw the path at the mouse location.
     translate(mouseX, mouseY)
     shape(path)
-

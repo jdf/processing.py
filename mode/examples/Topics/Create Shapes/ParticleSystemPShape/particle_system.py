@@ -6,7 +6,7 @@ from particle import Particle
 class ParticleSystem(object):
 
     def __init__(self, n):
-        sprite = loadImage("data/sprite.png")
+        sprite = loadImage("sprite.png")
         # Make all the Particles.
         # It's just a list of particle objects.
         self.particles = [Particle(sprite) for _ in range(n)]

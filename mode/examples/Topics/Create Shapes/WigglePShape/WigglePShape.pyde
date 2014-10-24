@@ -5,9 +5,6 @@ How to move the individual vertices of a PShape.
 """
 from wiggler import Wiggler
 
-# A "Wiggler" object
-wiggler = None
-
 
 def setup():
     global wiggler
