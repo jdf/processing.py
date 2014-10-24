@@ -1,14 +1,10 @@
-
 """
-PrimitivePShape. 
-
-Using a PShape to display a custom polygon. 
+PrimitivePShape.
 """
-# The PShape object
-star = None
 
 
 def setup():
+    global star
     size(640, 360, P2D)
     smooth()
     # First create the shape.
@@ -38,4 +34,3 @@ def draw():
     translate(mouseX, mouseY)
     # Display the shape.
     shape(star)
-

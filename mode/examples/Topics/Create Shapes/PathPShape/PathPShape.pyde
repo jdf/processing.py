@@ -3,11 +3,10 @@ PathPShape
 
 A simple path using PShape
 """
-# A PShape object
-path = None
 
 
 def setup():
+    global path
     size(640, 360, P2D)
     smooth()
     # Create the shape.
@@ -32,4 +31,3 @@ def draw():
     # Draw the path at the mouse location.
     translate(mouseX, mouseY)
     shape(path)
-

@@ -13,33 +13,33 @@ class Wiggler(object):
         self.original = []
         for a in range(0, TWO_PI * 10, 2):
             ascaled = a * .1
-            v = PVector.fromAngle(ascaled)
-            v.mult(100)
-            self.original.append(v)
+            vec = PVector.fromAngle(ascaled)
+            vec.mult(100)
+            self.original.append(vec)
         # The PShape to be "wiggled".
         # Make the PShape with those vertices.
-        self.s = createShape()
-        self.s.beginShape()
-        self.s.fill(127)
-        self.s.stroke(0)
-        self.s.strokeWeight(2)
-        for v in self.original:
-            self.s.vertex(v.x, v.y)
-        self.s.endShape(CLOSE)
+        self.shp = createShape()
+        self.shp.beginShape()
+        self.shp.fill(127)
+        self.shp.stroke(0)
+        self.shp.strokeWeight(2)
+        for vert in self.original:
+            self.shp.vertex(vert.x, vert.y)
+        self.shp.endShape(CLOSE)
 
     def wiggle(self):
         xoff = 0
         # Apply an offset to each vertex.
-        for i in range(self.s.getVertexCount()):
+        for i in range(self.shp.getVertexCount()):
             # Calculate a vertex location based on noise around "original"
             # location.
             pos = self.original[i]
             a = TWO_PI * noise(xoff, self.yoff)
-            r = PVector.fromAngle(a)
-            r.mult(4)
-            r.add(pos)
+            radius = PVector.fromAngle(a)
+            radius.mult(4)
+            radius.add(pos)
             # Set the location of each vertex to the one.
-            self.s.setVertex(i, r.x, r.y)
+            self.shp.setVertex(i, radius)
             # Increment perlin noise x value.
             xoff += 0.5
         # Increment perlin noise y value.
@@ -48,5 +48,4 @@ class Wiggler(object):
     def display(self):
         with pushMatrix():
             translate(self.x, self.y)
-            shape(self.s)
-
+            shape(self.shp)

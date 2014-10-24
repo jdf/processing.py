@@ -4,14 +4,12 @@ GroupPShape
 This example shows how to group multiple PShapes into one PShape.
 """
 
-# A PShape that will group PShapes
-group = None
-
 
 def setup():
+    global group
     size(640, 360, P2D)
     smooth()
-    # Create the shape as a group.
+    # A PShape that will group PShapes
     group = createShape(GROUP)
     # Make a polygon PShape.
     star = createShape()

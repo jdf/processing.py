@@ -1,13 +1,12 @@
 """
-PrimitivePShape. 
+PrimitivePShape.
 
-Using a PShape to display a primitive shape (in this case, ellipse). 
+Using a PShape to display a primitive shape (in this case, ellipse).
 """
-# The PShape object
-circle = None
 
 
 def setup():
+    global circle
     size(640, 360, P2D)
     smooth()
     # Creating the PShape as an ellipse.
@@ -24,4 +23,3 @@ def draw():
     translate(mouseX, mouseY)
     # Drawing the PShape
     shape(circle)
-

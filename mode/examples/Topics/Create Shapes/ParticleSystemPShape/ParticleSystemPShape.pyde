@@ -6,10 +6,9 @@ A particle system optimized for drawing using PShape.
 
 from particle_system import ParticleSystem
 
-# Particle System object
-ps = None
 
 def setup():
+    global ps
     size(640, 360, P2D)
     # A particle system with 10,000 particles.
     ps = ParticleSystem(10000)
@@ -32,4 +31,3 @@ def draw():
     fill(255)
     textSize(16)
     text("Frame rate: " + str(int(frameRate)), 10, 20)
-

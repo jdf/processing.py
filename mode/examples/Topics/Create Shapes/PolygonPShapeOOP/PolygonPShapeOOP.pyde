@@ -1,17 +1,13 @@
 """
-PolygonPShapeOOP. 
+PolygonPShapeOOP.
 
-Wrapping a PShape inside a custom class 
+Wrapping a PShape inside a custom class.
 """
-
 from star import Star
-
-# A Star object
-s1 = None
-s2 = None
 
 
 def setup():
+    global s1, s2
     size(640, 360, P2D)
     smooth()
     # Make a Star.
@@ -25,4 +21,3 @@ def draw():
     s1.move()  # Move the first star.
     s2.display()  # Display the second star.
     s2.move()  # Move the second star.
-
