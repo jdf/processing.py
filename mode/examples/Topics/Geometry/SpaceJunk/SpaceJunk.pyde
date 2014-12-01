@@ -7,9 +7,6 @@ sources. Move the mouse left and right to zoom.
 """
 from cube import Cube
 
-halfWidth = None
-halfHeight = None
-
 # Used for overall rotation.
 angle = 0
 
@@ -26,6 +23,7 @@ def setup():
     size(640, 360, P3D)
     background(0)
     noStroke()
+    global halfWidth, halfHeight
     halfWidth = width / 2
     halfHeight = height / 2
 
@@ -54,4 +52,5 @@ def draw():
         cube.drawCube()
 
     # Used in rotate function calls above
+    global angle
     angle += 0.2

@@ -9,12 +9,11 @@ Each recursive level is drawn in sequence.
 from koch_fractal import KochFractal
 from koch_line import KochLine
 
-k = None
-
 
 def setup():
     size(640, 360)
     frameRate(1)  # Animate slowly
+    global k
     k = KochFractal()
 
 

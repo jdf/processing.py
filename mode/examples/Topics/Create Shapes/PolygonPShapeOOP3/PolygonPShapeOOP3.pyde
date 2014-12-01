@@ -39,8 +39,7 @@ def setup():
     shapes[2].vertex(-47, -15)
     shapes[2].vertex(-14, -20)
     shapes[2].endShape(CLOSE)
-    # Make a list.
-    polygons = []
+
     for i in range(25):
         polygons.append(Polygon(random.choice(shapes)))
 

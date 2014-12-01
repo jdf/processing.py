@@ -6,12 +6,10 @@ A particle system optimized for drawing using PShape.
 
 from particle_system import ParticleSystem
 
-# Particle System object
-ps = None
-
 def setup():
     size(640, 360, P2D)
     # A particle system with 10,000 particles.
+    global ps
     ps = ParticleSystem(10000)
     # Writing to the depth buffer is disabled to avoid rendering
     # artifacts due to the fact that the particles are semi-transparent

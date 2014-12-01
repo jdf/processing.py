@@ -6,9 +6,9 @@ and demonstrating how we can have a multiple objects each
 using the same PShape.
 """
 from polygon import Polygon
+
 # A list of objects
 polygons = []
-
 
 def setup():
     size(640, 360, P2D)
@@ -29,9 +29,7 @@ def setup():
     star.vertex(-47, -15)
     star.vertex(-14, -20)
     star.endShape(CLOSE)
-    # Make an ArrayList.
-    polygons = []
-    # Add a bunch of objects to the ArrayList.
+
     # Pass in reference to the PShape.
     # We coud make polygons with different PShapes.
     for i in range(25):

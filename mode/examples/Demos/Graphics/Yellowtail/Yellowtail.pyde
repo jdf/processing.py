@@ -42,6 +42,7 @@ def draw():
 
 
 def mousePressed():
+    global currentGestureID
     currentGestureID = (currentGestureID + 1) % nGestures
     gesture = gestureArray[currentGestureID]
     gesture.clear()

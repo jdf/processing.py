@@ -4,14 +4,12 @@ PrimitivePShape.
 
 Using a PShape to display a custom polygon. 
 """
-# The PShape object
-star = None
-
 
 def setup():
     size(640, 360, P2D)
     smooth()
     # First create the shape.
+    global star
     star = createShape()
     star.beginShape()
     # You can set fill and stroke.

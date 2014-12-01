@@ -4,12 +4,11 @@ BeginEndContour
 This example shows how to cut a shape out of another using beginContour() and endContour().
 """
 
-s = None
-
 def setup():
     size(640, 360, P2D)
     smooth()
     # Make a shape
+    global s
     s = createShape()
     s.beginShape()
     s.fill(0)

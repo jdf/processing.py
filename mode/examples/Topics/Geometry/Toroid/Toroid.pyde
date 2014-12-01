@@ -18,8 +18,6 @@ RIGHT arrow key segments++
 'h' key toggle sphere / helix
 """
 
-halfWidth = None
-halfHeight = None
 pts = 40
 angle = 0.001
 radius = 60.0
@@ -41,6 +39,7 @@ PINinety = PI / 90
 
 def setup():
     size(640, 360, P3D)
+    global halfWidth, halfHeight
     halfWidth = width / 2
     halfHeight = height / 2
 
@@ -71,6 +70,7 @@ def draw():
     vertices2 = [PVector() for _ in range(pts + 1)]
 
     # Fill arrays.
+    global angle
     for i in range(pts + 1):
         # vertices
         vertices[i].x = latheRadius + sin(radians(angle)) * radius
@@ -101,17 +101,16 @@ def draw():
         endShape()
 
 
-"""
- left / right arrow keys control ellipse detail.
- up / down arrow keys control segment detail.
- 'a', 's' keys control lathe radius.
- 'z', 'x' keys control ellipse radius.
- 'w' key toggles between wireframe and solid.
- 'h' key toggles between toroid and helix.
- """
-
-
 def keyPressed():
+    global pts, segments, latheRadius, radius, isWireFrame, isHelix
+    """
+    left / right arrow keys control ellipse detail.
+    up / down arrow keys control segment detail.
+    'a', 's' keys control lathe radius.
+    'z', 'x' keys control ellipse radius.
+    'w' key toggles between wireframe and solid.
+    'h' key toggles between toroid and helix.
+    """
     if key == CODED:
         # Points.
         if keyCode == UP and pts < 40:
@@ -143,3 +142,4 @@ def keyPressed():
     # Helix.
     if key == 'h':
         isHelix = not isHelix
+

@@ -3,14 +3,12 @@ PathPShape
 
 A simple path using PShape
 """
-# A PShape object
-path = None
-
 
 def setup():
     size(640, 360, P2D)
     smooth()
     # Create the shape.
+    global path
     path = createShape()
     path.beginShape()
     # Set fill and stroke.

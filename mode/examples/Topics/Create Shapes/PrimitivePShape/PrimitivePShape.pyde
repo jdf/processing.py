@@ -3,14 +3,12 @@ PrimitivePShape.
 
 Using a PShape to display a primitive shape (in this case, ellipse). 
 """
-# The PShape object
-circle = None
-
 
 def setup():
     size(640, 360, P2D)
     smooth()
     # Creating the PShape as an ellipse.
+    global circle
     circle = createShape(ELLIPSE, 0, 0, 100, 50)
 
 

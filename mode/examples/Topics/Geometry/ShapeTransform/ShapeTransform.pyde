@@ -11,8 +11,6 @@ Down Arrow - decreases points
 'p' key toggles between cube / pyramid
 """
 
-halfWidth = None
-halfHeight = None
 angleInc = PI / 300.0
 pts = 4
 angle = 0
@@ -24,11 +22,14 @@ cylinderLength = 95
 def setup():
     size(640, 360, P3D)
     noStroke()
+    global halfWidth, halfHeight
     halfWidth = width / 2
     halfHeight = height / 2
 
 
 def draw():
+    global cylinderLength
+    
     background(170, 95, 95)
     lights()
     fill(255, 200, 200)
@@ -71,16 +72,16 @@ def draw():
 
 """
  up / down arrow keys control polygon detail.
- """
-
-
+"""
 def keyPressed():
+    global pts, isPyramid
     if key == CODED:
         # Pts.
         if keyCode == UP and pts < 90:
-                pts += 1
+            pts += 1
         elif keyCode == DOWN and pts > 4:
-                pts -= 1
+            pts -= 1
 
     if key == 'p':
         isPyramid = not isPyramid
+

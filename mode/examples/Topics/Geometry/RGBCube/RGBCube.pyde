@@ -7,19 +7,19 @@ This RGB color cube displays smooth transitions between these colors.
 
 xmag = 0
 ymag = 0
-halfWidth = None
-halfHeight = None
 
 
 def setup():
     size(640, 360, P3D)
     noStroke()
     colorMode(RGB, 1)
+    global halfWidth, halfHeight
     halfWidth = width / 2
     halfHeight = height / 2
 
 
 def draw():
+    global xmag, ymag
     background(0.5)
 
     with pushMatrix():

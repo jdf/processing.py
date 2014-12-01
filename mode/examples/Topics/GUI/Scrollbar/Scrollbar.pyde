@@ -3,20 +3,16 @@ Scrollbar.
 
 Move the scrollbars left and right to change the positions of the images. 
 """
-# Two scrollbars
-hs1 = None
-hs2 = None
-# Two images to load
-img1 = None
-img2 = None
-
 
 def setup():
     size(640, 360)
     noStroke()
+    # Two scrollbars
+    global hs1, hs2
     hs1 = HScrollbar(0, height / 2 - 8, width, 16, 16)
     hs2 = HScrollbar(0, height / 2 + 8, width, 16, 16)
-    # Load images
+    # Two images to load
+    global img1, img2
     img1 = loadImage("seedTop.jpg")
     img2 = loadImage("seedBottom.jpg")
 
@@ -42,7 +38,6 @@ def draw():
 
 
 class HScrollbar(object):
-
     def __init__(self, xp, yp, sw, sh, loosetemp):
         # width and height of bar
         self.swidth = sw

@@ -7,15 +7,11 @@ The radius at the top can be different from the radius at the bottom, and the
 number of sides drawn is variable.
 """
 
-halfWidth = None
-halfHeight = None
-
-
 def setup():
     size(640, 360, P3D)
+    global halfWidth, halfHeight
     halfWidth = width / 2
     halfHeight = height / 2
-
 
 def draw():
     background(0)
