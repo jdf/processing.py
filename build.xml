@@ -422,7 +422,7 @@
     </copy>
     <copy-processing-library dir="${cache}" library="dxf"/>
     <copy-processing-library dir="${cache}" library="lwjgl"/>
-    <copy-processing-library dir="${cache}" library="minim"/>
+    <copy-processing-library dir="${cache}" library="sound"/>
     <copy-processing-library dir="${cache}" library="net"/>
     <copy-processing-library dir="${cache}" library="pdf"/>
     <copy-processing-library dir="${cache}" library="serial"/>
