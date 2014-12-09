@@ -48,7 +48,11 @@ public class JycessingTests {
     final String sourceText = new String(Files.readAllBytes(source), "utf-8");
     final TestSketch sketch = new TestSketch(source, sourceText, "test " + testResource);
     final CapturingPrinter out = new CapturingPrinter();
-    Runner.runSketchBlocking(sketch, out, new StreamPrinter(System.err));
+    try {
+      Runner.runSketchBlocking(sketch, out, new StreamPrinter(System.err));
+    } finally {
+      System.err.println(out.getText());
+    }
     return out.getText();
   }
 

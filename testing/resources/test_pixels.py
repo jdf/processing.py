@@ -15,11 +15,11 @@ assert get(35, 15) == 0xFF00FF00
 
 fill(lerpColor(0, 255, .5))
 rect(40, 10, 10, 10)
-assert get(45, 15) == 0xFF7F7F7F
+assert get(45, 15) == 0xFF808080
 
 fill(lerpColor('#0000FF', '#FF0000', .5))
 rect(50, 10, 10, 10)
-assert get(55, 15) == 0xFF7F007F
+assert get(55, 15) == 0xFF800080
 
 # Fill a pink square the hard way.
 loadPixels()
