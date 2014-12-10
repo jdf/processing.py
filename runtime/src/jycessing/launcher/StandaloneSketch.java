@@ -136,8 +136,6 @@ public class StandaloneSketch implements RunnableSketch {
     }
   }
 
-
-
   @Override
   public File getMainFile() {
     return sketchPath;
@@ -150,7 +148,8 @@ public class StandaloneSketch implements RunnableSketch {
 
   @Override
   public String[] getPAppletArguments() {
-    return new String[] {PApplet.ARGS_SKETCH_FOLDER + "=" + sketchPath.getAbsolutePath(),
+    return new String[] {
+        PApplet.ARGS_SKETCH_FOLDER + "=" + sketchPath.getParentFile().getAbsolutePath(),
         sketchPath.getName() // must be last argument
     };
   }

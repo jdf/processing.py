@@ -15,11 +15,8 @@ import processing.core.PApplet;
 
 /**
  * A sketch run from the PDE.
- * This class is a little bit wacky.
- * It's created in the PDE process, serialized, and then used in 
- * the sketch process.
- * I'm hoping lazy class loading will prevent the sketch process
- * from complaining that it doesn't know about Base.
+ *
+ * This is created in the PDE process, serialized, and then used in the sketch process.
  */
 
 @SuppressWarnings("serial")

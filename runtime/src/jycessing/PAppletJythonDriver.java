@@ -31,6 +31,8 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
@@ -101,7 +103,7 @@ public class PAppletJythonDriver extends PApplet {
 
   protected final PyStringMap builtins;
   protected final InteractiveConsole interp;
-  private final String pySketchPath;
+  private final Path pySketchPath;
   private final String programText;
   private final WrappedPrintStream wrappedStdout;
 
@@ -170,7 +172,8 @@ public class PAppletJythonDriver extends PApplet {
        */
       interp.set("__processing_source__", programText);
       final PyCode code =
-          Py.compile_flags(scriptSource, pySketchPath, CompileMode.exec, new CompilerFlags());
+          Py.compile_flags(scriptSource, pySketchPath.toString(), CompileMode.exec,
+              new CompilerFlags());
       interp.exec(code);
       Py.flushLine();
     } catch (Throwable t) {
@@ -320,7 +323,7 @@ public class PAppletJythonDriver extends PApplet {
       }
     };
     this.programText = programText;
-    this.pySketchPath = pySketchPath;
+    this.pySketchPath = Paths.get(pySketchPath);
     this.interp = interp;
     this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
 
