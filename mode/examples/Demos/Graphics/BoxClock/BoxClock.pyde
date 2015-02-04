@@ -8,7 +8,7 @@
 
 
 def setup():
-    global fillCube
+    global fillCube, edgeCube
     size(500, 500, P3D)
     smooth(4)
     camera(0, 0, 100,
@@ -18,11 +18,11 @@ def setup():
     # Creating a **filled** wireframe cube is non-obvious.
     # We need an opaque black cube inside a transparent wireframe cube.
     fillCube = createShape(BOX, 2)
+    edgeCube = makeEdgeCube()
 
     # The fill color here has to match the `background` from `draw` in order
     # for the fill cube to be invisible.
     fillCube.setFill(color(10))
-    makeEdgeCube()
 
 
 def draw():
@@ -48,7 +48,6 @@ def drawShape():
 
 
 def makeEdgeCube():
-    global edgeCube
     # Draw a 2x2x2 transparent cube with edges colored according to the
     # current time.
     Red = color(255, 137, 95)  # Seconds.
@@ -90,3 +89,4 @@ def makeEdgeCube():
     edgeCube.vertex(-1, -1, -1)
     edgeCube.vertex(-1, -1, 1)
     edgeCube.endShape()
+    return edgeCube
