@@ -8,7 +8,7 @@ class Animation(object):
         for i in range(self.imageCount):
             # Use nf() to number format 'i' into four digits
             filename = imagePrefix + nf(i, 4) + ".gif"
-            self.images[i] = loadImage(filename)
+            self.images[i] = loadImage("data/" + filename)
 
     def display(self, xpos, ypos):
         self.frame = (self.frame + 1) % self.imageCount
@@ -16,4 +16,3 @@ class Animation(object):
 
     def getWidth(self):
         return self.images[0].width
-
