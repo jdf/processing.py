@@ -1,24 +1,22 @@
 from particle import Particle
 
 
-class ParticleSystem:
+class ParticleSystem(object):
 
     def __init__(self, n, sprite):
-        self.particles = []
         self.particleShape = createShape(PShape.GROUP)
-        for i in range(n):
-            p = Particle(sprite)
-            self.particles.append(p)
-            self.particleShape.addChild(p.getShape())
+        self.particles = [Particle(sprite) for _ in range(n)]
+        for particle in self.particles:
+            self.particleShape.addChild(particle.getShape())
 
     def update(self):
-        for p in self.particles:
-            p.update()
+        for particle in self.particles:
+            particle.update()
 
     def setEmitter(self, x, y):
-        for p in self.particles:
-            if p.isDead():
-                p.rebirth(x, y)
+        for particle in self.particles:
+            if particle.isDead():
+                particle.rebirth(x, y)
 
     def display(self):
         shape(self.particleShape)
