@@ -1,20 +1,17 @@
 """
 Brightness
-by Daniel Shiffman. 
+by Daniel Shiffman.
 
 This program adjusts the brightness of a part of the image by
 calculating the distance of each pixel to the mouse.
 """
 
-img = None
+img = loadImage("moon-wide.jpg")
 runningavg = 0
-total = 0
-
 
 def setup():
     size(640, 360)
     frameRate(30)
-    img = loadImage("moon-wide.jpg")
     img.loadPixels()
     # Only need to load the pixels[] array once, because we're only
     # manipulating pixels[] inside draw(), not drawing shapes.
@@ -22,6 +19,7 @@ def setup():
 
 
 def draw():
+    global runningavg
     now = millis()
     for x in range(img.width):
         for y in range(img.height):
@@ -29,8 +27,8 @@ def draw():
             loc = x + y * img.width
             # Get the R,G,B values from image
             r = 0
-            g = 0
-            b = 0
+            # g = 0
+            # b = 0
             r = red(img.pixels[loc])
             # g = green(img.pixels[loc])
             # b = blue(img.pixels[loc])
@@ -55,4 +53,3 @@ def draw():
     runningavg += 1
     println(total / runningavg)
     updatePixels()
-
