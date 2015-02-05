@@ -8,10 +8,11 @@ number of sides drawn is variable.
 """
 
 def setup():
-    size(640, 360, P3D)
     global halfWidth, halfHeight
+    size(640, 360, P3D)
     halfWidth = width / 2
     halfHeight = height / 2
+
 
 def draw():
     background(0)
@@ -34,31 +35,28 @@ def drawCylinder(topRadius, bottomRadius, tall, sides):
     angle = 0
     angleIncrement = TAU / sides
 
-    beginShape(QUAD_STRIP)
-    for i in range(sides + 1):
-        vertex(topRadius * cos(angle), 0, topRadius * sin(angle))
-        vertex(bottomRadius * cos(angle), tall, bottomRadius * sin(angle))
-        angle += angleIncrement
-    endShape()
+    with beginShape(QUAD_STRIP):
+        for _ in range(sides + 1):
+            vertex(topRadius * cos(angle), 0, topRadius * sin(angle))
+            vertex(bottomRadius * cos(angle), tall, bottomRadius * sin(angle))
+            angle += angleIncrement
 
     # If it is not a cone, draw the circular top cap.
     if topRadius != 0:
         angle = 0
-        beginShape(TRIANGLE_FAN)
-        # Center point.
-        vertex(0, 0, 0)
-        for i in range(sides + 1):
-            vertex(topRadius * cos(angle), 0, topRadius * sin(angle))
-            angle += angleIncrement
-        endShape()
+        with beginShape(TRIANGLE_FAN):
+            # Center point.
+            vertex(0, 0, 0)
+            for _ in range(sides + 1):
+                vertex(topRadius * cos(angle), 0, topRadius * sin(angle))
+                angle += angleIncrement
 
     # If it is not a cone, draw the circular bottom cap.
     if bottomRadius != 0:
         angle = 0
-        beginShape(TRIANGLE_FAN)
-        # Center point.
-        vertex(0, tall, 0)
-        for i in range(sides + 1):
-            vertex(bottomRadius * cos(angle), tall, bottomRadius * sin(angle))
-            angle += angleIncrement
-        endShape()
+        with beginShape(TRIANGLE_FAN):
+            # Center point.
+            vertex(0, tall, 0)
+            for _ in range(sides + 1):
+                vertex(bottomRadius * cos(angle), tall, bottomRadius * sin(angle))
+                angle += angleIncrement
