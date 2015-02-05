@@ -8,14 +8,14 @@ See AccelerationWithVectors for an example of how to simulate motion using
 vectors in an object.
 """
 
+location = PVector(100, 100)  # Location of shape
+velocity = PVector(1.5, 2.1)  # Velocity of shape
+gravity = PVector(0, 0.2)  # Gravity acts at the shape's acceleration.
+
 
 def setup():
-    global location, velocity, gravity
     size(640, 360)
     smooth()
-    location = PVector(100, 100)  # Location of shape
-    velocity = PVector(1.5, 2.1)  # Velocity of shape
-    gravity = PVector(0, 0.2)  # Gravity acts as the shape's acceleration.
 
 
 def draw():
@@ -25,7 +25,7 @@ def draw():
     # Add gravity to velocity.
     velocity.add(gravity)
     # Bounce off edges.
-    if (location.x < 0) or (location.x > width):
+    if  (location.x < 0) or (location.x > width):
         velocity.x = velocity.x * -1
     if location.y > height:
         # We're reducing velocity ever so slightly
