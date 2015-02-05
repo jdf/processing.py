@@ -1,23 +1,21 @@
 """
-Bouncing Ball with Vectors 
-by Daniel Shiffman.    
+Bouncing Ball with Vectors
+by Daniel Shiffman.
 
 Demonstration of using vectors to control motion of body.
 This example is not object-oriented.
-See AccelerationWithVectors for an example of how to simulate motion using vectors in an object.
+See AccelerationWithVectors for an example of how to simulate motion using
+vectors in an object.
 """
-
-location = None  # Location of shape
-velocity = None  # Velocity of shape
-gravity = None  # Gravity acts at the shape's acceleration.
 
 
 def setup():
+    global location, velocity, gravity
     size(640, 360)
     smooth()
-    location = PVector(100, 100)
-    velocity = PVector(1.5, 2.1)
-    gravity = PVector(0, 0.2)
+    location = PVector(100, 100)  # Location of shape
+    velocity = PVector(1.5, 2.1)  # Velocity of shape
+    gravity = PVector(0, 0.2)  # Gravity acts as the shape's acceleration.
 
 
 def draw():
@@ -27,7 +25,7 @@ def draw():
     # Add gravity to velocity.
     velocity.add(gravity)
     # Bounce off edges.
-    if (location.x > width) or (location.x < 0):
+    if (location.x < 0) or (location.x > width):
         velocity.x = velocity.x * -1
     if location.y > height:
         # We're reducing velocity ever so slightly
@@ -39,4 +37,3 @@ def draw():
     strokeWeight(2)
     fill(127)
     ellipse(location.x, location.y, 48, 48)
-
