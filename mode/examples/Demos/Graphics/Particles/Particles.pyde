@@ -5,7 +5,7 @@ from particle_system import ParticleSystem
 def setup():
     global ps
     size(512, 384, P2D)
-    sprite = loadImage("data/sprite.png")
+    sprite = loadImage("sprite.png")
     ps = ParticleSystem(10000, sprite)
     # Writing to the depth buffer is disabled to avoid rendering
     # artifacts due to the fact that the particles are semi-transparent
