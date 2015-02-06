@@ -19,13 +19,13 @@ def setup():
 
 def draw():
     background(153)
-    for handle in handles:
-        handle.update()
-        handle.display()
+    for h in handles:
+        h.update()
+        h.display()
     fill(0)
     rect(0, 0, width / 2, height)
 
 
 def mouseReleased():
-    for handle in handles:
-        handle.releaseEvent()
+    for h in handles:
+        h.releaseEvent()
