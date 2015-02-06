@@ -17,6 +17,7 @@ from gesture import Gesture
 
 nGestures = 36    # Number of gestures
 minMove = 3       # Minimum travel for a point
+gestureArray = []
 
 
 def setup():
@@ -24,7 +25,8 @@ def setup():
     size(1024, 768, P2D)
     background(0, 0, 0)
     noStroke()
-    gestureArray = [Gesture(width, height) for _ in range(nGestures)]
+    for _ in range(nGestures):
+        gestureArray.append(Gesture(width, height))
     currentGestureID = -1
     clearGestures()
 
