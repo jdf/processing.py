@@ -1,8 +1,9 @@
-class Particle:
+class Particle(object):
 
     def __init__(self, sprite):
         self.gravity = PVector(0, 0.1)
         self.lifespan = 255
+        self.velocity = PVector()
         partSize = random(10, 60)
         self.part = createShape()
         self.part.beginShape(QUAD)
@@ -15,7 +16,6 @@ class Particle:
                          sprite.width, sprite.height)
         self.part.vertex(-partSize / 2, +partSize / 2, 0, sprite.height)
         self.part.endShape()
-
         self.rebirth(width / 2, height / 2)
         self.lifespan = random(255)
 

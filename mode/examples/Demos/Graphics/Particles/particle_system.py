@@ -1,14 +1,12 @@
 from particle import Particle
 
 
-class ParticleSystem:
+class ParticleSystem(object):
 
     def __init__(self, n, sprite):
-        self.particles = []
         self.particleShape = createShape(PShape.GROUP)
-        for i in range(n):
-            p = Particle(sprite)
-            self.particles.append(p)
+        self.particles = [Particle(sprite) for _ in range(n)]
+        for p in self.particles:
             self.particleShape.addChild(p.getShape())
 
     def update(self):
@@ -22,4 +20,3 @@ class ParticleSystem:
 
     def display(self):
         shape(self.particleShape)
-
