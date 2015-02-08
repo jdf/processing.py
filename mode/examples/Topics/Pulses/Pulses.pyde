@@ -1,12 +1,12 @@
 """
-Pulses. 
+Pulses.
 
 Software drawing instruments can follow a rhythm or abide by rules independent
 of drawn gestures. This is a form of collaborative drawing in which the draftsperson
 controls some aspects of the image and the software controls others.
 """
 
-angle = 0
+offset = 0
 
 
 def setup():
@@ -17,15 +17,15 @@ def setup():
 
 
 def draw():
+    global offset
     # Draw only when mouse is pressed
     if mousePressed == True:
-        angle += 5
-        val = cos(radians(angle)) * 12.0
-        for a in range(0, 360, 75):
-            xoff = cos(radians(a)) * val
-            yoff = sin(radians(a)) * val
+        offset += 5
+        radius = cos(radians(offset)) * 12.0
+        for angle in range(0, 360, 75):
+            xOff = cos(radians(angle)) * radius
+            yOff = sin(radians(angle)) * radius
             fill(0)
-            ellipse(mouseX + xoff, mouseY + yoff, val, val)
+            ellipse(mouseX + xOff, mouseY + yOff, radius, radius)
         fill(255)
         ellipse(mouseX, mouseY, 2, 2)
-
