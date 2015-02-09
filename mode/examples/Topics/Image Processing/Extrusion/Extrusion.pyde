@@ -36,5 +36,5 @@ def draw():
         for j in range(0, img.width, 4):
             stroke(values[j][i], 255)
             line(j - img.width / 2, i - img.height / 2,
-                 - values[j][i], j - img.width / 2,
+                 -values[j][i], j - img.width / 2,
                  i - img.height / 2, -values[j][i] - 10)
