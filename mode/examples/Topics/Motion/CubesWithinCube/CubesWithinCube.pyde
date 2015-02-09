@@ -10,6 +10,10 @@ from cube import Cube
 Bounds = 300
 # 20 little internal cubes
 cubes = []
+for _ in range(20):
+    # Cubes are randomly sized
+    cubeSize = random(5, 15)
+    cubes.append(Cube(cubeSize, cubeSize, cubeSize))
 
 
 def setup():
@@ -17,10 +21,6 @@ def setup():
     global halfWidth, halfHeight
     halfWidth = width / 2.0
     halfHeight = height / 2.0
-    for _ in range(20):
-        # Cubes are randomly sized
-        cubeSize = random(5, 15)
-        cubes.append(Cube(cubeSize, cubeSize, cubeSize))
 
 
 def draw():
