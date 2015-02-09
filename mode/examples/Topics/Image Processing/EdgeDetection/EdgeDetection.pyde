@@ -1,20 +1,19 @@
 """
-Edge Detection. 
+Edge Detection.
 
 A high-pass filter sharpens an image. This program analyzes every
-pixel in an image in relation to the neighboring pixels to sharpen 
-the image. 
+pixel in an image in relation to the neighboring pixels to sharpen
+the image.
 """
 
 kernel = [[-1, -1, -1],
           [-1, 9, -1],
           [-1, -1, -1]]
-img = None
+img = loadImage("moon.jpg")  # Load the original image
 
 
 def setup():
     size(640, 360)
-    img = loadImage("moon.jpg")  # Load the original image
     noLoop()
 
 

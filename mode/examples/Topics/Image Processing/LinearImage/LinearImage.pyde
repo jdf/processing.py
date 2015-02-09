@@ -1,10 +1,10 @@
 """
-Linear Image. 
+Linear Image.
 
-Click and drag mouse up and down to control the signal. 
-Press and hold any key to watch the scanning. 
+Click and drag mouse up and down to control the signal.
+Press and hold any key to watch the scanning.
 """
-img = None
+img = loadImage("sea.jpg")
 direction = 1
 signal = 0.0
 
@@ -12,7 +12,6 @@ signal = 0.0
 def setup():
     size(640, 360)
     stroke(255)
-    img = loadImage("sea.jpg")
     img.loadPixels()
     loadPixels()
 

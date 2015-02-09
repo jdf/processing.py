@@ -1,12 +1,12 @@
 """
-Pixel Array. 
+Pixel Array.
 
-Click and drag the mouse up and down to control the signal and 
-press and hold any key to see the current pixel being read. 
+Click and drag the mouse up and down to control the signal and
+press and hold any key to see the current pixel being read.
 This program sequentially reads the color of every pixel of an image
-and displays this color to fill the window.    
+and displays this color to fill the window.
 """
-img = None
+img = loadImage("sea.jpg")
 direction = 1
 signal = 0.0
 
@@ -16,7 +16,6 @@ def setup():
     noFill()
     stroke(255)
     frameRate(30)
-    img = loadImage("sea.jpg")
 
 
 def draw():
