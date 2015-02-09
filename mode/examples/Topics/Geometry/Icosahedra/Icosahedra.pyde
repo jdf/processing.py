@@ -10,10 +10,6 @@ the unused Dimension3D class.
 from icosahedron import Icosahedron
 
 # Pre-calculate some global values
-halfWidth = None
-halfHeight = None
-ico3XOffset = None
-ico1XOffset = None
 ico1XRot = PI / 185
 ico1YRot = PI / -200
 ico2XRot = PI / 200
@@ -23,13 +19,12 @@ icoY3Rot = PI / 200
 
 
 def setup():
+    global halfWidth, halfHeight, ico3XOffset, ico1XOffset, ico1, ico2, ico3
     size(640, 360, P3D)
-    global halfWidth, halfHeight, ico3XOffset, ico1XOffset
     halfWidth = width / 2
     halfHeight = height / 2
     ico3XOffset = width / 3.5
     ico1XOffset = ico3XOffset * -1
-    global ico1, ico2, ico3
     ico1 = Icosahedron(75)
     ico2 = Icosahedron(75)
     ico3 = Icosahedron(75)
@@ -62,4 +57,3 @@ def draw():
         noStroke()
         fill(0, 0, 185)
         ico3.create()
-
