@@ -6,12 +6,11 @@ Recording random movement as a continuous line.
 
 NUMBER = 2000
 RANGE = 6
-ax = []
-ay = []
 
 
 def setup():
     size(640, 360)
+    global ax, ay
     halfWidth = width / 2.0
     halfHeight = height / 2.0
     ax = [halfWidth for _ in range(NUMBER)]

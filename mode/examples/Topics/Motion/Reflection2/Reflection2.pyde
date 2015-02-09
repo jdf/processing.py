@@ -10,16 +10,16 @@ from ground import Ground
 
 # An orb object that will fall and bounce around.
 orb = Orb(50, 50, 3)
-grounds = None
 segments = 40
 
 
 def setup():
     size(640, 360)
+    global grounds
 
     # Calculate ground peak heights.
     peakHeights = [float(random(height - 40, height - 30))
-                   for _ in range(segments+1)]
+                   for _ in range(segments + 1)]
 
     # Float value required for segment width (segs) calculations so the ground
     #  spans the entire display window, regardless of segment number.
