@@ -7,6 +7,7 @@ calculating the distance of each pixel to the mouse.
 """
 
 img = loadImage("moon-wide.jpg")
+total = 0
 runningavg = 0
 
 def setup():
@@ -19,7 +20,7 @@ def setup():
 
 
 def draw():
-    global runningavg
+    global total, runningavg
     now = millis()
     for x in range(img.width):
         for y in range(img.height):
