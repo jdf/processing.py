@@ -26,28 +26,24 @@ def draw():
         for y in range(img.height):
             # Calculate the 1D location from a 2D grid
             loc = x + y * img.width
-            # Get the R,G,B values from image
+            # Get the R,G,B values from image.
+            # Note that we're only using the `r` channel here, but it's
+            # entirely possible to use the `g` and `b` channels as well,
+            # together or in isolation.
             r = 0
-            # g = 0
-            # b = 0
             r = red(img.pixels[loc])
-            # g = green(img.pixels[loc])
-            # b = blue(img.pixels[loc])
             # Calculate an amount to change brightness based on proximity to
             # the mouse
             maxdist = 50  # dist(0,0,width,height)
             d = dist(x, y, mouseX, mouseY)
             adjustbrightness = 255 * (maxdist - d) / maxdist
             r += adjustbrightness
-            # g += adjustbrightness
-            # b += adjustbrightness
             # Constrain RGB to make sure they are within 0-255 color range
             r = constrain(r, 0, 255)
-            # g = constrain(g, 0, 255)
-            # b = constrain(b, 0, 255)
             # Make a color and set pixel in the window
-            # color c = color(r, g, b)
             c = color(r)
+            # If we were using the other two channels it would look like
+            # `c = color(r, g, b)`
             pixels[y * width + x] = c
     then = millis()
     total += then - now
