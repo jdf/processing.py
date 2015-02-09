@@ -17,6 +17,7 @@ def setup():
 
 
 def draw():
+    global signal, direction
     if signal > img.height - 1 or signal < 0:
         direction = direction * -1
     if mousePressed:
@@ -33,7 +34,5 @@ def draw():
         updatePixels()
 
 
-def listCopy(src, srcPosition, dst, dstPosition, length):
-    dst[dstPosition:dstPosition +
-        length] = src[srcPosition:srcPosition + length]
-
+def listCopy(src, srcPos, dst, dstPos, length):
+    dst[dstPos:dstPos + length] = src[srcPos:srcPos + length]

@@ -19,6 +19,7 @@ def setup():
 
 
 def draw():
+    global signal, direction
     if signal > img.width * img.height - 1 or signal < 0:
         direction = direction * -1
     if mousePressed:
@@ -36,4 +37,3 @@ def draw():
     else:
         c = img.get(sx, sy)
         background(c)
-

@@ -9,14 +9,13 @@ translation along z axis.
 
 img = loadImage("eames.jpg")  # Load the image
 cellsize = 2  # Dimensions of each cell in the grid
-columns = None  # Number of columns and rows in our system
-rows = None
+# Number of columns and rows in our system
+columns = img.width / cellsize  # Calculate # of columns
+rows = img.height / cellsize  # Calculate # of rows
 
 
 def setup():
     size(640, 360, P3D)
-    columns = img.width / cellsize  # Calculate # of columns
-    rows = img.height / cellsize  # Calculate # of rows
 
 
 def draw():
@@ -39,4 +38,3 @@ def draw():
                 noStroke()
                 rectMode(CENTER)
                 rect(0, 0, cellsize, cellsize)
-
