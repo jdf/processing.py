@@ -25,7 +25,7 @@ def draw():
     # Add gravity to velocity.
     velocity.add(gravity)
     # Bounce off edges.
-    if  (location.x < 0) or (location.x > width):
+    if  location.x < 0 or location.x > width:
         velocity.x = velocity.x * -1
     if location.y > height:
         # We're reducing velocity ever so slightly
