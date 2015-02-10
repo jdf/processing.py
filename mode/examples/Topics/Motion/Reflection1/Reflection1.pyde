@@ -2,39 +2,31 @@
 Non-orthogonal Reflection
 by Ira Greenberg.
 
-Based on the equation (R = 2N(N * L) - L) where R is the reflection vector, N
-is the normal, and L is the incident vector.
+Based on the equation (R = 2N(N * L) - L) where R is the reflection vector,
+N is the normal, and L is the incident vector.
 """
 
-# Position of left hand side of floor.
-base1 = None
-
-# Position of right hand side of floor.
-base2 = None
-
-# A list of subpoints along the floor path.
-coords = []
-
 # Variables related to moving ball.
-position = None
-velocity = None
-r = 6
+# Calculate initial random velocity.
+velocity = PVector.random2D()
+radius = 6
 speed = 3.5
 
 
 def setup():
     size(640, 360)
-
+    global base1, base2, position
     fill(128)
+
+    # Position of left hand side of floor.
     base1 = PVector(0, height - 150)
+
+    # Position of right hand side of floor.
     base2 = PVector(width, height)
     createGround()
 
     # Start ellipse at middle top of screen.
     position = PVector(width / 2, 0)
-
-    # Calculate initial random velocity.
-    velocity = PVector.random2D()
     velocity.mult(speed)
 
 
@@ -56,7 +48,7 @@ def draw():
     # Draw ellipse.
     noStroke()
     fill(255)
-    ellipse(position.x, position.y, r * 2, r * 2)
+    ellipse(position.x, position.y, radius * 2, radius * 2)
 
     # Move elipse.
     position.add(velocity)
@@ -68,7 +60,7 @@ def draw():
     # Detect and handle collision.
     for coord in coords:
         # Check distance between ellipse and base top coordinates.
-        if PVector.dist(position, coord) < r:
+        if PVector.dist(position, coord) < radius:
             # Calculate dot product of incident vector and base top normal.
             dot = incidence.dot(normal)
 
@@ -85,18 +77,18 @@ def draw():
 
     # Detect boundary collision.
     # Right.
-    if position.x > width - r:
-        position.x = width - r
+    if position.x > width - radius:
+        position.x = width - radius
         velocity.x *= -1
 
     # Left.
-    if position.x < r:
-        position.x = r
+    if position.x < radius:
+        position.x = radius
         velocity.x *= -1
 
     # Top.
-    if position.y < r:
-        position.y = r
+    if position.y < radius:
+        position.y = radius
         velocity.y *= -1
         # Randomize base top.
         base1.y = random(height - 100, height)
@@ -106,9 +98,11 @@ def draw():
 
 # Calculate variables for the ground.
 def createGround():
+    global coords
     # Calculate length of base top.
     baseLength = PVector.dist(base1, base2)
 
+    # A list of subpoints along the floor path.
     # Fill base top coordinate array.
     coords = [PVector(base1.x + ((base2.x - base1.x) / baseLength) * i,
                       base1.y + ((base2.y - base1.y) / baseLength) * i)
