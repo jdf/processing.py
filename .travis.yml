@@ -7,7 +7,7 @@ before_install:
   - cd processing/build
   - ant
   - cd ../..
-  - git clone --depth=1 https://github.com/processing/processing-video
+  - git clone --depth=1 https://github.com/jdf/processing-video
   - cd processing-video
   - ant
   - cd ..
