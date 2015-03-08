@@ -1,15 +1,12 @@
 """
-Blending 
-by Andres Colubri. 
+Blending
+by Andres Colubri.
 
-Images can be blended using one of the 10 blending modes 
+Images can be blended using one of the 10 blending modes
 (currently available only in P2D and P3).
-Click to go to cycle through the modes.    
+Click to go to cycle through the modes.
 """
 
-img1 = None
-img2 = None
-picAlpha = 255
 modes = ((REPLACE, "REPLACE"),
          (BLEND, "BLEND"),
          (ADD, "ADD"),
@@ -21,17 +18,17 @@ modes = ((REPLACE, "REPLACE"),
          (MULTIPLY, "MULTIPLY"),
          (SCREEN, "SCREEN"),
          (REPLACE, "REPLACE"))
+img1 = loadImage("layer1.jpg")
+img2 = loadImage("layer2.jpg")
 currentMode = 0
-
 
 def setup():
     size(640, 360, P3D)
-    img1 = loadImage("layer1.jpg")
-    img2 = loadImage("layer2.jpg")
     noStroke()
 
 
 def draw():
+    global picAlpha
     selMode, name = modes[currentMode]
     picAlpha = int(map(mouseX, 0, width, 0, 255))
     background(0)
@@ -48,10 +45,11 @@ def draw():
 
 
 def mousePressed():
+    global currentMode
     currentMode = (currentMode + 1) % len(modes)
 
 
 def mouseDragged():
+    global picAlpha
     if height - 50 < mouseY:
         picAlpha = int(map(mouseX, 0, width, 0, 255))
-

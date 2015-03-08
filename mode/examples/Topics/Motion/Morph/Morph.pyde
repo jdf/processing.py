@@ -53,6 +53,7 @@ def setup():
 
 def draw():
     background(51)
+    global state
 
     # Draw relative to center.
     translate(width / 2, height / 2)

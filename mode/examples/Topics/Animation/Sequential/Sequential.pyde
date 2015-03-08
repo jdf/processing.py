@@ -1,13 +1,12 @@
 """
 Sequential
-by James Paterson.    
+by James Paterson.
 
-Displaying a sequence of images creates the illusion of motion. 
-Twelve images are loaded and each is displayed individually in a loop. 
+Displaying a sequence of images creates the illusion of motion.
+Twelve images are loaded and each is displayed individually in a loop.
 """
 
 numFrames = 12  # The number of frames in the animation
-currentFrame = 0
 images = [PImage] * numFrames
 
 def setup():
@@ -32,16 +31,15 @@ def setup():
     # can create the filenames as the program runs.
     # The nf() command does number formatting, which will
     # ensure that the number is (in this case) 4 digits.
-    # for i in range(numFrames):
-    #    imageName = "PT_anim" + nf(i, 4) + ".gif"
-    #    images[i] = loadImage(imageName)
+    # Using a list comprehension:
+    # images = [loadImage('PT_anim' + nf(i, 4) + '.gif')
+    #           for i in range(numFrames)]
     #
-
 
 def draw():
     background(0)
     # Use % to cycle through frames
-    currentFrame = (currentFrame + 1) % numFrames
+    currentFrame = (frameCount + 1) % numFrames
     offset = 0
     for x in range(-100, width, images[0].width):
         image(images[(currentFrame + offset) % numFrames], x, -20)

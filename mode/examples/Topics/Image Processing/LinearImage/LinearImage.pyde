@@ -1,10 +1,10 @@
 """
-Linear Image. 
+Linear Image.
 
-Click and drag mouse up and down to control the signal. 
-Press and hold any key to watch the scanning. 
+Click and drag mouse up and down to control the signal.
+Press and hold any key to watch the scanning.
 """
-img = None
+img = loadImage("sea.jpg")
 direction = 1
 signal = 0.0
 
@@ -12,12 +12,12 @@ signal = 0.0
 def setup():
     size(640, 360)
     stroke(255)
-    img = loadImage("sea.jpg")
     img.loadPixels()
     loadPixels()
 
 
 def draw():
+    global signal, direction
     if signal > img.height - 1 or signal < 0:
         direction = direction * -1
     if mousePressed:
@@ -34,7 +34,5 @@ def draw():
         updatePixels()
 
 
-def listCopy(src, srcPosition, dst, dstPosition, length):
-    dst[dstPosition:dstPosition +
-        length] = src[srcPosition:srcPosition + length]
-
+def listCopy(src, srcPos, dst, dstPos, length):
+    dst[dstPos:dstPos + length] = src[srcPos:srcPos + length]

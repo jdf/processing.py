@@ -1,24 +1,23 @@
 """
 Convolution
-by Daniel Shiffman.    
+by Daniel Shiffman.
 
-Applies a convolution matrix to a portion of an image. Move mouse to 
-apply filter to different parts of the image. 
+Applies a convolution matrix to a portion of an image. Move mouse to
+apply filter to different parts of the image.
 """
 
-img = None
+img = loadImage("moon-wide.jpg")
 w = 120
 # It's possible to convolve the image with many different
 # matrices to produce different effects. This is a high-pass
 # filter; it accentuates the edges.
 matrix = [[-1, -1, -1],
-          [-1,  9, -1],
+          [-1, 9, -1],
           [-1, -1, -1]]
 
 
 def setup():
     size(640, 360)
-    img = loadImage("moon-wide.jpg")
 
 
 def draw():
@@ -65,4 +64,3 @@ def convolution(x, y, matrix, matrixsize, img):
     btotal = constrain(btotal, 0, 255)
     # Return the resulting color
     return color(rtotal, gtotal, btotal)
-

@@ -20,24 +20,26 @@ pct = 0.0  # Percentage traveled (0.0 to 1.0).
 
 def setup():
     size(640, 360)
+    global distX, distY
     noStroke()
     distX = endX - beginX
     distY = endY - beginY
 
 
 def draw():
+    global pct, x, y
     fill(0, 2)
     rect(0, 0, width, height)
     pct += step
     if pct < 1.0:
         x = beginX + (pct * distX)
         y = beginY + (pow(pct, exponent) * distY)
-
     fill(255)
     ellipse(x, y, 20, 20)
 
 
 def mousePressed():
+    global pct, beginX, beginY, endX, endY, distX, distY
     pct = 0.0
     beginX = x
     beginY = y

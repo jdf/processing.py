@@ -16,4 +16,3 @@ class Animation(object):
 
     def getWidth(self):
         return self.images[0].width
-

@@ -1,23 +1,21 @@
 """
-Explode 
-by Daniel Shiffman. 
+Explode
+by Daniel Shiffman.
 
-Mouse horizontal location controls breaking apart of image and 
-Maps pixels from a 2D image into 3D space. Pixel brightness controls 
-translation along z axis. 
+Mouse horizontal location controls breaking apart of image and
+maps pixels from a 2D image into 3D space. Pixel brightness controls
+translation along z axis.
 """
 
-img = None  # The source image
+img = loadImage("eames.jpg")  # Load the image
 cellsize = 2  # Dimensions of each cell in the grid
-columns = None  # Number of columns and rows in our system
-rows = None
+# Number of columns and rows in our system
+columns = img.width / cellsize  # Calculate # of columns
+rows = img.height / cellsize  # Calculate # of rows
 
 
 def setup():
     size(640, 360, P3D)
-    img = loadImage("eames.jpg")  # Load the image
-    columns = img.width / cellsize  # Calculate # of columns
-    rows = img.height / cellsize  # Calculate # of rows
 
 
 def draw():
@@ -40,4 +38,3 @@ def draw():
                 noStroke()
                 rectMode(CENTER)
                 rect(0, 0, cellsize, cellsize)
-

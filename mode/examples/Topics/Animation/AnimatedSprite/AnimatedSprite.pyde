@@ -1,25 +1,23 @@
 """
 Animated Sprite (Shifty + Teddy)
-by James Paterson. 
+by James Paterson.
 
 Press the mouse button to change animations.
 Demonstrates loading, displaying, and animating GIF images.
-It would be easy to write a program to display 
-animated GIFs, but would not allow as much control over 
-the display sequence and rate of display. 
+It would be easy to write a program to display
+animated GIFs, but would not allow as much control over
+the display sequence and rate of display.
 """
 
 # From the file "animation.py" import the class "Animation"
 from animation import Animation
 
-animation1 = None
-animation2 = None
 xpos = 0
-ypos = 0
 drag = 30.0
 
 
 def setup():
+    global animation1, animation2, ypos
     size(640, 360)
     background(255, 204, 0)
     frameRate(24)
@@ -29,6 +27,7 @@ def setup():
 
 
 def draw():
+    global xpos
     dx = mouseX - xpos
     xpos = xpos + dx / drag
     # Display the sprite at the position xpos, ypos

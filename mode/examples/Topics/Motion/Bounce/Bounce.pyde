@@ -23,6 +23,7 @@ ydirection = 1
 
 def setup():
     size(640, 360)
+    global xpos, ypos
     noStroke()
     frameRate(30)
     ellipseMode(RADIUS)
@@ -32,6 +33,7 @@ def setup():
 
 
 def draw():
+    global xpos, ypos, xdirection, ydirection
     background(102)
 
     # Update the position of the shape.

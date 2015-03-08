@@ -13,23 +13,21 @@ Down Arrow - decreases points
 
 angleInc = PI / 300.0
 pts = 4
-angle = 0
 radius = 99
 isPyramid = False
 cylinderLength = 95
 
 
 def setup():
+    global halfWidth, halfHeight
     size(640, 360, P3D)
     noStroke()
-    global halfWidth, halfHeight
     halfWidth = width / 2
     halfHeight = height / 2
 
 
 def draw():
     global cylinderLength
-    
     background(170, 95, 95)
     lights()
     fill(255, 200, 200)
@@ -84,4 +82,3 @@ def keyPressed():
 
     if key == 'p':
         isPyramid = not isPyramid
-
