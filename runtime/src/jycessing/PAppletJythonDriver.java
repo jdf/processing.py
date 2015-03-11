@@ -348,6 +348,10 @@ public class PAppletJythonDriver extends PApplet {
         finishedLatch.countDown();
       }
     });
+
+    // Make sure key and keyCode are defined.
+    builtins.__setitem__("key", Py.newUnicode((char)0));
+    builtins.__setitem__("keyCode", pyint(0));
   }
 
   @Override

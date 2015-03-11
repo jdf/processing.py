@@ -254,4 +254,9 @@ public class JycessingTests {
   public void lerpColorBeforeSetup() throws Exception {
     expectOK("lerp_color_before_setup");
   }
+
+  @Test
+  public void keyDefinedBeforeKeyEvent() throws Exception {
+    expectOK("key_before_key_event");
+  }
 }
