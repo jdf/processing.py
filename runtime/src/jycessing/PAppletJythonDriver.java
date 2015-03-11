@@ -740,6 +740,17 @@ public class PAppletJythonDriver extends PApplet {
     });
   }
 
+  // If you call lerpColor in an active-mode sketch before setup() has run,
+  // there's no current graphics context, and it NPEs. This protects you from
+  // that.
+  @Override
+  public int lerpColor(final int c1, final int c2, final float amt) {
+    if (g != null) {
+      return super.lerpColor(c1, c2, amt);
+    }
+    return PApplet.lerpColor(c1, c2, amt, RGB); // use the default mode
+  }
+
   /*
    * If you fill(0xAARRGGBB), for some reason Jython decides to
    * invoke the fill(float) method, unless we provide a long int
