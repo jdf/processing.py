@@ -153,11 +153,11 @@ public class Runner {
   public static RunnableSketch sketch;
 
   /**
-   * 
+   *
    * Entrypoint for non-PDE sketches. If we find ARGS_EXPORTED in the argument list,
    * Launch as an exported sketch.
    * Otherwise, launch as a standalone processing.py sketch.
-   * 
+   *
    */
   public static void main(final String[] args) throws Exception {
     if (args.length < 1) {
@@ -259,7 +259,7 @@ public class Runner {
 
   /**
    * warmup() front-loads a huge amount of slow IO so that when the user gets around
-   * to running a sketch, most of the slow work is already done. 
+   * to running a sketch, most of the slow work is already done.
    */
   public static void warmup() {
     try {
@@ -358,7 +358,8 @@ public class Runner {
 
       // We have to do this because static mode sketches may load data
       // files during parsing!
-      applet.sketchPath = sketch.getHomeDirectory().getAbsolutePath();
+      applet.sketchPath(); // The first call will locate the default path
+      // applet.sketchPath = sketch.getHomeDirectory().getAbsolutePath();
 
       applet.setSketchPositionListener(sketchPositionListener);
 

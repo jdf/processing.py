@@ -343,6 +343,7 @@ public class PAppletJythonDriver extends PApplet {
     setColorMethods();
     setText();
     builtins.__setitem__("g", Py.java2py(g));
+    // TODO No longer a Component, but not sure what this is doing [fry]
     addComponentListener(new ComponentAdapter() {
       @Override
       public void componentHidden(final ComponentEvent e) {
@@ -583,6 +584,7 @@ public class PAppletJythonDriver extends PApplet {
         frame.toFront();
         frame.requestFocus();
         frame.setAlwaysOnTop(false);
+        // TODO no longer a Component, handled in PSurface [fry]
         requestFocus();
       }
     });
@@ -1177,6 +1179,7 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   @Override
+  // TODO No longer in use because of Applet removal, but bring back? [fry]
   public void destroy() {
     try {
       if (destroyMeth != null) {
@@ -1269,5 +1272,6 @@ public class PAppletJythonDriver extends PApplet {
    * Replace PApplet's behavior, since we don't use the __MOVE__ thingy.
    */
   @Override
+  // TODO moved to PSurface [fry]
   public void setupExternalMessages() {}
 }

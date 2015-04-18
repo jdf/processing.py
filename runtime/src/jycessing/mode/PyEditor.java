@@ -55,7 +55,7 @@ public class PyEditor extends Editor {
   private final String id;
 
   private final PythonMode pyMode;
-  private final PyKeyListener keyListener;
+  private final PyInputHandler inputHandler;
   private final SketchServiceProcess sketchService;
 
   /**
@@ -70,7 +70,7 @@ public class PyEditor extends Editor {
     super(base, path, state, mode);
 
     id = UUID.randomUUID().toString();
-    keyListener = new PyKeyListener(this, textarea);
+    inputHandler = new PyInputHandler(this);
     pyMode = (PythonMode)mode;
 
     // Provide horizontal scrolling.
@@ -152,7 +152,7 @@ public class PyEditor extends Editor {
    */
   @Override
   public JMenu buildFileMenu() {
-    final String appTitle = PyToolbar.getTitle(PyToolbar.EXPORT, false);
+    final String appTitle = Language.text("toolbar.export_application");
     final JMenuItem exportApplication = Toolkit.newJMenuItem(appTitle, 'E');
     exportApplication.addActionListener(new ActionListener() {
       @Override
@@ -368,7 +368,7 @@ public class PyEditor extends Editor {
 
   @Override
   public void handleIndentOutdent(final boolean increase) {
-    keyListener.indent(increase ? 1 : -1);
+    inputHandler.indent(increase ? 1 : -1);
   }
 
   @Override
