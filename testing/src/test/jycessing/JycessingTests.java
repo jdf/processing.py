@@ -259,4 +259,9 @@ public class JycessingTests {
   public void keyDefinedBeforeKeyEvent() throws Exception {
     expectOK("key_before_key_event");
   }
+
+  @Test
+  public void randintDomainRegression() throws Exception {
+    expectOK("randint_domain_regression");
+  }
 }
