@@ -17,8 +17,6 @@ def setup():
 
 
 def draw():
-    global opencv
-    global video
     scale(2)
     opencv.loadImage(video)
     image(video, 0, 0)
