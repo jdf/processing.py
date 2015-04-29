@@ -6,6 +6,8 @@ opencv = None
 show_fps = False
 
 def setup():
+    global opencv
+    global video
     size(640, 480)
     video = Capture(this, 640 / 2, 480 / 2)
     opencv = OpenCV(this, 640 / 2, 480 / 2)
