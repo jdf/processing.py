@@ -30,6 +30,6 @@ def draw():
       c = color(abs(sy) * 255, 255 - abs(sy) * 255, j * j_del)
       set(j, py, c)
       # Hack to fill gaps. Raise value of fillGap if you increase frequency
-      for filler in range(fillGap):
+      for filler in range(1,fillGap):
         set(j - filler, py - filler, c)
         set(j + filler, py + filler, c)
