@@ -348,6 +348,10 @@ public class PAppletJythonDriver extends PApplet {
         finishedLatch.countDown();
       }
     });
+
+    // Make sure key and keyCode are defined.
+    builtins.__setitem__("key", Py.newUnicode((char)0));
+    builtins.__setitem__("keyCode", pyint(0));
   }
 
   @Override
@@ -738,6 +742,17 @@ public class PAppletJythonDriver extends PApplet {
         }
       }
     });
+  }
+
+  // If you call lerpColor in an active-mode sketch before setup() has run,
+  // there's no current graphics context, and it NPEs. This protects you from
+  // that.
+  @Override
+  public int lerpColor(final int c1, final int c2, final float amt) {
+    if (g != null) {
+      return super.lerpColor(c1, c2, amt);
+    }
+    return PApplet.lerpColor(c1, c2, amt, RGB); // use the default mode
   }
 
   /*

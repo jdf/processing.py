@@ -21,15 +21,34 @@ you've done so, and that your fork can be found at:
 I'll also assume you've uploaded your SSH public key to Github.  
 
   $ git clone git@github.com:JRandomHacker/processing.py.git
+
+You'll need my forks of processing and processing-video (at least until such time as
+processing.py has been rewritten to be compatible with versions of Processing
+> 3.0a5).
+
+  $ git clone https://github.com/jdf/processing.git
+  $ git clone https://github.com/jdf/processing-video.git
+
+Then:
+
   $ cd processing.py
   $ ant test
-
-This will download the processing.py git repository and run all of the unit tests.
 
 If you want to modify the code, and you're an Eclipse user, you can "Import
 existing project into workspace" a couple of times, once for processing.py
 itself (which lives in the processing.py top level directory), and once for
-processing.core, which you'll find in externals/processing.
+processing.core, which you'll find in the directory where you've cloned
+jdf/processing.
 
 Once you've imported those two projects, you should be able to run
 test.jycessing.JycessingTests as a JUnit test.
+
+There are several Eclipse Run Configurations included in the processing.py
+directory, which are essential for debugging the Python mode sketch runner,
+which is an independent application, and which communicates with the Mode
+stuff via sockets.
+
+To run or debug the SketchRunner, launch the SketchRunner Run Configuration
+from Eclipse's Java runner menu. Once it has started up, run the "Base - Sketch
+Runner First" configuration. This sequence runs things backwards; normally the
+Mode runs, and itself launches the SketchRunner.

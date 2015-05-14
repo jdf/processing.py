@@ -148,8 +148,7 @@ class LibraryImporter {
         sys.path.append(Py.newString(resource.getAbsolutePath()));
 
         // Are we missing any extensions?
-      } else if (name.endsWith(".so") || name.endsWith(".dll") || name.endsWith(".dylib")
-          || name.endsWith(".jnilib")) {
+      } else if (name.matches("^.*\\.(so|dll|dylib|jnilib)$")) {
         // Add *containing directory* to native search path
         addDirectoryToNativeSearchPath(resource.getAbsoluteFile().getParentFile());
       }
@@ -237,7 +236,7 @@ class LibraryImporter {
       }
     }
     if (platformDir == null && childNames.contains(PLATFORM)) {
-      final File potentialPlatformDir = new File(contentsDir, PLATFORM + BITS);
+      final File potentialPlatformDir = new File(contentsDir, PLATFORM);
       if (potentialPlatformDir.isDirectory()) {
         platformDir = potentialPlatformDir;
       }

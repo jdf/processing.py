@@ -244,4 +244,24 @@ public class JycessingTests {
       assertEquals(PAppletJythonDriver.C_LIKE_LOGICAL_OR_ERROR_MESSAGE, expected.getMessage());
     }
   }
+
+  @Test
+  public void lerpColorStaticMode() throws Exception {
+    expectOK("lerp_color_static_mode");
+  }
+
+  @Test
+  public void lerpColorBeforeSetup() throws Exception {
+    expectOK("lerp_color_before_setup");
+  }
+
+  @Test
+  public void keyDefinedBeforeKeyEvent() throws Exception {
+    expectOK("key_before_key_event");
+  }
+
+  @Test
+  public void randintDomainRegression() throws Exception {
+    expectOK("randint_domain_regression");
+  }
 }
