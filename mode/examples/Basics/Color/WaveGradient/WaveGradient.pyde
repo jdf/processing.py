@@ -1,6 +1,6 @@
 """
-Wave Gradient 
-by Ira Greenberg.    
+Wave Gradient
+by Ira Greenberg.
 
 Generate a gradient along a sin() wave.
 """
@@ -24,7 +24,7 @@ def draw():
         frequency += .002
         for j in range(0, width + 75):
             sy = sin(radians(angle))
-            py = i + int( sy * amplitude )
+            py = i + int(sy * amplitude)
             angle += frequency
             c = color(abs(sy) * 255, 255 - abs(sy) * 255, j * j_del)
             set(j, py, c)
@@ -33,4 +33,3 @@ def draw():
             for filler in range(0, fillGap):
                 set(j - filler, py - filler, c)
                 set(j + filler, py + filler, c)
-
