@@ -26,7 +26,7 @@ def draw():
         frequency += .006
         for j in range(width + 75):
             sy = sin(radians(angle))
-            py = i + int(sy*amplitude)
+            py = i + int(sy * amplitude)
 
             angle += frequency
             c = color(abs(sy) * 255, 255 - abs(sy) * 255, j * j_del)
