@@ -10,14 +10,14 @@ import java.util.regex.Pattern;
 import processing.app.Editor;
 import processing.app.Sketch;
 import processing.app.syntax.JEditTextArea;
-import processing.mode.java.PdeKeyListener;
+import processing.app.syntax.PdeInputHandler;
 
 /**
  * This class provides Pythonic handling of TAB, BACKSPACE, and ENTER keys.
  */
-public class PyKeyListener extends PdeKeyListener {
+public class PyInputHandler extends PdeInputHandler {
   final PyEditor pyEditor;
-  final JEditTextArea textArea;
+  JEditTextArea textArea; // assigned on first key press
 
   // ctrl-alt on windows & linux, cmd-alt on os x
   private static int CTRL_ALT = ActionEvent.ALT_MASK
@@ -27,20 +27,21 @@ public class PyKeyListener extends PdeKeyListener {
   private static final String TAB = "    ";
   private static final int TAB_SIZE = TAB.length();
 
-  public PyKeyListener(final Editor editor, final JEditTextArea textarea) {
-    super(editor, textarea);
-
+  public PyInputHandler(final Editor editor) {
     pyEditor = (PyEditor)editor;
-    textArea = textarea;
+    // textArea = pyEditor.getTextArea();
   }
 
   @Override
-  public boolean keyPressed(final KeyEvent event) {
+  public boolean handlePressed(final KeyEvent event) {
     final char c = event.getKeyChar();
     final int code = event.getKeyCode();
     final int mods = event.getModifiers();
 
     final Sketch sketch = pyEditor.getSketch();
+    if (textArea == null) {
+      textArea = pyEditor.getTextArea();
+    }
 
     // things that change the content of the text area
     if ((code == KeyEvent.VK_BACK_SPACE) || (code == KeyEvent.VK_TAB)

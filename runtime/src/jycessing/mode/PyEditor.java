@@ -32,6 +32,7 @@ import processing.app.Editor;
 import processing.app.EditorState;
 import processing.app.EditorToolbar;
 import processing.app.Formatter;
+import processing.app.Language;
 import processing.app.Mode;
 import processing.app.SketchCode;
 import processing.app.SketchException;
@@ -54,7 +55,7 @@ public class PyEditor extends Editor {
   private final String id;
 
   private final PythonMode pyMode;
-  private final PyKeyListener keyListener;
+  private final PyInputHandler inputHandler;
   private final SketchServiceProcess sketchService;
 
   /**
@@ -69,7 +70,7 @@ public class PyEditor extends Editor {
     super(base, path, state, mode);
 
     id = UUID.randomUUID().toString();
-    keyListener = new PyKeyListener(this, textarea);
+    inputHandler = new PyInputHandler(this);
     pyMode = (PythonMode)mode;
 
     // Provide horizontal scrolling.
@@ -151,7 +152,7 @@ public class PyEditor extends Editor {
    */
   @Override
   public JMenu buildFileMenu() {
-    final String appTitle = PyToolbar.getTitle(PyToolbar.EXPORT, false);
+    final String appTitle = Language.text("toolbar.export_application");
     final JMenuItem exportApplication = Toolkit.newJMenuItem(appTitle, 'E');
     exportApplication.addActionListener(new ActionListener() {
       @Override
@@ -182,7 +183,7 @@ public class PyEditor extends Editor {
 
   @Override
   public JMenu buildSketchMenu() {
-    final JMenuItem runItem = Toolkit.newJMenuItem(PyToolbar.getTitle(PyToolbar.RUN, false), 'R');
+    final JMenuItem runItem = Toolkit.newJMenuItem(Language.text("toolbar.run"), 'R');
     runItem.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(final ActionEvent e) {
@@ -190,8 +191,7 @@ public class PyEditor extends Editor {
       }
     });
 
-    final JMenuItem presentItem =
-        Toolkit.newJMenuItemShift(PyToolbar.getTitle(PyToolbar.RUN, true), 'R');
+    final JMenuItem presentItem = Toolkit.newJMenuItemShift(Language.text("toolbar.present"), 'R');
     presentItem.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(final ActionEvent e) {
@@ -199,7 +199,7 @@ public class PyEditor extends Editor {
       }
     });
 
-    final JMenuItem stopItem = new JMenuItem(PyToolbar.getTitle(PyToolbar.STOP, false));
+    final JMenuItem stopItem = new JMenuItem(Language.text("toolbar.stop"));
     stopItem.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(final ActionEvent e) {
@@ -217,7 +217,7 @@ public class PyEditor extends Editor {
 
   @Override
   public EditorToolbar createToolbar() {
-    return new PyToolbar(this, base);
+    return new PyToolbar(this);
   }
 
   /**
@@ -256,7 +256,7 @@ public class PyEditor extends Editor {
    * the created directory.
    * @return a new directory containing a saved version of the current
    * (presumably modified) sketch code.
-   * @throws IOException 
+   * @throws IOException
    */
   private Path createTempSketch() throws IOException {
     final Path tmp = Files.createTempDirectory(sketch.getName());
@@ -268,7 +268,7 @@ public class PyEditor extends Editor {
 
   private void runSketch(final DisplayType displayType) {
     prepareRun();
-    toolbar.activate(PyToolbar.RUN);
+    toolbar.activateRun();
     final File sketchPath;
     if (sketch.isModified()) {
       log("Sketch is modified; must copy it to temp dir.");
@@ -318,21 +318,21 @@ public class PyEditor extends Editor {
   }
 
   public void handleStop() {
-    toolbar.activate(PyToolbar.STOP);
+    toolbar.activateStop();
     internalCloseRunner();
     restoreToolbar();
     requestFocus();
   }
 
   private void restoreToolbar() {
-    toolbar.deactivate(PyToolbar.SAVE);
-    toolbar.deactivate(PyToolbar.STOP);
-    toolbar.deactivate(PyToolbar.RUN);
+    // toolbar.deactivate(PyToolbar.SAVE);
+    toolbar.deactivateStop();
+    toolbar.deactivateRun();
     toFront();
   }
 
   public void handleSave() {
-    toolbar.activate(PyToolbar.SAVE);
+    // toolbar.activate(PyToolbar.SAVE);
     super.handleSave(true);
     restoreToolbar();
     recolor();
@@ -340,7 +340,7 @@ public class PyEditor extends Editor {
 
   @Override
   public boolean handleSaveAs() {
-    toolbar.activate(PyToolbar.SAVE);
+    // toolbar.activate(PyToolbar.SAVE);
     final boolean result = super.handleSaveAs();
     restoreToolbar();
     return result;
@@ -368,7 +368,7 @@ public class PyEditor extends Editor {
 
   @Override
   public void handleIndentOutdent(final boolean increase) {
-    keyListener.indent(increase ? 1 : -1);
+    inputHandler.indent(increase ? 1 : -1);
   }
 
   @Override

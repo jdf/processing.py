@@ -168,7 +168,7 @@ public class PAppletJythonDriver extends PApplet {
   private void processSketch(final String scriptSource) throws PythonSketchError {
     try {
       /*
-       * Run the Python 
+       * Run the Python
        */
       interp.set("__processing_source__", programText);
       final PyCode code =
@@ -177,7 +177,8 @@ public class PAppletJythonDriver extends PApplet {
       interp.exec(code);
       Py.flushLine();
     } catch (Throwable t) {
-      checkForRendererChangeException(t);
+      // Not necessary as of 3.0a7
+      // checkForRendererChangeException(t);
       while (t.getCause() != null) {
         t = t.getCause();
       }
@@ -342,6 +343,7 @@ public class PAppletJythonDriver extends PApplet {
     setColorMethods();
     setText();
     builtins.__setitem__("g", Py.java2py(g));
+    // TODO No longer a Component, but not sure what this is doing [fry]
     addComponentListener(new ComponentAdapter() {
       @Override
       public void componentHidden(final ComponentEvent e) {
@@ -355,7 +357,7 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   @Override
-  protected void exitActual() {
+  public void exitActual() {
     stop();
     destroy();
     finishedLatch.countDown();
@@ -582,6 +584,7 @@ public class PAppletJythonDriver extends PApplet {
         frame.toFront();
         frame.requestFocus();
         frame.setAlwaysOnTop(false);
+        // TODO no longer a Component, handled in PSurface [fry]
         requestFocus();
       }
     });
@@ -933,6 +936,8 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
+  /*
+  // No longer necessary in 3.0a7
   private void checkForRendererChangeException(Throwable t) {
     // This is an expected condition. PApplet uses an exception
     // to signal a change to the rendering context, so we unwrap
@@ -945,6 +950,7 @@ public class PAppletJythonDriver extends PApplet {
       t = t.getCause();
     }
   }
+  */
 
   /**
    * We have to override PApplet's size method in order to reset the Python
@@ -974,7 +980,8 @@ public class PAppletJythonDriver extends PApplet {
         setupMeth.__call__();
       }
     } catch (final Exception e) {
-      checkForRendererChangeException(e);
+      // No longer necessary in 3.0a7
+      // checkForRendererChangeException(e);
       terminalException = toSketchException(e);
       exit();
     }
@@ -1172,6 +1179,7 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   @Override
+  // TODO No longer in use because of Applet removal, but bring back? [fry]
   public void destroy() {
     try {
       if (destroyMeth != null) {
@@ -1264,5 +1272,6 @@ public class PAppletJythonDriver extends PApplet {
    * Replace PApplet's behavior, since we don't use the __MOVE__ thingy.
    */
   @Override
+  // TODO moved to PSurface [fry]
   public void setupExternalMessages() {}
 }
