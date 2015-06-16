@@ -91,7 +91,7 @@ public class PdeSketch implements RunnableSketch, Serializable {
         }
         break;
       case PRESENTATION:
-        args.add(PApplet.ARGS_FULL_SCREEN);
+        args.add("fullScreen");
         break;
     }
 

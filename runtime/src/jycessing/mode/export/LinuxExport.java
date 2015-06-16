@@ -151,9 +151,9 @@ public class LinuxExport extends PlatformExport {
     options.add("--exported");
 
     if (presentMode) {
-      options.add(PApplet.ARGS_FULL_SCREEN);
+      options.add("fullScreen");
 
-      options.add(PApplet.ARGS_BGCOLOR + "=" + Preferences.get("run.present.bgcolor"));
+      options.add("BGCOLOR" + "=" + Preferences.get("run.present.bgcolor"));
     }
 
     if (stopButton) {

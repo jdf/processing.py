@@ -153,8 +153,8 @@ public class PAppletJythonDriver extends PApplet {
 
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
-  private PyObject setupMeth, drawMeth, initMeth, pauseMeth, resumeMeth, stopMeth, destroyMeth,
-      sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
+  private PyObject setupMeth, settingsMeth, drawMeth, initMeth, pauseMeth, resumeMeth, stopMeth,
+       disposeMeth, sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
   private EventFunction<KeyEvent> keyPressedFunc, keyReleasedFunc, keyTypedFunc;
   private EventFunction<MouseEvent> mousePressedFunc, mouseClickedFunc, mouseMovedFunc,
       mouseReleasedFunc, mouseDraggedFunc;
@@ -344,12 +344,12 @@ public class PAppletJythonDriver extends PApplet {
     setText();
     builtins.__setitem__("g", Py.java2py(g));
     // TODO No longer a Component, but not sure what this is doing [fry]
-    addComponentListener(new ComponentAdapter() {
-      @Override
-      public void componentHidden(final ComponentEvent e) {
-        finishedLatch.countDown();
-      }
-    });
+    // addComponentListener(new ComponentAdapter() {
+    //   @Override
+    //   public void componentHidden(final ComponentEvent e) {
+    //     finishedLatch.countDown();
+    //   }
+    // });
 
     // Make sure key and keyCode are defined.
     builtins.__setitem__("key", Py.newUnicode((char)0));
@@ -359,7 +359,7 @@ public class PAppletJythonDriver extends PApplet {
   @Override
   public void exitActual() {
     stop();
-    destroy();
+    dispose();
     finishedLatch.countDown();
   }
 
@@ -429,11 +429,12 @@ public class PAppletJythonDriver extends PApplet {
     sketchWidthMeth = interp.get("sketchWidth");
     sketchHeightMeth = interp.get("sketchHeight");
     sketchRendererMeth = interp.get("sketchRenderer");
+    settingsMeth = interp.get("settings");
     initMeth = interp.get("init");
     stopMeth = interp.get("stop");
     pauseMeth = interp.get("pause");
     resumeMeth = interp.get("resume");
-    destroyMeth = interp.get("destroy");
+    disposeMeth = interp.get("dispose");
     mouseWheelMeth = interp.get("mouseWheel");
     if (mousePressedFunc.func != null) {
       // The user defined a mousePressed() method, which will hide the magical
@@ -585,7 +586,7 @@ public class PAppletJythonDriver extends PApplet {
         frame.requestFocus();
         frame.setAlwaysOnTop(false);
         // TODO no longer a Component, handled in PSurface [fry]
-        requestFocus();
+        // requestFocus();
       }
     });
     frame.addWindowListener(new WindowAdapter() {
@@ -614,7 +615,7 @@ public class PAppletJythonDriver extends PApplet {
       }
     } finally {
       if (PApplet.platform == PConstants.MACOSX
-          && Arrays.asList(args).contains(PApplet.ARGS_FULL_SCREEN)) {
+          && Arrays.asList(args).contains("fullScreen")) {
         // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm
         // exits or we explicitly tell it to minimize.
         // (If it's disposed, it'll leave a gray blank window behind it.)
@@ -952,6 +953,14 @@ public class PAppletJythonDriver extends PApplet {
   }
   */
 
+  /* Store the information passed to size and call later in the settings function
+     run by the PApplet sketch later in the program. */ 
+  // boolean sizeSet = false;
+  // int iWidth;
+  // int iHeight;
+  // String iRenderer;
+  // String iPath;
+
   /**
    * We have to override PApplet's size method in order to reset the Python
    * context's knowledge of the magic variables that reflect the state of the
@@ -959,11 +968,25 @@ public class PAppletJythonDriver extends PApplet {
    */
   @Override
   public void size(final int iwidth, final int iheight, final String irenderer, final String ipath) {
+    // sizeSet = true; 
+    // iWidth = iwidth;
+    // iHeight = iHeight;
+    // iRenderer = iRenderer;
+    // iPath = ipath; 
     super.size(iwidth, iheight, irenderer, ipath);
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("frame", Py.java2py(frame));
     builtins.__setitem__("width", pyint(width));
     builtins.__setitem__("height", pyint(height));
+  }
+
+  @Override 
+  public void settings() {
+    if (settingsMeth != null) {
+      settingsMeth.__call__();
+    } else {
+      super.settings();
+    }
   }
 
   @Override
@@ -1003,41 +1026,41 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("pixels", Py.java2py(pixels));
   }
 
-  @Override
-  public boolean sketchFullScreen() {
-    if (sketchFullScreenMeth == null) {
-      return super.sketchFullScreen();
-    } else {
-      return sketchFullScreenMeth.__call__().__nonzero__();
-    }
-  }
+  // @Override
+  // public boolean sketchFullScreen() {
+  //   if (sketchFullScreenMeth == null) {
+  //     return super.sketchFullScreen();
+  //   } else {
+  //     return sketchFullScreenMeth.__call__().__nonzero__();
+  //   }
+  // }
 
-  @Override
-  public int sketchWidth() {
-    if (sketchWidthMeth == null) {
-      return super.sketchWidth();
-    } else {
-      return sketchWidthMeth.__call__().asInt();
-    }
-  }
+  // @Override
+  // public int sketchWidth() {
+  //   if (sketchWidthMeth == null) {
+  //     return super.sketchWidth();
+  //   } else {
+  //     return sketchWidthMeth.__call__().asInt();
+  //   }
+  // }
 
-  @Override
-  public String sketchRenderer() {
-    if (sketchRendererMeth == null) {
-      return super.sketchRenderer();
-    } else {
-      return sketchRendererMeth.__call__().asString();
-    }
-  }
+  // @Override
+  // public String sketchRenderer() {
+  //   if (sketchRendererMeth == null) {
+  //     return super.sketchRenderer();
+  //   } else {
+  //     return sketchRendererMeth.__call__().asString();
+  //   }
+  // }
 
-  @Override
-  public int sketchHeight() {
-    if (sketchHeightMeth == null) {
-      return super.sketchWidth();
-    } else {
-      return sketchHeightMeth.__call__().asInt();
-    }
-  }
+  // @Override
+  // public int sketchHeight() {
+  //   if (sketchHeightMeth == null) {
+  //     return super.sketchWidth();
+  //   } else {
+  //     return sketchHeightMeth.__call__().asInt();
+  //   }
+  // }
 
   @Override
   public void mouseClicked() {
@@ -1178,17 +1201,30 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
+  // @Override
+  // // TODO No longer in use because of Applet removal, but bring back? [fry]
+  // public void destroy() {
+  //   try {
+  //     if (destroyMeth != null) {
+  //       destroyMeth.__call__();
+  //     }
+  //   } finally {
+  //     super.destroy();
+  //   }
+  // }
+
   @Override
-  // TODO No longer in use because of Applet removal, but bring back? [fry]
-  public void destroy() {
+  public void dispose() {
     try {
-      if (destroyMeth != null) {
-        destroyMeth.__call__();
+      if (disposeMeth != null) {
+        disposeMeth.__call__();
       }
     } finally {
-      super.destroy();
+      super.dispose();
     }
   }
+
+
 
   /**
    * Processing uses reflection to call file selection callbacks by name.
@@ -1271,7 +1307,7 @@ public class PAppletJythonDriver extends PApplet {
   /**
    * Replace PApplet's behavior, since we don't use the __MOVE__ thingy.
    */
-  @Override
-  // TODO moved to PSurface [fry]
-  public void setupExternalMessages() {}
+//   @Override
+//   // TODO moved to PSurface [fry]
+//   public void setupExternalMessages() {}
 }
