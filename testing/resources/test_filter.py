@@ -1,5 +1,7 @@
-def setup():
+def settings():
     size(48, 48, P2D)
+
+def setup():
     global img, emboss
     img = loadImage("data/python.png")
     emboss = loadShader("data/emboss.glsl")
