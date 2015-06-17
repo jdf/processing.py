@@ -154,7 +154,7 @@ public class PAppletJythonDriver extends PApplet {
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
   private PyObject setupMeth, settingsMeth, drawMeth, initMeth, pauseMeth, resumeMeth, stopMeth,
-       disposeMeth, sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
+        sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
   private EventFunction<KeyEvent> keyPressedFunc, keyReleasedFunc, keyTypedFunc;
   private EventFunction<MouseEvent> mousePressedFunc, mouseClickedFunc, mouseMovedFunc,
       mouseReleasedFunc, mouseDraggedFunc;
@@ -434,7 +434,6 @@ public class PAppletJythonDriver extends PApplet {
     stopMeth = interp.get("stop");
     pauseMeth = interp.get("pause");
     resumeMeth = interp.get("resume");
-    disposeMeth = interp.get("dispose");
     mouseWheelMeth = interp.get("mouseWheel");
     if (mousePressedFunc.func != null) {
       // The user defined a mousePressed() method, which will hide the magical
@@ -1213,16 +1212,16 @@ public class PAppletJythonDriver extends PApplet {
   //   }
   // }
 
-  @Override
-  public void dispose() {
-    try {
-      if (disposeMeth != null) {
-        disposeMeth.__call__();
-      }
-    } finally {
-      super.dispose();
-    }
-  }
+  // @Override
+  // public void dispose() {
+  //   try {
+  //     if (disposeMeth != null) {
+  //       disposeMeth.__call__();
+  //     }
+  //   } finally {
+  //     super.dispose();
+  //   }
+  // }
 
 
 
