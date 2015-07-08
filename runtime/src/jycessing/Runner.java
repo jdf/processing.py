@@ -153,11 +153,11 @@ public class Runner {
   public static RunnableSketch sketch;
 
   /**
-   * 
+   *
    * Entrypoint for non-PDE sketches. If we find ARGS_EXPORTED in the argument list,
    * Launch as an exported sketch.
    * Otherwise, launch as a standalone processing.py sketch.
-   * 
+   *
    */
   public static void main(final String[] args) throws Exception {
     if (args.length < 1) {
@@ -259,7 +259,7 @@ public class Runner {
 
   /**
    * warmup() front-loads a huge amount of slow IO so that when the user gets around
-   * to running a sketch, most of the slow work is already done. 
+   * to running a sketch, most of the slow work is already done.
    */
   public static void warmup() {
     try {
@@ -307,15 +307,18 @@ public class Runner {
     try {
       final InteractiveConsole interp = new InteractiveConsole();
 
-      // Add all of the sketch's requested sys.path entries
-      for (final File entry : sketch.getPathEntries()) {
-        sys.path.insert(0, Py.newString(entry.getAbsolutePath()));
-      }
-
       // For moar useful error messages.
       interp.set("__file__", sketch.getMainFile().getAbsolutePath());
 
       interp.exec("import sys\n");
+
+      // Add all of the sketch's requested sys.path entries, and add all jar
+      // files found there, recursively.
+      final Set<String> userLibs = new HashSet<>();
+      for (final File entry : sketch.getPathEntries()) {
+        sys.path.insert(0, Py.newString(entry.getAbsolutePath()));
+        searchForExtraStuff(entry, userLibs);
+      }
 
       // Add the add_library function to the sketch namespace.
       if (libDirs != null) {
@@ -334,6 +337,11 @@ public class Runner {
           }
         }
       }
+
+      for (final String lib : userLibs) {
+        sys.path.insert(0, Py.newString(lib));
+      }
+
 
       // Make fake "launcher" module available to sketches - will only work with standalone sketches
       interp.exec(LAUNCHER_TEXT);
