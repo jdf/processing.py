@@ -2,6 +2,7 @@ package jycessing.mode;
 
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -17,6 +18,7 @@ import processing.app.syntax.PdeInputHandler;
  */
 public class PyInputHandler extends PdeInputHandler {
   final PyEditor pyEditor;
+
   JEditTextArea textArea; // assigned on first key press
 
   // ctrl-alt on windows & linux, cmd-alt on os x
@@ -29,7 +31,26 @@ public class PyInputHandler extends PdeInputHandler {
 
   public PyInputHandler(final Editor editor) {
     pyEditor = (PyEditor)editor;
-    // textArea = pyEditor.getTextArea();
+    textArea = pyEditor.getTextArea();
+
+    // This is a somewhat gross "shim" keyListener.
+    // The HandlePressed() Method was not properly overriding the
+    // handlePressed() within pdeInputHandler.java so I circumvent the need for
+    // the pde call by adding an additional keyListener here. It's in no way ideal,
+    // but is a quick fix to the "No Returns or Tabs" bug in the new
+    // python mode PDEX. You can find the pdeInputHandler.java at the url below.
+    // https://github.com/processing/processing/blob/master/
+    // app/src/processing/app/syntax/PdeInputHandler.java#L243
+
+    textArea.addKeyListener(new KeyAdapter() {
+      @Override
+      public void keyPressed(final KeyEvent e) {
+        if (handlePressed(e)) {
+          e.consume();
+        }
+      }
+    });
+
   }
 
   @Override
@@ -204,7 +225,9 @@ public class PyInputHandler extends PdeInputHandler {
     } else {
       newIndent = Math.max(0, currentLine.indent - 1);
     }
+
     final int deltaIndent = newIndent - currentLine.indent;
+
     for (int i = startLine; i <= stopLine; i++) {
       indentLineBy(i, deltaIndent);
     }
@@ -229,9 +252,18 @@ public class PyInputHandler extends PdeInputHandler {
       sb.append(TAB);
     }
     sb.append(currentLine.text);
-    textArea.select(textArea.getLineStartOffset(line), textArea.getLineStopOffset(line) - 1);
+
+    // Adjust for off by one error when de indenting allowing easier traversal through text area.
+    if (deltaIndent < 0) {
+      textArea.select(textArea.getLineStartOffset(line) + 1, textArea.getLineStopOffset(line) - 1);
+    } else {
+      textArea.select(textArea.getLineStartOffset(line), textArea.getLineStopOffset(line) - 1);
+    }
+
+
     final String newLine = sb.toString();
     textArea.setSelectedText(newLine);
+
     textArea.selectNone();
   }
 
@@ -341,7 +373,6 @@ public class PyInputHandler extends PdeInputHandler {
 
   private String newline() {
     final int cursor = textArea.getCaretPosition();
-
     if (cursor <= 1) {
       return "\n";
     }
