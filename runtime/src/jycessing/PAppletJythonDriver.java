@@ -93,6 +93,8 @@ public class PAppletJythonDriver extends PApplet {
 
   private static final String DETECT_MODE_SCRIPT = resourceReader.readText("detect_sketch_mode.py");
 
+  private static final String PREPROCESS_SCRIPT = resourceReader.readText("pyde_preprocessor.py");
+
   static {
     // There's some bug that I don't understand yet that causes the native file
     // select box to fire twice, skipping confirmation the first time.
@@ -166,6 +168,7 @@ public class PAppletJythonDriver extends PApplet {
   private SketchPositionListener sketchPositionListener;
 
   private void processSketch(final String scriptSource) throws PythonSketchError {
+    System.out.println("Processing Sketch");
     try {
       /*
        * Run the Python
@@ -368,7 +371,7 @@ public class PAppletJythonDriver extends PApplet {
       // Executing the sketch will bind method names ("draw") to PyCode
       // objects (the sketch's draw method), which can then be invoked
       // during the run loop
-      processSketch(programText);
+      processSketch(PREPROCESS_SCRIPT);
     }
 
     // Find and cache any PApplet callbacks defined in the Python sketch
@@ -954,11 +957,6 @@ public class PAppletJythonDriver extends PApplet {
 
   /* Store the information passed to size and call later in the settings function
      run by the PApplet sketch later in the program. */ 
-  // boolean sizeSet = false;
-  // int iWidth;
-  // int iHeight;
-  // String iRenderer;
-  // String iPath;
 
   /**
    * We have to override PApplet's size method in order to reset the Python
@@ -967,11 +965,6 @@ public class PAppletJythonDriver extends PApplet {
    */
   @Override
   public void size(final int iwidth, final int iheight, final String irenderer, final String ipath) {
-    // sizeSet = true; 
-    // iWidth = iwidth;
-    // iHeight = iHeight;
-    // iRenderer = iRenderer;
-    // iPath = ipath; 
     super.size(iwidth, iheight, irenderer, ipath);
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("frame", Py.java2py(frame));
@@ -996,7 +989,7 @@ public class PAppletJythonDriver extends PApplet {
       if (mode == Mode.STATIC) {
         // A static sketch gets called once, from this spot.
         Runner.log("Interpreting static-mode sketch.");
-        processSketch(programText);
+        processSketch(PREPROCESS_SCRIPT);
       } else if (setupMeth != null) {
         // Call the Python sketch's setup()
         setupMeth.__call__();
