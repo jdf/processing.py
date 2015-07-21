@@ -2,8 +2,8 @@ package jycessing.mode;
 
 import java.awt.event.InputEvent;
 
-import processing.app.Editor;
-import processing.app.EditorToolbar;
+import processing.app.ui.Editor;
+import processing.app.ui.EditorToolbar;
 
 @SuppressWarnings("serial")
 public class PyToolbar extends EditorToolbar {

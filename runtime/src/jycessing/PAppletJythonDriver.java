@@ -371,7 +371,7 @@ public class PAppletJythonDriver extends PApplet {
       // Executing the sketch will bind method names ("draw") to PyCode
       // objects (the sketch's draw method), which can then be invoked
       // during the run loop
-      processSketch(PREPROCESS_SCRIPT);
+      processSketch(programText);
     }
 
     // Find and cache any PApplet callbacks defined in the Python sketch
@@ -559,17 +559,17 @@ public class PAppletJythonDriver extends PApplet {
     super.start();
   }
 
-  @Override
-  public void init() {
-    try {
-      if (initMeth != null) {
-        builtins.__setitem__("frame", Py.java2py(frame));
-        initMeth.__call__();
-      }
-    } finally {
-      super.init();
-    }
-  }
+  // @Override
+  // public void init() {
+  //   try {
+  //     if (initMeth != null) {
+  //       builtins.__setitem__("frame", Py.java2py(frame));
+  //       initMeth.__call__();
+  //     }
+  //   } finally {
+  //     super.init();
+  //   }
+  // }
 
   public void runAndBlock(final String[] args) throws PythonSketchError {
     PApplet.runSketch(args, this);
@@ -989,7 +989,7 @@ public class PAppletJythonDriver extends PApplet {
       if (mode == Mode.STATIC) {
         // A static sketch gets called once, from this spot.
         Runner.log("Interpreting static-mode sketch.");
-        processSketch(PREPROCESS_SCRIPT);
+        processSketch(programText);
       } else if (setupMeth != null) {
         // Call the Python sketch's setup()
         setupMeth.__call__();
