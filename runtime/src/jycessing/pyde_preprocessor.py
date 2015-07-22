@@ -21,59 +21,60 @@
 
 import ast
 
-foundSettings = False
-foundSetup = False 
-size = False
-fullScreen = False
-noSmooth = False
-smooth = False
+class Program_info():
+	def __init__(self):
+		self.found_settings = False
+		self.found_setup = False
+		self.size = False
+		self.fullScreen = False
+		self.noSmooth = False
+		self.smooth = False
 
 def pyde_preprocessor(module):
-	global size, fullScreen, noSmooth, smooth, foundSettings, foundSetup
-
+	__program_info__ = Program_info()
     # Walk throught the abstract syntax tree for the original sketch. 
 	for node in module.body:
 		if isinstance(node, ast.FunctionDef):
 			if (node.name == 'setup'):
 				# The user has defined a setup() function. Look through setup() for calls
 				# to size(), fullScreen(), noSmooth() and smooth(). 
-				foundSetup = True
+				__program_info__.found_setup = True
 				for subNode in node.body:
 					if isinstance(subNode, ast.Expr):
 						if isinstance(subNode.value, ast.Call):
 							calledFunc = subNode.value.func.id
 							if (calledFunc == "size"):
-								size = subNode
+								__program_info__.size = subNode
 								node.body.remove(subNode)
 							elif (calledFunc == "fullScreen"):
-								fullScreen = subNode
+								__program_info__.fullScreen = subNode
 								node.body.remove(subNode)
 							elif (calledFunc == "noSmooth"):
-								noSmooth = subNode
+								__program_info__.noSmooth = subNode
 								node.body.remove(subNode)
 							elif (calledFunc == "smooth"):
-								smooth = subNode
+								__program_info__.smooth = subNode
 								node.body.remove(subNode)
 			elif (node.name == 'settings'):
 				# The user has defined a settings() function. 
-				foundSettings = True
+				__program_info__.found_settings = True
 
-	if (size or fullScreen or noSmooth or smooth):
+	if (__program_info__.size or __program_info__.fullScreen or __program_info__.noSmooth or __program_info__.smooth):
 		# The user called one of the settings() subfunctions inside setup.
-		if (foundSettings):
+		if (__program_info__.found_settings):
 			# If a settings function was already defined, go through the tree to find it.
 			# Place all of the special function calls inside settings function body. 
 			for node in module.body:
 				if (isinstance(node, ast.FunctionDef)):
 					if (node.name == 'settings'):
-						if (smooth):
-							node.body.insert(0, smooth)
-						if (noSmooth):
-							node.body.insert(0, noSmooth)
-						if (size):
-							node.body.insert(0, size)
-						if (fullScreen):
-							node.body.insert(0, fullScreen)
+						if (__program_info__.smooth):
+							node.body.insert(0, __program_info__.smooth)
+						if (__program_info__.noSmooth):
+							node.body.insert(0, __program_info__.noSmooth)
+						if (__program_info__.size):
+							node.body.insert(0, __program_info__.size)
+						if (__program_info__.fullScreen):
+							node.body.insert(0, __program_info__.fullScreen)
 						# Don't look through the rest of the tree. 
 						break
 		else:
@@ -81,14 +82,14 @@ def pyde_preprocessor(module):
 			# the special function calls within it. 
 			settingsArgs = ast.arguments(args = [], vararg = None, kwarg = None, defaults = [])
 			settingsFunc = ast.FunctionDef("settings",settingsArgs,[],[])
-			if (noSmooth):
-				settingsFunc.body.insert(0, noSmooth)
-			if (smooth):
-				settingsFunc.body.insert(0, smooth)
-			if (size):
-				settingsFunc.body.insert(0, size)
-			if (fullScreen):
-				settingsFunc.body.insert(0, fullScreen)
+			if (__program_info__.noSmooth):
+				settingsFunc.body.insert(0, __program_info__.noSmooth)
+			if (__program_info__.smooth):
+				settingsFunc.body.insert(0, __program_info__.smooth)
+			if (__program_info__.size):
+				settingsFunc.body.insert(0, __program_info__.size)
+			if (__program_info__.fullScreen):
+				settingsFunc.body.insert(0, __program_info__.fullScreen)
 
 			# Place the newly defined settings() function within the module body. 
 			# It's like it's been there the whole time... 
@@ -96,7 +97,6 @@ def pyde_preprocessor(module):
 
 module = ast.parse(__processing_source__ + "\n\n", filename=__file__)
 pyde_preprocessor(module)
-print ast.dump(module)
 
 codeobj = compile(module, __file__, mode='exec')
 exec(codeobj)
