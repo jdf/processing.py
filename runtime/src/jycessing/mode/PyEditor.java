@@ -28,15 +28,15 @@ import jycessing.mode.run.SketchService;
 import jycessing.mode.run.SketchServiceManager;
 import jycessing.mode.run.SketchServiceProcess;
 import processing.app.Base;
-import processing.app.Editor;
-import processing.app.EditorState;
-import processing.app.EditorToolbar;
 import processing.app.Formatter;
 import processing.app.Language;
 import processing.app.Mode;
 import processing.app.SketchCode;
 import processing.app.SketchException;
-import processing.app.Toolkit;
+import processing.app.ui.Editor;
+import processing.app.ui.EditorState;
+import processing.app.ui.EditorToolbar;
+import processing.app.ui.Toolkit;
 
 @SuppressWarnings("serial")
 public class PyEditor extends Editor {

@@ -8,7 +8,7 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import processing.app.Editor;
+import processing.app.ui.Editor;
 import processing.app.Sketch;
 import processing.app.syntax.JEditTextArea;
 import processing.app.syntax.PdeInputHandler;

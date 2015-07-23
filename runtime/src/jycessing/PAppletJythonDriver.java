@@ -93,6 +93,8 @@ public class PAppletJythonDriver extends PApplet {
 
   private static final String DETECT_MODE_SCRIPT = resourceReader.readText("detect_sketch_mode.py");
 
+  private static final String PREPROCESS_SCRIPT = resourceReader.readText("pyde_preprocessor.py");
+
   static {
     // There's some bug that I don't understand yet that causes the native file
     // select box to fire twice, skipping confirmation the first time.
@@ -368,7 +370,7 @@ public class PAppletJythonDriver extends PApplet {
       // Executing the sketch will bind method names ("draw") to PyCode
       // objects (the sketch's draw method), which can then be invoked
       // during the run loop
-      processSketch(programText);
+      processSketch(PREPROCESS_SCRIPT);
     }
 
     // Find and cache any PApplet callbacks defined in the Python sketch
@@ -556,17 +558,17 @@ public class PAppletJythonDriver extends PApplet {
     super.start();
   }
 
-  @Override
-  public void init() {
-    try {
-      if (initMeth != null) {
-        builtins.__setitem__("frame", Py.java2py(frame));
-        initMeth.__call__();
-      }
-    } finally {
-      super.init();
-    }
-  }
+  // @Override
+  // public void init() {
+  //   try {
+  //     if (initMeth != null) {
+  //       builtins.__setitem__("frame", Py.java2py(frame));
+  //       initMeth.__call__();
+  //     }
+  //   } finally {
+  //     super.init();
+  //   }
+  // }
 
   public void runAndBlock(final String[] args) throws PythonSketchError {
     PApplet.runSketch(args, this);
@@ -936,30 +938,6 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
-  /*
-  // No longer necessary in 3.0a7
-  private void checkForRendererChangeException(Throwable t) {
-    // This is an expected condition. PApplet uses an exception
-    // to signal a change to the rendering context, so we unwrap
-    // the Python exception to extract the signal, and pass it
-    // up the stack.
-    while (t != null) {
-      if (t instanceof RendererChangeException) {
-        throw (RendererChangeException)t;
-      }
-      t = t.getCause();
-    }
-  }
-  */
-
-  /* Store the information passed to size and call later in the settings function
-     run by the PApplet sketch later in the program. */ 
-  // boolean sizeSet = false;
-  // int iWidth;
-  // int iHeight;
-  // String iRenderer;
-  // String iPath;
-
   /**
    * We have to override PApplet's size method in order to reset the Python
    * context's knowledge of the magic variables that reflect the state of the
@@ -967,11 +945,6 @@ public class PAppletJythonDriver extends PApplet {
    */
   @Override
   public void size(final int iwidth, final int iheight, final String irenderer, final String ipath) {
-    // sizeSet = true; 
-    // iWidth = iwidth;
-    // iHeight = iHeight;
-    // iRenderer = iRenderer;
-    // iPath = ipath; 
     super.size(iwidth, iheight, irenderer, ipath);
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("frame", Py.java2py(frame));
@@ -981,10 +954,15 @@ public class PAppletJythonDriver extends PApplet {
 
   @Override 
   public void settings() {
-    if (settingsMeth != null) {
-      settingsMeth.__call__();
-    } else {
-      super.settings();
+    try {
+      if (settingsMeth != null) {
+        settingsMeth.__call__();
+      } else {
+        super.settings();
+      }
+    } catch (final Exception e) {
+      terminalException = toSketchException(e);
+      exit();
     }
   }
 
@@ -996,7 +974,7 @@ public class PAppletJythonDriver extends PApplet {
       if (mode == Mode.STATIC) {
         // A static sketch gets called once, from this spot.
         Runner.log("Interpreting static-mode sketch.");
-        processSketch(programText);
+        processSketch(PREPROCESS_SCRIPT);
       } else if (setupMeth != null) {
         // Call the Python sketch's setup()
         setupMeth.__call__();
@@ -1024,42 +1002,6 @@ public class PAppletJythonDriver extends PApplet {
     super.loadPixels();
     builtins.__setitem__("pixels", Py.java2py(pixels));
   }
-
-  // @Override
-  // public boolean sketchFullScreen() {
-  //   if (sketchFullScreenMeth == null) {
-  //     return super.sketchFullScreen();
-  //   } else {
-  //     return sketchFullScreenMeth.__call__().__nonzero__();
-  //   }
-  // }
-
-  // @Override
-  // public int sketchWidth() {
-  //   if (sketchWidthMeth == null) {
-  //     return super.sketchWidth();
-  //   } else {
-  //     return sketchWidthMeth.__call__().asInt();
-  //   }
-  // }
-
-  // @Override
-  // public String sketchRenderer() {
-  //   if (sketchRendererMeth == null) {
-  //     return super.sketchRenderer();
-  //   } else {
-  //     return sketchRendererMeth.__call__().asString();
-  //   }
-  // }
-
-  // @Override
-  // public int sketchHeight() {
-  //   if (sketchHeightMeth == null) {
-  //     return super.sketchWidth();
-  //   } else {
-  //     return sketchHeightMeth.__call__().asInt();
-  //   }
-  // }
 
   @Override
   public void mouseClicked() {
@@ -1199,31 +1141,6 @@ public class PAppletJythonDriver extends PApplet {
       super.resume();
     }
   }
-
-  // @Override
-  // // TODO No longer in use because of Applet removal, but bring back? [fry]
-  // public void destroy() {
-  //   try {
-  //     if (destroyMeth != null) {
-  //       destroyMeth.__call__();
-  //     }
-  //   } finally {
-  //     super.destroy();
-  //   }
-  // }
-
-  // @Override
-  // public void dispose() {
-  //   try {
-  //     if (disposeMeth != null) {
-  //       disposeMeth.__call__();
-  //     }
-  //   } finally {
-  //     super.dispose();
-  //   }
-  // }
-
-
 
   /**
    * Processing uses reflection to call file selection callbacks by name.

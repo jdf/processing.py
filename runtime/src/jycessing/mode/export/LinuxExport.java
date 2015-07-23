@@ -16,8 +16,10 @@ import processing.app.Base;
 import processing.app.Library;
 import processing.app.Preferences;
 import processing.app.Sketch;
+import processing.app.Util;
 import processing.core.PApplet;
 import processing.core.PConstants;
+
 
 
 /**
@@ -77,7 +79,7 @@ public class LinuxExport extends PlatformExport {
     if (embedJava) {
       log("Embedding java in export.");
       javaFolder.mkdirs();
-      Base.copyDir(Base.getJavaHome(), javaFolder);
+      Util.copyDir(Base.getJavaHome(), javaFolder);
     }
 
     buildShellScript(destFolder, embedJava);

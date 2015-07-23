@@ -21,6 +21,7 @@ import processing.app.Base;
 import processing.app.Library;
 import processing.app.Preferences;
 import processing.app.Sketch;
+import processing.app.Util; 
 import processing.core.PApplet;
 import processing.core.PConstants;
 
@@ -120,7 +121,7 @@ public class MacExport extends PlatformExport {
 
     targetPluginsFolder.mkdirs();
     final File targetJDKFolder = new File(targetPluginsFolder, sourceJDKFolder.getName());
-    Base.copyDirNative(sourceJDKFolder, targetJDKFolder);
+    Util.copyDirNative(sourceJDKFolder, targetJDKFolder);
   }
 
 
@@ -149,8 +150,8 @@ public class MacExport extends PlatformExport {
     log("Moving static macosx resources.");
     final File osxFolder = editor.getModeContentFile("application/macosx");
     resourcesFolder.mkdirs();
-    Base.copyFile(new File(osxFolder, "sketch.icns"), new File(resourcesFolder, "sketch.icns"));
-    Base.copyFile(new File(osxFolder, "dialogs.applescript"), new File(resourcesFolder,
+    Util.copyFile(new File(osxFolder, "sketch.icns"), new File(resourcesFolder, "sketch.icns"));
+    Util.copyFile(new File(osxFolder, "dialogs.applescript"), new File(resourcesFolder,
         "dialogs.applescript"));
   }
 
