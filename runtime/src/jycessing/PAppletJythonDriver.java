@@ -168,7 +168,6 @@ public class PAppletJythonDriver extends PApplet {
   private SketchPositionListener sketchPositionListener;
 
   private void processSketch(final String scriptSource) throws PythonSketchError {
-    System.out.println("Processing Sketch");
     try {
       /*
        * Run the Python
