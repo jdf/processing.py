@@ -938,25 +938,6 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
-  /*
-  // No longer necessary in 3.0a7
-  private void checkForRendererChangeException(Throwable t) {
-    // This is an expected condition. PApplet uses an exception
-    // to signal a change to the rendering context, so we unwrap
-    // the Python exception to extract the signal, and pass it
-    // up the stack.
-    while (t != null) {
-      if (t instanceof RendererChangeException) {
-        throw (RendererChangeException)t;
-      }
-      t = t.getCause();
-    }
-  }
-  */
-
-  /* Store the information passed to size and call later in the settings function
-     run by the PApplet sketch later in the program. */ 
-
   /**
    * We have to override PApplet's size method in order to reset the Python
    * context's knowledge of the magic variables that reflect the state of the
@@ -1021,42 +1002,6 @@ public class PAppletJythonDriver extends PApplet {
     super.loadPixels();
     builtins.__setitem__("pixels", Py.java2py(pixels));
   }
-
-  // @Override
-  // public boolean sketchFullScreen() {
-  //   if (sketchFullScreenMeth == null) {
-  //     return super.sketchFullScreen();
-  //   } else {
-  //     return sketchFullScreenMeth.__call__().__nonzero__();
-  //   }
-  // }
-
-  // @Override
-  // public int sketchWidth() {
-  //   if (sketchWidthMeth == null) {
-  //     return super.sketchWidth();
-  //   } else {
-  //     return sketchWidthMeth.__call__().asInt();
-  //   }
-  // }
-
-  // @Override
-  // public String sketchRenderer() {
-  //   if (sketchRendererMeth == null) {
-  //     return super.sketchRenderer();
-  //   } else {
-  //     return sketchRendererMeth.__call__().asString();
-  //   }
-  // }
-
-  // @Override
-  // public int sketchHeight() {
-  //   if (sketchHeightMeth == null) {
-  //     return super.sketchWidth();
-  //   } else {
-  //     return sketchHeightMeth.__call__().asInt();
-  //   }
-  // }
 
   @Override
   public void mouseClicked() {
@@ -1196,31 +1141,6 @@ public class PAppletJythonDriver extends PApplet {
       super.resume();
     }
   }
-
-  // @Override
-  // // TODO No longer in use because of Applet removal, but bring back? [fry]
-  // public void destroy() {
-  //   try {
-  //     if (destroyMeth != null) {
-  //       destroyMeth.__call__();
-  //     }
-  //   } finally {
-  //     super.destroy();
-  //   }
-  // }
-
-  // @Override
-  // public void dispose() {
-  //   try {
-  //     if (disposeMeth != null) {
-  //       disposeMeth.__call__();
-  //     }
-  //   } finally {
-  //     super.dispose();
-  //   }
-  // }
-
-
 
   /**
    * Processing uses reflection to call file selection callbacks by name.
