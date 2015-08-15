@@ -124,6 +124,7 @@ public class PyEditor extends Editor {
   public void internalCloseRunner() {
     try {
       sketchService.stopSketch();
+      sketchService.shutdown();
     } catch (final SketchException e) {
       statusError(e);
     } finally {

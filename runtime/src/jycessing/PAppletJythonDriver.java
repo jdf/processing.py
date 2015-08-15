@@ -68,6 +68,7 @@ import org.python.util.InteractiveConsole;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
+import processing.core.PSurface;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 import processing.opengl.PShader;
@@ -578,7 +579,9 @@ public class PAppletJythonDriver extends PApplet {
     EventQueue.invokeLater(new Runnable() {
       @Override
       public void run() {
-        frame.setVisible(true);
+        System.out.println("running");
+        surface.setVisible(true);
+        surface.setLocation(10,10);
         int state = frame.getExtendedState();
         state &= ~Frame.ICONIFIED;
         frame.setExtendedState(state);
