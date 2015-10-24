@@ -559,18 +559,6 @@ public class PAppletJythonDriver extends PApplet {
     super.start();
   }
 
-  // @Override
-  // public void init() {
-  //   try {
-  //     if (initMeth != null) {
-  //       builtins.__setitem__("frame", Py.java2py(frame));
-  //       initMeth.__call__();
-  //     }
-  //   } finally {
-  //     super.init();
-  //   }
-  // }
-
   public void runAndBlock(final String[] args) throws PythonSketchError {
     PApplet.runSketch(args, this);
     // Thank you, rogerdpack.
