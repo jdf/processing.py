@@ -7,8 +7,11 @@ import jycessing.mode.run.SketchRunner;
 import jycessing.mode.run.SketchService;
 import jycessing.mode.run.SketchServiceManager;
 import processing.app.Base;
-import processing.app.Editor;
-import processing.app.EditorState;
+import processing.app.Messages;
+import processing.app.Platform;
+import processing.app.ui.Editor;
+import processing.app.ui.EditorException;
+import processing.app.ui.EditorState;
 import processing.app.Formatter;
 import processing.app.Mode;
 import processing.app.syntax.TokenMarker;
@@ -52,7 +55,7 @@ public class PythonMode extends Mode {
      * WARNING: this depends on an implementation detail in {@link Mode},
      * and not on any API. May break in the future.
      */
-    librariesFolder = Base.getContentFile("modes/java/libraries");
+    librariesFolder = Platform.getContentFile("modes/java/libraries");
   }
 
   @Override
@@ -70,7 +73,13 @@ public class PythonMode extends Mode {
     if (!sketchServiceManager.isStarted()) {
       sketchServiceManager.start();
     }
-    return new PyEditor(base, path, state, this);
+
+    try { 
+      return new PyEditor(base, path, state, this);
+    } catch(EditorException e) {
+      Messages.showError("Editor Exception", "Issue Creating Editor", e); 
+      return null;
+    }
   }
 
   @Override

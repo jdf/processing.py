@@ -68,6 +68,7 @@ import org.python.util.InteractiveConsole;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
+import processing.core.PSurface;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 import processing.opengl.PShader;
@@ -92,6 +93,8 @@ public class PAppletJythonDriver extends PApplet {
       new ResourceReader(PAppletJythonDriver.class);
 
   private static final String DETECT_MODE_SCRIPT = resourceReader.readText("detect_sketch_mode.py");
+
+  private static final String PREPROCESS_SCRIPT = resourceReader.readText("pyde_preprocessor.py");
 
   static {
     // There's some bug that I don't understand yet that causes the native file
@@ -153,8 +156,8 @@ public class PAppletJythonDriver extends PApplet {
 
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
-  private PyObject setupMeth, drawMeth, initMeth, pauseMeth, resumeMeth, stopMeth, destroyMeth,
-      sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
+  private PyObject setupMeth, settingsMeth, drawMeth, initMeth, pauseMeth, resumeMeth, stopMeth,
+        sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
   private EventFunction<KeyEvent> keyPressedFunc, keyReleasedFunc, keyTypedFunc;
   private EventFunction<MouseEvent> mousePressedFunc, mouseClickedFunc, mouseMovedFunc,
       mouseReleasedFunc, mouseDraggedFunc;
@@ -168,7 +171,7 @@ public class PAppletJythonDriver extends PApplet {
   private void processSketch(final String scriptSource) throws PythonSketchError {
     try {
       /*
-       * Run the Python 
+       * Run the Python
        */
       interp.set("__processing_source__", programText);
       final PyCode code =
@@ -177,7 +180,8 @@ public class PAppletJythonDriver extends PApplet {
       interp.exec(code);
       Py.flushLine();
     } catch (Throwable t) {
-      checkForRendererChangeException(t);
+      // Not necessary as of 3.0a7
+      // checkForRendererChangeException(t);
       while (t.getCause() != null) {
         t = t.getCause();
       }
@@ -342,12 +346,13 @@ public class PAppletJythonDriver extends PApplet {
     setColorMethods();
     setText();
     builtins.__setitem__("g", Py.java2py(g));
-    addComponentListener(new ComponentAdapter() {
-      @Override
-      public void componentHidden(final ComponentEvent e) {
-        finishedLatch.countDown();
-      }
-    });
+    // TODO No longer a Component, but not sure what this is doing [fry]
+    // addComponentListener(new ComponentAdapter() {
+    //   @Override
+    //   public void componentHidden(final ComponentEvent e) {
+    //     finishedLatch.countDown();
+    //   }
+    // });
 
     // Make sure key and keyCode are defined.
     builtins.__setitem__("key", Py.newUnicode((char)0));
@@ -355,9 +360,9 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   @Override
-  protected void exitActual() {
+  public void exitActual() {
     stop();
-    destroy();
+    dispose();
     finishedLatch.countDown();
   }
 
@@ -366,7 +371,7 @@ public class PAppletJythonDriver extends PApplet {
       // Executing the sketch will bind method names ("draw") to PyCode
       // objects (the sketch's draw method), which can then be invoked
       // during the run loop
-      processSketch(programText);
+      processSketch(PREPROCESS_SCRIPT);
     }
 
     // Find and cache any PApplet callbacks defined in the Python sketch
@@ -427,11 +432,11 @@ public class PAppletJythonDriver extends PApplet {
     sketchWidthMeth = interp.get("sketchWidth");
     sketchHeightMeth = interp.get("sketchHeight");
     sketchRendererMeth = interp.get("sketchRenderer");
+    settingsMeth = interp.get("settings");
     initMeth = interp.get("init");
     stopMeth = interp.get("stop");
     pauseMeth = interp.get("pause");
     resumeMeth = interp.get("resume");
-    destroyMeth = interp.get("destroy");
     mouseWheelMeth = interp.get("mouseWheel");
     if (mousePressedFunc.func != null) {
       // The user defined a mousePressed() method, which will hide the magical
@@ -554,18 +559,6 @@ public class PAppletJythonDriver extends PApplet {
     super.start();
   }
 
-  @Override
-  public void init() {
-    try {
-      if (initMeth != null) {
-        builtins.__setitem__("frame", Py.java2py(frame));
-        initMeth.__call__();
-      }
-    } finally {
-      super.init();
-    }
-  }
-
   public void runAndBlock(final String[] args) throws PythonSketchError {
     PApplet.runSketch(args, this);
     // Thank you, rogerdpack.
@@ -574,7 +567,9 @@ public class PAppletJythonDriver extends PApplet {
     EventQueue.invokeLater(new Runnable() {
       @Override
       public void run() {
-        frame.setVisible(true);
+        System.out.println("running");
+        surface.setVisible(true);
+        surface.setLocation(10,10);
         int state = frame.getExtendedState();
         state &= ~Frame.ICONIFIED;
         frame.setExtendedState(state);
@@ -582,7 +577,8 @@ public class PAppletJythonDriver extends PApplet {
         frame.toFront();
         frame.requestFocus();
         frame.setAlwaysOnTop(false);
-        requestFocus();
+        // TODO no longer a Component, handled in PSurface [fry]
+        // requestFocus();
       }
     });
     frame.addWindowListener(new WindowAdapter() {
@@ -611,7 +607,7 @@ public class PAppletJythonDriver extends PApplet {
       }
     } finally {
       if (PApplet.platform == PConstants.MACOSX
-          && Arrays.asList(args).contains(PApplet.ARGS_FULL_SCREEN)) {
+          && Arrays.asList(args).contains("fullScreen")) {
         // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm
         // exits or we explicitly tell it to minimize.
         // (If it's disposed, it'll leave a gray blank window behind it.)
@@ -933,19 +929,6 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
-  private void checkForRendererChangeException(Throwable t) {
-    // This is an expected condition. PApplet uses an exception
-    // to signal a change to the rendering context, so we unwrap
-    // the Python exception to extract the signal, and pass it
-    // up the stack.
-    while (t != null) {
-      if (t instanceof RendererChangeException) {
-        throw (RendererChangeException)t;
-      }
-      t = t.getCause();
-    }
-  }
-
   /**
    * We have to override PApplet's size method in order to reset the Python
    * context's knowledge of the magic variables that reflect the state of the
@@ -960,6 +943,20 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("height", pyint(height));
   }
 
+  @Override 
+  public void settings() {
+    try {
+      if (settingsMeth != null) {
+        settingsMeth.__call__();
+      } else {
+        super.settings();
+      }
+    } catch (final Exception e) {
+      terminalException = toSketchException(e);
+      exit();
+    }
+  }
+
   @Override
   public void setup() {
     builtins.__setitem__("frame", Py.java2py(frame));
@@ -968,13 +965,14 @@ public class PAppletJythonDriver extends PApplet {
       if (mode == Mode.STATIC) {
         // A static sketch gets called once, from this spot.
         Runner.log("Interpreting static-mode sketch.");
-        processSketch(programText);
+        processSketch(PREPROCESS_SCRIPT);
       } else if (setupMeth != null) {
         // Call the Python sketch's setup()
         setupMeth.__call__();
       }
     } catch (final Exception e) {
-      checkForRendererChangeException(e);
+      // No longer necessary in 3.0a7
+      // checkForRendererChangeException(e);
       terminalException = toSketchException(e);
       exit();
     }
@@ -994,42 +992,6 @@ public class PAppletJythonDriver extends PApplet {
   public void loadPixels() {
     super.loadPixels();
     builtins.__setitem__("pixels", Py.java2py(pixels));
-  }
-
-  @Override
-  public boolean sketchFullScreen() {
-    if (sketchFullScreenMeth == null) {
-      return super.sketchFullScreen();
-    } else {
-      return sketchFullScreenMeth.__call__().__nonzero__();
-    }
-  }
-
-  @Override
-  public int sketchWidth() {
-    if (sketchWidthMeth == null) {
-      return super.sketchWidth();
-    } else {
-      return sketchWidthMeth.__call__().asInt();
-    }
-  }
-
-  @Override
-  public String sketchRenderer() {
-    if (sketchRendererMeth == null) {
-      return super.sketchRenderer();
-    } else {
-      return sketchRendererMeth.__call__().asString();
-    }
-  }
-
-  @Override
-  public int sketchHeight() {
-    if (sketchHeightMeth == null) {
-      return super.sketchWidth();
-    } else {
-      return sketchHeightMeth.__call__().asInt();
-    }
   }
 
   @Override
@@ -1171,17 +1133,6 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
-  @Override
-  public void destroy() {
-    try {
-      if (destroyMeth != null) {
-        destroyMeth.__call__();
-      }
-    } finally {
-      super.destroy();
-    }
-  }
-
   /**
    * Processing uses reflection to call file selection callbacks by name.
    * We fake out that stuff with one of these babies.
@@ -1263,6 +1214,7 @@ public class PAppletJythonDriver extends PApplet {
   /**
    * Replace PApplet's behavior, since we don't use the __MOVE__ thingy.
    */
-  @Override
-  public void setupExternalMessages() {}
+//   @Override
+//   // TODO moved to PSurface [fry]
+//   public void setupExternalMessages() {}
 }

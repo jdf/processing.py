@@ -18,9 +18,11 @@ import java.util.regex.Pattern;
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.Base;
+import processing.app.Platform;
 import processing.app.Library;
 import processing.app.Preferences;
 import processing.app.Sketch;
+import processing.app.Util; 
 import processing.core.PApplet;
 import processing.core.PConstants;
 
@@ -109,7 +111,7 @@ public class MacExport extends PlatformExport {
    */
   private void copyJDKPlugin(final File targetPluginsFolder) throws IOException {
     // This is how Java Mode finds it... basically
-    final File sourceJDKFolder = Base.getContentFile("../PlugIns").listFiles(new FilenameFilter() {
+    final File sourceJDKFolder = Platform.getContentFile("../PlugIns").listFiles(new FilenameFilter() {
       @Override
       public boolean accept(final File dir, final String name) {
         return name.endsWith(".jdk") && !name.startsWith(".");
@@ -120,7 +122,7 @@ public class MacExport extends PlatformExport {
 
     targetPluginsFolder.mkdirs();
     final File targetJDKFolder = new File(targetPluginsFolder, sourceJDKFolder.getName());
-    Base.copyDirNative(sourceJDKFolder, targetJDKFolder);
+    Util.copyDirNative(sourceJDKFolder, targetJDKFolder);
   }
 
 
@@ -149,8 +151,8 @@ public class MacExport extends PlatformExport {
     log("Moving static macosx resources.");
     final File osxFolder = editor.getModeContentFile("application/macosx");
     resourcesFolder.mkdirs();
-    Base.copyFile(new File(osxFolder, "sketch.icns"), new File(resourcesFolder, "sketch.icns"));
-    Base.copyFile(new File(osxFolder, "dialogs.applescript"), new File(resourcesFolder,
+    Util.copyFile(new File(osxFolder, "sketch.icns"), new File(resourcesFolder, "sketch.icns"));
+    Util.copyFile(new File(osxFolder, "dialogs.applescript"), new File(resourcesFolder,
         "dialogs.applescript"));
   }
 
@@ -247,9 +249,9 @@ public class MacExport extends PlatformExport {
     options.add("--exported");
 
     if (presentMode) {
-      options.add(PApplet.ARGS_FULL_SCREEN);
+      options.add("fullScreen");
 
-      options.add(PApplet.ARGS_BGCOLOR + "=" + Preferences.get("run.present.bgcolor"));
+      options.add("BGCOLOR" + "=" + Preferences.get("run.present.bgcolor"));
     }
 
     if (stopButton) {

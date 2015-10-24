@@ -6,10 +6,12 @@ import java.util.Set;
 
 import jycessing.mode.PyEditor;
 import processing.app.Base;
+import processing.app.Platform;
 import processing.app.Library;
 import processing.app.Preferences;
 import processing.app.Sketch;
 import processing.app.SketchCode;
+import processing.app.Util;
 
 /**
  * 
@@ -49,7 +51,7 @@ public abstract class PlatformExport {
     // Delete previous export (if the user wants to, and it exists) and make a new one
     if (deletePrevious) {
       log("Removing old export folder.");
-      Base.removeDir(destFolder);
+      Util.removeDir(destFolder);
     }
     destFolder.mkdirs();
 
@@ -57,14 +59,14 @@ public abstract class PlatformExport {
     if (hasData) {
       log("Copying data folder to export.");
       dataFolder.mkdirs();
-      Base.copyDir(sketch.getDataFolder(), dataFolder);
+      Util.copyDir(sketch.getDataFolder(), dataFolder);
     }
 
     // Handle code folder
     if (hasCode) {
       log("Copying code folder to export.");
       codeFolder.mkdirs();
-      Base.copyDir(sketch.getCodeFolder(), codeFolder);
+      Util.copyDir(sketch.getCodeFolder(), codeFolder);
     }
 
     // Handle source folder
@@ -84,7 +86,7 @@ public abstract class PlatformExport {
         final File libraryExportFolder =
             new File(libFolder, library.getFolder().getName() + "/library/");
         libraryExportFolder.mkdirs();
-        for (final File exportFile : library.getApplicationExports(id, arch.bits)) {
+        for (final File exportFile : library.getApplicationExports(id, Integer.toString(arch.bits))) {
           log("Exporting: " + exportFile);
           final String exportName = exportFile.getName();
           if (!exportFile.exists()) {
@@ -93,9 +95,9 @@ public abstract class PlatformExport {
             continue;
           }
           if (exportFile.isDirectory()) {
-            Base.copyDir(exportFile, new File(libraryExportFolder, exportName));
+            Util.copyDir(exportFile, new File(libraryExportFolder, exportName));
           } else {
-            Base.copyFile(exportFile, new File(libraryExportFolder, exportName));
+            Util.copyFile(exportFile, new File(libraryExportFolder, exportName));
           }
         }
       }
@@ -105,19 +107,19 @@ public abstract class PlatformExport {
     {
       jycessingFolder.mkdirs();
       log("Copying core processing stuff to export");
-      for (final File exportFile : new Library(Base.getContentFile("core")).getApplicationExports(
-          id, arch.bits)) {
+      for (final File exportFile : new Library(Platform.getContentFile("core")).getApplicationExports(
+          id, Integer.toString(arch.bits))) {
         if (exportFile.isDirectory()) {
-          Base.copyDir(exportFile, new File(jycessingFolder, exportFile.getName()));
+          Util.copyDir(exportFile, new File(jycessingFolder, exportFile.getName()));
         } else {
-          Base.copyFile(exportFile, new File(jycessingFolder, exportFile.getName()));
+          Util.copyFile(exportFile, new File(jycessingFolder, exportFile.getName()));
         }
       }
       log("Copying core processing.py .jars to export");
-      Base.copyDir(editor.getModeContentFile("mode"), jycessingFolder);
+      Util.copyDir(editor.getModeContentFile("mode"), jycessingFolder);
       log("Copying splash screen to export");
       // (In the "lib" folder just in case the user has a splash.png)
-      Base.copyFile(editor.getSplashFile(), new File(jycessingFolder, "splash.png"));
+      Util.copyFile(editor.getSplashFile(), new File(jycessingFolder, "splash.png"));
     }
   }
 }

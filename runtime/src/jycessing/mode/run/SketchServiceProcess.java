@@ -20,6 +20,8 @@ import java.util.regex.Pattern;
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.Base;
+import processing.app.Platform;
+import processing.app.Messages; 
 import processing.app.Preferences;
 import processing.app.SketchException;
 
@@ -74,7 +76,7 @@ public class SketchServiceProcess {
     try {
       sketchServiceProcess = pb.start();
     } catch (final IOException e) {
-      Base.showError("PythonMode Error", "Cannot start python sketch runner.", e);
+      Messages.showError("PythonMode Error", "Cannot start python sketch runner.", e);
     }
   }
 
@@ -107,14 +109,14 @@ public class SketchServiceProcess {
   private ProcessBuilder createServerCommand() {
     final List<String> command = new ArrayList<>();
 
-    command.add(Base.getJavaPath());
+    command.add(Platform.getJavaPath());
 
     if (Preferences.getBoolean("run.options.memory")) {
       command.add("-Xms" + Preferences.get("run.options.memory.initial") + "m");
       command.add("-Xmx" + Preferences.get("run.options.memory.maximum") + "m");
     }
 
-    if (Base.isMacOS()) {
+    if (Platform.isMacOS()) {
       // Suppress dock icon.
       command.add("-Dapple.awt.UIElement=true");
       command.add("-Xdock:name=Processing");
@@ -133,7 +135,7 @@ public class SketchServiceProcess {
         not(or(
             containsPattern("(ant|ant-launcher|antlr|netbeans.*|osgi.*|jdi.*|ibm\\.icu.*|jna)\\.jar$"),
             containsPattern("/processing/app/(test|lib)/")))));
-    for (final File jar : new File(Base.getContentFile("core"), "library").listFiles(JARS)) {
+    for (final File jar : new File(Platform.getContentFile("core"), "library").listFiles(JARS)) {
       cp.add(jar.getAbsolutePath());
     }
     final File[] libJars = mode.getContentFile("mode").getAbsoluteFile().listFiles(JARS);

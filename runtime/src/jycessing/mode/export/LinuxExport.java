@@ -13,11 +13,14 @@ import java.util.Set;
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.Base;
+import processing.app.Platform;
 import processing.app.Library;
 import processing.app.Preferences;
 import processing.app.Sketch;
+import processing.app.Util;
 import processing.core.PApplet;
 import processing.core.PConstants;
+
 
 
 /**
@@ -77,7 +80,7 @@ public class LinuxExport extends PlatformExport {
     if (embedJava) {
       log("Embedding java in export.");
       javaFolder.mkdirs();
-      Base.copyDir(Base.getJavaHome(), javaFolder);
+      Util.copyDir(Platform.getJavaHome(), javaFolder);
     }
 
     buildShellScript(destFolder, embedJava);
@@ -151,9 +154,9 @@ public class LinuxExport extends PlatformExport {
     options.add("--exported");
 
     if (presentMode) {
-      options.add(PApplet.ARGS_FULL_SCREEN);
+      options.add("fullScreen");
 
-      options.add(PApplet.ARGS_BGCOLOR + "=" + Preferences.get("run.present.bgcolor"));
+      options.add("BGCOLOR" + "=" + Preferences.get("run.present.bgcolor"));
     }
 
     if (stopButton) {
