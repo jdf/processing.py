@@ -6,6 +6,7 @@ import java.util.Set;
 
 import jycessing.mode.PyEditor;
 import processing.app.Base;
+import processing.app.Platform;
 import processing.app.Library;
 import processing.app.Preferences;
 import processing.app.Sketch;
@@ -85,7 +86,7 @@ public abstract class PlatformExport {
         final File libraryExportFolder =
             new File(libFolder, library.getFolder().getName() + "/library/");
         libraryExportFolder.mkdirs();
-        for (final File exportFile : library.getApplicationExports(id, arch.bits)) {
+        for (final File exportFile : library.getApplicationExports(id, Integer.toString(arch.bits))) {
           log("Exporting: " + exportFile);
           final String exportName = exportFile.getName();
           if (!exportFile.exists()) {
@@ -106,8 +107,8 @@ public abstract class PlatformExport {
     {
       jycessingFolder.mkdirs();
       log("Copying core processing stuff to export");
-      for (final File exportFile : new Library(Base.getContentFile("core")).getApplicationExports(
-          id, arch.bits)) {
+      for (final File exportFile : new Library(Platform.getContentFile("core")).getApplicationExports(
+          id, Integer.toString(arch.bits))) {
         if (exportFile.isDirectory()) {
           Util.copyDir(exportFile, new File(jycessingFolder, exportFile.getName()));
         } else {

@@ -28,12 +28,15 @@ import jycessing.mode.run.SketchService;
 import jycessing.mode.run.SketchServiceManager;
 import jycessing.mode.run.SketchServiceProcess;
 import processing.app.Base;
+import processing.app.Platform; 
+import processing.app.Messages;
 import processing.app.Formatter;
 import processing.app.Language;
 import processing.app.Mode;
 import processing.app.SketchCode;
 import processing.app.SketchException;
 import processing.app.ui.Editor;
+import processing.app.ui.EditorException;
 import processing.app.ui.EditorState;
 import processing.app.ui.EditorToolbar;
 import processing.app.ui.Toolkit;
@@ -66,7 +69,7 @@ public class PyEditor extends Editor {
   private Path tempSketch;
 
 
-  protected PyEditor(final Base base, final String path, final EditorState state, final Mode mode) {
+  protected PyEditor(final Base base, final String path, final EditorState state, final Mode mode) throws EditorException {
     super(base, path, state, mode);
 
     id = UUID.randomUUID().toString();
@@ -170,13 +173,13 @@ public class PyEditor extends Editor {
     menu.add(new JMenuItem(new AbstractAction("Report a bug in Python Mode") {
       @Override
       public void actionPerformed(final ActionEvent e) {
-        Base.openURL("http://github.com/jdf/processing.py-bugs/issues");
+        Platform.openURL("http://github.com/jdf/processing.py-bugs/issues");
       }
     }));
     menu.add(new JMenuItem(new AbstractAction("Contribute to Python Mode") {
       @Override
       public void actionPerformed(final ActionEvent e) {
-        Base.openURL("http://github.com/jdf/processing.py");
+        Platform.openURL("http://github.com/jdf/processing.py");
       }
     }));
     return menu;
@@ -278,7 +281,7 @@ public class PyEditor extends Editor {
         tempSketch = createTempSketch();
         sketchPath = tempSketch.resolve(sketchMainFileName).toFile();
       } catch (final IOException e) {
-        Base.showError("Sketchy Behavior", "I can't copy your unsaved work\n"
+        Messages.showError("Sketchy Behavior", "I can't copy your unsaved work\n"
             + "to a temp directory.", e);
         return;
       }

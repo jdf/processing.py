@@ -12,6 +12,7 @@ import java.util.Set;
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.Base;
+import processing.app.Platform;
 import processing.app.Library;
 import processing.app.Preferences;
 import processing.app.Sketch;
@@ -79,7 +80,7 @@ public class WindowsExport extends PlatformExport {
     if (embedJava) {
       log("Embedding java in export.");
       javaFolder.mkdirs();
-      Util.copyDir(Base.getJavaHome(), javaFolder);
+      Util.copyDir(Platform.getJavaHome(), javaFolder);
     }
 
     final XML l4jConfig = buildLaunch4jConfig(destFolder, embedJava);
@@ -141,7 +142,7 @@ public class WindowsExport extends PlatformExport {
       throw new IOException("Can't find java executable. Huh?");
     }
 
-    final File launch4jFolder = Base.getContentFile("modes/java/application/launch4j");
+    final File launch4jFolder = Platform.getContentFile("modes/java/application/launch4j");
     if (!launch4jFolder.exists()) {
       throw new IOException("Can't find launch4j to wrap application with.");
     }

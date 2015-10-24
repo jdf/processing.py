@@ -10,6 +10,7 @@ import jycessing.DisplayType;
 import jycessing.RunnableSketch;
 import jycessing.Runner.LibraryPolicy;
 import processing.app.Base;
+import processing.app.Platform;
 import processing.app.Sketch;
 import processing.core.PApplet;
 
@@ -44,7 +45,7 @@ public class PdeSketch implements RunnableSketch, Serializable {
     this.sketchHome = sketch.getFolder().getAbsoluteFile();
 
     final List<File> libraryDirs = new ArrayList<>();
-    libraryDirs.add(Base.getContentFile("modes/java/libraries"));
+    libraryDirs.add(Platform.getContentFile("modes/java/libraries"));
     libraryDirs.add(Base.getSketchbookLibrariesFolder());
     libraryDirs.add(sketch.getCodeFolder());
     this.libraryDirs = libraryDirs;

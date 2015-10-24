@@ -14,6 +14,8 @@ import org.python.core.CompilerFlags;
 import org.python.core.ParserFacade;
 
 import processing.app.Base;
+import processing.app.Platform;
+import processing.app.Messages;
 import processing.app.Library;
 import processing.app.Sketch;
 import processing.app.SketchCode;
@@ -36,7 +38,7 @@ public class ImportExtractor {
   }
 
   private final static File[] libLocations = new File[] {
-      Base.getContentFile("modes/java/libraries"), Base.getSketchbookLibrariesFolder()};
+      Platform.getContentFile("modes/java/libraries"), Base.getSketchbookLibrariesFolder()};
 
   private final Sketch sketch;
   private final Set<Library> libraries;
@@ -75,7 +77,7 @@ public class ImportExtractor {
       }
     }
     if (visitor.failure) {
-      Base.showWarning("Library Problems",
+      Messages.showWarning("Library Problems",
           "I can't figure out all of the java libraries you're using. "
               + "Your exported sketch might not work.");
     }

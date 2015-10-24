@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.Base;
+import processing.app.Platform;
 import processing.app.Library;
 import processing.app.Preferences;
 import processing.app.Sketch;
@@ -110,7 +111,7 @@ public class MacExport extends PlatformExport {
    */
   private void copyJDKPlugin(final File targetPluginsFolder) throws IOException {
     // This is how Java Mode finds it... basically
-    final File sourceJDKFolder = Base.getContentFile("../PlugIns").listFiles(new FilenameFilter() {
+    final File sourceJDKFolder = Platform.getContentFile("../PlugIns").listFiles(new FilenameFilter() {
       @Override
       public boolean accept(final File dir, final String name) {
         return name.endsWith(".jdk") && !name.startsWith(".");

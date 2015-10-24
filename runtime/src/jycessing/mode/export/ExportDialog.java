@@ -32,6 +32,7 @@ import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.ui.ColorChooser;
 import processing.app.Base;
+import processing.app.Platform;
 import processing.app.Preferences;
 import processing.app.Sketch;
 
@@ -77,7 +78,7 @@ public class ExportDialog extends JDialog {
     center.add(embed);
 
     // I haven't tested this on a Mac yet
-    if (Base.isMacOS()) {
+    if (Platform.isMacOS()) {
       final JPanel signingProblems = createMacSigningWarning(platforms.getPreferredSize().width);
       center.add(signingProblems);
     }
@@ -231,12 +232,12 @@ public class ExportDialog extends JDialog {
     embedPanel.setLayout(new BoxLayout(embedPanel, BoxLayout.Y_AXIS));
 
     String platformName = null;
-    if (Base.isMacOS()) {
+    if (Platform.isMacOS()) {
       platformName = "Mac OS X";
-    } else if (Base.isWindows()) {
-      platformName = "Windows (" + Base.getNativeBits() + "-bit)";
-    } else if (Base.isLinux()) {
-      platformName = "Linux (" + Base.getNativeBits() + "-bit)";
+    } else if (Platform.isWindows()) {
+      platformName = "Windows (" + Platform.getNativeBits() + "-bit)";
+    } else if (Platform.isLinux()) {
+      platformName = "Linux (" + Platform.getNativeBits() + "-bit)";
     }
 
     final boolean embed = Preferences.getBoolean("export.application.embed_java");
@@ -253,7 +254,7 @@ public class ExportDialog extends JDialog {
     warningLabel.addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(final MouseEvent event) {
-        Base.openURL("http://java.com/download");
+        Platform.openURL("http://java.com/download");
       }
     });
     warningLabel.setBorder(new EmptyBorder(3, 13, 3, 13));
@@ -317,7 +318,7 @@ public class ExportDialog extends JDialog {
     area.addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(final MouseEvent event) {
-        Base.openURL("https://developer.apple.com/developer-id/");
+        Platform.openURL("https://developer.apple.com/developer-id/");
       }
     });
     return signPanel;

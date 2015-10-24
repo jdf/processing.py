@@ -13,6 +13,7 @@ import java.util.Set;
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.Base;
+import processing.app.Platform;
 import processing.app.Library;
 import processing.app.Preferences;
 import processing.app.Sketch;
@@ -79,7 +80,7 @@ public class LinuxExport extends PlatformExport {
     if (embedJava) {
       log("Embedding java in export.");
       javaFolder.mkdirs();
-      Util.copyDir(Base.getJavaHome(), javaFolder);
+      Util.copyDir(Platform.getJavaHome(), javaFolder);
     }
 
     buildShellScript(destFolder, embedJava);
