@@ -6,6 +6,7 @@ import java.util.Set;
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.Base;
+import processing.app.Platform;
 import processing.app.Library;
 import processing.app.Preferences;
 import processing.app.Sketch;
@@ -30,7 +31,7 @@ public class Exporter {
   // Used to determine what platform we can embed java in.
   public static final Arch processingArch;
   static {
-    if (Base.getNativeBits() == Arch.X86.bits) {
+    if (Platform.getNativeBits() == Arch.X86.bits) {
       processingArch = Arch.X86;
     } else {
       processingArch = Arch.AMD64;
@@ -90,6 +91,6 @@ public class Exporter {
       }
     }
     log("Opening result folder.");
-    Base.openFolder(sketch.getFolder());
+    Platform.openFolder(sketch.getFolder());
   }
 }

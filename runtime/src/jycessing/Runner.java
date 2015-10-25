@@ -366,7 +366,8 @@ public class Runner {
 
       // We have to do this because static mode sketches may load data
       // files during parsing!
-      applet.sketchPath = sketch.getHomeDirectory().getAbsolutePath();
+      applet.sketchPath(); // The first call will locate the default path
+      // applet.sketchPath = sketch.getHomeDirectory().getAbsolutePath();
 
       applet.setSketchPositionListener(sketchPositionListener);
 

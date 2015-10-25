@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import processing.app.Base;
+import processing.app.Platform;
 import processing.app.Formatter;
 import processing.app.exec.StreamPump;
 
@@ -53,7 +54,7 @@ public class FormatServer implements Formatter {
     }
     log("Native python not available for formatting.");
     final String jython = new File(modeHome, "mode/jython.jar").getAbsolutePath();
-    return new ProcessBuilder(Base.getJavaPath(), "-jar", jython, formatServerPath);
+    return new ProcessBuilder(Platform.getJavaPath(), "-jar", jython, formatServerPath);
   }
 
   /**

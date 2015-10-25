@@ -2,22 +2,24 @@ package jycessing.mode;
 
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import processing.app.Editor;
+import processing.app.ui.Editor;
 import processing.app.Sketch;
 import processing.app.syntax.JEditTextArea;
-import processing.mode.java.PdeKeyListener;
+import processing.app.syntax.PdeInputHandler;
 
 /**
  * This class provides Pythonic handling of TAB, BACKSPACE, and ENTER keys.
  */
-public class PyKeyListener extends PdeKeyListener {
+public class PyInputHandler extends PdeInputHandler {
   final PyEditor pyEditor;
-  final JEditTextArea textArea;
+
+  JEditTextArea textArea; // assigned on first key press
 
   // ctrl-alt on windows & linux, cmd-alt on os x
   private static int CTRL_ALT = ActionEvent.ALT_MASK
@@ -27,20 +29,40 @@ public class PyKeyListener extends PdeKeyListener {
   private static final String TAB = "    ";
   private static final int TAB_SIZE = TAB.length();
 
-  public PyKeyListener(final Editor editor, final JEditTextArea textarea) {
-    super(editor, textarea);
-
+  public PyInputHandler(final Editor editor) {
     pyEditor = (PyEditor)editor;
-    textArea = textarea;
+    textArea = pyEditor.getTextArea();
+
+    // This is a somewhat gross "shim" keyListener.
+    // The HandlePressed() Method was not properly overriding the
+    // handlePressed() within pdeInputHandler.java so I circumvent the need for
+    // the pde call by adding an additional keyListener here. It's in no way ideal,
+    // but is a quick fix to the "No Returns or Tabs" bug in the new
+    // python mode PDEX. You can find the pdeInputHandler.java at the url below.
+    // https://github.com/processing/processing/blob/master/
+    // app/src/processing/app/syntax/PdeInputHandler.java#L243
+
+    textArea.addKeyListener(new KeyAdapter() {
+      @Override
+      public void keyPressed(final KeyEvent e) {
+        if (handlePressed(e)) {
+          e.consume();
+        }
+      }
+    });
+
   }
 
   @Override
-  public boolean keyPressed(final KeyEvent event) {
+  public boolean handlePressed(final KeyEvent event) {
     final char c = event.getKeyChar();
     final int code = event.getKeyCode();
     final int mods = event.getModifiers();
 
     final Sketch sketch = pyEditor.getSketch();
+    if (textArea == null) {
+      textArea = pyEditor.getTextArea();
+    }
 
     // things that change the content of the text area
     if ((code == KeyEvent.VK_BACK_SPACE) || (code == KeyEvent.VK_TAB)
@@ -203,7 +225,9 @@ public class PyKeyListener extends PdeKeyListener {
     } else {
       newIndent = Math.max(0, currentLine.indent - 1);
     }
+
     final int deltaIndent = newIndent - currentLine.indent;
+
     for (int i = startLine; i <= stopLine; i++) {
       indentLineBy(i, deltaIndent);
     }
@@ -228,9 +252,18 @@ public class PyKeyListener extends PdeKeyListener {
       sb.append(TAB);
     }
     sb.append(currentLine.text);
-    textArea.select(textArea.getLineStartOffset(line), textArea.getLineStopOffset(line) - 1);
+
+    // Adjust for off by one error when de indenting allowing easier traversal through text area.
+    if (deltaIndent < 0) {
+      textArea.select(textArea.getLineStartOffset(line) + 1, textArea.getLineStopOffset(line) - 1);
+    } else {
+      textArea.select(textArea.getLineStartOffset(line), textArea.getLineStopOffset(line) - 1);
+    }
+
+
     final String newLine = sb.toString();
     textArea.setSelectedText(newLine);
+
     textArea.selectNone();
   }
 
@@ -340,7 +373,6 @@ public class PyKeyListener extends PdeKeyListener {
 
   private String newline() {
     final int cursor = textArea.getCaretPosition();
-
     if (cursor <= 1) {
       return "\n";
     }

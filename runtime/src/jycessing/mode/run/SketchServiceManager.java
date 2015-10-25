@@ -9,6 +9,7 @@ import java.util.Set;
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.Base;
+import processing.app.Messages;
 
 public class SketchServiceManager implements ModeService {
   private static final String DEBUG_SKETCH_RUNNER_KEY = "$SKETCHRUNNER$";
@@ -70,7 +71,7 @@ public class SketchServiceManager implements ModeService {
         RMIUtils.bind(this, ModeService.class);
       }
     } catch (final Exception e) {
-      Base.showError("PythonMode Error", "Cannot start python sketch service.", e);
+      Messages.showError("PythonMode Error", "Cannot start python sketch service.", e);
       return;
     }
   }

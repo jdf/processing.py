@@ -18,12 +18,6 @@ __builtin__.PFont = PFont
 from processing.core import PGraphics
 __builtin__.PGraphics = PGraphics
 
-from processing.core import PGraphicsJava2D
-__builtin__.PGraphicsJava2D = PGraphicsJava2D
-
-from processing.core import PGraphicsRetina2D
-__builtin__.PGraphicsRetina2D = PGraphicsRetina2D
-
 from processing.core import PImage
 __builtin__.PImage = PImage
 
@@ -47,6 +41,30 @@ __builtin__.PShapeSVG = PShapeSVG
 
 from processing.core import PStyle
 __builtin__.PStyle = PStyle
+
+from processing.core import PSurface
+__builtin__.PSurface = PSurface 
+
+from processing.core import PSurfaceNone
+__builtin__.PSurfaceNone = PSurfaceNone
+
+from processing.core import PVector
+__builtin__.PVector = PVector
+
+from processing.core import ThinkDifferent
+__builtin__.ThinkDifferent = ThinkDifferent
+
+from processing.awt import PGraphicsJava2D
+__builtin__.PGraphicsJava2D = PGraphicsJava2D
+
+from processing.awt import PSurfaceAWT
+__builtin__.PSurfaceAWT = PSurfaceAWT
+
+from processing.javafx import PGraphicsFX2D
+__builtin__.PGraphicsFX2D = PGraphicsFX2D
+
+from processing.javafx import PSurfaceFX
+__builtin__PSurfaceFX = PSurfaceFX
 
 from processing.opengl import FontTexture
 __builtin__.FontTexture = FontTexture
