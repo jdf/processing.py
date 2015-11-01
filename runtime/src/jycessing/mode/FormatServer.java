@@ -6,9 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 
-import processing.app.Base;
-import processing.app.Platform;
 import processing.app.Formatter;
+import processing.app.Platform;
 import processing.app.exec.StreamPump;
 
 /**

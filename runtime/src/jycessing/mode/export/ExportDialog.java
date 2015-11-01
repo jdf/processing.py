@@ -30,11 +30,10 @@ import javax.swing.border.TitledBorder;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
-import processing.app.ui.ColorChooser;
-import processing.app.Base;
 import processing.app.Platform;
 import processing.app.Preferences;
 import processing.app.Sketch;
+import processing.app.ui.ColorChooser;
 
 /**
  * 

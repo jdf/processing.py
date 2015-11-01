@@ -8,10 +8,10 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import processing.app.ui.Editor;
 import processing.app.Sketch;
 import processing.app.syntax.JEditTextArea;
 import processing.app.syntax.PdeInputHandler;
+import processing.app.ui.Editor;
 
 /**
  * This class provides Pythonic handling of TAB, BACKSPACE, and ENTER keys.

@@ -5,9 +5,8 @@ import java.io.IOException;
 import java.util.Set;
 
 import jycessing.mode.PyEditor;
-import processing.app.Base;
-import processing.app.Platform;
 import processing.app.Library;
+import processing.app.Platform;
 import processing.app.Preferences;
 import processing.app.Sketch;
 import processing.app.SketchCode;

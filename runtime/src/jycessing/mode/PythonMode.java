@@ -7,14 +7,14 @@ import jycessing.mode.run.SketchRunner;
 import jycessing.mode.run.SketchService;
 import jycessing.mode.run.SketchServiceManager;
 import processing.app.Base;
+import processing.app.Formatter;
 import processing.app.Messages;
+import processing.app.Mode;
 import processing.app.Platform;
+import processing.app.syntax.TokenMarker;
 import processing.app.ui.Editor;
 import processing.app.ui.EditorException;
 import processing.app.ui.EditorState;
-import processing.app.Formatter;
-import processing.app.Mode;
-import processing.app.syntax.TokenMarker;
 
 public class PythonMode extends Mode {
 

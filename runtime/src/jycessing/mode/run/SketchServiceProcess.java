@@ -19,9 +19,8 @@ import java.util.regex.Pattern;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
-import processing.app.Base;
+import processing.app.Messages;
 import processing.app.Platform;
-import processing.app.Messages; 
 import processing.app.Preferences;
 import processing.app.SketchException;
 

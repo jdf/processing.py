@@ -17,12 +17,11 @@ import java.util.regex.Pattern;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
-import processing.app.Base;
-import processing.app.Platform;
 import processing.app.Library;
+import processing.app.Platform;
 import processing.app.Preferences;
 import processing.app.Sketch;
-import processing.app.Util; 
+import processing.app.Util;
 import processing.core.PApplet;
 import processing.core.PConstants;
 

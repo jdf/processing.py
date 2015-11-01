@@ -8,7 +8,6 @@ import java.util.Set;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
-import processing.app.Base;
 import processing.app.Messages;
 
 public class SketchServiceManager implements ModeService {

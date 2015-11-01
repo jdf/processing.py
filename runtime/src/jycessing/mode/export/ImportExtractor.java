@@ -14,9 +14,9 @@ import org.python.core.CompilerFlags;
 import org.python.core.ParserFacade;
 
 import processing.app.Base;
-import processing.app.Platform;
-import processing.app.Messages;
 import processing.app.Library;
+import processing.app.Messages;
+import processing.app.Platform;
 import processing.app.Sketch;
 import processing.app.SketchCode;
 
