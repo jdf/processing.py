@@ -379,16 +379,8 @@ public class PAppletJythonDriver extends PApplet {
     return s;
   }
 
-
-  @Override
-  public void exit() {
-    exitActual();
-  }
-
   @Override
   public void exitActual() {
-    stop();
-    dispose();
     finishedLatch.countDown();
   }
 
