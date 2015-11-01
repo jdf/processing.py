@@ -29,7 +29,7 @@ public class SketchRunner implements SketchService {
     this.modeService = modeService;
     try {
       OSXAdapter.setQuitHandler(this, this.getClass().getMethod("preventUserQuit"));
-    } catch (final Exception e) {
+    } catch (final Throwable e) {
       System.err.println(e.getMessage());
     }
     new Thread(new Runnable() {
