@@ -28,11 +28,11 @@ import jycessing.mode.run.SketchService;
 import jycessing.mode.run.SketchServiceManager;
 import jycessing.mode.run.SketchServiceProcess;
 import processing.app.Base;
-import processing.app.Platform; 
-import processing.app.Messages;
 import processing.app.Formatter;
 import processing.app.Language;
+import processing.app.Messages;
 import processing.app.Mode;
+import processing.app.Platform;
 import processing.app.SketchCode;
 import processing.app.SketchException;
 import processing.app.ui.Editor;
@@ -69,7 +69,8 @@ public class PyEditor extends Editor {
   private Path tempSketch;
 
 
-  protected PyEditor(final Base base, final String path, final EditorState state, final Mode mode) throws EditorException {
+  protected PyEditor(final Base base, final String path, final EditorState state, final Mode mode)
+      throws EditorException {
     super(base, path, state, mode);
 
     id = UUID.randomUUID().toString();
@@ -127,7 +128,6 @@ public class PyEditor extends Editor {
   public void internalCloseRunner() {
     try {
       sketchService.stopSketch();
-      sketchService.shutdown();
     } catch (final SketchException e) {
       statusError(e);
     } finally {
