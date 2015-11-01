@@ -2,6 +2,9 @@ env: DISPLAY=:99.0
 
 language: java
 
+jdk:
+  - oraclejdk8
+
 before_install:
   - git clone --depth=1 https://github.com/processing/processing
   - cd processing/build
