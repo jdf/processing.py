@@ -21,6 +21,8 @@ import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -200,18 +202,24 @@ public class Runner {
     SELECTIVE
   }
 
-  private static class WarmupSketch implements RunnableSketch {
+  private static class WarmupSketch implements RunnableSketch, AutoCloseable {
+    final Path sketchDir;
     final File sketchFile;
 
-    WarmupSketch() {
-      File temp;
+    WarmupSketch() throws IOException {
+      sketchDir = Files.createTempDirectory("pythonmode");
+      sketchFile = new File(sketchDir.toFile(), "warmup.pyde");
+    }
+
+    @Override
+    public void close() throws Exception {
       try {
-        temp = File.createTempFile("warmup", ".pyde");
+        IOUtil.rm(sketchDir);
       } catch (final IOException e) {
-        temp = null;
-        // drop
+        System.err.println("Unable to rm " + sketchDir);
+        sketchFile.deleteOnExit();
+        sketchDir.toFile().deleteOnExit();
       }
-      this.sketchFile = temp;
     }
 
     @Override
@@ -241,7 +249,7 @@ public class Runner {
 
     @Override
     public LibraryPolicy getLibraryPolicy() {
-      return LibraryPolicy.PROMISCUOUS;
+      return LibraryPolicy.SELECTIVE;
     }
 
     @Override
@@ -262,10 +270,10 @@ public class Runner {
    * to running a sketch, most of the slow work is already done.
    */
   public static void warmup() {
-    try {
-      runSketchBlocking(new WarmupSketch(), new DevNullPrinter(), new DevNullPrinter());
-    } catch (final PythonSketchError e) {
-      // drop
+    try (final WarmupSketch warmup = new WarmupSketch()) {
+      runSketchBlocking(warmup, new DevNullPrinter(), new DevNullPrinter());
+    } catch (final Exception e) {
+      log(e.getMessage());
     }
   }
 
