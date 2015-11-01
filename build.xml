@@ -213,7 +213,9 @@
     depends="check-video-needs-build"
     unless="video-is-uptodate">
     <echo message="Building processing-video." />
-    <ant dir="${processing-video}" target="build"/>
+    <ant dir="${processing-video}" target="build">
+	<property name="core.classpath.location" value="../processing/core/library/"/>
+    </ant>
   </target>
 
   <target name="clean-self">
