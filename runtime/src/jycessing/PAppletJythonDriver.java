@@ -1201,11 +1201,4 @@ public class PAppletJythonDriver extends PApplet {
   public void setSketchPositionListener(final SketchPositionListener sketchPositionListener) {
     this.sketchPositionListener = sketchPositionListener;
   }
-
-  /**
-   * Replace PApplet's behavior, since we don't use the __MOVE__ thingy.
-   */
-  // @Override
-  // // TODO moved to PSurface [fry]
-  // public void setupExternalMessages() {}
 }
