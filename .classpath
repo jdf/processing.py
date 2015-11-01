@@ -8,5 +8,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/processing-core"/>
 	<classpathentry kind="lib" path="buildtime/lib/jython/jython.jar" sourcepath="/Users/feinberg/jython-processing-mode"/>
 	<classpathentry kind="lib" path="buildtime/lib/java/guava-17.0.jar" sourcepath="buildtime/lib/java/guava-17.0-sources.jar"/>
+	<classpathentry kind="lib" path="/processing-core/library/jogl-all.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
