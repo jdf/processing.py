@@ -16,13 +16,10 @@
 package jycessing;
 
 import java.awt.Component;
-import java.awt.EventQueue;
-import java.awt.Frame;
+import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -65,6 +62,7 @@ import org.python.core.PyType;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
 
+import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
@@ -72,9 +70,11 @@ import processing.core.PSurface;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 import processing.opengl.PShader;
+import processing.opengl.PSurfaceJOGL;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import com.jogamp.newt.opengl.GLWindow;
 
 /**
  *
@@ -157,7 +157,7 @@ public class PAppletJythonDriver extends PApplet {
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
   private PyObject setupMeth, settingsMeth, drawMeth, initMeth, pauseMeth, resumeMeth, stopMeth,
-        sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
+      sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
   private EventFunction<KeyEvent> keyPressedFunc, keyReleasedFunc, keyTypedFunc;
   private EventFunction<MouseEvent> mousePressedFunc, mouseClickedFunc, mouseMovedFunc,
       mouseReleasedFunc, mouseDraggedFunc;
@@ -170,9 +170,6 @@ public class PAppletJythonDriver extends PApplet {
 
   private void processSketch(final String scriptSource) throws PythonSketchError {
     try {
-      /*
-       * Run the Python
-       */
       interp.set("__processing_source__", programText);
       final PyCode code =
           Py.compile_flags(scriptSource, pySketchPath.toString(), CompileMode.exec,
@@ -180,8 +177,6 @@ public class PAppletJythonDriver extends PApplet {
       interp.exec(code);
       Py.flushLine();
     } catch (Throwable t) {
-      // Not necessary as of 3.0a7
-      // checkForRendererChangeException(t);
       while (t.getCause() != null) {
         t = t.getCause();
       }
@@ -318,6 +313,13 @@ public class PAppletJythonDriver extends PApplet {
     return message;
   }
 
+  @Override
+  public void frameMoved(final int x, final int y) {
+    if (sketchPositionListener != null) {
+      sketchPositionListener.sketchMoved(new Point(x, y));
+    }
+  }
+
   public PAppletJythonDriver(final InteractiveConsole interp, final String pySketchPath,
       final String programText, final Printer stdout) throws PythonSketchError {
     this.wrappedStdout = new WrappedPrintStream(System.out) {
@@ -346,17 +348,41 @@ public class PAppletJythonDriver extends PApplet {
     setColorMethods();
     setText();
     builtins.__setitem__("g", Py.java2py(g));
-    // TODO No longer a Component, but not sure what this is doing [fry]
-    // addComponentListener(new ComponentAdapter() {
-    //   @Override
-    //   public void componentHidden(final ComponentEvent e) {
-    //     finishedLatch.countDown();
-    //   }
-    // });
 
     // Make sure key and keyCode are defined.
     builtins.__setitem__("key", Py.newUnicode((char)0));
     builtins.__setitem__("keyCode", pyint(0));
+  }
+
+  @Override
+  protected PSurface initSurface() {
+    final PSurface s = super.initSurface();
+    if (s instanceof PSurfaceAWT) {
+      final PSurfaceAWT surf = (PSurfaceAWT)s;
+      final Component c = (Component)surf.getNative();
+      c.addComponentListener(new ComponentAdapter() {
+        @Override
+        public void componentHidden(final ComponentEvent e) {
+          finishedLatch.countDown();
+        }
+      });
+    } else if (s instanceof PSurfaceJOGL) {
+      final PSurfaceJOGL surf = (PSurfaceJOGL)s;
+      final GLWindow win = (GLWindow)surf.getNative();
+      win.addWindowListener(new com.jogamp.newt.event.WindowAdapter() {
+        @Override
+        public void windowDestroyed(final com.jogamp.newt.event.WindowEvent arg0) {
+          finishedLatch.countDown();
+        }
+      });
+    }
+    return s;
+  }
+
+
+  @Override
+  public void exit() {
+    exitActual();
   }
 
   @Override
@@ -561,40 +587,6 @@ public class PAppletJythonDriver extends PApplet {
 
   public void runAndBlock(final String[] args) throws PythonSketchError {
     PApplet.runSketch(args, this);
-    // Thank you, rogerdpack.
-    // http://stackoverflow.com/a/596141
-    // This brings the sketch window to front!
-    EventQueue.invokeLater(new Runnable() {
-      @Override
-      public void run() {
-        System.out.println("running");
-        surface.setVisible(true);
-        surface.setLocation(10,10);
-        int state = frame.getExtendedState();
-        state &= ~Frame.ICONIFIED;
-        frame.setExtendedState(state);
-        frame.setAlwaysOnTop(true);
-        frame.toFront();
-        frame.requestFocus();
-        frame.setAlwaysOnTop(false);
-        // TODO no longer a Component, handled in PSurface [fry]
-        // requestFocus();
-      }
-    });
-    frame.addWindowListener(new WindowAdapter() {
-      @Override
-      public void windowClosing(final WindowEvent e) {
-        exit();
-      }
-    });
-    frame.addComponentListener(new ComponentAdapter() {
-      @Override
-      public void componentMoved(final ComponentEvent e) {
-        if (sketchPositionListener != null) {
-          sketchPositionListener.sketchMoved(((Component)e.getSource()).getLocation());
-        }
-      }
-    });
     try {
       finishedLatch.await();
     } catch (final InterruptedException interrupted) {
@@ -606,15 +598,14 @@ public class PAppletJythonDriver extends PApplet {
         // fallthrough
       }
     } finally {
-      if (PApplet.platform == PConstants.MACOSX
-          && Arrays.asList(args).contains("fullScreen")) {
+      if (PApplet.platform == PConstants.MACOSX && Arrays.asList(args).contains("fullScreen")) {
         // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm
         // exits or we explicitly tell it to minimize.
         // (If it's disposed, it'll leave a gray blank window behind it.)
         Runner.log("Disabling fullscreen.");
         macosxFullScreenToggle(frame);
       }
-      frame.dispose();
+      surface.setVisible(false);
     }
     if (terminalException != null) {
       throw terminalException;
@@ -943,7 +934,7 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("height", pyint(height));
   }
 
-  @Override 
+  @Override
   public void settings() {
     try {
       if (settingsMeth != null) {
@@ -1214,7 +1205,7 @@ public class PAppletJythonDriver extends PApplet {
   /**
    * Replace PApplet's behavior, since we don't use the __MOVE__ thingy.
    */
-//   @Override
-//   // TODO moved to PSurface [fry]
-//   public void setupExternalMessages() {}
+  // @Override
+  // // TODO moved to PSurface [fry]
+  // public void setupExternalMessages() {}
 }
