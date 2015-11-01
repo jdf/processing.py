@@ -166,6 +166,7 @@
       <classpath>
         <pathelement location="${jython}"/>
         <pathelement location="${corejar}"/>
+        <pathelement location="${processing}/core/library/jogl-all.jar"/>
         <pathelement location="${pdejar}"/>
         <pathelement location="${guava}"/>
       </classpath>
