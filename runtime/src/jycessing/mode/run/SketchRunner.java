@@ -10,6 +10,8 @@ import jycessing.SketchPositionListener;
 import jycessing.mode.PythonMode;
 import jycessing.mode.run.RMIUtils.RMIProblem;
 import processing.app.SketchException;
+import processing.core.PApplet;
+import processing.core.PConstants;
 
 public class SketchRunner implements SketchService {
 
@@ -27,10 +29,12 @@ public class SketchRunner implements SketchService {
   public SketchRunner(final String id, final ModeService modeService) {
     this.id = id;
     this.modeService = modeService;
-    try {
-      OSXAdapter.setQuitHandler(this, this.getClass().getMethod("preventUserQuit"));
-    } catch (final Throwable e) {
-      System.err.println(e.getMessage());
+    if (PApplet.platform == PConstants.MACOSX) {
+      try {
+        OSXAdapter.setQuitHandler(this, this.getClass().getMethod("preventUserQuit"));
+      } catch (final Throwable e) {
+        System.err.println(e.getMessage());
+      }
     }
     new Thread(new Runnable() {
       @Override
