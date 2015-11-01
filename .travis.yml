@@ -13,7 +13,7 @@ before_install:
   - cd ../..
   - git clone --depth=1 https://github.com/processing/processing-video
   - cd processing-video
-  - ant
+  - ant -Dcore.classpath.location="../processing/core/library/"
   - cd ..
   - "sh -e /etc/init.d/xvfb start"
 
