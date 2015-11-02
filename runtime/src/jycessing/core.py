@@ -45,66 +45,6 @@ __builtin__.PStyle = PStyle
 from processing.core import PSurface
 __builtin__.PSurface = PSurface 
 
-from processing.core import PSurfaceNone
-__builtin__.PSurfaceNone = PSurfaceNone
-
-from processing.core import PVector
-__builtin__.PVector = PVector
-
-from processing.core import ThinkDifferent
-__builtin__.ThinkDifferent = ThinkDifferent
-
-from processing.awt import PGraphicsJava2D
-__builtin__.PGraphicsJava2D = PGraphicsJava2D
-
-from processing.awt import PSurfaceAWT
-__builtin__.PSurfaceAWT = PSurfaceAWT
-
-from processing.javafx import PGraphicsFX2D
-__builtin__.PGraphicsFX2D = PGraphicsFX2D
-
-from processing.javafx import PSurfaceFX
-__builtin__PSurfaceFX = PSurfaceFX
-
-from processing.opengl import FontTexture
-__builtin__.FontTexture = FontTexture
-
-from processing.opengl import FrameBuffer
-__builtin__.FrameBuffer = FrameBuffer
-
-from processing.opengl import LinePath
-__builtin__.LinePath = LinePath
-
-from processing.opengl import LineStroker
-__builtin__.LineStroker = LineStroker
-
-from processing.opengl import PGL
-__builtin__.PGL = PGL
-
-from processing.opengl import PGraphics2D
-__builtin__.PGraphics2D = PGraphics2D
-
-from processing.opengl import PGraphics3D
-__builtin__.PGraphics3D = PGraphics3D
-
-from processing.opengl import PGraphicsOpenGL
-__builtin__.PGraphicsOpenGL = PGraphicsOpenGL
-
-from processing.opengl import PJOGL
-__builtin__.PJOGL = PJOGL
-
-from processing.opengl import PShader
-__builtin__.PShader = PShader
-
-from processing.opengl import PShapeOpenGL
-__builtin__.PShapeOpenGL = PShapeOpenGL
-
-from processing.opengl import Texture
-__builtin__.Texture = Texture
-
-from processing.data import Table
-__builtin__.Table = Table
-
 # PVector requires special handling, because it exposes the same method names
 # as static methods and instance methods.
 from processing.core import PVector as __pvector__
