@@ -936,7 +936,7 @@ public class PAppletJythonDriver extends PApplet {
       }
     } catch (final Exception e) {
       terminalException = toSketchException(e);
-      exit();
+      exitActual();
     }
   }
 
@@ -954,10 +954,8 @@ public class PAppletJythonDriver extends PApplet {
         setupMeth.__call__();
       }
     } catch (final Exception e) {
-      // No longer necessary in 3.0a7
-      // checkForRendererChangeException(e);
       terminalException = toSketchException(e);
-      exit();
+      exitActual();
     }
   }
 
