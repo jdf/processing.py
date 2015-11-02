@@ -42,19 +42,10 @@ def pyde_preprocessor(module):
 				for subNode in node.body:
 					if isinstance(subNode, ast.Expr):
 						if isinstance(subNode.value, ast.Call):
-							calledFunc = subNode.value.func.id
-							if (calledFunc == "size"):
-								__program_info__.size = subNode
+							func = subNode.value.func
+							if hasattr(func, 'id') and func.id in ('size', 'fullScreen', 'noSmooth', 'smooth'):
 								node.body.remove(subNode)
-							elif (calledFunc == "fullScreen"):
-								__program_info__.fullScreen = subNode
-								node.body.remove(subNode)
-							elif (calledFunc == "noSmooth"):
-								__program_info__.noSmooth = subNode
-								node.body.remove(subNode)
-							elif (calledFunc == "smooth"):
-								__program_info__.smooth = subNode
-								node.body.remove(subNode)
+								setattr(__program_info__, func.id, subNode)
 			elif (node.name == 'settings'):
 				# The user has defined a settings() function. 
 				__program_info__.found_settings = True
