@@ -30,6 +30,7 @@ import jycessing.mode.run.SketchServiceProcess;
 import processing.app.Base;
 import processing.app.Formatter;
 import processing.app.Language;
+import processing.app.Library;
 import processing.app.Messages;
 import processing.app.Mode;
 import processing.app.Platform;
@@ -357,9 +358,16 @@ public class PyEditor extends Editor {
   }
 
   @Override
-  public void handleImportLibrary(final String jarPath) {
+  public void handleImportLibrary(final String libraryName) {
     sketch.ensureExistence();
-    final String name = new File(jarPath).getParentFile().getParentFile().getName();
+
+    final Library lib = mode.findLibraryByName(libraryName);
+    if (lib == null) {
+      statusError("Unable to locate library: " + libraryName);
+      return;
+    }
+
+    final String name = new File(lib.getJarPath()).getParentFile().getParentFile().getName();
     if (Pattern.compile("^add_library\\(\\s*'" + name + "'\\s*\\)\\s*$", Pattern.MULTILINE)
         .matcher(getText()).find()) {
       return;
