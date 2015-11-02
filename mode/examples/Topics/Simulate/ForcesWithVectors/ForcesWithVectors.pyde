@@ -15,14 +15,12 @@ from liquid import Liquid
 from mover import Mover
 
 movers = [None] * 10
-# Liquid
-liquid = None
-
 
 def setup():
     size(640, 360)
     reset()
     # Create liquid object.
+    global liquid
     liquid = Liquid(0, height / 2, width, height / 2, 0.1)
 
 
