@@ -156,8 +156,7 @@ public class PAppletJythonDriver extends PApplet {
 
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
-  private PyObject setupMeth, settingsMeth, drawMeth, initMeth, pauseMeth, resumeMeth, stopMeth,
-      sketchFullScreenMeth, sketchWidthMeth, sketchHeightMeth, sketchRendererMeth;
+  private PyObject setupMeth, settingsMeth, drawMeth, pauseMeth, resumeMeth, stopMeth;
   private EventFunction<KeyEvent> keyPressedFunc, keyReleasedFunc, keyTypedFunc;
   private EventFunction<MouseEvent> mousePressedFunc, mouseClickedFunc, mouseMovedFunc,
       mouseReleasedFunc, mouseDraggedFunc;
@@ -446,12 +445,7 @@ public class PAppletJythonDriver extends PApplet {
       }
     };
 
-    sketchFullScreenMeth = interp.get("sketchFullScreen");
-    sketchWidthMeth = interp.get("sketchWidth");
-    sketchHeightMeth = interp.get("sketchHeight");
-    sketchRendererMeth = interp.get("sketchRenderer");
     settingsMeth = interp.get("settings");
-    initMeth = interp.get("init");
     stopMeth = interp.get("stop");
     pauseMeth = interp.get("pause");
     resumeMeth = interp.get("resume");

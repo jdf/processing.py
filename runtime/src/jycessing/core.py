@@ -306,7 +306,7 @@ __builtin__.fill = __papplet__.fill
 
 __builtin__.frameRate = __papplet__.frameRate
 __builtin__.frustum = __papplet__.frustum
-
+__builtin__.fullScreen = __papplet__.fullScreen
 __builtin__.hint = __papplet__.hint
 __builtin__.image = __papplet__.image
 __builtin__.imageMode = __papplet__.imageMode
