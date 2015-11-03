@@ -116,7 +116,8 @@ If you find that some Processing library doesn't work as expected with processin
 Written by [Jonathan Feinberg](http://mrfeinberg.com) &lt;[jdf@pobox.com](mailto:jdf@pobox.com)&gt;
 Launcher & many improvements by [Ralf Biedert](http://xr.io) &lt;[rb@xr.io](mailto:rb@xr.io)&gt;
 
-Compatibility with Processing 3.x was implemented in part by Luca Damasco
+Much of the work in achieving compatibility with Processing 3.x was
+was done by Luca Damasco
 (Google Summer of Code student), under the supervision of Golan Levin,
 with additional support from the Frank-Ratchye STUDIO for Creative Inquiry at Carnegie
 Mellon University. Without Luca, the porject may well have died.
