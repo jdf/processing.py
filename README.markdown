@@ -2,10 +2,10 @@
 
 Write real [Processing](http://processing.org/) sketches in Python.
 
-  * Based on [Processing 2.0](http://processing.org/), and compatible with most [3rd party libraries](http://www.processing.org/reference/libraries/).
+  * Based on [Processing 3.0](http://processing.org/), and compatible with most [3rd party libraries](http://www.processing.org/reference/libraries/).
   * Source compatible with [Python 2.7.3](http://python.org).
 
-Tested on Mac OS 10.8 & 10.9, Windows XP, 7 & 8, and Ubuntu 12.10.
+Tested on Mac OS 10.10 and Ubuntu 14.
 
 [![Build Status](https://travis-ci.org/jdf/processing.py.svg?branch=master)](https://travis-ci.org/jdf/processing.py)
 
@@ -40,81 +40,13 @@ def draw():
     ellipse(mouseX, mouseY, 20, 20)
 ```
 
-### Processing.py ###
-
-For command-line hackers and people who need much greater flexibility in how
-they construct and integrate their programs, there's processing.py.
-
-- [Mac OS X (83M)](http://py.processing.org/processing.py-0202-macosx.tgz)
-- [Windows x64 (74M)](http://py.processing.org/processing.py-0202-windows64.zip)
-- [Windows x32 (72M)](http://py.processing.org/processing.py-0202-windows32.zip)
-- [Linux x64 (68M)](http://py.processing.org/processing.py-0202-linux64.tgz)
-- [Linux x32 (69M)](http://py.processing.org/processing.py-0202-linux32.tgz)
-
-Then, paste this code into a file, e.g., `mysketch.py`.
-
-	def setup():
-	    size(600, 400)
-
-	def draw():
-	    ellipse(mouseX, mouseY, 10, 10)
-
-Drag and drop your sketch onto one of these files, according to your platform:
-
-<img src="http://py.processing.org/howtolaunch.jpg"/>
-
-You can also run the sketch from the command line, either with the included launcher script:
-
-    $ ./processing-py.sh path/to/mysketch.py
-
-or using your own Java runtime environment:
-
-	$ java -jar processing-py.jar path/to/mysketch.py
-
-## Documentation ##
-
-To learn Processing.py check out these resources:
-
-  * Built-in [Processing 2.0 functions](http://processing.org/reference/) for rendering and interaction.
-  * The [Python 2.7 documentation](http://docs.python.org/2/index.html).
-  * And of course the [Java 7 API documentation](http://docs.oracle.com/javase/7/docs/api/).
-
-Processing.py comes with many [examples](https://github.com/jdf/processing.py/tree/master/examples.py), most of which are exactly like the
-example sketches that come with Processing, but converted to Python.
-
-    $ processing-py.sh examples.py/Basics/Math/noisefield.py
-    $ processing-py.sh examples.py/Library/OpenGL/SpaceJunk.py
-    $ processing-py.sh examples.py/3D/Typography/KineticType.py
-    $ processing-py.sh examples.py/3D/Textures/TextureCube.py
 
 ## Using Processing Libraries ##
 
-Processing.py is implemented in Java, and is designed to be compatible with the existing ecosystem of [Processing libraries](http://processing.org/reference/libraries/).
+Python Mode is implemented in Java, and is designed to be compatible with the existing ecosystem of [Processing libraries](http://processing.org/reference/libraries/).
 
-* Put processing extension libraries in the `libraries` subdirectory of your processing.py installation. Processing.py will search every jar file and directory beneath that special directory, so you don't need to be too fussy about where things go. Just unzip Processing libraries right there.
-
-* Import the library in one of the usual Python ways, as in these snippets:
-
-        from peasy import PeasyCam
-        # or
-        import peasy.PeasyCam
-        # or
-        import peasy.PeasyCam as PeasyCam
-
-    Unfortunately, `from foo import *` is not supported.
-
-* Then, in your `setup()` method:
-
-        cam = PeasyCam(this, 200)
-
-  Many libraries need a reference to "the current PApplet", and that's what
-  `this` is for. Of course, there's no such thing as `this` in Python; it's just something that processing.py provides for you for compatibility with such libraries.
-
-## Included Libraries ##
-
-Some Processing libraries may not work with processing.py right out of the box. In particular, any library that uses Java reflection to call specially-named functions in your sketch will not work. However, we're happy to modify processing.py to work with any of the official Processing libraries. Here are the libraries that have required special handling in processing.py, and are included in the processing.py download:
-
-  * [Fisica](http://www.ricardmarxer.com/fisica/), by [Ricard Marxer](http://www.ricardmarxer.com/). Included under the terms of the LGPLv3, and with the kind cooperation of Mr. Marxer. See [examples.py/Fisica](https://github.com/jdf/processing.py/tree/master/examples.py/Fisica) for examples.
+Many libraries need a reference to "the current PApplet", and that's what
+`this` is for. Of course, there's no such thing as `this` in Python; it's just something that processing.py provides for you for compatibility with such libraries.
 
 If you find that some Processing library doesn't work as expected with processing.py, please let us know in the [bug tracker](http://github.com/jdf/processing.py/issues).
 
@@ -130,14 +62,6 @@ If you find that some Processing library doesn't work as expected with processin
 
         import launcher
         launcher.create()
-
-  * __How should I load data?__
-
-    [Tentative] Along with the launcher, consider using `pwd()` for file paths. For a given argument it resolves the path for an object relative to the currently running script:
-
-        data = load(pwd("data.txt"))
-
-    In that case, processing.py will try to search `data.txt` always where your script resides.
 
   * __How can I use Ani, or any other library that modifies fields?__
 
@@ -191,6 +115,11 @@ If you find that some Processing library doesn't work as expected with processin
 
 Written by [Jonathan Feinberg](http://mrfeinberg.com) &lt;[jdf@pobox.com](mailto:jdf@pobox.com)&gt;
 Launcher & many improvements by [Ralf Biedert](http://xr.io) &lt;[rb@xr.io](mailto:rb@xr.io)&gt;
+
+Compatibility with Processing 3.x was implemented in part by Luca Damasco
+(Google Summer of Code student), under the supervision of Golan Levin,
+with additional support from the Frank-Ratchye STUDIO for Creative Inquiry at Carnegie
+Mellon University. Without Luca, the porject may well have died.
 
 Also, [YourKit, LLC](http://www.yourkit.com) was so kind to sponsor a license for their excellent [YourKit Java Profiler](http://www.yourkit.com/java/profiler/index.jsp). Thank you very much!
 
