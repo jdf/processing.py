@@ -13,6 +13,7 @@ insideRadius = 100
 def setup():
     size(640, 360)
     background(204)
+    global x, y
     x = width / 2
     y = height / 2
 
@@ -35,4 +36,3 @@ def draw():
         vertex(px, py)
         angle += angleStep
     endShape()
-
