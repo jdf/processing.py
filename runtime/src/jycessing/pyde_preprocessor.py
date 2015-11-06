@@ -70,8 +70,8 @@ def pyde_preprocessor(module):
 		else:
 			# If a settings function is not defined, we define one and place all of 
 			# the special function calls within it. 
-			settingsArgs = ast.arguments(args = [], vararg = None, kwarg = None, defaults = [])
-			settingsFunc = ast.FunctionDef("settings",settingsArgs,[],[])
+			settingsArgs = ast.arguments(args=[], vararg=None, kwarg=None, defaults=[])
+			settingsFunc = ast.FunctionDef("settings", settingsArgs, [], [])
 			info.insert(settingsFunc.body)
 			# Place the newly defined settings() function within the module body. 
 			# It's like it's been there the whole time... 
@@ -80,5 +80,5 @@ def pyde_preprocessor(module):
 module = ast.parse(__processing_source__ + "\n\n", filename=__file__)
 pyde_preprocessor(module)
 
-codeobj = compile(module, __file__, mode='exec')
+codeobj = compile(module, __file__, mode='exec') 
 exec(codeobj)

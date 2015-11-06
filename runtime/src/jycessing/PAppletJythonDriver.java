@@ -69,6 +69,7 @@ import processing.core.PImage;
 import processing.core.PSurface;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
+import processing.javafx.PSurfaceFX;
 import processing.opengl.PShader;
 import processing.opengl.PSurfaceJOGL;
 
@@ -92,8 +93,8 @@ public class PAppletJythonDriver extends PApplet {
   private static final ResourceReader resourceReader =
       new ResourceReader(PAppletJythonDriver.class);
 
+  private static final String GET_SETTINGS_SCRIPT = resourceReader.readText("get_settings.py");
   private static final String DETECT_MODE_SCRIPT = resourceReader.readText("detect_sketch_mode.py");
-
   private static final String PREPROCESS_SCRIPT = resourceReader.readText("pyde_preprocessor.py");
 
   static {
@@ -120,6 +121,11 @@ public class PAppletJythonDriver extends PApplet {
   // All others are interpreted during construction in order to harvest method
   // definitions, which we then invoke during the run loop.
   private final Mode mode;
+
+  private int detectedWidth, detectedHeight;
+  private String detectedRenderer;
+  private boolean detectedSmooth, detectedNoSmooth, detectedFullScreen;
+  private PyObject processedStaticSketch;
 
   /**
    * The Processing event handling functions can take 0 or 1 argument.
@@ -339,6 +345,34 @@ public class PAppletJythonDriver extends PApplet {
     if (mode == Mode.MIXED) {
       throw interp.get("__error__", MixedModeError.class);
     }
+    if (mode == Mode.STATIC) {
+      processSketch(GET_SETTINGS_SCRIPT);
+      detectedWidth = interp.get("__width__").asInt();
+      detectedHeight = interp.get("__height__").asInt();
+      detectedSmooth = interp.get("__smooth__").asInt() != 0;
+      detectedNoSmooth = interp.get("__noSmooth__").asInt() != 0;
+      final String r = interp.get("__renderer__").asString();
+      if (r.equals("JAVA2D")) {
+        detectedRenderer = JAVA2D;
+      } else if (r.equals("P2D")) {
+        detectedRenderer = P2D;
+      } else if (r.equals("P3D")) {
+        detectedRenderer = P3D;
+      } else if (r.equals("OPENGL")) {
+        detectedRenderer = P3D;
+      } else if (r.equals("FX2D")) {
+        detectedRenderer = FX2D;
+      } else if (r.equals("PDF")) {
+        detectedRenderer = PDF;
+      } else if (r.equals("SVG")) {
+        detectedRenderer = SVG;
+      } else if (r.equals("DXF")) {
+        detectedRenderer = DXF;
+      } else {
+        detectedRenderer = r;
+      }
+      processedStaticSketch = interp.get("__cleaned_sketch__");
+    }
 
     initializeStatics(builtins);
     setFilter();
@@ -374,6 +408,8 @@ public class PAppletJythonDriver extends PApplet {
           finishedLatch.countDown();
         }
       });
+    } else if (s instanceof PSurfaceFX) {
+      System.err.println("I don't know how to watch FX2D windows for close.");
     }
     return s;
   }
@@ -800,7 +836,6 @@ public class PAppletJythonDriver extends PApplet {
           case 4:
             final int colorMode = (int)(args[3].asLong() & 0xFFFFFFFF);
             return pyint(lerpColor(c1, c2, amt, colorMode));
-            //$FALL-THROUGH$
           default:
             return raiseTypeError("lerpColor takes either 3 or 4 arguments, but I got "
                 + args.length + ".");
@@ -925,8 +960,21 @@ public class PAppletJythonDriver extends PApplet {
     try {
       if (settingsMeth != null) {
         settingsMeth.__call__();
-      } else {
-        super.settings();
+      } else if (mode == Mode.STATIC) {
+        if (detectedFullScreen) {
+          fullScreen();
+        } else {
+          if (detectedRenderer != null) {
+            size(detectedWidth, detectedHeight, detectedRenderer);
+          } else {
+            size(detectedWidth, detectedHeight);
+          }
+        }
+        if (detectedSmooth) {
+          smooth();
+        } else if (detectedNoSmooth) {
+          noSmooth();
+        }
       }
     } catch (final Exception e) {
       terminalException = toSketchException(e);
@@ -938,18 +986,18 @@ public class PAppletJythonDriver extends PApplet {
   public void setup() {
     builtins.__setitem__("frame", Py.java2py(frame));
     wrapProcessingVariables();
-    try {
-      if (mode == Mode.STATIC) {
-        // A static sketch gets called once, from this spot.
-        Runner.log("Interpreting static-mode sketch.");
-        processSketch(PREPROCESS_SCRIPT);
-      } else if (setupMeth != null) {
-        // Call the Python sketch's setup()
-        setupMeth.__call__();
+    if (mode == Mode.STATIC) {
+      // A static sketch gets called once, from this spot.
+      Runner.log("Interpreting static-mode sketch.");
+      try {
+        interp.exec(processedStaticSketch);
+      } catch (final Exception e) {
+        terminalException = toSketchException(e);
+        exitActual();
       }
-    } catch (final Exception e) {
-      terminalException = toSketchException(e);
-      exitActual();
+    } else if (setupMeth != null) {
+      // Call the Python sketch's setup()
+      setupMeth.__call__();
     }
   }
 
