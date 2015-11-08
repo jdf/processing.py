@@ -17,7 +17,7 @@ def setup():
     path.strokeWeight(2)
     x = 0
     # Calculate the path as a sine wave.
-    for i in range(0, TWO_PI * 10, 1):
+    for i in range(0, int(round(TWO_PI * 10)), 1):
         itemp = i * .1
         path.vertex(x, sin(itemp) * 100)
         x += 5
@@ -30,4 +30,3 @@ def draw():
     # Draw the path at the mouse location.
     translate(mouseX, mouseY)
     shape(path)
-
