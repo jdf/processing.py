@@ -29,9 +29,10 @@ class Program_info():
 		self.fullScreen = False
 		self.noSmooth = False
 		self.smooth = False
+		self.pixelDensity = False
 
 	def insert(self, body):
-		for attr in ('size', 'fullScreen', 'noSmooth', 'smooth'):
+		for attr in ('size', 'fullScreen', 'noSmooth', 'smooth', 'pixelDensity'):
 			if getattr(self, attr):
 				body.insert(0, getattr(self, attr))
 		
@@ -41,6 +42,7 @@ def pyde_preprocessor(module):
 	for node in module.body:
 		if isinstance(node, ast.FunctionDef):
 			if (node.name == 'setup'):
+				toremove = []
 				# The user has defined a setup() function. Look through setup() for calls
 				# to size(), fullScreen(), noSmooth() and smooth(). 
 				info.found_setup = True
@@ -50,9 +52,12 @@ def pyde_preprocessor(module):
 					if not isinstance(subNode.value, ast.Call):
 						continue
 					func = subNode.value.func
-					if hasattr(func, 'id') and func.id in ('size', 'fullScreen', 'noSmooth', 'smooth'):
-						node.body.remove(subNode)
+					if hasattr(func, 'id') and func.id in (
+							    'size', 'fullScreen', 'noSmooth', 'smooth', 'pixelDensity'):
+						toremove.append(subNode)
 						setattr(info, func.id, subNode)
+				for n in toremove:
+					node.body.remove(n)
 			elif (node.name == 'settings'):
 				# The user has defined a settings() function. 
 				info.found_settings = True

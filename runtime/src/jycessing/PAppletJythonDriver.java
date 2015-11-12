@@ -122,7 +122,7 @@ public class PAppletJythonDriver extends PApplet {
   // definitions, which we then invoke during the run loop.
   private final Mode mode;
 
-  private int detectedWidth, detectedHeight;
+  private int detectedWidth, detectedHeight, detectedPixelDensity;
   private String detectedRenderer;
   private boolean detectedSmooth, detectedNoSmooth, detectedFullScreen;
   private PyObject processedStaticSketch;
@@ -349,6 +349,7 @@ public class PAppletJythonDriver extends PApplet {
       processSketch(GET_SETTINGS_SCRIPT);
       detectedWidth = interp.get("__width__").asInt();
       detectedHeight = interp.get("__height__").asInt();
+      detectedPixelDensity = interp.get("__pixelDensity__").asInt();
       detectedSmooth = interp.get("__smooth__").asInt() != 0;
       detectedNoSmooth = interp.get("__noSmooth__").asInt() != 0;
       final String r = interp.get("__renderer__").asString();
@@ -970,6 +971,7 @@ public class PAppletJythonDriver extends PApplet {
             size(detectedWidth, detectedHeight);
           }
         }
+        pixelDensity(detectedPixelDensity);
         if (detectedSmooth) {
           smooth();
         } else if (detectedNoSmooth) {
