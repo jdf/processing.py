@@ -1,6 +1,6 @@
 """
 Objects
-by hbarragan. 
+by hbarragan.
 
 Move the cursor across the image to change the speed and positions
 of the geometry. The class MRect defines a group of lines.
@@ -8,14 +8,15 @@ of the geometry. The class MRect defines a group of lines.
 
 rects = []
 
+
 def setup():
     size(640, 360)
     fill(255, 204)
     noStroke()
-    rects.append(MRect(1, 134.0, 0.532, 0.1 * height, 10.0, 60.0))
-    rects.append(MRect(2, 44.0, 0.166, 0.3 * height, 5.0, 50.0))
-    rects.append(MRect(2, 58.0, 0.332, 0.4 * height, 10.0, 35.0))
-    rects.append(MRect(1, 120.0, 0.0498, 0.9 * height, 15.0, 60.0))
+    rects.append(MRect(1, 134.0, 0.532, 0.1 * height, 10.0, 60))
+    rects.append(MRect(2, 44.0, 0.166, 0.3 * height, 5.0, 50))
+    rects.append(MRect(2, 58.0, 0.332, 0.4 * height, 10.0, 35))
+    rects.append(MRect(1, 120.0, 0.0498, 0.9 * height, 15.0, 60))
 
 
 def draw():

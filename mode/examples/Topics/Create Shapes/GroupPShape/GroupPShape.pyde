@@ -4,6 +4,7 @@ GroupPShape
 This example shows how to group multiple PShapes into one PShape.
 """
 
+
 def setup():
     size(640, 360, P2D)
     smooth()
@@ -32,8 +33,8 @@ def setup():
     path.noFill()
     path.stroke(255)
     # Note: range() only operates on integers.
-    # The next two lines show a way to increment by a float value.
-    for t in range(-PI * 10, 0, 1):
+    # Use a scaled temp value to increment a float.
+    for t in range(int(round(-PI * 10)), 0, 1):
         ttemp = t * 0.1
         r = random(60, 70)
         path.vertex(r * cos(ttemp), r * sin(ttemp))
@@ -57,4 +58,3 @@ def draw():
     # Display the group PShape.
     translate(mouseX, mouseY)
     shape(group)
-

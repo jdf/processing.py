@@ -1,5 +1,3 @@
-import globals
-
 # An individual Particle
 
 
@@ -61,4 +59,3 @@ class Particle(object):
         self.part.translate(self.velocity.x, self.velocity.y)
         # and also update the center
         self.center.add(self.velocity)
-
