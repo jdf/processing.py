@@ -20,7 +20,7 @@ def extract_settings(module):
                 if len(args) > 0 and isinstance(args[0], ast.Num):
                     __width__ = args[0].n
                 if len(args) > 1 and isinstance(args[1], ast.Num):
-                    __height__ = args[0].n
+                    __height__ = args[1].n
                 if len(args) > 2:
                     if isinstance(args[2], ast.Str):
                         __renderer__ = args[2].s
