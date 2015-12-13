@@ -14,8 +14,8 @@ targetX = 0
 targetY = 0
 ballX = 50
 ballY = 50
-ballXDirection = 1
-ballYDirection = -1
+ballXDirection = 2.5
+ballYDirection = -2
 
 
 def setup():
@@ -28,13 +28,15 @@ def setup():
 
 
 def draw():
+    global ballX, ballY
+    global ballXDirection, ballYDirection
     background(0)
     strokeWeight(20)
     ballX = ballX + 1.0 * ballXDirection
     ballY = ballY + 0.8 * ballYDirection
-    if width - 25 < ballX < 25:
+    if ballX > width - 25 or ballX < 25:
         ballXDirection *= -1
-    if height - 25 < ballY < 25:
+    if ballY > height - 25 or ballY < 25:
         ballYDirection *= -1
     ellipse(ballX, ballY, 30, 30)
     reachSegment(0, ballX, ballY)
@@ -52,6 +54,7 @@ def positionSegment(a, b):
 
 
 def reachSegment(i, xin, yin):
+    global targetX, targetY
     dx = xin - x[i]
     dy = yin - y[i]
     angle[i] = atan2(dy, dx)
@@ -65,4 +68,3 @@ def segment(x, y, a, sw):
         translate(x, y)
         rotate(a)
         line(0, 0, segLength, 0)
-

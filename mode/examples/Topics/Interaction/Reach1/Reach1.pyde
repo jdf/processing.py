@@ -24,6 +24,7 @@ def setup():
 
 
 def draw():
+    global x, y
     background(0)
     dx = mouseX - x
     dy = mouseY - y
@@ -44,4 +45,3 @@ def segment(x, y, a):
         translate(x, y)
         rotate(a)
         line(0, 0, segLength, 0)
-

@@ -41,6 +41,7 @@ def reachSegment(i, xin, yin):
     dx = xin - x[i]
     dy = yin - y[i]
     angle[i] = atan2(dy, dx)
+    global targetX, targetY
     targetX = xin - cos(angle[i]) * segLength
     targetY = yin - sin(angle[i]) * segLength
 
@@ -51,4 +52,3 @@ def segment(x, y, a, sw):
         translate(x, y)
         rotate(a)
         line(0, 0, segLength, 0)
-

@@ -15,6 +15,7 @@ vr = 0
 
 
 def setup():
+    global x, y, hr, vr
     size(640, 360)
     # Create the font
     textFont(createFont("Georgia", 36))
@@ -27,6 +28,7 @@ def setup():
 
 
 def draw():
+    global x, y
     # Instead of clearing the background, fade it by drawing
     # a semi-transparent rectangle on top
     fill(204, 120)
@@ -37,4 +39,3 @@ def draw():
         y += random(-5, 5)
     fill(0)
     text("tickle", x, y)
-
