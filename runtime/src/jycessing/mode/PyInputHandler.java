@@ -253,17 +253,8 @@ public class PyInputHandler extends PdeInputHandler {
     }
     sb.append(currentLine.text);
 
-    // Adjust for off by one error when de indenting allowing easier traversal through text area.
-    if (deltaIndent < 0) {
-      textArea.select(textArea.getLineStartOffset(line) + 1, textArea.getLineStopOffset(line) - 1);
-    } else {
-      textArea.select(textArea.getLineStartOffset(line), textArea.getLineStopOffset(line) - 1);
-    }
-
-
-    final String newLine = sb.toString();
-    textArea.setSelectedText(newLine);
-
+    textArea.select(textArea.getLineStartOffset(line), textArea.getLineStopOffset(line) - 1);
+    textArea.setSelectedText(sb.toString());
     textArea.selectNone();
   }
 
