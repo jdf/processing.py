@@ -78,7 +78,7 @@ def detect_mode(code, filename):
         if not isinstance(e, ast.Call):
             continue
         f = e.func
-        if illegalActiveModeCall.match(f.id):
+        if hasattr(f, 'id') and illegalActiveModeCall.match(f.id):
             return 'MIXED', MixedModeError(
                 "You can't call %s() outside a function in \"active mode\"." % f.id,
                 __file__, node.lineno - 1)
