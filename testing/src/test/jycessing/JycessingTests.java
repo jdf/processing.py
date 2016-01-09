@@ -12,14 +12,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import org.junit.Test;
+
 import jycessing.MixedModeError;
 import jycessing.PAppletJythonDriver;
 import jycessing.Printer;
 import jycessing.PythonSketchError;
 import jycessing.Runner;
 import jycessing.StreamPrinter;
-
-import org.junit.Test;
 
 public class JycessingTests {
   private static class CapturingPrinter implements Printer {
@@ -263,5 +263,11 @@ public class JycessingTests {
   @Test
   public void randintDomainRegression() throws Exception {
     expectOK("randint_domain_regression");
+  }
+
+  // https://github.com/jdf/processing.py/issues/167
+  @Test
+  public void syspathappend() throws Exception {
+    expectOK("syspathappend");
   }
 }
