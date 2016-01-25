@@ -29,6 +29,7 @@ difference = None
 
 
 def setup():
+    global destImage, srcImage
     size(640, 360, P2D)
     destImage = loadImage("leaves.jpg")
     srcImage = loadImage("moonwalk.jpg")
@@ -49,6 +50,7 @@ def draw():
 
 
 def initShaders():
+    global dodge, burn, overlay, difference
     dodge = loadShader("dodge.glsl")
     burn = loadShader("burn.glsl")
     overlay = loadShader("overlay.glsl")
@@ -99,4 +101,3 @@ def drawOutput(x, y, w, h):
             vertex(w, 0, 1, 0)
             vertex(w, h, 1, 1)
             vertex(0, h, 0, 1)
-

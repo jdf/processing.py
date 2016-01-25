@@ -12,6 +12,7 @@ shaderEnabled = True
 
 
 def setup():
+    global toon
     size(640, 360, P3D)
     noStroke()
     fill(204)
@@ -31,6 +32,7 @@ def draw():
 
 
 def mousePressed():
+    global shaderEnabled
     shaderEnabled = not shaderEnabled
     if not shaderEnabled:
         resetShader()

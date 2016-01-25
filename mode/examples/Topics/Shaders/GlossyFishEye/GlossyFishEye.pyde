@@ -14,6 +14,7 @@ useFishEye = True
 
 
 def setup():
+    global fisheye, glossy, canvas, img, ball
     size(640, 640, P3D)
     canvas = createGraphics(width, height, P3D)
     fisheye = loadShader("FishEye.glsl")
@@ -54,6 +55,7 @@ def draw():
 
 
 def mousePressed():
+    global useFishEye
     useFishEye = not useFishEye
     if not useFishEye:
         resetShader()

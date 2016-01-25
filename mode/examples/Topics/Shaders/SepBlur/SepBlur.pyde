@@ -13,6 +13,7 @@ pass2 = None
 
 
 def setup():
+    global blur, src, pass1, pass2
     size(640, 360, P2D)
 
     blur = loadShader("blur.glsl")
@@ -53,6 +54,7 @@ def draw():
 
 
 def keyPressed():
+    global blur
     if key == '9':
         blur.set("blurSize", 9)
         blur.set("sigma", 5.0)
@@ -65,4 +67,3 @@ def keyPressed():
     elif key == '3':
         blur.set("blurSize", 3)
         blur.set("sigma", 1.0)
-

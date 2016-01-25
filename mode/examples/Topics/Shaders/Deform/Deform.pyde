@@ -13,6 +13,7 @@ deform = None
 
 
 def setup():
+    global tex, deform
     size(640, 360, P2D)
     textureWrap(REPEAT)
     tex = loadImage("tex1.jpg")
@@ -25,4 +26,3 @@ def draw():
     deform.set("mouse", float(mouseX), float(mouseY))
     shader(deform)
     image(tex, 0, 0, width, height)
-

@@ -9,6 +9,7 @@ blur = None
 
 
 def setup():
+    global blur
     size(640, 360, P2D)
     blur = loadShader("blur.glsl")
     stroke(255, 0, 0)
@@ -19,4 +20,3 @@ def draw():
     filter(blur)
     rect(mouseX, mouseY, 150, 150)
     ellipse(mouseX, mouseY, 100, 100)
-

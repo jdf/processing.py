@@ -10,6 +10,7 @@ maskImage = None
 
 
 def setup():
+    global maskShader, srcImage, maskImage
     size(640, 360, P2D)
     srcImage = loadImage("leaves.jpg")
     maskImage = createGraphics(srcImage.width, srcImage.height, P2D)
@@ -29,4 +30,3 @@ def draw():
     maskImage.endDraw()
     shader(maskShader)
     image(srcImage, 0, 0, width, height)
-

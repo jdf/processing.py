@@ -12,6 +12,7 @@ monjori = None
 
 
 def setup():
+    global monjori
     size(640, 360, P2D)
     noStroke()
     monjori = loadShader("monjori.glsl")
@@ -26,4 +27,3 @@ def draw():
     # entire view area so every pixel is pushed through the
     # shader.
     rect(0, 0, width, height)
-
