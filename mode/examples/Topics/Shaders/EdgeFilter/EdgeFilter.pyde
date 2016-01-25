@@ -11,6 +11,7 @@ applyFilter = True
 
 
 def setup():
+    global edges
     size(640, 360, P3D)
     edges = loadShader("edges.glsl")
     noStroke()
@@ -34,5 +35,5 @@ def draw():
 
 
 def mousePressed():
+    global applyFilter
     applyFilter = not applyFilter
-

@@ -10,6 +10,7 @@ nebula = None
 
 
 def setup():
+    global nebula
     size(640, 360, P2D)
     noStroke()
     nebula = loadShader("nebula.glsl")
@@ -23,4 +24,3 @@ def draw():
     # fragment shader, they only need a quad covering the entire view
     # area so every pixel is pushed through the shader.
     rect(0, 0, width, height)
-
