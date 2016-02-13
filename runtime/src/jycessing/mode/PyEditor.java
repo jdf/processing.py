@@ -157,7 +157,7 @@ public class PyEditor extends Editor {
    */
   @Override
   public JMenu buildFileMenu() {
-    final String appTitle = Language.text("toolbar.export_application");
+    final String appTitle = Language.text("Export Application");
     final JMenuItem exportApplication = Toolkit.newJMenuItem(appTitle, 'E');
     exportApplication.addActionListener(new ActionListener() {
       @Override
