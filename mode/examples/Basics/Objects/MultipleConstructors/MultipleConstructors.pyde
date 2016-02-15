@@ -30,13 +30,19 @@ def draw():
         sp.display()
 
 class Spot:
+    def __init__(self, x=None, y=None, radius=40):
+        if x isinstance(x, Number):
+            self.x = x
+        else:
+            width / 4
 
-    def __init__(self, x=0, y=0, radius=40):
-        self.x = x or width / 4
-        self.y = y or height / 2
+        if y isinstance(y, Number):
+            self.y = y
+        else:
+            height / 2
+
         self.radius = radius
         self.diam = radius * 2
 
     def display(self):
         ellipse(self.x, self.y, self.diam, self.diam)
-
