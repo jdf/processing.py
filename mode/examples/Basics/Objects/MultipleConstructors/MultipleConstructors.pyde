@@ -9,7 +9,9 @@
  Advanced example written in Python Mode by: Prabhjot Singh (NITH)
  Original example in Java Mode: Example->Basic->Objects->MultipleConstructors
 '''
-
+import types
+global Number
+Number = (types.IntType, types.FloatType)
 def setup():
     size(640, 360)
     smooth(4)
@@ -30,19 +32,14 @@ def draw():
         sp.display()
 
 class Spot:
-    def __init__(self, x=None, y=None, radius=40):
-        if x isinstance(x, Number):
-            self.x = x
-        else:
-            width / 4
+    global Number
 
-        if y isinstance(y, Number):
-            self.y = y
-        else:
-            height / 2
+    def __init__(self, x=None, y=None, radius=40):
+        self.x = x if isinstance(x, Number) else width / 4
+        self.y = y if isinstance(y, Number) else height / 2
 
         self.radius = radius
         self.diam = radius * 2
 
     def display(self):
-        ellipse(self.x, self.y, self.diam, self.diam)
+        ellipse(self.x, self.y, self.radius, self.diam)
