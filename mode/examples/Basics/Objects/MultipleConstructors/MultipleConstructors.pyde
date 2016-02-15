@@ -32,8 +32,11 @@ def draw():
 class Spot:
 
     def __init__(self, x=0, y=0, radius=40):
-        self.x, self.y = x or width / 4, y or height / 2
-        self.radius, self.diam = radius, radius * 2
+        self.x = x or width / 4
+        self.y = y or height / 2
+        self.radius = radius
+        self.diam = radius * 2
 
     def display(self):
         ellipse(self.x, self.y, self.diam, self.diam)
+
