@@ -33,9 +33,16 @@ def draw():
 class Spot:
 
     def __init__(self, x=None, y=None, radius=40):
-        self.x = x if isinstance(x, Number) else width / 4
-        self.y = y if isinstance(y, Number) else height / 2
-
+        if x is None:
+            self.x = width / 4
+        else:
+            self.x = x
+ 
+        if y is None:
+            self.y = height / 2
+        else:
+            self.y = y
+ 
         self.radius = radius
         self.diam = radius * 2
 
