@@ -14,6 +14,7 @@ def setup():
     size(640, 360)
     noStroke()
 
+
 def draw():
     background(0)
 
