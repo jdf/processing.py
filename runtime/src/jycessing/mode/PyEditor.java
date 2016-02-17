@@ -171,6 +171,24 @@ public class PyEditor extends Editor {
   @Override
   public JMenu buildHelpMenu() {
     final JMenu menu = new JMenu("Help");
+        menu.add(new JMenuItem(new AbstractAction("References") {
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        Platform.openURL("http://py.processing.org/reference/");
+      }
+    }));
+    menu.add(new JMenuItem(new AbstractAction("Tutorials") {
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        Platform.openURL("http://py.processing.org/tutorials/");
+      }
+    }));
+    menu.add(new JMenuItem(new AbstractAction("Examples") {
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        Platform.openURL("http://py.processing.org/examples/");
+      }
+    }));
     menu.add(new JMenuItem(new AbstractAction("Report a bug in Python Mode") {
       @Override
       public void actionPerformed(final ActionEvent e) {
