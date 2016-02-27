@@ -15,7 +15,6 @@ and lastly, the near and far are the minimum and maximum z values.
 showPerspective = True
 def setup():
     size(640, 360, P3D)
-    noFill()
     fill(204)
     noStroke()
  
@@ -25,13 +24,13 @@ def draw():
     background(0)
     far = map(mouseX, 0, width, 120, 400)
     if showPerspective:
-        perspective(PI / 3.0, float(width) / float(height), 10, far)
+        perspective(THIRD_PI, float(width) / height, 10, far)
     else:
         ortho(0, width, 0, height, 10, far)
  
     translate(width / 2, height / 2, 0)
-    rotateX(-PI / 6)
-    rotateY(PI / 3)
+    rotateX(-0.5 * THIRD_PI)
+    rotateY(THIRD_PI)
     box(160)
 
 
