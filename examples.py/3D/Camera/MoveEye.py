@@ -3,8 +3,6 @@
  by Simon Greenwold.
   
  The camera lifts up (controlled by mouseY) while looking at the same point.
- The camera has no effect while moving from left to right i.e.
- unaffected by mouseX.
  """
  
 def setup():
