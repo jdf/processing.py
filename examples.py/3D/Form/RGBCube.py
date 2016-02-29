@@ -1,9 +1,9 @@
-'''
+"""
  RGB Cube.
  
  The three primary colors of the additive color model are Red, Green and Blue.
  This RGB color cube displays a smooth transitions between these colors. 
-'''
+"""
  
 xmag, ymag = (0, 0)
 newXmag, newYmag = (0, 0) 
