@@ -1,4 +1,4 @@
-'''
+"""
  Interactive Toroid
  PDE by Ira Greenberg, rewritten in Python by Jonathan Feinberg
 
@@ -16,7 +16,7 @@
  'x' key initial polygon radius++
  'w' key toggle wireframe/solid shading
  'h' key toggle sphere/helix
-'''
+"""
 
 pts = 40
 radius = 60.0
