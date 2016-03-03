@@ -9,7 +9,7 @@ if [[ $(uname) == 'Darwin' ]]; then
 	MODES=~/Documents/Processing/modes;
 else 
 	RUNPROCESSING=$PROCESSING/build/linux/work/processing
-	MODES=~/sketchbook/modes;
+	MODES=~/p3sketches/modes;
 fi
 
 cd $PROCESSING/build && \
