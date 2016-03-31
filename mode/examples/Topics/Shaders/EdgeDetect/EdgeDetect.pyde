@@ -11,6 +11,7 @@ enabled = True
 
 
 def setup():
+    global img, edges, enabled
     size(640, 360, P2D)
     img = loadImage("leaves.jpg")
     edges = loadShader("edges.glsl")
@@ -23,7 +24,7 @@ def draw():
 
 
 def mousePressed():
+    global enabled
     enabled = not enabled
     if not enabled:
         resetShader()
-

@@ -15,6 +15,20 @@
  */
 package jycessing;
 
+import org.python.core.Py;
+import org.python.core.PyList;
+import org.python.core.PyObject;
+import org.python.core.PyStringMap;
+import org.python.core.PySystemState;
+import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
+
+import jycessing.launcher.LaunchHelper;
+import jycessing.launcher.StandaloneSketch;
+import jycessing.mode.export.ExportedSketch;
+import processing.core.PApplet;
+import processing.core.PConstants;
+
 import java.awt.SplashScreen;
 import java.io.File;
 import java.io.FileFilter;
@@ -30,26 +44,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import jycessing.launcher.LaunchHelper;
-import jycessing.launcher.StandaloneSketch;
-import jycessing.mode.export.ExportedSketch;
-
-import org.python.core.Py;
-import org.python.core.PyList;
-import org.python.core.PyObject;
-import org.python.core.PyStringMap;
-import org.python.core.PySystemState;
-import org.python.util.InteractiveConsole;
-import org.python.util.PythonInterpreter;
-
-import processing.core.PApplet;
-import processing.core.PConstants;
-
 public class Runner {
 
   private static final String BUILD_PROPERTIES = "build.properties";
 
   private static final String ARCH;
+
   static {
     final int archBits = Integer.parseInt(System.getProperty("sun.arch.data.model"));
     if (PApplet.platform == PConstants.MACOSX) {
@@ -76,8 +76,8 @@ public class Runner {
     }
   }
 
-  private static final String LAUNCHER_TEXT = IOUtil.readResourceAsText(LaunchHelper.class,
-      "launcher.py");
+  private static final String LAUNCHER_TEXT =
+      IOUtil.readResourceAsText(LaunchHelper.class, "launcher.py");
   private static final String CORE_TEXT = IOUtil.readResourceAsText(Runner.class, "core.py");
 
   // -Dverbose=true for some logging
@@ -111,24 +111,28 @@ public class Runner {
 
     log("Searching: ", dir);
 
-    final File[] dlls = dir.listFiles(new FilenameFilter() {
-      @Override
-      public boolean accept(final File dir, final String name) {
-        return name.matches("^.+\\.(so|dll|jnilib|dylib)$");
-      }
-    });
+    final File[] dlls =
+        dir.listFiles(
+            new FilenameFilter() {
+              @Override
+              public boolean accept(final File dir, final String name) {
+                return name.matches("^.+\\.(so|dll|jnilib|dylib)$");
+              }
+            });
     if (dlls != null && dlls.length > 0) {
       entries.add(dir.getAbsolutePath());
     } else {
       log("No DLLs in ", dir);
     }
 
-    final File[] jars = dir.listFiles(new FilenameFilter() {
-      @Override
-      public boolean accept(final File dir, final String name) {
-        return name.matches("^.+\\.jar$");
-      }
-    });
+    final File[] jars =
+        dir.listFiles(
+            new FilenameFilter() {
+              @Override
+              public boolean accept(final File dir, final String name) {
+                return name.matches("^.+\\.jar$");
+              }
+            });
     if (!(jars == null || jars.length == 0)) {
       for (final File jar : jars) {
         entries.add(jar.getAbsolutePath());
@@ -137,12 +141,14 @@ public class Runner {
       log("No JARs in ", dir);
     }
 
-    final File[] dirs = dir.listFiles(new FileFilter() {
-      @Override
-      public boolean accept(final File f) {
-        return f.isDirectory() && f.getName().charAt(0) != '.';
-      }
-    });
+    final File[] dirs =
+        dir.listFiles(
+            new FileFilter() {
+              @Override
+              public boolean accept(final File f) {
+                return f.isDirectory() && f.getName().charAt(0) != '.';
+              }
+            });
     if (!(dirs == null || dirs.length == 0)) {
       for (final File d : dirs) {
         searchForExtraStuff(d, entries);
@@ -277,14 +283,18 @@ public class Runner {
     }
   }
 
-  public synchronized static void runSketchBlocking(final RunnableSketch sketch,
-      final Printer stdout, final Printer stderr) throws PythonSketchError {
+  public synchronized static void runSketchBlocking(
+      final RunnableSketch sketch, final Printer stdout, final Printer stderr)
+      throws PythonSketchError {
     runSketchBlocking(sketch, stdout, stderr, null);
   }
 
-  public synchronized static void runSketchBlocking(final RunnableSketch sketch,
-      final Printer stdout, final Printer stderr,
-      final SketchPositionListener sketchPositionListener) throws PythonSketchError {
+  public synchronized static void runSketchBlocking(
+      final RunnableSketch sketch,
+      final Printer stdout,
+      final Printer stderr,
+      final SketchPositionListener sketchPositionListener)
+      throws PythonSketchError {
     final Properties props = new Properties();
 
     // Suppress sys-package-manager output.
@@ -308,9 +318,9 @@ public class Runner {
     PythonInterpreter.initialize(null, props, args);
 
     final PySystemState sys = Py.getSystemState();
-    final PyStringMap originalModules = ((PyStringMap)sys.modules).copy();
-    final PyList originalPath = new PyList((PyObject)sys.path);
-    final PyStringMap builtins = (PyStringMap)sys.getBuiltins();
+    final PyStringMap originalModules = ((PyStringMap) sys.modules).copy();
+    final PyList originalPath = new PyList((PyObject) sys.path);
+    final PyStringMap builtins = (PyStringMap) sys.getBuiltins();
     final PyStringMap originalBuiltins = builtins.copy();
     try {
       final InteractiveConsole interp = new InteractiveConsole();
@@ -350,7 +360,6 @@ public class Runner {
         sys.path.insert(0, Py.newString(lib));
       }
 
-
       // Make fake "launcher" module available to sketches - will only work with standalone sketches
       interp.exec(LAUNCHER_TEXT);
 
@@ -367,8 +376,8 @@ public class Runner {
       interp.set("__stdout__", stdout);
       interp.set("__stderr__", stderr);
       final PAppletJythonDriver applet =
-          new PAppletJythonDriver(interp, sketch.getMainFile().toString(), sketch.getMainCode(),
-              stdout);
+          new PAppletJythonDriver(
+              interp, sketch.getMainFile().toString(), sketch.getMainCode(), stdout);
       interp.set("__papplet__", applet);
       interp.exec(CORE_TEXT);
 

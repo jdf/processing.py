@@ -7,6 +7,7 @@ conway = None
 pg = None
 
 def setup():
+    global conway, pg
     size(400, 400, P3D)
     conway = loadShader("conway.glsl")
     pg = createGraphics(400, 400, P2D)
@@ -25,4 +26,3 @@ def draw():
     pg.rect(0, 0, pg.width, pg.height)
     pg.endDraw()
     image(pg, 0, 0, width, height)
-

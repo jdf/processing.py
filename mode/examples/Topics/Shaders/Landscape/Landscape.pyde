@@ -10,6 +10,7 @@ elevatedshader = None
 
 
 def setup():
+    global elevatedshader
     size(640, 360, P2D)
     noStroke()
     # The code of this shader shows how to integrate shaders from shadertoy
