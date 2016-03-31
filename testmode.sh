@@ -4,20 +4,20 @@ export VERBOSE_PYTHON_MODE=true
 PROCESSING=~/processing
 PROCESSINGPY=~/processing.py
 
+MODES=~/Documents/Processing/modes;
 if [[ $(uname) == 'Darwin' ]]; then
 	RUNPROCESSING=$PROCESSING/build/macosx/work/Processing.app/Contents/MacOS/Processing
-	MODES=~/Documents/Processing/modes;
 else 
-	RUNPROCESSING=$PROCESSING/build/linux/work/processing
-	MODES=~/sketchbook/modes;
+	RUNPROCESSING="$PROCESSING/build/windows/work/processing.exe"
+	MODES=~/feinberg/Documents/Processing/modes;
 fi
 
-cd $PROCESSING/build && \
+cd "$PROCESSING/build" && \
   #ant && \
-  cd $PROCESSINGPY && \
+  cd "$PROCESSINGPY" && \
   ant mode.zip && \
-  cd $MODES && \
+  cd "$MODES" && \
   rm -rf PythonMode && \
-  unzip $PROCESSINGPY/work/PythonMode.zip && \
+  unzip "$PROCESSINGPY/work/PythonMode.zip" && \
   cd /tmp && \
-  $RUNPROCESSING
+  "$RUNPROCESSING"
