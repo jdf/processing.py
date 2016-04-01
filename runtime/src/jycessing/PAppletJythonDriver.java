@@ -19,7 +19,29 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 import com.jogamp.newt.opengl.GLWindow;
-
+import java.awt.Component;
+import java.awt.Point;
+import java.awt.Window;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import jycessing.IOUtil.ResourceReader;
+import jycessing.mode.run.WrappedPrintStream;
+import jycessing.mode.run.WrappedPrintStream.PushedOut;
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
@@ -41,10 +63,6 @@ import org.python.core.PyTuple;
 import org.python.core.PyType;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
-
-import jycessing.IOUtil.ResourceReader;
-import jycessing.mode.run.WrappedPrintStream;
-import jycessing.mode.run.WrappedPrintStream.PushedOut;
 import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -55,27 +73,6 @@ import processing.event.MouseEvent;
 import processing.javafx.PSurfaceFX;
 import processing.opengl.PShader;
 import processing.opengl.PSurfaceJOGL;
-
-import java.awt.Component;
-import java.awt.Point;
-import java.awt.Window;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.concurrent.CountDownLatch;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -164,7 +161,13 @@ public class PAppletJythonDriver extends PApplet {
 
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
-  private PyObject setupMeth, settingsMeth, drawMeth, pauseMeth, resumeMeth, stopMeth;
+  private PyObject setupMeth, settingsMeth, drawMeth, pauseMeth, resumeMeth;
+
+  // For compatibility, we look for definitions of both stop() and dispose()
+  // in the user's sketch, and call whatever's defined of those two when the sketch
+  // is dispose()d. If you define both, they'll both be called.
+  private PyObject stopMeth, disposeMeth;
+
   private EventFunction<KeyEvent> keyPressedFunc, keyReleasedFunc, keyTypedFunc;
   private EventFunction<MouseEvent>
       mousePressedFunc,
@@ -515,6 +518,7 @@ public class PAppletJythonDriver extends PApplet {
 
     settingsMeth = interp.get("settings");
     stopMeth = interp.get("stop");
+    disposeMeth = interp.get("dispose");
     pauseMeth = interp.get("pause");
     resumeMeth = interp.get("resume");
     mouseWheelMeth = interp.get("mouseWheel");
@@ -1211,14 +1215,22 @@ public class PAppletJythonDriver extends PApplet {
     keyTypedFunc.invoke(e);
   }
 
+  // Processing's rendering architecture calls dispose() from 1..N times where N is
+  // determined by a roll of a d6.
+  private volatile boolean disposeCalled = false;
+
   @Override
-  public void stop() {
-    try {
-      if (stopMeth != null) {
-        stopMeth.__call__();
-      }
-    } finally {
-      super.stop();
+  public void dispose() {
+    if (disposeCalled) {
+      return;
+    }
+    disposeCalled = true;
+    super.dispose();
+    if (stopMeth != null) {
+      stopMeth.__call__();
+    }
+    if (disposeMeth != null) {
+      disposeMeth.__call__();
     }
   }
 
