@@ -265,7 +265,7 @@ public class PAppletJythonDriver extends PApplet {
   private static final Pattern NAKED_COLOR = Pattern.compile("[(,]\\s*#([0-9a-fA-F]{6})\\b");
 
   /**
-   * The message "no vialble alternative" is a strong indication that there's an unclosed paren
+   * The message "no viable alternative" is a strong indication that there's an unclosed paren
    * somewhere before the triggering line. Maybe the user tried to specify a color as in Java
    * Processing, like <code>fill(#FFAA55)</code>, which Python sees as an open paren followed by a
    * comment.
@@ -394,6 +394,7 @@ public class PAppletJythonDriver extends PApplet {
   @Override
   protected PSurface initSurface() {
     final PSurface s = super.initSurface();
+    s.setTitle(pySketchPath.getFileName().toString().replaceAll("\\..*$", ""));
     if (s instanceof PSurfaceAWT) {
       final PSurfaceAWT surf = (PSurfaceAWT)s;
       final Component c = (Component)surf.getNative();
