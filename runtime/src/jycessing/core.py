@@ -399,6 +399,7 @@ __builtin__.shearX = __papplet__.shearX
 __builtin__.shearY = __papplet__.shearY
 __builtin__.shininess = __papplet__.shininess
 __builtin__.size = __papplet__.size
+__builtin__.sketchPath = __papplet__.sketchPath
 __builtin__.smooth = __papplet__.smooth
 __builtin__.specular = __papplet__.specular
 __builtin__.sphere = __papplet__.sphere
