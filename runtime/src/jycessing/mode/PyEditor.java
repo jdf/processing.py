@@ -171,7 +171,7 @@ public class PyEditor extends Editor {
   @Override
   public JMenu buildHelpMenu() {
     final JMenu menu = new JMenu("Help");
-        menu.add(new JMenuItem(new AbstractAction("References") {
+    menu.add(new JMenuItem(new AbstractAction("References") {
       @Override
       public void actionPerformed(final ActionEvent e) {
         Platform.openURL("http://py.processing.org/reference/");

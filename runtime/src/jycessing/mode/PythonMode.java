@@ -74,10 +74,10 @@ public class PythonMode extends Mode {
       sketchServiceManager.start();
     }
 
-    try { 
+    try {
       return new PyEditor(base, path, state, this);
-    } catch(EditorException e) {
-      Messages.showError("Editor Exception", "Issue Creating Editor", e); 
+    } catch (EditorException e) {
+      Messages.showError("Editor Exception", "Issue Creating Editor", e);
       return null;
     }
   }

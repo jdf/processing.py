@@ -20,13 +20,13 @@ public class TestSketch implements RunnableSketch {
   private final Path sourcePath;
   private final String sourceText;
   private final String name;
-  
+
   public TestSketch(final Path sourcePath, final String sourceText, final String name) {
     this.sourcePath = sourcePath;
     this.sourceText = sourceText;
     this.name = name;
   }
-  
+
   @Override
   public File getMainFile() {
     return sourcePath.toFile();

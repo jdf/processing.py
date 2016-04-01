@@ -60,8 +60,8 @@ public class ImportExtractor {
       final mod ast;
       try {
         ast =
-            ParserFacade.parseExpressionOrModule(new StringReader(code.getProgram()),
-                code.getFileName(), new CompilerFlags());
+            ParserFacade.parseExpressionOrModule(new StringReader(code.getProgram()), code
+                .getFileName(), new CompilerFlags());
       } catch (final Exception e) {
         System.err.println("Couldn't parse " + code.getFileName());
         // I don't like this but I'm not sure what else to do

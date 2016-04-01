@@ -175,8 +175,8 @@ public class LinuxExport extends PlatformExport {
 
     log("Setting script executable.");
     try {
-      Files.setPosixFilePermissions(scriptFile.toPath(),
-          PosixFilePermissions.fromString("rwxrwxrwx"));
+      Files.setPosixFilePermissions(scriptFile.toPath(), PosixFilePermissions
+          .fromString("rwxrwxrwx"));
     } catch (final UnsupportedOperationException e) {
       // Windows, probably
       log("Couldn't set script executable... we'll assume whoever gets it can handle it");

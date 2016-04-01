@@ -239,8 +239,8 @@ public class PyInputHandler extends PdeInputHandler {
 
   private int getAbsoluteCaretPositionRelativeToLineEnd(final int line,
       final int lineEndRelativePosition) {
-    return Math.max(textArea.getLineStopOffset(line) - lineEndRelativePosition,
-        textArea.getLineStartOffset(line));
+    return Math.max(textArea.getLineStopOffset(line) - lineEndRelativePosition, textArea
+        .getLineStartOffset(line));
   }
 
   private void indentLineBy(final int line, final int deltaIndent) {

@@ -110,12 +110,13 @@ public class MacExport extends PlatformExport {
    */
   private void copyJDKPlugin(final File targetPluginsFolder) throws IOException {
     // This is how Java Mode finds it... basically
-    final File sourceJDKFolder = Platform.getContentFile("../PlugIns").listFiles(new FilenameFilter() {
-      @Override
-      public boolean accept(final File dir, final String name) {
-        return name.endsWith(".jdk") && !name.startsWith(".");
-      }
-    })[0].getAbsoluteFile();
+    final File sourceJDKFolder =
+        Platform.getContentFile("../PlugIns").listFiles(new FilenameFilter() {
+          @Override
+          public boolean accept(final File dir, final String name) {
+            return name.endsWith(".jdk") && !name.startsWith(".");
+          }
+        })[0].getAbsoluteFile();
 
     log("Copying JDK from " + sourceJDKFolder);
 
@@ -270,8 +271,8 @@ public class MacExport extends PlatformExport {
 
     log("Setting script executable.");
     try {
-      Files.setPosixFilePermissions(scriptFile.toPath(),
-          PosixFilePermissions.fromString("rwxrwxrwx"));
+      Files.setPosixFilePermissions(scriptFile.toPath(), PosixFilePermissions
+          .fromString("rwxrwxrwx"));
     } catch (final UnsupportedOperationException e) {
       // Windows, probably
       log("Couldn't set script executable... .app should work anyway, though");
