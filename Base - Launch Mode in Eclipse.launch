@@ -28,5 +28,4 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="processing.app.Base"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="processing-app"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Dusemode=&quot;jycessing.mode.PythonMode:${resource_loc:/processing.py/mode}&quot;"/>
-<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="C:\Users\Jonathan Feinberg\.babun\cygwin\home\Jonathan Feinberg\processing\build\windows\work"/>
 </launchConfiguration>
