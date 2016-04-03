@@ -13,9 +13,6 @@
  */
 package jycessing;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
-import com.jogamp.newt.opengl.GLWindow;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Window;
@@ -36,9 +33,11 @@ import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import jycessing.IOUtil.ResourceReader;
 import jycessing.mode.run.WrappedPrintStream;
 import jycessing.mode.run.WrappedPrintStream.PushedOut;
+
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
@@ -60,6 +59,7 @@ import org.python.core.PyTuple;
 import org.python.core.PyType;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
+
 import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -70,6 +70,10 @@ import processing.event.MouseEvent;
 import processing.javafx.PSurfaceFX;
 import processing.opengl.PShader;
 import processing.opengl.PSurfaceJOGL;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+import com.jogamp.newt.opengl.GLWindow;
 
 /**
  *
@@ -168,8 +172,11 @@ public class PAppletJythonDriver extends PApplet {
       mouseReleasedFunc, mouseDraggedFunc;
   private PyObject mouseWheelMeth; // Can only be called with a MouseEvent; no need for shenanigans
 
-  // Implement the Video library's callback.
+  // Implement the Video library's callbacks.
   private PyObject captureEventMeth, movieEventMeth;
+
+  // Implement the Serial library's callback.
+  private PyObject serialEventMeth;
 
   private SketchPositionListener sketchPositionListener;
 
@@ -511,6 +518,9 @@ public class PAppletJythonDriver extends PApplet {
     // Video library callbacks.
     captureEventMeth = interp.get("captureEvent");
     movieEventMeth = interp.get("movieEvent");
+
+    // Serial library callback.
+    serialEventMeth = interp.get("serialEvent");
   }
 
   /*
@@ -1255,6 +1265,13 @@ public class PAppletJythonDriver extends PApplet {
   public void movieEvent(final Object movie) {
     if (movieEventMeth != null) {
       movieEventMeth.__call__(Py.java2py(movie));
+    }
+  }
+
+  // Serial library callback.
+  public void serialEvent(final Object whichPort) {
+    if (serialEventMeth != null) {
+      serialEventMeth.__call__(Py.java2py(whichPort));
     }
   }
 
