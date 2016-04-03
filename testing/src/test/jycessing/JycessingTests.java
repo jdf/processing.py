@@ -12,14 +12,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-import org.junit.Test;
-
 import jycessing.MixedModeError;
 import jycessing.PAppletJythonDriver;
 import jycessing.Printer;
 import jycessing.PythonSketchError;
 import jycessing.Runner;
 import jycessing.StreamPrinter;
+
+import org.junit.Test;
 
 public class JycessingTests {
   private static class CapturingPrinter implements Printer {
@@ -269,5 +269,11 @@ public class JycessingTests {
   @Test
   public void syspathappend() throws Exception {
     expectOK("syspathappend");
+  }
+
+  // https://github.com/jdf/Processing.py-Bugs/issues/148
+  @Test
+  public void from_future_with_settings() throws Exception {
+    expectOK("from_future_with_settings");
   }
 }
