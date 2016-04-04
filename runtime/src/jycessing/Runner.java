@@ -297,6 +297,10 @@ public class Runner {
 
     final List<File> libDirs = sketch.getLibraryDirectories();
 
+    // The code may be located in a temp dir, if the sketch is unsaved.
+    final String actualCodeLocation = sketch.getMainFile().getParentFile().getAbsolutePath();
+    pythonPath.append(File.pathSeparator).append(actualCodeLocation);
+
     final String sketchDirPath = sketch.getHomeDirectory().getAbsolutePath();
     pythonPath.append(File.pathSeparator).append(sketchDirPath);
 
@@ -324,7 +328,7 @@ public class Runner {
       // files found there, recursively.
       final Set<String> userLibs = new HashSet<>();
       for (final File entry : sketch.getPathEntries()) {
-        sys.path.insert(0, Py.newString(entry.getAbsolutePath()));
+        sys.path.append(Py.newString(entry.getAbsolutePath()));
         searchForExtraStuff(entry, userLibs);
       }
 

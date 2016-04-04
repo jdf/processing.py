@@ -45,12 +45,26 @@ public class PyInputHandler extends PdeInputHandler {
     textArea.addKeyListener(new KeyAdapter() {
       @Override
       public void keyPressed(final KeyEvent e) {
+        if (e.getKeyCode() == 0) {
+          return;
+        }
         if (handlePressed(e)) {
           e.consume();
         }
       }
     });
 
+  }
+
+  private static boolean isPrintableChar(final char c) {
+    if (c >= 32 && c <= 127) {
+      return true;
+    }
+    if (c == KeyEvent.CHAR_UNDEFINED || Character.isISOControl(c)) {
+      return false;
+    }
+    final Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
+    return block != null && block != Character.UnicodeBlock.SPECIALS;
   }
 
   @Override
@@ -65,8 +79,8 @@ public class PyInputHandler extends PdeInputHandler {
     }
 
     // things that change the content of the text area
-    if ((code == KeyEvent.VK_BACK_SPACE) || (code == KeyEvent.VK_TAB)
-        || (code == KeyEvent.VK_ENTER) || (mods == 0 && c >= 32 && c < 128)) {
+    if (!event.isMetaDown()
+        && (code == KeyEvent.VK_BACK_SPACE || code == KeyEvent.VK_TAB || code == KeyEvent.VK_ENTER || isPrintableChar(c))) {
       sketch.setModified(true);
     }
 

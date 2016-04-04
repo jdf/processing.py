@@ -348,25 +348,15 @@ public class PyEditor extends Editor {
   }
 
   private void restoreToolbar() {
-    // toolbar.deactivate(PyToolbar.SAVE);
     toolbar.deactivateStop();
     toolbar.deactivateRun();
     toFront();
   }
 
-  public void handleSave() {
-    // toolbar.activate(PyToolbar.SAVE);
-    super.handleSave(true);
-    restoreToolbar();
-    recolor();
-  }
-
   @Override
-  public boolean handleSaveAs() {
-    // toolbar.activate(PyToolbar.SAVE);
-    final boolean result = super.handleSaveAs();
-    restoreToolbar();
-    return result;
+  public void handleSaveImpl() {
+    super.handleSaveImpl();
+    recolor();
   }
 
   @Override
