@@ -165,43 +165,74 @@ public class PythonTokenMarker extends TokenMarker {
     return token;
   }
 
+  /** Constants (QUARTER_PI, CORNERS, etc.) */
+  private static final byte CONSTANT = Token.LITERAL2;
+
+  /** Keywords (void, int, boolean, etc.) */
+  private static final byte KEYWORD = Token.KEYWORD1;
+
+  /** Fields [variables within a class] */
+  private static final byte FIELD = Token.KEYWORD2;
+
+  /** Loop/function-like blocks (for, while, etc.) */
+  private static final byte LOOP_KEYWORD = Token.KEYWORD3;
+
+  /** Functions */
+  private static final byte FUNCTION = Token.FUNCTION1;
+
+  /** Methods (functions inside a class) */
+  private static final byte METHOD = Token.FUNCTION2;
+
+  /** Built-in Processing functions (setup, draw, mouseDragged). */
+  private static final byte BUILTIN_FUNCTION = Token.FUNCTION4;
+
+  /** Built-in Processing functions (setup, draw, mouseDragged). */
+  private static final byte OPERATOR = Token.OPERATOR;
+
   public static PyKeywordMap getKeywords() {
     if (pyKeywords == null) {
       pyKeywords = new PyKeywordMap();
-      pyKeywords.add("__init__", Token.FUNCTION2);
-      pyKeywords.add("and", Token.KEYWORD3);
-      pyKeywords.add("as", Token.KEYWORD3);
-      pyKeywords.add("assert", Token.KEYWORD1);
-      pyKeywords.add("break", Token.KEYWORD1);
-      pyKeywords.add("chr", Token.FUNCTION1);
-      pyKeywords.add("class", Token.KEYWORD2);
-      pyKeywords.add("continue", Token.KEYWORD1);
-      pyKeywords.add("def", Token.KEYWORD2);
-      pyKeywords.add("del", Token.KEYWORD2);
-      pyKeywords.add("elif", Token.KEYWORD1);
-      pyKeywords.add("else", Token.KEYWORD1);
-      pyKeywords.add("except", Token.KEYWORD1);
-      pyKeywords.add("exec", Token.KEYWORD1);
-      pyKeywords.add("finally", Token.KEYWORD1);
-      pyKeywords.add("for", Token.KEYWORD3);
-      pyKeywords.add("from", Token.KEYWORD2);
-      pyKeywords.add("global", Token.KEYWORD2);
-      pyKeywords.add("if", Token.KEYWORD1);
-      pyKeywords.add("import", Token.KEYWORD2);
-      pyKeywords.add("in", Token.KEYWORD2);
-      pyKeywords.add("is", Token.KEYWORD2);
-      pyKeywords.add("lambda", Token.KEYWORD2);
-      pyKeywords.add("not", Token.KEYWORD3);
-      pyKeywords.add("or", Token.KEYWORD3);
-      pyKeywords.add("pass", Token.KEYWORD2);
-      pyKeywords.add("print", Token.KEYWORD2);
-      pyKeywords.add("raise", Token.KEYWORD1);
-      pyKeywords.add("range", Token.KEYWORD3);
-      pyKeywords.add("return", Token.KEYWORD1);
-      pyKeywords.add("self", Token.KEYWORD2);
-      pyKeywords.add("try", Token.KEYWORD1);
-      pyKeywords.add("with", Token.KEYWORD3);
-      pyKeywords.add("while", Token.KEYWORD3);
+      pyKeywords.add("__init__", METHOD);
+      pyKeywords.add("and", OPERATOR);
+      pyKeywords.add("as", LOOP_KEYWORD);
+      pyKeywords.add("assert", KEYWORD);
+      pyKeywords.add("break", KEYWORD);
+      pyKeywords.add("chr", FUNCTION);
+      pyKeywords.add("class", FIELD);
+      pyKeywords.add("continue", LOOP_KEYWORD);
+      pyKeywords.add("def", KEYWORD);
+      pyKeywords.add("del", KEYWORD);
+      pyKeywords.add("elif", LOOP_KEYWORD);
+      pyKeywords.add("else", LOOP_KEYWORD);
+      pyKeywords.add("except", KEYWORD);
+      pyKeywords.add("exec", FUNCTION);
+      pyKeywords.add("finally", LOOP_KEYWORD);
+      pyKeywords.add("for", LOOP_KEYWORD);
+      pyKeywords.add("from", FIELD);
+      pyKeywords.add("global", KEYWORD);
+      pyKeywords.add("if", LOOP_KEYWORD);
+      pyKeywords.add("import", KEYWORD);
+      pyKeywords.add("in", LOOP_KEYWORD);
+      pyKeywords.add("is", OPERATOR);
+      pyKeywords.add("lambda", OPERATOR);
+      pyKeywords.add("len", FUNCTION);
+      pyKeywords.add("not", OPERATOR);
+      pyKeywords.add("or", OPERATOR);
+      pyKeywords.add("pass", LOOP_KEYWORD);
+      pyKeywords.add("print", FUNCTION);
+      pyKeywords.add("raise", KEYWORD);
+      pyKeywords.add("range", LOOP_KEYWORD);
+      pyKeywords.add("return", KEYWORD);
+      pyKeywords.add("self", FIELD);
+      pyKeywords.add("try", LOOP_KEYWORD);
+      pyKeywords.add("with", LOOP_KEYWORD);
+      pyKeywords.add("while", LOOP_KEYWORD);
+
+      // These seem to be missing from Processing's token list?
+      pyKeywords.add("fullScreen", BUILTIN_FUNCTION);
+      pyKeywords.add("settings", BUILTIN_FUNCTION);
+      pyKeywords.add("SPAN", CONSTANT);
+
     }
     return pyKeywords;
   }
