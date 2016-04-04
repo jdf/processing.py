@@ -16,6 +16,8 @@ activeModeFunc = re.compile(r"""
     ^(
         draw
         |
+        settings
+        |
         setup
         |
         key(Pressed|Released|Typed)
