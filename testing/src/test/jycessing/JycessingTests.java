@@ -276,4 +276,14 @@ public class JycessingTests {
   public void from_future_with_settings() throws Exception {
     expectOK("from_future_with_settings");
   }
+
+  // https://github.com/jdf/processing.py/issues/199
+  @Test
+  public void matrix3d_print() throws Exception {
+    final String actual = run("pmatrixprint");
+    final String expected =
+        " 1.0000  0.0000  0.0000  0.0000\n" + " 0.0000  1.0000  0.0000  0.0000\n"
+            + " 0.0000  0.0000  1.0000  0.0000\n" + " 0.0000  0.0000  0.0000  1.0000\n\n";
+    assertEquals(expected, actual);
+  }
 }

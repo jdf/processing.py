@@ -186,7 +186,9 @@ public class PAppletJythonDriver extends PApplet {
       final PyCode code =
           Py.compile_flags(scriptSource, pySketchPath.toString(), CompileMode.exec,
               new CompilerFlags());
-      interp.exec(code);
+      try (PushedOut out = wrappedStdout.pushStdout()) {
+        interp.exec(code);
+      }
       Py.flushLine();
     } catch (Throwable t) {
       while (t.getCause() != null) {
@@ -651,7 +653,6 @@ public class PAppletJythonDriver extends PApplet {
         System.exit(0);
       }
       final Object nativeWindow = surface.getNative();
-      System.err.println(nativeWindow.getClass());
       if (nativeWindow instanceof com.jogamp.newt.Window) {
         ((com.jogamp.newt.Window)nativeWindow).destroy();
       } else {
@@ -1019,14 +1020,18 @@ public class PAppletJythonDriver extends PApplet {
       // A static sketch gets called once, from this spot.
       Runner.log("Interpreting static-mode sketch.");
       try {
-        interp.exec(processedStaticSketch);
+        try (PushedOut out = wrappedStdout.pushStdout()) {
+          interp.exec(processedStaticSketch);
+        }
       } catch (final Exception e) {
         terminalException = toSketchException(e);
         exitActual();
       }
     } else if (setupMeth != null) {
       // Call the Python sketch's setup()
-      setupMeth.__call__();
+      try (PushedOut out = wrappedStdout.pushStdout()) {
+        setupMeth.__call__();
+      }
     }
   }
 
@@ -1036,7 +1041,9 @@ public class PAppletJythonDriver extends PApplet {
     if (drawMeth == null) {
       super.draw();
     } else if (!finished) {
-      drawMeth.__call__();
+      try (PushedOut out = wrappedStdout.pushStdout()) {
+        drawMeth.__call__();
+      }
     }
     if (exitCalled()) {
       exitActual();
