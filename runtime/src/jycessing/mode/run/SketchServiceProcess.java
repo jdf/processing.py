@@ -121,6 +121,11 @@ public class SketchServiceProcess {
       command.add("-Xdock:name=Processing");
     }
 
+    // Attempt to address https://github.com/jdf/Processing.py-Bugs/issues/158
+    if (Platform.isWindows()) {
+      command.add("-Dpython.console.encoding=UTF-8");
+    }
+
     if (PythonMode.VERBOSE) {
       command.add("-Dverbose=true");
     }
