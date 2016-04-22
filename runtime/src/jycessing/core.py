@@ -311,7 +311,7 @@ __builtin__.fullScreen = __papplet__.fullScreen
 __builtin__.hint = __papplet__.hint
 __builtin__.image = __papplet__.image
 __builtin__.imageMode = __papplet__.imageMode
-
+__builtin__.launch = __papplet__.launch
 __builtin__.lightFalloff = __papplet__.lightFalloff
 __builtin__.lightSpecular = __papplet__.lightSpecular
 __builtin__.lights = __papplet__.lights
