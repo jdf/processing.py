@@ -2,7 +2,6 @@ package jycessing.mode;
 
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -14,12 +13,10 @@ import processing.app.syntax.PdeInputHandler;
 import processing.app.ui.Editor;
 
 /**
- * This class provides Pythonic handling of TAB, BACKSPACE, and ENTER keys.
+ * This class provides Pythonic handling of keystrokes.
  */
 public class PyInputHandler extends PdeInputHandler {
   final PyEditor pyEditor;
-
-  JEditTextArea textArea; // assigned on first key press
 
   // ctrl-alt on windows & linux, cmd-alt on os x
   private static int CTRL_ALT = ActionEvent.ALT_MASK
@@ -31,29 +28,6 @@ public class PyInputHandler extends PdeInputHandler {
 
   public PyInputHandler(final Editor editor) {
     pyEditor = (PyEditor)editor;
-    textArea = pyEditor.getTextArea();
-
-    // This is a somewhat gross "shim" keyListener.
-    // The HandlePressed() Method was not properly overriding the
-    // handlePressed() within pdeInputHandler.java so I circumvent the need for
-    // the pde call by adding an additional keyListener here. It's in no way ideal,
-    // but is a quick fix to the "No Returns or Tabs" bug in the new
-    // python mode PDEX. You can find the pdeInputHandler.java at the url below.
-    // https://github.com/processing/processing/blob/master/
-    // app/src/processing/app/syntax/PdeInputHandler.java#L243
-
-    textArea.addKeyListener(new KeyAdapter() {
-      @Override
-      public void keyPressed(final KeyEvent e) {
-        if (e.getKeyCode() == 0) {
-          return;
-        }
-        if (handlePressed(e)) {
-          e.consume();
-        }
-      }
-    });
-
   }
 
   private static boolean isPrintableChar(final char c) {
@@ -67,16 +41,19 @@ public class PyInputHandler extends PdeInputHandler {
     return block != null && block != Character.UnicodeBlock.SPECIALS;
   }
 
+  JEditTextArea getTextArea() {
+    return pyEditor.getTextArea();
+  }
+
+
   @Override
   public boolean handlePressed(final KeyEvent event) {
     final char c = event.getKeyChar();
     final int code = event.getKeyCode();
     final int mods = event.getModifiers();
 
+    final JEditTextArea textArea = getTextArea();
     final Sketch sketch = pyEditor.getSketch();
-    if (textArea == null) {
-      textArea = pyEditor.getTextArea();
-    }
 
     // things that change the content of the text area
     if (!event.isMetaDown()
@@ -166,6 +143,7 @@ public class PyInputHandler extends PdeInputHandler {
     LineInfo(final int lineNumber) {
       this.lineNumber = lineNumber;
 
+      final JEditTextArea textArea = getTextArea();
       final Matcher m = LINE.matcher(textArea.getLineText(lineNumber));
       if (!m.matches()) {
         throw new AssertionError("How can a line have less than nothing in it?");
@@ -206,6 +184,8 @@ public class PyInputHandler extends PdeInputHandler {
    * @param sign The direction in which to modify the indent of the current line.
    */
   public void indent(final int sign) {
+    final JEditTextArea textArea = getTextArea();
+
     final int startLine = textArea.getSelectionStartLine();
     final int stopLine = textArea.getSelectionStopLine();
     final int selectionStart = textArea.getSelectionStart();
@@ -253,11 +233,15 @@ public class PyInputHandler extends PdeInputHandler {
 
   private int getAbsoluteCaretPositionRelativeToLineEnd(final int line,
       final int lineEndRelativePosition) {
+    final JEditTextArea textArea = getTextArea();
+
     return Math.max(textArea.getLineStopOffset(line) - lineEndRelativePosition, textArea
         .getLineStartOffset(line));
   }
 
   private void indentLineBy(final int line, final int deltaIndent) {
+    final JEditTextArea textArea = getTextArea();
+
     final LineInfo currentLine = new LineInfo(line);
     final int newIndent = Math.max(0, currentLine.indent + deltaIndent);
 
@@ -298,6 +282,8 @@ public class PyInputHandler extends PdeInputHandler {
    * @return The index of the unterminated paren, or -1.
    */
   private int indexOfUnclosedParen() {
+    final JEditTextArea textArea = getTextArea();
+
     final int cursor = textArea.getCaretPosition();
     final String text = textArea.getText();
     final Stack<Integer> stack = new Stack<Integer>();
@@ -332,6 +318,7 @@ public class PyInputHandler extends PdeInputHandler {
   }
 
   private String getInitialWhitespace() {
+    final JEditTextArea textArea = getTextArea();
     final String text = textArea.getText();
     final int cursor = textArea.getCaretPosition();
     final int lineNumber = textArea.getLineOfOffset(cursor);
@@ -377,6 +364,8 @@ public class PyInputHandler extends PdeInputHandler {
   }
 
   private String newline() {
+    final JEditTextArea textArea = getTextArea();
+
     final int cursor = textArea.getCaretPosition();
     if (cursor <= 1) {
       return "\n";

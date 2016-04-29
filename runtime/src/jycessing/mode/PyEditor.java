@@ -36,6 +36,8 @@ import processing.app.Mode;
 import processing.app.Platform;
 import processing.app.SketchCode;
 import processing.app.SketchException;
+import processing.app.syntax.JEditTextArea;
+import processing.app.syntax.PdeTextAreaDefaults;
 import processing.app.ui.Editor;
 import processing.app.ui.EditorException;
 import processing.app.ui.EditorState;
@@ -101,6 +103,11 @@ public class PyEditor extends Editor {
         Runtime.getRuntime().removeShutdownHook(cleanup);
       }
     });
+  }
+
+  @Override
+  protected JEditTextArea createTextArea() {
+    return new JEditTextArea(new PdeTextAreaDefaults(mode), new PyInputHandler(this));
   }
 
   public String getId() {
