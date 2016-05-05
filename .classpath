@@ -2,12 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path="runtime/src"/>
 	<classpathentry kind="src" path="testing/src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/processing-app"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/processing-core"/>
 	<classpathentry kind="lib" path="buildtime/lib/jython/jython.jar" sourcepath="/Users/feinberg/jython-processing-mode"/>
 	<classpathentry kind="lib" path="buildtime/lib/java/guava-17.0.jar" sourcepath="buildtime/lib/java/guava-17.0-sources.jar"/>
 	<classpathentry kind="lib" path="/processing-core/library/jogl-all.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
