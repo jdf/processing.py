@@ -106,8 +106,8 @@ public abstract class PlatformExport {
     {
       jycessingFolder.mkdirs();
       log("Copying core processing stuff to export");
-      for (final File exportFile : new Library(Platform.getContentFile("core")).getApplicationExports(
-          id, Integer.toString(arch.bits))) {
+      for (final File exportFile : new Library(Platform.getContentFile("core"))
+          .getApplicationExports(id, Integer.toString(arch.bits))) {
         if (exportFile.isDirectory()) {
           Util.copyDir(exportFile, new File(jycessingFolder, exportFile.getName()));
         } else {

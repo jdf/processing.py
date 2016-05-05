@@ -27,6 +27,7 @@ public class PdeSketch implements RunnableSketch, Serializable {
   private final File mainFile;
   private final String mainCode;
   private final File sketchHome;
+  private final File realSketchPath;
   private final Point location;
   private final LocationType locationType;
   private final DisplayType displayType;
@@ -43,11 +44,12 @@ public class PdeSketch implements RunnableSketch, Serializable {
     this.mainFile = sketchPath.getAbsoluteFile();
     this.mainCode = sketch.getMainProgram();
     this.sketchHome = sketch.getFolder().getAbsoluteFile();
+    this.realSketchPath = sketchPath;
 
     final List<File> libraryDirs = new ArrayList<>();
     libraryDirs.add(Platform.getContentFile("modes/java/libraries"));
     libraryDirs.add(Base.getSketchbookLibrariesFolder());
-    libraryDirs.add(sketch.getCodeFolder());
+    libraryDirs.add(sketchPath);
     this.libraryDirs = libraryDirs;
 
     final String[] codeFileNames = new String[sketch.getCodeCount()];
@@ -106,9 +108,6 @@ public class PdeSketch implements RunnableSketch, Serializable {
     return libraryDirs;
   }
 
-  /**
-   * PDE sketches should be selective - no need to rush, we can just load as we go.
-   */
   @Override
   public LibraryPolicy getLibraryPolicy() {
     return LibraryPolicy.SELECTIVE;
@@ -122,6 +121,7 @@ public class PdeSketch implements RunnableSketch, Serializable {
   @Override
   public List<File> getPathEntries() {
     final List<File> entries = new ArrayList<>();
+    entries.add(realSketchPath.getParentFile());
     entries.add(sketchHome);
     entries.add(new File(sketchHome, "source"));
     final File code = new File(sketchHome, "code");

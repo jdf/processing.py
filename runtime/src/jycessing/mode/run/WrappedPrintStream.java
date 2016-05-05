@@ -13,6 +13,10 @@ public abstract class WrappedPrintStream extends PrintStream {
       System.setOut(WrappedPrintStream.this);
     }
 
+    public void open() {
+      System.setOut(WrappedPrintStream.this);
+    }
+
     @Override
     public void close() {
       System.setOut(saved);
@@ -23,13 +27,19 @@ public abstract class WrappedPrintStream extends PrintStream {
     super(out);
   }
 
+  private PushedOut cachedOut = null;
+
   /**
    * {@link #pushStdout()} swaps this {@link WrappedPrintStream} in for System.out,
    * and then puts the original stream back when the {@link PushedOut} is closed.
    * @return an AutoCloseable context that restores System.out.
    */
   public PushedOut pushStdout() {
-    return new PushedOut();
+    if (cachedOut == null) {
+      cachedOut = new PushedOut();
+    }
+    cachedOut.open();
+    return cachedOut;
   }
 
   public abstract void doPrint(String s);

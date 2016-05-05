@@ -78,9 +78,9 @@ def pyde_preprocessor(module):
 			settingsArgs = ast.arguments(args=[], vararg=None, kwarg=None, defaults=[])
 			settingsFunc = ast.FunctionDef("settings", settingsArgs, [], [])
 			info.insert(settingsFunc.body)
-			# Place the newly defined settings() function within the module body. 
+			# Place the newly defined settings() function at the end of the module body. 
 			# It's like it's been there the whole time... 
-			module.body.insert(0, settingsFunc)
+			module.body.insert(len(module.body), settingsFunc)
 
 module = ast.parse(__processing_source__ + "\n\n", filename=__file__)
 pyde_preprocessor(module)

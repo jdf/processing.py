@@ -311,7 +311,7 @@ __builtin__.fullScreen = __papplet__.fullScreen
 __builtin__.hint = __papplet__.hint
 __builtin__.image = __papplet__.image
 __builtin__.imageMode = __papplet__.imageMode
-
+__builtin__.launch = __papplet__.launch
 __builtin__.lightFalloff = __papplet__.lightFalloff
 __builtin__.lightSpecular = __papplet__.lightSpecular
 __builtin__.lights = __papplet__.lights
@@ -399,6 +399,7 @@ __builtin__.shearX = __papplet__.shearX
 __builtin__.shearY = __papplet__.shearY
 __builtin__.shininess = __papplet__.shininess
 __builtin__.size = __papplet__.size
+__builtin__.sketchPath = __papplet__.sketchPath
 __builtin__.smooth = __papplet__.smooth
 __builtin__.specular = __papplet__.specular
 __builtin__.sphere = __papplet__.sphere

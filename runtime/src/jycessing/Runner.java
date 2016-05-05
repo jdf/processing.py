@@ -76,8 +76,8 @@ public class Runner {
     }
   }
 
-  private static final String LAUNCHER_TEXT =
-      IOUtil.readResourceAsText(LaunchHelper.class, "launcher.py");
+  private static final String LAUNCHER_TEXT = IOUtil.readResourceAsText(LaunchHelper.class,
+      "launcher.py");
   private static final String CORE_TEXT = IOUtil.readResourceAsText(Runner.class, "core.py");
 
   // -Dverbose=true for some logging
@@ -111,28 +111,24 @@ public class Runner {
 
     log("Searching: ", dir);
 
-    final File[] dlls =
-        dir.listFiles(
-            new FilenameFilter() {
-              @Override
-              public boolean accept(final File dir, final String name) {
-                return name.matches("^.+\\.(so|dll|jnilib|dylib)$");
-              }
-            });
+    final File[] dlls = dir.listFiles(new FilenameFilter() {
+      @Override
+      public boolean accept(final File dir, final String name) {
+        return name.matches("^.+\\.(so|dll|jnilib|dylib)$");
+      }
+    });
     if (dlls != null && dlls.length > 0) {
       entries.add(dir.getAbsolutePath());
     } else {
       log("No DLLs in ", dir);
     }
 
-    final File[] jars =
-        dir.listFiles(
-            new FilenameFilter() {
-              @Override
-              public boolean accept(final File dir, final String name) {
-                return name.matches("^.+\\.jar$");
-              }
-            });
+    final File[] jars = dir.listFiles(new FilenameFilter() {
+      @Override
+      public boolean accept(final File dir, final String name) {
+        return name.matches("^.+\\.jar$");
+      }
+    });
     if (!(jars == null || jars.length == 0)) {
       for (final File jar : jars) {
         entries.add(jar.getAbsolutePath());
@@ -141,14 +137,12 @@ public class Runner {
       log("No JARs in ", dir);
     }
 
-    final File[] dirs =
-        dir.listFiles(
-            new FileFilter() {
-              @Override
-              public boolean accept(final File f) {
-                return f.isDirectory() && f.getName().charAt(0) != '.';
-              }
-            });
+    final File[] dirs = dir.listFiles(new FileFilter() {
+      @Override
+      public boolean accept(final File f) {
+        return f.isDirectory() && f.getName().charAt(0) != '.';
+      }
+    });
     if (!(dirs == null || dirs.length == 0)) {
       for (final File d : dirs) {
         searchForExtraStuff(d, entries);
@@ -283,18 +277,14 @@ public class Runner {
     }
   }
 
-  public synchronized static void runSketchBlocking(
-      final RunnableSketch sketch, final Printer stdout, final Printer stderr)
-      throws PythonSketchError {
+  public synchronized static void runSketchBlocking(final RunnableSketch sketch,
+      final Printer stdout, final Printer stderr) throws PythonSketchError {
     runSketchBlocking(sketch, stdout, stderr, null);
   }
 
-  public synchronized static void runSketchBlocking(
-      final RunnableSketch sketch,
-      final Printer stdout,
-      final Printer stderr,
-      final SketchPositionListener sketchPositionListener)
-      throws PythonSketchError {
+  public synchronized static void runSketchBlocking(final RunnableSketch sketch,
+      final Printer stdout, final Printer stderr,
+      final SketchPositionListener sketchPositionListener) throws PythonSketchError {
     final Properties props = new Properties();
 
     // Suppress sys-package-manager output.
@@ -307,6 +297,10 @@ public class Runner {
 
     final List<File> libDirs = sketch.getLibraryDirectories();
 
+    // The code may be located in a temp dir, if the sketch is unsaved.
+    final String actualCodeLocation = sketch.getMainFile().getParentFile().getAbsolutePath();
+    pythonPath.append(File.pathSeparator).append(actualCodeLocation);
+
     final String sketchDirPath = sketch.getHomeDirectory().getAbsolutePath();
     pythonPath.append(File.pathSeparator).append(sketchDirPath);
 
@@ -318,9 +312,9 @@ public class Runner {
     PythonInterpreter.initialize(null, props, args);
 
     final PySystemState sys = Py.getSystemState();
-    final PyStringMap originalModules = ((PyStringMap) sys.modules).copy();
-    final PyList originalPath = new PyList((PyObject) sys.path);
-    final PyStringMap builtins = (PyStringMap) sys.getBuiltins();
+    final PyStringMap originalModules = ((PyStringMap)sys.modules).copy();
+    final PyList originalPath = new PyList((PyObject)sys.path);
+    final PyStringMap builtins = (PyStringMap)sys.getBuiltins();
     final PyStringMap originalBuiltins = builtins.copy();
     try {
       final InteractiveConsole interp = new InteractiveConsole();
@@ -334,7 +328,7 @@ public class Runner {
       // files found there, recursively.
       final Set<String> userLibs = new HashSet<>();
       for (final File entry : sketch.getPathEntries()) {
-        sys.path.insert(0, Py.newString(entry.getAbsolutePath()));
+        sys.path.append(Py.newString(entry.getAbsolutePath()));
         searchForExtraStuff(entry, userLibs);
       }
 
@@ -376,8 +370,8 @@ public class Runner {
       interp.set("__stdout__", stdout);
       interp.set("__stderr__", stderr);
       final PAppletJythonDriver applet =
-          new PAppletJythonDriver(
-              interp, sketch.getMainFile().toString(), sketch.getMainCode(), stdout);
+          new PAppletJythonDriver(interp, sketch.getMainFile().toString(), sketch.getMainCode(),
+              stdout);
       interp.set("__papplet__", applet);
       interp.exec(CORE_TEXT);
 

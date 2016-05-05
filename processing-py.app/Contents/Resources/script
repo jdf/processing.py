@@ -19,7 +19,8 @@ JVM_ARGS="-Xmx1024m"
 #
 ####
 JAVA=`which java`
-BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+THIS_FILE="$( readlink "$( which ${BASH_SOURCE[0]} )" || echo ${BASH_SOURCE[0]} )"
+BASEDIR="$( cd "$( dirname $THIS_FILE )" && pwd )"
 PLATFORM='unknown'
 SPLASH="-splash:$BASEDIR/libraries/runtime/splash.png"
 REDIRECT="--noredirect"

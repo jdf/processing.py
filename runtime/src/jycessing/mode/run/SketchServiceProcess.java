@@ -121,6 +121,11 @@ public class SketchServiceProcess {
       command.add("-Xdock:name=Processing");
     }
 
+    // Attempt to address https://github.com/jdf/Processing.py-Bugs/issues/158
+    if (Platform.isWindows()) {
+      command.add("-Dpython.console.encoding=UTF-8");
+    }
+
     if (PythonMode.VERBOSE) {
       command.add("-Dverbose=true");
     }
@@ -128,12 +133,10 @@ public class SketchServiceProcess {
     command.add("-Djava.library.path=" + System.getProperty("java.library.path"));
 
     final List<String> cp = new ArrayList<>();
-    cp.addAll(filter(
-        Arrays.asList(System.getProperty("java.class.path")
-            .split(Pattern.quote(File.pathSeparator))),
-        not(or(
-            containsPattern("(ant|ant-launcher|antlr|netbeans.*|osgi.*|jdi.*|ibm\\.icu.*|jna)\\.jar$"),
-            containsPattern("/processing/app/(test|lib)/")))));
+    cp.addAll(filter(Arrays.asList(System.getProperty("java.class.path").split(
+        Pattern.quote(File.pathSeparator))), not(or(
+        containsPattern("(ant|ant-launcher|antlr|netbeans.*|osgi.*|jdi.*|ibm\\.icu.*|jna)\\.jar$"),
+        containsPattern("/processing/app/(test|lib)/")))));
     for (final File jar : new File(Platform.getContentFile("core"), "library").listFiles(JARS)) {
       cp.add(jar.getAbsolutePath());
     }

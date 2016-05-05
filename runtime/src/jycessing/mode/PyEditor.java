@@ -36,6 +36,8 @@ import processing.app.Mode;
 import processing.app.Platform;
 import processing.app.SketchCode;
 import processing.app.SketchException;
+import processing.app.syntax.JEditTextArea;
+import processing.app.syntax.PdeTextAreaDefaults;
 import processing.app.ui.Editor;
 import processing.app.ui.EditorException;
 import processing.app.ui.EditorState;
@@ -101,6 +103,11 @@ public class PyEditor extends Editor {
         Runtime.getRuntime().removeShutdownHook(cleanup);
       }
     });
+  }
+
+  @Override
+  protected JEditTextArea createTextArea() {
+    return new JEditTextArea(new PdeTextAreaDefaults(mode), new PyInputHandler(this));
   }
 
   public String getId() {
@@ -171,7 +178,7 @@ public class PyEditor extends Editor {
   @Override
   public JMenu buildHelpMenu() {
     final JMenu menu = new JMenu("Help");
-        menu.add(new JMenuItem(new AbstractAction("References") {
+    menu.add(new JMenuItem(new AbstractAction("References") {
       @Override
       public void actionPerformed(final ActionEvent e) {
         Platform.openURL("http://py.processing.org/reference/");
@@ -348,25 +355,15 @@ public class PyEditor extends Editor {
   }
 
   private void restoreToolbar() {
-    // toolbar.deactivate(PyToolbar.SAVE);
     toolbar.deactivateStop();
     toolbar.deactivateRun();
     toFront();
   }
 
-  public void handleSave() {
-    // toolbar.activate(PyToolbar.SAVE);
-    super.handleSave(true);
-    restoreToolbar();
-    recolor();
-  }
-
   @Override
-  public boolean handleSaveAs() {
-    // toolbar.activate(PyToolbar.SAVE);
-    final boolean result = super.handleSaveAs();
-    restoreToolbar();
-    return result;
+  public void handleSaveImpl() {
+    super.handleSaveImpl();
+    recolor();
   }
 
   @Override
