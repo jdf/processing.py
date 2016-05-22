@@ -178,6 +178,9 @@ public class PAppletJythonDriver extends PApplet {
   // Implement the Serial library's callback.
   private PyObject serialEventMeth;
 
+  // Implement the net library's callbacks.
+  private PyObject clientEventMeth, disconnectEventMeth, serverEventMeth;
+
   private SketchPositionListener sketchPositionListener;
 
   private void processSketch(final String scriptSource) throws PythonSketchError {
@@ -523,6 +526,11 @@ public class PAppletJythonDriver extends PApplet {
 
     // Serial library callback.
     serialEventMeth = interp.get("serialEvent");
+
+    // Net library callbacks.
+    clientEventMeth = interp.get("clientEvent");
+    disconnectEventMeth = interp.get("disconnectEvent");
+    serverEventMeth = interp.get("serverEvent");
   }
 
   /*
@@ -1279,6 +1287,25 @@ public class PAppletJythonDriver extends PApplet {
   public void serialEvent(final Object whichPort) {
     if (serialEventMeth != null) {
       serialEventMeth.__call__(Py.java2py(whichPort));
+    }
+  }
+
+  // Net library callbacks.
+  public void clientEvent(final Object someClient) {
+    if (clientEventMeth != null) {
+      clientEventMeth.__call__(Py.java2py(someClient));
+    }
+  }
+
+  public void disconnectEvent(final Object someClient) {
+    if (disconnectEventMeth != null) {
+      disconnectEventMeth.__call__(Py.java2py(someClient));
+    }
+  }
+
+  public void serverEvent(final Object someServer, final Object someClient) {
+    if (serverEventMeth != null) {
+      serverEventMeth.__call__(Py.java2py(someServer), Py.java2py(someClient));
     }
   }
 
