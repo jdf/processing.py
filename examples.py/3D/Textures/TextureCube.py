@@ -5,18 +5,21 @@
  * Drag mouse to rotate cube. Demonstrates use of u/v coords in 
  * vertex() and effect on texture().
 """
-tex = loadImage("data/berlin-1.jpg")
 rotx = PI / 4
 roty = PI / 4
 rate = 0.01
 
-def setup(): 
+
+def setup():
     size(640, 360, OPENGL)
     textureMode(NORMAL)
     fill(255)
     stroke(color(44, 48, 32))
+    global tex
+    tex = loadImage("data/berlin-1.jpg")
 
-def draw(): 
+
+def draw():
     background(0)
     noStroke()
     translate(width / 2.0, height / 2.0, -100)
@@ -24,6 +27,7 @@ def draw():
     rotateY(roty)
     scale(90)
     TexturedCube()
+
 
 def TexturedCube():
     beginShape(QUADS)
@@ -36,7 +40,7 @@ def TexturedCube():
     # of the screen, but is not otherwised aligned with the X / Z faces. (This
     # just affects what type of symmetry is required if you need seamless
     # tiling all the way around the cube)
-    
+
     # +Z "front" face
     vertex(-1, -1, 1, 0, 0)
     vertex(1, -1, 1, 1, 0)
@@ -68,7 +72,8 @@ def TexturedCube():
     vertex(-1, 1, 1, 1, 1)
     vertex(-1, 1, -1, 0, 1)
     endShape()
-    
+
+
 def mouseDragged():
     global rotx, roty
     rotx += (pmouseY - mouseY) * rate
