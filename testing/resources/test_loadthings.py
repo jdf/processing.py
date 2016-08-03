@@ -28,5 +28,14 @@ a = loadJSONArray(File("testing/resources/data/array.json"))
 assert a.getString(0) == 'hello'
 assert a.getString(1) == 'world'
 
+expected = ['hello', 'world']
+helloworld = loadStrings(createInput("strings.txt"))
+assert helloworld[0] == 'hello'
+assert helloworld[1] == 'world'
+
+helloworld = loadStrings(createInput(File("testing/resources/data/strings.txt")))
+assert helloworld[0] == 'hello'
+assert helloworld[1] == 'world'
+
 print 'OK'
 exit()

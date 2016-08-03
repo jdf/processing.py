@@ -22,6 +22,7 @@ import jycessing.StreamPrinter;
 import org.junit.Test;
 
 public class JycessingTests {
+
   private static class CapturingPrinter implements Printer {
     private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     private final PrintStream out = new PrintStream(baos, true);
@@ -208,6 +209,11 @@ public class JycessingTests {
   @Test
   public void loadThings() throws Exception {
     expectOK("loadthings");
+  }
+
+  @Test
+  public void writeThings() throws Exception {
+    expectOK("writethings");
   }
 
   @Test
