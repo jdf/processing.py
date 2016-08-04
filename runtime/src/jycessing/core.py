@@ -528,6 +528,18 @@ __builtin__.year = PApplet.year
 # Here are some names that resolve to static *and* instance methods.
 # Dispatch them to the appropriate methods based on the type of their
 # arguments.
+def __createInput__(o):
+    if isinstance(o, basestring):
+        return __papplet__.createInput(o)
+    return PApplet.createInput(o)
+__builtin__.createInput = __createInput__
+
+def __createOutput__(o):
+    if isinstance(o, basestring):
+        return __papplet__.createOutput(o)
+    return PApplet.createOutput(o)
+__builtin__.createOutput = __createOutput__
+
 def __createReader__(o):
     if isinstance(o, basestring):
         return __papplet__.createReader(o)
