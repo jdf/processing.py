@@ -60,6 +60,8 @@ illegalActiveModeCall = re.compile(r"""
         (load|update)Pixels
         |
         background|clear|(no)?(Fill|Stroke)
+        |
+        createFont
     )$
 """, re.X)
 

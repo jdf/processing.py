@@ -4,11 +4,12 @@ author: Jonathan Feinberg
 """
 from namethatcolor import NameThatColor
 
-flag = loadImage("flag.jpg")
 namer = NameThatColor()
 
 def setup():
     size(200, 200)
+    global flag
+    flag = loadImage("flag.jpg")
 
 def draw():
     background(0)

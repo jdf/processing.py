@@ -438,8 +438,10 @@
       <fileset file="LICENSE.txt"/>
       <fileset dir="." includes="workspace/**"/>
       <fileset dir="." includes="libraries/**"/>
-      <fileset dir="." includes="*.sh,*.bat,processing-py.app/**"/>
+      <fileset dir="." includes="processing-py.app/**"/>
     </copy>
+    <copy todir="${dist.dir}" file="processing-py.sh" />
+    <copy todir="${dist.dir}" file="processing-py.bat" />
     <chmod file="${dist.dir}/processing-py.sh" perm="755"/>
     <chmod file="${dist.dir}/processing-py.bat" perm="755"/>
     <chmod file="${dist.dir}/processing-py.app/Contents/Resources/script" perm="755"/>
