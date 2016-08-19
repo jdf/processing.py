@@ -293,7 +293,7 @@
         <param name="dist.compressed" value="${dist.name}.${compression}"/>
         <param name="dist.dir" value="dist/${dist.name}"/>
         <param name="dist.jre" value="dist/${dist.name}/jre"/>
-        <param name="jre.remote" value="http://processing.py.s3.amazonaws.com/jre-7u72-@{platform}.tgz"/>
+        <param name="jre.remote" value="http://processing.py.s3.amazonaws.com/jre-8u92-@{platform}.tgz"/>
         <param name="jre.local.dir" value="JREs/@{platform}"/>
         <param name="jre.local.compressed" value="JREs/@{platform}.tgz"/>
         <param name="gl.platform" value="${gl.platform}"/>
@@ -424,7 +424,6 @@
                includes="*.txt,*.jar,${platform}/**,${platform}64/**"/>
     </copy>
     <copy-processing-library dir="${cache}" library="dxf"/>
-    <copy-processing-library dir="${cache}" library="lwjgl"/>
     <copy-processing-library dir="${cache}" library="net"/>
     <copy-processing-library dir="${cache}" library="pdf"/>
     <copy-processing-library dir="${cache}" library="serial"/>
