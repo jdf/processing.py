@@ -17,7 +17,7 @@ def setup():
     values = [[0] * width for i in range(height)]
     noFill()
     # Load the image into a array
-    # Extract the values and store in an array  ;  img. place this before loadPixels in the next line
+    # Extract the values and store in an array
     loadPixels()
     for i in range(img.height):
         for j in range(img.width):
@@ -27,7 +27,6 @@ def setup():
 
 def draw():
     global angle
-    global img
     background(0)
     translate(width / 2, height / 2, -height / 2)
     scale(2.0)
