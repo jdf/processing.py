@@ -9,14 +9,16 @@ angle = 0
 
 
 def setup():
+    global  img
+    img = loadImage("ystone08.jpg")
     size(640, 360, P3D)
     global values
     imgPixels = [[0] * width for i in range(height)]
     values = [[0] * width for i in range(height)]
     noFill()
     # Load the image into a array
-    # Extract the values and store in an array
-    img.loadPixels()
+    # Extract the values and store in an array  ;  img. place this before loadPixels in the next line
+    loadPixels()
     for i in range(img.height):
         for j in range(img.width):
             imgPixels[j][i] = img.pixels[i * img.width + j]
@@ -25,6 +27,7 @@ def setup():
 
 def draw():
     global angle
+    global img
     background(0)
     translate(width / 2, height / 2, -height / 2)
     scale(2.0)
