@@ -23,7 +23,7 @@ img2 = loadImage("layer2.jpg")
 currentMode = 0
 
 def setup():
-    size(640, 360, P3D)
+    size(640, 360, P3D);
     noStroke()
 
 
@@ -33,10 +33,10 @@ def draw():
     picAlpha = int(map(mouseX, 0, width, 0, 255))
     background(0)
     tint(255, 255)
-    image(img1, 0, 0)
+    image(loadImage("layer1.jpg"), 0, 0)
     blendMode(selMode)
     tint(255, picAlpha)
-    image(img2, 0, 0)
+    image(loadImage("layer2.jpg"), 0, 0)
     blendMode(REPLACE)
     fill(255)
     rect(0, 0, 94, 22)
