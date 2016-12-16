@@ -9,7 +9,6 @@ v = 1.0 / 9.0
 kernel = [[v, v, v],
           [v, v, v],
           [v, v, v]]
-img = loadImage("moon.jpg")  # Load the original image
 
 
 def setup():
@@ -18,6 +17,7 @@ def setup():
 
 
 def draw():
+    img = loadImage("moon.jpg")
     image(img, 0, 0)  # Displays the image from point (0,0)
     img.loadPixels()
     # Create an opaque image of the same size as the original
