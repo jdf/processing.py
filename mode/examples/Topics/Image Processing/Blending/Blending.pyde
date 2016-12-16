@@ -18,8 +18,7 @@ modes = ((REPLACE, "REPLACE"),
          (MULTIPLY, "MULTIPLY"),
          (SCREEN, "SCREEN"),
          (REPLACE, "REPLACE"))
-img1 = loadImage("layer1.jpg")
-img2 = loadImage("layer2.jpg")
+
 currentMode = 0
 
 def setup():
@@ -29,14 +28,16 @@ def setup():
 
 def draw():
     global picAlpha
+    img1 = loadImage("layer1.jpg")
+    img2 = loadImage("layer2.jpg")
     selMode, name = modes[currentMode]
     picAlpha = int(map(mouseX, 0, width, 0, 255))
     background(0)
     tint(255, 255)
-    image(loadImage("layer1.jpg"), 0, 0)
+    image(img1, 0, 0)
     blendMode(selMode)
     tint(255, picAlpha)
-    image(loadImage("layer2.jpg"), 0, 0)
+    image(img2, 0, 0)
     blendMode(REPLACE)
     fill(255)
     rect(0, 0, 94, 22)
