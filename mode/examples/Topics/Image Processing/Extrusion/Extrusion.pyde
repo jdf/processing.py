@@ -4,14 +4,14 @@ Extrusion.
 Converts a flat image into spatial data points and rotates the points
 around the center.
 """
-img = loadImage("ystone08.jpg")
 angle = 0
 
 
 def setup():
+    global  img
+    img = loadImage("ystone08.jpg")
     size(640, 360, P3D)
     global values
-    imgPixels = [[0] * width for i in range(height)]
     values = [[0] * width for i in range(height)]
     noFill()
     # Load the image into a array
@@ -19,8 +19,7 @@ def setup():
     img.loadPixels()
     for i in range(img.height):
         for j in range(img.width):
-            imgPixels[j][i] = img.pixels[i * img.width + j]
-            values[j][i] = int(blue(imgPixels[j][i]))
+             values[j][i] = int(blue(img.pixels[i * img.width + j]))
 
 
 def draw():
