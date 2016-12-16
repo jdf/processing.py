@@ -6,7 +6,6 @@ Applies a convolution matrix to a portion of an image. Move mouse to
 apply filter to different parts of the image.
 """
 
-img = loadImage("moon-wide.jpg")
 w = 120
 # It's possible to convolve the image with many different
 # matrices to produce different effects. This is a high-pass
@@ -23,6 +22,7 @@ def setup():
 def draw():
     # We're only going to process a portion of the image
     # so let's set the whole image as the background first
+    img = loadImage("moon-wide.jpg")
     image(img, 0, 0)
     # Calculate the small rectangle we will process
     xstart = constrain(mouseX - w / 2, 0, img.width)
