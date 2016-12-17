@@ -18,7 +18,6 @@ def setup():
     s2 = Spring2D(0.0, width / 2, mass, gravity)
 
 def draw():
-    global s1,s2
     background(0)
     s1.update(mouseX, mouseY)
     s1.display(mouseX, mouseY)
