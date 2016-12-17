@@ -36,3 +36,4 @@ def draw():
 
 def mousePressed():
     systems.append(ParticleSystem(1, PVector(mouseX, mouseY)))
+    
