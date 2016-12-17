@@ -15,6 +15,7 @@ roty = PI / 4
 
 
 def setup():
+    global halfWidth,halfHeight,tex
     size(640, 360, P3D)
     halfWidth = width / 2.0
     halfHeight = height / 2.0
@@ -89,6 +90,7 @@ def texturedCube(tex):
 
 
 def mouseDragged():
+    global rotx,roty
     rate = 0.01
     rotx += (pmouseY - mouseY) * rate
     roty += (mouseX - pmouseX) * rate
