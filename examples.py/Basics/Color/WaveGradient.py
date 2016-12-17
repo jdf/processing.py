@@ -5,6 +5,7 @@
    
   Generate a gradient along a sin() wave.
 """
+import math
 
 amplitude = 30
 fillGap = 2.5
@@ -28,7 +29,7 @@ def draw():
                 255 - abs(py - i) * 255 / amplitude,
                 j * (255.0 / (width + 50)))
       # Hack to fill gaps. Raise value of fillGap if you increase frequency
-      for filler in range(fillGap):
+      for filler in range(int(math.ceil(fillGap))):
         set(int(j - filler), int(py) - filler, c)
         set(int(j), int(py), c)
         set(int(j + filler), int(py) + filler, c)
