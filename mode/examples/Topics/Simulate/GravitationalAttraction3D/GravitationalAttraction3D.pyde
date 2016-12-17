@@ -27,6 +27,7 @@ angle = 0
 
 
 def setup():
+    global planets,s
     size(640, 360, P3D)
     smooth()
     # Some random planets.
@@ -38,6 +39,7 @@ def setup():
 
 
 def draw():
+    global planets,angle,s
     background(0)
     # Setup the scene.
     sphereDetail(8)
@@ -56,4 +58,3 @@ def draw():
         planet.display()
     # Rotate around the scene.
     angle += 0.003
-
