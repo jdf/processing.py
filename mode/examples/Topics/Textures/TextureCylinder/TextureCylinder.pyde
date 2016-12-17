@@ -13,6 +13,7 @@ img = None
 
 
 def setup():
+    global halfWidth,halfHeight,img
     size(640, 360, P3D)
     halfWidth = width / 2.0
     halfHeight = height / 2.0
