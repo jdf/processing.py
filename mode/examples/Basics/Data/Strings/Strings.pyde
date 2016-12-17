@@ -3,8 +3,6 @@ Strings
 
 TODO: Add Python-specific description. 
 
-TODO: Make a more Pythonic example showing string manipulation 
-      in Python (e.g. string multiplication)?
 '''
 
 letter = ' ' # Strings can be written in single quotes
@@ -18,6 +16,9 @@ a
 multi-line
 string
 """
+#String Multiplication: Strings can be multiplied by an integer.
+my_str = "Hi! "*5
+#my_str is initialised as "Hi! Hi! Hi! Hi! Hi! "
 
 def setup(): 
     size(640, 360)
