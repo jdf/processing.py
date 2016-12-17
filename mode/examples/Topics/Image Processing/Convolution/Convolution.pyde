@@ -17,12 +17,13 @@ matrix = [[-1, -1, -1],
 
 def setup():
     size(640, 360)
+    global img
+    img = loadImage("moon-wide.jpg")
 
 
 def draw():
     # We're only going to process a portion of the image
     # so let's set the whole image as the background first
-    img = loadImage("moon-wide.jpg")
     image(img, 0, 0)
     # Calculate the small rectangle we will process
     xstart = constrain(mouseX - w / 2, 0, img.width)
