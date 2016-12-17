@@ -13,11 +13,12 @@ kernel = [[-1, -1, -1],
 
 def setup():
     size(640, 360)
+    global img
+    img = loadImage("moon.jpg")  # Load the original image
     noLoop()
 
 
 def draw():
-    img = loadImage("moon.jpg")  # Load the original image
     image(img, 0, 0)  # Displays the image from point (0,0)
     img.loadPixels()
     # Create an opaque image of the same size as the original
