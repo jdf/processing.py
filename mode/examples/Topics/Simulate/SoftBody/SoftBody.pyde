@@ -47,6 +47,7 @@ def draw():
 
 
 def drawShape():
+    global nodeStartX,nodeStartY,rotAngle
     # Calculate node starting locations.
     for i in range(nodes):
         nodeStartX[i] = centerX + cos(radians(rotAngle)) * radius
@@ -63,6 +64,7 @@ def drawShape():
 
 
 def moveShape():
+    global centerX,centerY,deltaX,deltaY,accelX,accelY
     # Move center point.
     deltaX = mouseX - centerX
     deltaY = mouseY - centerY
@@ -84,4 +86,3 @@ def moveShape():
         nodeX[i] = nodeStartX[i] + sin(radians(angle[i])) * (accelX * 2)
         nodeY[i] = nodeStartY[i] + sin(radians(angle[i])) * (accelY * 2)
         angle[i] += frequency[i]
-
