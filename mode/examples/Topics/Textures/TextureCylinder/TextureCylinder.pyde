@@ -13,8 +13,8 @@ img = None
 
 
 def setup():
-    global halfWidth,halfHeight,img
     size(640, 360, P3D)
+    global halfWidth,halfHeight,img
     halfWidth = width / 2.0
     halfHeight = height / 2.0
     img = loadImage("berlin-1.jpg")
