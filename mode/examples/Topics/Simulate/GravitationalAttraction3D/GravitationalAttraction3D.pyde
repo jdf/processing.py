@@ -39,7 +39,7 @@ def setup():
 
 
 def draw():
-    global planets,angle,s
+    global angle
     background(0)
     # Setup the scene.
     sphereDetail(8)
