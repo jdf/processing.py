@@ -21,7 +21,7 @@ modes = ((REPLACE, "REPLACE"),
 currentMode = 0
 
 def setup():
-    size(640, 360, P3D);
+    size(640, 360, P3D)
     noStroke()
     global img1,img2
     img1 = loadImage("layer1.jpg")
