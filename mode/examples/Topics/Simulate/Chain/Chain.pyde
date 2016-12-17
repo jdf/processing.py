@@ -7,13 +7,13 @@ in the environment pulls down on both.
 """
 s1=None
 s2=None
+gravity = 9.0
+mass = 2.0
 
 def setup():
     global s1,s2
     size(640, 360)
     fill(255, 126)
-    gravity = 9.0
-    mass = 2.0
     s1 = Spring2D(0.0, width / 2, mass, gravity)
     s2 = Spring2D(0.0, width / 2, mass, gravity)
 
