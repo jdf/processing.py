@@ -35,8 +35,8 @@ SinCosLength = int(360.0 / SinCosPrecision)
 
 
 def setup():
-    global thirdWidth,halfHeight,texmap
     size(640, 360, P3D)
+    global thirdWidth,halfHeight,texmap
     thirdWidth = width * 0.33
     halfHeight = height * 0.5
     texmap = loadImage("world32k.jpg")
