@@ -15,8 +15,8 @@ roty = PI / 4
 
 
 def setup():
-    global halfWidth,halfHeight,tex
     size(640, 360, P3D)
+    global halfWidth,halfHeight,tex
     halfWidth = width / 2.0
     halfHeight = height / 2.0
     tex = loadImage("berlin-1.jpg")
