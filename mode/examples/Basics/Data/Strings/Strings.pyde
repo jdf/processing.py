@@ -20,6 +20,11 @@ string
 my_str = "Hi! "*5
 #my_str is initialised as "Hi! Hi! Hi! Hi! Hi! "
 
+#Reversing a string
+string = "Hello World"
+string = ''.join(reversed(string))
+#string becomes 'dlroW olleH'
+
 def setup(): 
     size(640, 360)
     # Create the font
