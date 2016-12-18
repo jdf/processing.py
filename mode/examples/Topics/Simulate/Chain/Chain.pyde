@@ -9,7 +9,7 @@ gravity = 9.0
 mass = 2.0
 
 def setup():
-    global s1,s2
+    global s1, s2
     size(640, 360)
     fill(255, 126)
     s1 = Spring2D(0.0, width / 2, mass, gravity)
