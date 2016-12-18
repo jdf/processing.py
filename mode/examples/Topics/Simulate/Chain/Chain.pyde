@@ -5,8 +5,6 @@ One mass is attached to the mouse position and the other
 is attached the position of the other mass. The gravity
 in the environment pulls down on both. 
 """
-s1=None
-s2=None
 gravity = 9.0
 mass = 2.0
 
