@@ -12,7 +12,7 @@ radius = 45
 rotAngle = -90
 accelX = 0
 accelY = 0
-springing = .0009 
+springing = .0009
 damping = .98
 # Corner nodes
 nodes = 5
@@ -64,7 +64,7 @@ def drawShape():
 
 
 def moveShape():
-    global centerX,centerY,deltaX,deltaY,accelX,accelY
+    global centerX, centerY, deltaX, deltaY, accelX, accelY
     # Move center point.
     deltaX = mouseX - centerX
     deltaY = mouseY - centerY
