@@ -6,7 +6,6 @@ Applies a convolution matrix to a portion of an image. Move mouse to
 apply filter to different parts of the image.
 """
 
-img = loadImage("moon-wide.jpg")
 w = 120
 # It's possible to convolve the image with many different
 # matrices to produce different effects. This is a high-pass
@@ -18,6 +17,8 @@ matrix = [[-1, -1, -1],
 
 def setup():
     size(640, 360)
+    global img
+    img = loadImage("moon-wide.jpg")
 
 
 def draw():

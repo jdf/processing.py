@@ -9,11 +9,12 @@ the image.
 kernel = [[-1, -1, -1],
           [-1, 9, -1],
           [-1, -1, -1]]
-img = loadImage("moon.jpg")  # Load the original image
 
 
 def setup():
     size(640, 360)
+    global img
+    img = loadImage("moon.jpg")  # Load the original image
     noLoop()
 
 
@@ -36,7 +37,8 @@ def draw():
                     kernelSum += kernel[ky + 1][kx + 1] * val
             # For this pixel in the image, set the gray value
             # based on the sum from the kernel
-                edgeImg.pixels[y * img.width + x] = color(kernelSum, kernelSum, kernelSum)
+                edgeImg.pixels[
+                    y * img.width + x] = color(kernelSum, kernelSum, kernelSum)
     # State that there are changes to edgeImg.pixels
     edgeImg.updatePixels()
     image(edgeImg, width / 2, 0)  # Draw the image

@@ -9,11 +9,12 @@ v = 1.0 / 9.0
 kernel = [[v, v, v],
           [v, v, v],
           [v, v, v]]
-img = loadImage("moon.jpg")  # Load the original image
 
 
 def setup():
     size(640, 360)
+    global img
+    img = loadImage("moon.jpg")
     noLoop()
 
 

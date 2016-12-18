@@ -1,6 +1,6 @@
 """
 Texture Sphere
-by Mike 'Flux' Chang (cleaned up by Aaron Koblin).
+by Mike 'Flux' Chang.
 Based on code by Toxi.
 
 A 3D textured sphere with simple rotation control.
@@ -31,11 +31,12 @@ sinLUT = []
 cosLUT = []
 
 SinCosPrecision = 0.5
-SinCosLength = 360.0 / SinCosPrecision
+SinCosLength = int(360.0 / SinCosPrecision)
 
 
 def setup():
     size(640, 360, P3D)
+    global thirdWidth, halfHeight, texmap
     thirdWidth = width * 0.33
     halfHeight = height * 0.5
     texmap = loadImage("world32k.jpg")
@@ -48,17 +49,18 @@ def draw():
 
 
 def renderGlobe():
+    global rotationX, rotationY, velocityX, velocityY
     with pushMatrix():
         translate(thirdWidth, halfHeight, pushBack)
-    
+
         with pushMatrix():
             noFill()
             stroke(255, 200)
             strokeWeight(2)
             smooth()
-    
+
         lights()
-    
+
         with pushMatrix():
             rotateX(radians(-rotationX))
             rotateY(radians(270 - rotationY))
@@ -66,7 +68,6 @@ def renderGlobe():
             noStroke()
             textureMode(IMAGE)
             texturedSphere(globeRadius, texmap)
-    
 
     rotationX += velocityX
     rotationY += velocityY
@@ -81,7 +82,7 @@ def renderGlobe():
 
 
 def initializeSphere(res):
-
+    global sphereRes
     for i in range(SinCosLength):
         sinLUT.append(sin(radians(i * SinCosPrecision)))
         cosLUT.append(cos(radians(i * SinCosPrecision)))

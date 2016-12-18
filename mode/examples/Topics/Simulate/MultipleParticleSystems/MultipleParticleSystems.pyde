@@ -17,6 +17,7 @@ from particle_system import ParticleSystem
 systems = None
 
 def setup():
+    global systems
     size(640, 360)
     systems = []
 
@@ -35,4 +36,3 @@ def draw():
 
 def mousePressed():
     systems.append(ParticleSystem(1, PVector(mouseX, mouseY)))
-

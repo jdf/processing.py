@@ -12,6 +12,7 @@ from particle_system import ParticleSystem
 ps = None
 
 def setup():
+    global ps
     size(640, 360)
     img = loadImage("texture.png")
     ps = ParticleSystem(0, PVector(width / 2, height - 60), img)
@@ -48,4 +49,3 @@ def drawVector(v, loc, scayl):
         line(0, 0, len, 0)
         line(len, 0, len - arrowsize, +arrowsize / 2)
         line(len, 0, len - arrowsize, -arrowsize / 2)
-

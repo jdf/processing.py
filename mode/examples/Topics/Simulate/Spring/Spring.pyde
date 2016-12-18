@@ -8,8 +8,8 @@ Click, drag, and release the horizontal bar to start the spring.
 springHeight = 32  # Height
 left = 0      # Left position
 right = 0     # Right position
-max = 200     # Maximum Y value
-min = 100     # Minimum Y value
+maxHeight = 200     # Maximum Y value
+minHeight = 100     # Minimum Y value
 over = False  # If mouse over
 move = False  # If mouse down and over
 # Spring simulation constants
@@ -25,6 +25,7 @@ f = 0     # Force
 
 
 def setup():
+    global left, right
     size(640, 360)
     rectMode(CORNERS)
     noStroke()
@@ -53,6 +54,7 @@ def drawSpring():
 
 
 def updateSpring():
+    global over, f, ps, a, v
     # Update the spring position.
     if not move:
         f = -K * (ps - R)  # f=-ky
@@ -62,18 +64,22 @@ def updateSpring():
     if abs(v) < 0.1:
         v = 0.0
     # Test if mouse is over the top bar
-    over = left < mouseX < right and ps < mouseY < ps + springHeight
+    over = (left < mouseX < right) and (ps < mouseY < ps + springHeight)
     # Set and constrain the position of top bar.
     if move:
         ps = mouseY - springHeight / 2
-        ps = constrain(ps, min, max)
-        
-        
+        if ps > maxHeight:
+            ps = maxHeight
+        elif ps < minHeight:
+            ps = minHeight
+
+
 def mousePressed():
+    global move
     if over:
         move = True
 
 
 def mouseReleased():
+    global move
     move = False
-

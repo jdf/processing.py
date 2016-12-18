@@ -7,16 +7,14 @@ maps pixels from a 2D image into 3D space. Pixel brightness controls
 translation along z axis.
 """
 
-img = loadImage("eames.jpg")  # Load the image
-cellsize = 2  # Dimensions of each cell in the grid
-# Number of columns and rows in our system
-columns = img.width / cellsize  # Calculate # of columns
-rows = img.height / cellsize  # Calculate # of rows
-
-
 def setup():
     size(640, 360, P3D)
-
+    # Number of columns and rows in our system
+    global columns, rows, cellsize, img
+    img = loadImage("eames.jpg")  # Load the image
+    cellsize = 2  # Dimensions of each cell in the grid
+    columns = img.width / cellsize  # Calculate # of columns
+    rows = img.height / cellsize  # Calculate # of rows
 
 def draw():
     background(0)
