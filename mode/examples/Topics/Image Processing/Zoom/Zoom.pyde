@@ -34,7 +34,8 @@ def draw():
     else:
         scaleVal -= 0.01
     scaleVal = constrain(scaleVal, 1.0, 2.0)
-    translate(width / 2 + nmx * scaleVal - 100, height / 2 + nmy * scaleVal - 100, -50)
+    translate(width / 2 + nmx * scaleVal - 100,
+              height / 2 + nmy * scaleVal - 100, -50)
     scale(scaleVal)
     rotateZ(PI / 9 - scaleVal + 1.0)
     rotateX(PI / scaleVal / 8 - 0.125)
