@@ -25,7 +25,7 @@ f = 0     # Force
 
 
 def setup():
-    global left,right
+    global left, right
     size(640, 360)
     rectMode(CORNERS)
     noStroke()
@@ -54,7 +54,7 @@ def drawSpring():
 
 
 def updateSpring():
-    global over,f,ps,a,v
+    global over, f, ps, a, v
     # Update the spring position.
     if not move:
         f = -K * (ps - R)  # f=-ky
@@ -68,12 +68,12 @@ def updateSpring():
     # Set and constrain the position of top bar.
     if move:
         ps = mouseY - springHeight / 2
-        if ps>maxHeight:
-            ps=maxHeight
-        elif ps<minHeight:
-            ps=minHeight
-               
-        
+        if ps > maxHeight:
+            ps = maxHeight
+        elif ps < minHeight:
+            ps = minHeight
+
+
 def mousePressed():
     global move
     if over:
