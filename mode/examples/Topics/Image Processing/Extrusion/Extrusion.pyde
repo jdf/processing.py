@@ -8,7 +8,7 @@ angle = 0
 
 
 def setup():
-    global  img
+    global img
     img = loadImage("ystone08.jpg")
     size(640, 360, P3D)
     global values
@@ -19,7 +19,7 @@ def setup():
     img.loadPixels()
     for i in range(img.height):
         for j in range(img.width):
-             values[j][i] = int(blue(img.pixels[i * img.width + j]))
+            values[j][i] = int(blue(img.pixels[i * img.width + j]))
 
 
 def draw():
