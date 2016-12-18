@@ -27,7 +27,7 @@ angle = 0
 
 
 def setup():
-    global planets,s
+    global planets, s
     size(640, 360, P3D)
     smooth()
     # Some random planets.
