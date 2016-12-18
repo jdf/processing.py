@@ -47,7 +47,7 @@ def draw():
 
 
 def drawShape():
-    global nodeStartX,nodeStartY,rotAngle
+    global rotAngle
     # Calculate node starting locations.
     for i in range(nodes):
         nodeStartX[i] = centerX + cos(radians(rotAngle)) * radius
