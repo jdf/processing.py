@@ -23,7 +23,7 @@ currentMode = 0
 def setup():
     size(640, 360, P3D)
     noStroke()
-    global img1,img2
+    global img1, img2
     img1 = loadImage("layer1.jpg")
     img2 = loadImage("layer2.jpg")
 
