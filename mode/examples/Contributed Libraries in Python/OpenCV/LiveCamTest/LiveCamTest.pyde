@@ -34,4 +34,5 @@ def captureEvent(c):
     c.read()
 
 def mousePressed():
+    global show_fps
     show_fps = not show_fps
