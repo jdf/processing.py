@@ -10,6 +10,8 @@ signal = 0.0
 
 
 def setup():
+    global img
+    img = loadImage("sea.jpg")
     size(640, 360)
     stroke(255)
     img.loadPixels()

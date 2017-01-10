@@ -13,6 +13,7 @@ from particle_system import ParticleSystem
 ps = None
 
 def setup():
+    global ps
     size(640, 360)
     ps = ParticleSystem(PVector(width / 2, 50))
 
@@ -20,4 +21,3 @@ def draw():
     background(0)
     ps.addParticle()
     ps.run()
-

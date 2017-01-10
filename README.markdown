@@ -39,6 +39,7 @@ def draw():
     fill(frameCount % 255, 255, 255)
     ellipse(mouseX, mouseY, 20, 20)
 ```
+If you are just getting started, it is a good idea to go through the [tutorials on our website](http://py.processing.org/tutorials/), and alternatively some [examples](mode/examples).
 
 
 ## Using Processing Libraries ##

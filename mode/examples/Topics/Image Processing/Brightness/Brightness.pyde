@@ -11,6 +11,8 @@ total = 0
 runningavg = 0
 
 def setup():
+    global img
+    img = loadImage("moon-wide.jpg")
     size(640, 360)
     frameRate(30)
     img.loadPixels()

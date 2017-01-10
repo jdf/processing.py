@@ -38,6 +38,7 @@ def mouseReleased():
 class Spring(object):
 
     # Constructor
+
     def __init__(self, x, y, s, d, m, k_in, others):
         self.over = False
         self.move = False
@@ -83,7 +84,7 @@ class Spring(object):
     # Make sure no other springs are active
     def otherOver(self):
         for friend in self.friends:
-            if friend != self and friend.over
+            if friend != self and friend.over:
                 return True
         return False
 
@@ -101,4 +102,3 @@ class Spring(object):
         self.move = False
         self.rest_posx = self.xpos
         self.rest_posy = self.ypos
-

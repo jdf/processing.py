@@ -5,8 +5,7 @@ Move the cursor over the image to alter its position. Click and press
 the mouse to zoom. This program displays a series of lines with their
 heights corresponding to a color value read from an image.
 """
-img = loadImage("ystone08.jpg")
-imgPixels = [[0] * img.width for _ in range(img.height)]
+
 scaleVal = 1.0
 nmx = 0
 nmy = 0
@@ -17,6 +16,9 @@ def setup():
     size(640, 360, P3D)
     noFill()
     stroke(255)
+    global img, imgPixels
+    img = loadImage("ystone08.jpg")
+    imgPixels = [[0] * img.width for _ in range(img.height)]
     for i in range(img.height):
         for j in range(img.width):
             imgPixels[j][i] = img.get(j, i)
@@ -32,7 +34,8 @@ def draw():
     else:
         scaleVal -= 0.01
     scaleVal = constrain(scaleVal, 1.0, 2.0)
-    translate(width / 2 + nmx * scaleVal - 100, height / 2 + nmy * scaleVal - 100, -50)
+    translate(width / 2 + nmx * scaleVal - 100,
+              height / 2 + nmy * scaleVal - 100, -50)
     scale(scaleVal)
     rotateZ(PI / 9 - scaleVal + 1.0)
     rotateX(PI / scaleVal / 8 - 0.125)
