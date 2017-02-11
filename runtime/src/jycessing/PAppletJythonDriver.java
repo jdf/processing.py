@@ -34,10 +34,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jycessing.IOUtil.ResourceReader;
-import jycessing.mode.run.WrappedPrintStream;
-import jycessing.mode.run.WrappedPrintStream.PushedOut;
-
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
@@ -60,6 +56,13 @@ import org.python.core.PyType;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+import com.jogamp.newt.opengl.GLWindow;
+
+import jycessing.IOUtil.ResourceReader;
+import jycessing.mode.run.WrappedPrintStream;
+import jycessing.mode.run.WrappedPrintStream.PushedOut;
 import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -70,10 +73,6 @@ import processing.event.MouseEvent;
 import processing.javafx.PSurfaceFX;
 import processing.opengl.PShader;
 import processing.opengl.PSurfaceJOGL;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
-import com.jogamp.newt.opengl.GLWindow;
 
 /**
  *
@@ -88,8 +87,8 @@ public class PAppletJythonDriver extends PApplet {
   public static final String C_LIKE_LOGICAL_OR_ERROR_MESSAGE =
       "Did you maybe use \"||\" instead of \"or\"?";
 
-  private static final ResourceReader resourceReader =
-      new ResourceReader(PAppletJythonDriver.class);
+  private static final ResourceReader resourceReader = new ResourceReader(
+      PAppletJythonDriver.class);
 
   private static final String GET_SETTINGS_SCRIPT = resourceReader.readText("get_settings.py");
   private static final String DETECT_MODE_SCRIPT = resourceReader.readText("detect_sketch_mode.py");
@@ -189,9 +188,8 @@ public class PAppletJythonDriver extends PApplet {
   private void processSketch(final String scriptSource) throws PythonSketchError {
     try {
       interp.set("__processing_source__", programText);
-      final PyCode code =
-          Py.compile_flags(scriptSource, pySketchPath.toString(), CompileMode.exec,
-              new CompilerFlags());
+      final PyCode code = Py.compile_flags(scriptSource, pySketchPath.toString(), CompileMode.exec,
+          new CompilerFlags());
       try (PushedOut out = wrappedStdout.pushStdout()) {
         interp.exec(code);
       }
@@ -231,8 +229,8 @@ public class PAppletJythonDriver extends PApplet {
     }
     if (t instanceof PyException) {
       final PyException e = (PyException)t;
-      final Pattern tbParse =
-          Pattern.compile("^\\s*File \"([^\"]+)\", line (\\d+)", Pattern.MULTILINE);
+      final Pattern tbParse = Pattern.compile("^\\s*File \"([^\"]+)\", line (\\d+)",
+          Pattern.MULTILINE);
       final Matcher m = tbParse.matcher(e.toString());
       String file = null;
       int line = -1;
@@ -296,15 +294,15 @@ public class PAppletJythonDriver extends PApplet {
   private static PythonSketchError noViableAlternative(final File file, final int lineNo,
       final int column, final String message) {
     if (message.equals("no viable alternative at input '&'")) {
-      return new PythonSketchError(C_LIKE_LOGICAL_AND_ERROR_MESSAGE, file.getName(), lineNo, column);
+      return new PythonSketchError(C_LIKE_LOGICAL_AND_ERROR_MESSAGE, file.getName(), lineNo,
+          column);
     }
     if (message.equals("no viable alternative at input '|'")) {
       return new PythonSketchError(C_LIKE_LOGICAL_OR_ERROR_MESSAGE, file.getName(), lineNo, column);
     }
-    final PythonSketchError defaultException =
-        new PythonSketchError(
-            "Maybe there's an unclosed paren or quote mark somewhere before this line?", file
-                .getName(), lineNo, column);
+    final PythonSketchError defaultException = new PythonSketchError(
+        "Maybe there's an unclosed paren or quote mark somewhere before this line?", file.getName(),
+        lineNo, column);
     try {
       int lineIndex = 0;
       for (final String line : Files.readLines(file, Charsets.UTF_8)) {
@@ -409,6 +407,7 @@ public class PAppletJythonDriver extends PApplet {
   @Override
   protected PSurface initSurface() {
     final PSurface s = super.initSurface();
+    this.frame = null; // eliminate a memory leak from 2.x compat hack
     s.setTitle(pySketchPath.getFileName().toString().replaceAll("\\..*$", ""));
     if (s instanceof PSurfaceAWT) {
       final PSurfaceAWT surf = (PSurfaceAWT)s;
@@ -653,6 +652,7 @@ public class PAppletJythonDriver extends PApplet {
         // fallthrough
       }
     } finally {
+      Thread.setDefaultUncaughtExceptionHandler(null);
       if (PApplet.platform == PConstants.MACOSX && Arrays.asList(args).contains("fullScreen")) {
         // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm
         // exits or we explicitly tell it to minimize.
@@ -751,10 +751,10 @@ public class PAppletJythonDriver extends PApplet {
             final PyObject stop1 = args[2];
             final PyObject start2 = args[3];
             final PyObject stop2 = args[4];
-            if (value.isNumberType() && start1.isNumberType() && stop1.isNumberType()
-                && start2.isNumberType() && stop2.isNumberType()) {
-              return Py.newFloat(map((float)value.asDouble(), (float)start1.asDouble(),
-                  (float)stop1.asDouble(), (float)start2.asDouble(), (float)stop2.asDouble()));
+            if (value.isNumberType() && start1.isNumberType() && stop1.isNumberType() && start2
+                .isNumberType() && stop2.isNumberType()) {
+              return Py.newFloat(map((float)value.asDouble(), (float)start1.asDouble(), (float)stop1
+                  .asDouble(), (float)start2.asDouble(), (float)stop2.asDouble()));
             } else {
               return builtinMap.__call__(args, kws);
             }
@@ -960,7 +960,7 @@ public class PAppletJythonDriver extends PApplet {
           } else {
             text((float)a.asDouble(), x1, y1, z1);
           }
-        } else /* 5 */{
+        } else /* 5 */ {
           text(a.asString(), x1, y1, (float)args[3].asDouble(), (float)args[4].asDouble());
         }
         return Py.None;
@@ -990,7 +990,8 @@ public class PAppletJythonDriver extends PApplet {
    * height.
    */
   @Override
-  public void size(final int iwidth, final int iheight, final String irenderer, final String ipath) {
+  public void size(final int iwidth, final int iheight, final String irenderer,
+      final String ipath) {
     super.size(iwidth, iheight, irenderer, ipath);
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("frame", Py.java2py(frame));
