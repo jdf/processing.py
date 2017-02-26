@@ -7,6 +7,7 @@ A new pair of numbers is loaded each frame and used to draw a point on the scree
 
 index = 0
 
+
 def setup():
     size(200, 200)
     background(0)
@@ -21,11 +22,10 @@ def draw():
     pieces = []
     if (index < len(lines)):
         pieces = split(lines[index], '\t')
-        if (len(pieces) == 2) :
+        if (len(pieces) == 2):
             x = int(pieces[0]) * 2
             y = int(pieces[1]) * 2
             point(x, y)
-        
+
         # Go to the next line for the next run through draw()
         index = index + 1
-
