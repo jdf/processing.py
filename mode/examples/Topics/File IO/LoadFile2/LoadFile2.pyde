@@ -29,23 +29,18 @@ def setup():
 
     lines = loadStrings("cars2.tsv")
     records = []
-    for i in xrange(len(lines)):
-        pieces = split(lines[i], TAB)  # Load data array
-        if (len(pieces) == 9):
+    for line in xrange(len(lines)):
+        pieces = split(lines[line], TAB)  # Load data array
+        if len(pieces) == 9:
             records.insert(recordCount, Record(pieces))
             recordCount += 1
 
 
 def draw():
-    global recordCount
-    global records
-    global num
-    global startingEntry
-
     background(0)
     for i in xrange(num):
         thisEntry = startingEntry + i
-        if (thisEntry < recordCount):
+        if thisEntry < recordCount:
             text(
                 str(thisEntry) +
                 " > " +
@@ -57,12 +52,10 @@ def draw():
 
 
 def mousePressed():
-    global records
-    global num
     global startingEntry
 
     startingEntry += num
-    if (startingEntry > len(records)):
+    if startingEntry > len(records):
         startingEntry = 0  # go back to the beginning
 
     redraw()

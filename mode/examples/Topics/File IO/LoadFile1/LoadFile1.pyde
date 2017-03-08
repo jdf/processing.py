@@ -20,9 +20,9 @@ def setup():
 def draw():
     global index
     pieces = []
-    if (index < len(lines)):
+    if index < len(lines):
         pieces = split(lines[index], '\t')
-        if (len(pieces) == 2):
+        if len(pieces) == 2:
             x = int(pieces[0]) * 2
             y = int(pieces[1]) * 2
             point(x, y)
