@@ -16,10 +16,6 @@ def setup():
 
 
 def draw():
-    global scaleValue
-    global xoffset
-    global yoffset
-
     background(204)
     scale(scaleValue)
     translate(xoffset * (-width / scaleValue),
@@ -31,7 +27,6 @@ def draw():
 
 
 def setOffset():
-    global scaleValue
     global xoffset
     global yoffset
 

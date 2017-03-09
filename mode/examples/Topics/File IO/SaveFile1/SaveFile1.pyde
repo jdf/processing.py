@@ -25,7 +25,7 @@ def draw():
 
     endShape()
     # Show the next segment to be added
-    if (len(x) >= 1):
+    if len(x) >= 1:
         stroke(255)
         line(mouseX, mouseY, x[len(x) - 1], y[len(x) - 1])
 

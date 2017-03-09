@@ -29,8 +29,8 @@ def setup():
 
     lines = loadStrings("cars2.tsv")
     records = []
-    for line in xrange(len(lines)):
-        pieces = split(lines[line], TAB)  # Load data array
+    for line in lines:
+        pieces = split(line, TAB)  # Load data array
         if len(pieces) == 9:
             records.insert(recordCount, Record(pieces))
             recordCount += 1
@@ -38,8 +38,8 @@ def setup():
 
 def draw():
     background(0)
-    for i in xrange(num):
-        thisEntry = startingEntry + i
+    for index in xrange(num):
+        thisEntry = startingEntry + index
         if thisEntry < recordCount:
             text(
                 str(thisEntry) +
@@ -47,7 +47,7 @@ def draw():
                 records[thisEntry].name,
                 20,
                 20 +
-                i *
+                index *
                 20)
 
 

@@ -16,7 +16,6 @@ def setup():
 
 
 def draw():
-    global recording
     background(0)
 
     # An arbitrary oscillating rotating animation
@@ -40,7 +39,7 @@ def draw():
     # rendered files b/c it is drawn *after* saveFrame()
     textAlign(CENTER)
     fill(255)
-    if (not recording):
+    if not recording:
         text("Press r to start recording.", width / 2, height - 24)
 
     else:
@@ -48,7 +47,7 @@ def draw():
 
     # A red dot for when we are recording
     stroke(255)
-    if (recording):
+    if recording:
         fill(255, 0, 0)
     else:
         noFill()
@@ -59,5 +58,5 @@ def draw():
 def keyPressed():
     global recording
     # If we press r, start or stop recording!
-    if (key == 'r' or key == 'R'):
+    if key == 'r' or key == 'R':
         recording = not recording
