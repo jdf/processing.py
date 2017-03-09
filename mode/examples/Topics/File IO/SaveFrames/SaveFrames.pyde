@@ -41,7 +41,6 @@ def draw():
     fill(255)
     if not recording:
         text("Press r to start recording.", width / 2, height - 24)
-
     else:
         text("Press r to stop recording.", width / 2, height - 24)
 
