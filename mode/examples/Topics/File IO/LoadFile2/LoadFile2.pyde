@@ -36,7 +36,14 @@ def draw():
     for index in xrange(numEntries):
         thisEntry = startingEntry + index
         if thisEntry < len(records):
-            text("%d > %s" % (thisEntry, records[thisEntry].name), 20, 20 + index * 20)
+            text("%d > %s" %
+                (thisEntry,
+                 records[thisEntry].name),
+                20,
+                20 +
+                index *
+                20)
+
 
 def mousePressed():
     global startingEntry
