@@ -20,7 +20,7 @@ def draw():
 
     # An arbitrary oscillating rotating animation
     # so that we have something to render
-    for a in xrange(0, TWO_PI, 1):
+    for a in xrange(0, 6, 1):
         pushMatrix()
         translate(width / 2, height / 2)
         rotate(a + sin(frameCount * 0.004 * a))

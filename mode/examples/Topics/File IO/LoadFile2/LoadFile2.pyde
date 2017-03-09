@@ -9,11 +9,9 @@ makes and models. Press a mouse button to advance to the next group of entries.
 
 from Record import Record
 
-
 def setup():
-    global recordCount
     global records
-    global num
+    global numEntries
     global startingEntry
 
     size(200, 200)
@@ -23,39 +21,28 @@ def setup():
     body = loadFont("TheSans-Plain-12.vlw")
     textFont(body)
 
-    num = 9  # Display this many entries on each screen.
+    numEntries = 9  # Display this many entries on each screen
     startingEntry = 0  # Display from this entry number
-    recordCount = 0
 
     lines = loadStrings("cars2.tsv")
     records = []
     for line in lines:
         pieces = split(line, TAB)  # Load data array
         if len(pieces) == 9:
-            records.insert(recordCount, Record(pieces))
-            recordCount += 1
-
+            records.append(Record(pieces))
 
 def draw():
     background(0)
-    for index in xrange(num):
+    for index in xrange(numEntries):
         thisEntry = startingEntry + index
-        if thisEntry < recordCount:
-            text(
-                str(thisEntry) +
-                " > " +
-                records[thisEntry].name,
-                20,
-                20 +
-                index *
-                20)
-
+        if thisEntry < len(records):
+            text("%d > %s" % (thisEntry, records[thisEntry].name), 20, 20 + index * 20)
 
 def mousePressed():
     global startingEntry
 
-    startingEntry += num
+    startingEntry += numEntries
     if startingEntry > len(records):
-        startingEntry = 0  # go back to the beginning
+        startingEntry=0  # go back to the beginning
 
     redraw()

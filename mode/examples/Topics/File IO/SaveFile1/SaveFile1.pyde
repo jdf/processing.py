@@ -22,7 +22,6 @@ def draw():
     beginShape()
     for i in xrange(len(x)):
         vertex(x[i], y[i])
-
     endShape()
     # Show the next segment to be added
     if len(x) >= 1:
@@ -38,7 +37,7 @@ def mousePressed():  # Click to add a line segment
 def keyPressed():  # Press a key to save the data
     lines = []
     for i in xrange(len(x)):
-        lines.insert(i, str(x[i]) + "\t" + str(y[i]))
+        lines.append("%d\t%d" % (x[i], y[i]))
 
     saveStrings("lines.txt", lines)
     exit()  # Stop the program
