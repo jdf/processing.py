@@ -31,7 +31,7 @@ def draw():
     # If we are recording call saveFrame!
     # The number signs (#) indicate to Processing to
     # number the files automatically
-    if (recording):
+    if recording:
         saveFrame("output/frames####.png")
 
     # Let's draw some stuff to tell us what is happening

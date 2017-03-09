@@ -31,9 +31,9 @@ def setOffset():
     global yoffset
 
     xoffset += 1
-    if (xoffset == scaleValue):
+    if xoffset == scaleValue:
         xoffset = 0
         yoffset += 1
-        if (yoffset == scaleValue):
+        if yoffset == scaleValue:
             print "Tiles saved."
             exit()
