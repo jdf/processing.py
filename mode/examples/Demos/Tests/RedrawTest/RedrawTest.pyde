@@ -6,7 +6,7 @@ def setup():
 def draw():
     background(255, 0, 0)
     ellipse(mouseX, mouseY, 100, 50)
-    println("draw")
+    print "draw"
 
 
 def keyPressed():
