@@ -44,6 +44,6 @@ def mousePressed():
     global startingEntry
     startingEntry += numEntries
     if startingEntry > len(records):
-        startingEntry=0  # go back to the beginning
+        startingEntry = 0  # go back to the beginning
 
     redraw()
