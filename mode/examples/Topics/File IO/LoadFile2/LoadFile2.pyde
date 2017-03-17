@@ -37,12 +37,7 @@ def draw():
         thisEntry = startingEntry + index
         if thisEntry < len(records):
             text("%d > %s" %
-                (thisEntry,
-                 records[thisEntry].name),
-                20,
-                20 +
-                index *
-                20)
+                (thisEntry, records[thisEntry].name), 20, 20 + index * 20)
 
 
 def mousePressed():
