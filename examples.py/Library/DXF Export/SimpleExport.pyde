@@ -1,8 +1,8 @@
-""" Simple DXF Export
-    by Simon Greenwold.
-    
-    Press the 'R' key to export a DXF file.
-    """
+"""
+Simple DXF Export by Simon Greenwold.
+
+Press the 'R' key to export a DXF file.
+"""
 
 add_library('dxf')  # import processing.dxf.*
 record = False
