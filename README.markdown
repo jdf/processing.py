@@ -123,5 +123,12 @@ was done by Luca Damasco
 with additional support from the Frank-Ratchye STUDIO for Creative Inquiry at Carnegie
 Mellon University. Without Luca, the porject may well have died.
 
-Also, [YourKit, LLC](http://www.yourkit.com) was so kind to sponsor a license for their excellent [YourKit Java Profiler](http://www.yourkit.com/java/profiler/index.jsp). Thank you very much!
+Also, [YourKit, LLC](http://www.yourkit.com) was so kind to sponsor a license for their excellent [YourKit Java Profiler](http://www.yourkit.com/java/profiler/index.jsp). Thank you very much! They've asked me to place this message here in return for their sponsorship:
+
+<img src="https://www.yourkit.com/images/yklogo.png"/>
+YourKit supports open source projects with its full-featured Java Profiler.
+YourKit, LLC is the creator of <a href="https://www.yourkit.com/java/profiler/">YourKit Java Profiler</a>
+and <a href="https://www.yourkit.com/.net/profiler/">YourKit .NET Profiler</a>,
+innovative and intelligent tools for profiling Java and .NET applications.
+
 
