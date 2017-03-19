@@ -39,14 +39,14 @@ def setup():
         index += 1
         
         pt[index] = random(60, 80)  # Short to quarter-circle arcs
-        # if random(100) > 90: pt[index] = int(random(8, 27) * 10.0)
+        if random(100) > 90: pt[index] = int(random(8, 27) * 10.0)
         index += 1  # correction on March 19th 2017 by Watz
         
         pt[index] = int(random(2, 50) * 5.0)  # Radius. Space them out nicely
         index += 1
         
         pt[index] = random(4, 32)  # Width of band
-        # if random(100) > 90: pt[index] = random(40, 60)  # Width of band
+        if random(100) > 90: pt[index] = random(40, 60)  # Width of band
         index += 1  # correction on March 19th 2017 by Watz
         
         pt[index] = radians(random(5, 30)) / 5.0  # Speed of rotation
@@ -96,15 +96,19 @@ def draw():
             stroke(style[i * 2])
             noFill()
             strokeWeight(1)
-            arc_line(0, 0, pt[index], pt[index], pt[index])
+            arc_line(0, 0, pt[index], pt[index + 1], pt[index + 2])
+            index += 3
         elif style[i * 2 + 1] == 1:
             fill(style[i * 2])
             noStroke()
-            arc_line_bars(0, 0, pt[index], pt[index], pt[index])
+            arc_line_bars(0, 0, pt[index], pt[index + 1], pt[index +2])
+            index += 3
+
         else:
             fill(style[i * 2])
             noStroke()
-            arc(0, 0, pt[index], pt[index], pt[index])
+            arc(0, 0, pt[index], pt[index + 1], pt[index + 2])
+            index += 3
 
         # increase rotation
         pt[index - 5] += pt[index] / 10.0
@@ -115,7 +119,6 @@ def draw():
     if do_save:
         endRaw()
         do_save = False
-
 
 # Get blend of two colors
 def rgb_blend(fract, r, g, b, r2, g2, b2, a):
@@ -135,7 +138,6 @@ def arc_line(x, y, deg, rad, w):
         endShape()
         rad += 2
 
-
 # Draw arc line with bars
 def arc_line_bars(x, y, deg, rad, w):
     a = int((min(deg / SINCOS_PRECISION, SINCOS_LENGTH - 1.0)))
@@ -153,7 +155,6 @@ def arc_line_bars(x, y, deg, rad, w):
                sinLUT[i + 2] * (rad) + y)
     endShape()
 
-
 # Draw solid arc
 def arc(x, y, deg, rad, w):
     a = int(min(deg / SINCOS_PRECISION, SINCOS_LENGTH - 1.0))
@@ -165,11 +166,9 @@ def arc(x, y, deg, rad, w):
                sinLUT[i] * (rad + w) + y)
     endShape()
 
-
 def keyPressed():
     if (key == 's'):
         do_save = True
-
 
 def mouseReleased():
     background(255)
