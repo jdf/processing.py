@@ -7,8 +7,8 @@ Press "s" to save a PDF.
 
 add_library('pdf')  # import processing.pdf.*
 
-# Trig lookup tables (sinLUT and cosLUT) borrowed from Toxi. Cryptic but
-# effective
+# Trig lookup tables (sinLUT and cosLUT) borrowed from Toxi.
+# Cryptic but effective
 SINCOS_PRECISION = 1.0
 SINCOS_LENGTH = int(360.0 / SINCOS_PRECISION)
 
@@ -40,14 +40,14 @@ def setup():
         
         pt[index] = random(60, 80)  # Short to quarter-circle arcs
         if random(100) > 90: pt[index] = int(random(8, 27) * 10.0)
-        index += 1  # correction on March 19th 2017 by Watz
+        index += 1  # correction added on March 19th 2017 by Marius Watz
         
         pt[index] = int(random(2, 50) * 5.0)  # Radius. Space them out nicely
         index += 1
         
         pt[index] = random(4, 32)  # Width of band
         if random(100) > 90: pt[index] = random(40, 60)  # Width of band
-        index += 1  # correction on March 19th 2017 by Watz
+        index += 1  # correction added on March 19th 2017 by Marius Watz
         
         pt[index] = radians(random(5, 30)) / 5.0  # Speed of rotation
         index += 1
@@ -113,6 +113,7 @@ def draw():
         # increase rotation
         pt[index - 5] += pt[index] / 10.0
         pt[index - 4] += pt[index] / 20.0
+        index += 1
 
         popMatrix()
 
