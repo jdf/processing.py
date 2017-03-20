@@ -8,7 +8,7 @@ Press "s" to save a PDF.
 add_library('pdf')  # import processing.pdf.*
 
 # Trig lookup tables (sinLUT and cosLUT) borrowed from Toxi.
-# Cryptic but effective
+# Cryptic but effective.
 SINCOS_PRECISION = 1.0
 SINCOS_LENGTH = int(360.0 / SINCOS_PRECISION)
 
@@ -33,35 +33,36 @@ def setup():
     # Set up arc shapes
     index = 0
     for i in range(num):
-        pt[index] = random(TWO_PI)  # Random X axis rotation
-        index += 1
-        pt[index] = random(TWO_PI)  # Random Y axis rotation
-        index += 1
-        
-        pt[index] = random(60, 80)  # Short to quarter-circle arcs
-        if random(100) > 90: pt[index] = int(random(8, 27) * 10.0)
-        index += 1  # correction added on March 19th 2017 by Marius Watz
-        
-        pt[index] = int(random(2, 50) * 5.0)  # Radius. Space them out nicely
-        index += 1
-        
-        pt[index] = random(4, 32)  # Width of band
-        if random(100) > 90: pt[index] = random(40, 60)  # Width of band
-        index += 1  # correction added on March 19th 2017 by Marius Watz
-        
-        pt[index] = radians(random(5, 30)) / 5.0  # Speed of rotation
-        index += 1
-        
+        pt[index + 0] = random(TWO_PI)  # Random X axis rotation
+        pt[index + 1] = random(TWO_PI)  # Random Y axis rotation
+        pt[index + 2] = random(60, 80)  # Short to quarter-circle arcs
+        if random(100) > 90:
+            pt[index + 2] = int(random(8, 27) * 10.0)
+        # Radius. Space them out nicely
+        pt[index + 3] = int(random(2, 50) * 5.0)
+        pt[index + 4] = random(4, 32)  # Width of band
+        if random(100) > 90:
+            pt[index + 4] = random(40, 60)  # Width of band
+        pt[index + 5] = radians(random(5, 30)) / 5.0  # Speed of rotation
+        index += 6
+
         # get colors
         prob = random(100)
-        if prob < 30: style[i * 2] = rgb_blend(random(1), 255, 0, 100, 255, 0, 0, 210)
-        elif prob < 70: style[i * 2] = rgb_blend(random(1), 0, 153, 255, 170, 225, 255, 210)
-        elif prob < 90: style[i * 2] = rgb_blend(random(1), 200, 255, 0, 150, 255, 0, 210)
-        else: style[i * 2] = color(255, 255, 255, 220)
+        if prob < 30:
+            style[i * 2] = rgb_blend(random(1), 255, 0, 100, 255, 0, 0, 210)
+        elif prob < 70:
+            style[i * 2] = rgb_blend(random(1), 0, 153, 255, 170, 225, 255, 210)
+        elif prob < 90:
+            style[i * 2] = rgb_blend(random(1), 200, 255, 0, 150, 255, 0, 210)
+        else:
+            style[i * 2] = color(255, 255, 255, 220)
 
-        if prob < 50: style[i * 2] = rgb_blend(random(1), 200, 255, 0, 50, 120, 0, 210)
-        elif prob < 90: style[i * 2] = rgb_blend(random(1), 255, 100, 0, 255, 255, 0, 210)
-        else: style[i * 2] = color(255, 255, 255, 220)
+        if prob < 50:
+            style[i * 2] = rgb_blend(random(1), 200, 255, 0, 50, 120, 0, 210)
+        elif prob < 90:
+            style[i * 2] = rgb_blend(random(1), 255, 100, 0, 255, 255, 0, 210)
+        else:
+            style[i * 2] = color(255, 255, 255, 220)
 
         style[i * 2 + 1] = int(random(100)) % 3
 
@@ -101,9 +102,8 @@ def draw():
         elif style[i * 2 + 1] == 1:
             fill(style[i * 2])
             noStroke()
-            arc_line_bars(0, 0, pt[index], pt[index + 1], pt[index +2])
+            arc_line_bars(0, 0, pt[index], pt[index + 1], pt[index + 2])
             index += 3
-
         else:
             fill(style[i * 2])
             noStroke()
