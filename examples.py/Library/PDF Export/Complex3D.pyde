@@ -11,7 +11,6 @@ add_library('pdf')  # import processing.pdf.*
 # Cryptic but effective.
 SINCOS_PRECISION = 1.0
 SINCOS_LENGTH = int(360.0 / SINCOS_PRECISION)
-
 # System data
 do_save = False
 
@@ -20,7 +19,6 @@ def setup():
     size(600, 600, OPENGL)
     frameRate(24)
     background(255)
-
     # Fill the tables
     sinLUT = [sin(i * DEG_TO_RAD * SINCOS_PRECISION)
               for i in range(SINCOS_LENGTH)]
@@ -29,7 +27,6 @@ def setup():
     num = 150
     pt = [0.0 for _ in range(6 * num)]  # rotx, roty, deg, rad, w, speed
     style = [0 for _ in range(2 * num)]  # color, render style
-
     # Set up arc shapes
     index = 0
     for i in range(num):
@@ -45,7 +42,6 @@ def setup():
             pt[index + 4] = random(40, 60)  # Width of band
         pt[index + 5] = radians(random(5, 30)) / 5.0  # Speed of rotation
         index += 6
-
         # get colors
         prob = random(100)
         if prob < 30:
@@ -56,14 +52,12 @@ def setup():
             style[i * 2] = rgb_blend(random(1), 200, 255, 0, 150, 255, 0, 210)
         else:
             style[i * 2] = color(255, 255, 255, 220)
-
         if prob < 50:
             style[i * 2] = rgb_blend(random(1), 200, 255, 0, 50, 120, 0, 210)
         elif prob < 90:
             style[i * 2] = rgb_blend(random(1), 255, 100, 0, 255, 255, 0, 210)
         else:
             style[i * 2] = color(255, 255, 255, 220)
-
         style[i * 2 + 1] = int(random(100)) % 3
 
 def draw():
@@ -77,46 +71,32 @@ def draw():
         pdf.fill(0)
         pdf.noStroke()
         pdf.rect(0, 0, width, height)
-
     background(0)
-
     index = 0
     translate(width / 2, height / 2, 0)
     rotateX(PI / 6.0)
     rotateY(PI / 6.0)
-
     for i in range(num):
-        pushMatrix()
-
-        rotateX(pt[index])
-        index += 1
-        rotateY(pt[index])
-        index += 1
-
-        if style[i * 2 + 1] == 0:
-            stroke(style[i * 2])
-            noFill()
-            strokeWeight(1)
-            arc_line(0, 0, pt[index], pt[index + 1], pt[index + 2])
-            index += 3
-        elif style[i * 2 + 1] == 1:
-            fill(style[i * 2])
-            noStroke()
-            arc_line_bars(0, 0, pt[index], pt[index + 1], pt[index + 2])
-            index += 3
-        else:
-            fill(style[i * 2])
-            noStroke()
-            arc(0, 0, pt[index], pt[index + 1], pt[index + 2])
-            index += 3
-
-        # increase rotation
-        pt[index - 5] += pt[index] / 10.0
-        pt[index - 4] += pt[index] / 20.0
-        index += 1
-
-        popMatrix()
-
+        with pushMatrix():
+            rotateX(pt[index + 0])
+            rotateY(pt[index + 1])
+            if style[i * 2 + 1] == 0:
+                stroke(style[i * 2])
+                noFill()
+                strokeWeight(1)
+                arc_line(0, 0, pt[index + 2], pt[index + 3], pt[index + 4])
+            elif style[i * 2 + 1] == 1:
+                fill(style[i * 2])
+                noStroke()
+                arc_line_bars(0, 0, pt[index + 2], pt[index + 3], pt[index + 4])
+            else:
+                fill(style[i * 2])
+                noStroke()
+                arc(0, 0, pt[index + 2], pt[index + 3], pt[index + 4])
+            # increase rotation
+            pt[index + 0] += pt[index + 5] / 10.0
+            pt[index + 1] += pt[index + 5] / 20.0
+            index += 6
     if do_save:
         endRaw()
         do_save = False
@@ -130,7 +110,6 @@ def rgb_blend(fract, r, g, b, r2, g2, b2, a):
 def arc_line(x, y, deg, rad, w):
     a = int(min(deg / SINCOS_PRECISION, SINCOS_LENGTH - 1.0))
     numlines = int(w / 2)
-
     for j in range(numlines):
         beginShape()
         for i in range(a):
@@ -143,7 +122,6 @@ def arc_line(x, y, deg, rad, w):
 def arc_line_bars(x, y, deg, rad, w):
     a = int((min(deg / SINCOS_PRECISION, SINCOS_LENGTH - 1.0)))
     a /= 4
-
     beginShape(QUADS)
     for i in range(0, a, 4):
         vertex(cosLUT[i] * (rad) + x,
