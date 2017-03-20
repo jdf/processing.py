@@ -4,20 +4,17 @@
 class Bubble(object):
     # Create  the Bubble
 
-    def __init__(self, x_, y_, diameter_, name_):
-        self.x = x_
-        self.y = y_
-        self.diameter = diameter_
-        self.name = name_
+    def __init__(self, x, y, diameter, name):
+        self.x = x
+        self.y = y
+        self.diameter = diameter
+        self.name = name
         self.over = False
 
     # Checking if mouse is over the Bubble
     def rollover(self, px, py):
         d = dist(px, py, self.x, self.y)
-        if d < self.diameter / 2:
-            self.over = True
-        else:
-            self.over = False
+        self.over = d < self.diameter / 2
 
     # Display the Bubble
     def display(self):
