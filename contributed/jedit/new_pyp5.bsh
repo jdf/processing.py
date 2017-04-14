@@ -1,0 +1,32 @@
+// customise this macro to create youe
+// own processing.py template
+
+Buffer newBuffer = jEdit.newFile(view);
+String quote = "\"\"\"\n";
+String pass = "pass\n";
+newBuffer.setMode("python");
+newBuffer.setIntegerProperty("tabSize", 4);
+newBuffer.setIntegerProperty("indentSize", 4);
+view.goToBuffer(newBuffer);
+textArea.setSelectedText(quote);
+textArea.setSelectedText("  Your filename here\n");
+textArea.setSelectedText(quote);
+textArea.setSelectedText("\n");
+textArea.setSelectedText("\n");
+textArea.setSelectedText("\n");
+textArea.setSelectedText("def setup():\n");
+textArea.setSelectedText(quote);
+textArea.setSelectedText(" Processing setup()\n");
+textArea.setSelectedText(quote);
+textArea.setSelectedText("size(200, 200)\n\n\n");
+textArea.setSelectedText("def draw():\n");
+textArea.setSelectedText(quote);
+textArea.setSelectedText("  Processing draw(), it seems to be required?\n");
+textArea.setSelectedText("  Unless using the draw loop leave it as pass\n");
+textArea.setSelectedText(quote);
+textArea.setSelectedText(pass);
+textArea.selectAll();
+textArea.indentSelectedLines();
+
+
+

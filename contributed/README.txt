@@ -1,0 +1,6 @@
+Use the extract-64bit-opengl.py to extract native 64 bit libraries for opengl. Needs to be run from your home directory (assuming that is where processing.py is installed. A simple modification would adapt for use on Windows, where you need
+the *.dll binaries in place of *.so binaries. This script backs up the original 32 bit binaries should you need them.
+
+The files in the folder jedit facillitate the use of jedit as an ide for processing.py. The main file is PYP5.xml which is a  commando file (and requires the jedit console plugin), put that file in .jedit/console/commando/folder. This file expect that there is a bash or batch script called pyp5 on your path that runs processing.py. A template bash script is included, and Jonathan has provided a batch script.
+Two *.bsh macro scripts are include one creates a new script template (also sets the jedit environment for python editing).
+The second calls the commando file so you can run your script form the editor with a couple of clicks. Put these scripts in your .jedit/macro folder.
