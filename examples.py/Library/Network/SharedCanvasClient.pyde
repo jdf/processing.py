@@ -29,7 +29,6 @@ def draw():
                 str(pmouseY) + " " +
                 str(mouseX) + " " +
                 str(mouseY) + "\n")
-
     # Receive data from server
     if c.available():  # c.available > 0
         input = c.readString()
