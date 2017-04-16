@@ -20,7 +20,6 @@ def setup():
     frameRate(5)  # Slow it down a little
     s = Server(this, 12345)  # Start a simple server on a port
 
-
 def draw():
     if mousePressed == True:
         # Draw our line
@@ -31,7 +30,6 @@ def draw():
                 str(pmouseY) + " " +
                 str(mouseX) + " " +
                 str(mouseY) + "\n")
-
     # Receive data from client
     c = s.available()
     if c:  # c not null/None
