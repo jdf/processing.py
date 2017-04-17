@@ -25,5 +25,5 @@ def setup():
 
 def draw():
     if c.available():  # If there's incoming data from the client...
-        data = c.readString()  # ...then grab it and prit
+        data = c.readString()  # ...then grab it and print it
         println(data)
