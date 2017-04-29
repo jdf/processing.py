@@ -30,7 +30,7 @@ def draw():
     if showPerspective:
         perspective(PI / 3.0, float(width) / float(height), 10, far)
     else:
-        ortho(0, width, 0, height, 10, far)
+        ortho(-width/2.0, width/2.0, -height/2.0, height/2.0, 10, far)
     translate(width / 2, height / 2, 0)
     rotateX(-PI / 6)
     rotateY(PI / 3)
