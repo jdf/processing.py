@@ -1,6 +1,10 @@
 env: DISPLAY=:99.0
 
 sudo: false
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
 
 language: java
 

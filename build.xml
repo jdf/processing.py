@@ -62,7 +62,8 @@
         <echo message="Pushing @{srcfile} to py.processing.org..." />
         <exec executable="/bin/sh" failonerror="true">
         <arg value="-c"/>
-        <arg value="scp -i ~/.ssh/id_rsa-processing.org -r @{srcfile} jdf@py.processing.org:/var/www/py/3" />
+        <!--arg value="scp -i ~/.ssh/id_rsa-processing.org -r @{srcfile} jdf@py.processing.org:/var/www/py/3" /-->
+        <arg value="scp -r @{srcfile} jdf@py.processing.org:/var/www/py/3" />
       </exec>
     </sequential>
   </macrodef>
