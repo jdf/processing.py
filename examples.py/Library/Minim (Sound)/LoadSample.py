@@ -34,7 +34,7 @@
  * Press 'k' to trigger the sample.
 """
 
-from ddf.minim import Minim
+add_library('minim')
 
 def setup():
     size(512, 200)
