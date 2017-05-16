@@ -49,10 +49,32 @@
   <macrodef name="rm-rf">
     <attribute name="target"/>
     <sequential>
-      <exec executable="/bin/rm" failonerror="true">
-        <arg value="-rf"/>
-        <arg value="${basedir}/@{target}"/>
-      </exec>
+      <if>
+        <or>
+          <equals arg1="${platform}" arg2="macosx"/>
+          <equals arg1="${platform}" arg2="linux32"/>
+          <equals arg1="${platform}" arg2="linux64"/>
+        </or>
+        <then>
+          <exec executable="/bin/rm" failonerror="true">
+            <arg value="-rf"/>
+            <arg value="${basedir}/@{target}"/>
+          </exec>
+        </then>
+      <!-- This `elseif` ONLY works when we have e.g. Msysgit installed on Windows -->
+      <elseif>
+          <or>
+            <equals arg1="${platform}" arg2="windows32"/>
+            <equals arg1="${platform}" arg2="windows64"/>
+          </or>
+        <then>
+          <exec executable="rm" failonerror="true">
+              <arg value="-rf"/>
+              <arg value="${basedir}/@{target}"/>
+          </exec>
+        </then>
+      </elseif>
+      </if>
     </sequential>
   </macrodef>
 
@@ -228,9 +250,14 @@
     <delete>
       <fileset dir="buildtime/py" includes="*.class"/>
     </delete>
-    <exec executable="find" failonerror="true">
-      <arg line=". -name .DS_Store -depth -exec rm {} ;"/>
-    </exec>
+    <if>
+      <equals arg1="${platform}" arg2="macosx"/>
+      <then>
+        <exec executable="find" failonerror="true">
+          <arg line=". -name .DS_Store -depth -exec rm {} ;"/>
+        </exec>
+      </then>
+    </if>
   </target>
 
   <target name="clean" depends="clean-self">
