@@ -74,10 +74,7 @@ def evalPoint(u, v):
     Evaluates the surface point corresponding to normalized parameters (u, v)
     """
 
-    a = 0.5
-    b = 0.3
-    c = 0.5
-    d = 0.1
+    a, b, c, d = 0.5, 0.3, 0.5, 0.1
     s = TWO_PI * u
     t = (TWO_PI * (1 - v)) * 2
 
