@@ -239,8 +239,8 @@ class PVector(__pvector__):
 # Now expose the funky PVector class as a builtin.
 __builtin__.PVector = PVector
 
-# Make it available to sketches by the name "this", to better match existing
-# Java-based documentation for third-party libraries, and such.
+# Make the PApplet available to sketches by the name "this", to better match
+# existing Java-based documentation for third-party libraries, and such.
 __builtin__.this = __papplet__
 
 
