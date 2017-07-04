@@ -1,14 +1,10 @@
 class CA:
-
-# generation - How many generations?
-# scl        - How many pixels wide/high is each cell?
-# rules      - A list to store the ruleset, for example: 0,1,1,0,1,1,0,1
     
     def __init__(self, r):
-        self.rules = r
-        self.scl = 1
+        self.rules = r  # List that stores the ruleset, i.e. 0,1,1,0,1,1,0,1
+        self.scl = 1    # How many pixels wide/high is each cell?
         self.cells = [0] * int(width / self.scl)
-        self.restart()
+        self.restart()  # Sets self.generation to 0, only middle cell to 1
 
     # Set the rules of the CA
     def setRules(self, r):
@@ -32,7 +28,8 @@ class CA:
     def generate(self):
         # First we create an empty array for the new values
         nextgen = [0] * len(self.cells)
-        # For every spot, determine new state by examing current state, and neighbor states
+        # For every spot, determine new state by examing current state,
+        # and neighbor states
         # Ignore edges that only have one neighor
         for i in range(1, len(self.cells) - 1):
             left = self.cells[i - 1]     # Left neighbor state
@@ -61,8 +58,8 @@ class CA:
             rect(i * scl, self.generation * scl, scl, scl)
 
     # Implementing the Wolfram rules
-    # Could be improved and made more concise, but here we can explicitly see
-    # what is going on for each case
+    # Could be improved and made more concise, but here we can 
+    # explicitly see what is going on for each case
     def executeRules(self, a, b, c):
         if a == 1 and b == 1 and c == 1:
             return self.rules[0]
