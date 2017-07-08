@@ -26,9 +26,6 @@ except TypeError:
 c = PVector(310.0, 410.0, 570.0)
 assert a * 10 == c
 assert a * 10 == c
-copy_of_a = a
-assert copy_of_a.mult(10) == c
-assert copy_of_a.mult(10) == PVector.mult(c, 10)
 assert PVector.mult(a, 10) == c
 assert PVector.mult(a, 10) == c
 a.mult(10)
@@ -132,6 +129,11 @@ assert start == PVector(75, 75)
 assert end == PVector(100.0, 100.0)
 end.lerp(200, 200, 0, .5)
 assert end == PVector(150.0, 150.0)
+
+# test that instance op returns self
+a = PVector(3, 5, 7)
+b = a * 10
+assert a.mult(10) == b
 
 print 'OK'
 
