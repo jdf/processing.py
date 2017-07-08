@@ -1015,6 +1015,9 @@ public class PAppletJythonDriver extends PApplet {
           }
         }
         pixelDensity(detectedPixelDensity);
+        if (detectedSmooth && detectedNoSmooth) {
+          throw new MixedSmoothError();
+        }        
         if (detectedSmooth) {
           smooth();
         } else if (detectedNoSmooth) {

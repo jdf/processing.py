@@ -15,6 +15,7 @@ import java.nio.file.StandardCopyOption;
 import org.junit.Test;
 
 import jycessing.MixedModeError;
+import jycessing.MixedSmoothError;
 import jycessing.PAppletJythonDriver;
 import jycessing.Printer;
 import jycessing.PythonSketchError;
@@ -305,5 +306,16 @@ public class JycessingTests {
   @Test
   public void unittest() throws Exception {
     expectOK("unittest");
+  }
+
+  // https://github.com/jdf/processing.py/issues/251
+  @Test
+  public void detectMixedSmooth() throws Exception {
+    try {
+      run("mixed_smooth_error");
+      fail("Expected mixed smooth error.");
+    } catch (final MixedSmoothError expected) {
+      // noop
+    }
   }
 }
