@@ -616,11 +616,15 @@ __builtin__.open = __open__
 class FakeStdOut():
     def write(self, s):
         __stdout__.print(s)
+    def flush(self):
+        __stdout__.flush()
 sys.stdout = FakeStdOut()
 
 class FakeStdErr():
     def write(self, s):
         __stderr__.print(s)
+    def flush(self):
+        __stderr__.flush()
 sys.stderr = FakeStdErr()
 
 del FakeStdOut, FakeStdErr
