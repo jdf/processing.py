@@ -26,6 +26,9 @@ except TypeError:
 c = PVector(310.0, 410.0, 570.0)
 assert a * 10 == c
 assert a * 10 == c
+copy_of_a = a
+assert copy_of_a.mult(10) == c
+assert copy_of_a.mult(10) == PVector.mult(c, 10)
 assert PVector.mult(a, 10) == c
 assert PVector.mult(a, 10) == c
 a.mult(10)
