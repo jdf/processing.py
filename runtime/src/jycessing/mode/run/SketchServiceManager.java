@@ -26,8 +26,8 @@ public class SketchServiceManager implements ModeService {
   private volatile boolean isStarted = false;
 
   /**
-   * This is used when {@link PythonMode#SKETCH_RUNNER_FIRST} is true. This lets
-   * use run the SketchRunner in a debugger, for example.
+   * This is used when {@link PythonMode#SKETCH_RUNNER_FIRST} is true. This lets use run the
+   * SketchRunner in a debugger, for example.
    */
   private SketchService debugSketchRunner;
 
@@ -63,7 +63,7 @@ public class SketchServiceManager implements ModeService {
     isStarted = true;
     try {
       if (PythonMode.SKETCH_RUNNER_FIRST) {
-        final ModeService stub = (ModeService)RMIUtils.export(this);
+        final ModeService stub = (ModeService) RMIUtils.export(this);
         final ModeWaiter modeWaiter = RMIUtils.lookup(ModeWaiter.class);
         modeWaiter.modeReady(stub);
       } else {
@@ -75,7 +75,6 @@ public class SketchServiceManager implements ModeService {
     }
   }
 
-
   private SketchServiceProcess processFor(final String editorId) {
     if (PythonMode.SKETCH_RUNNER_FIRST) {
       return sketchServices.get(DEBUG_SKETCH_RUNNER_KEY);
@@ -83,8 +82,10 @@ public class SketchServiceManager implements ModeService {
 
     final SketchServiceProcess p = sketchServices.get(editorId);
     if (p == null) {
-      throw new RuntimeException("I somehow got a message from the sketch runner for " + editorId
-          + " but don't have an active service process for it!");
+      throw new RuntimeException(
+          "I somehow got a message from the sketch runner for "
+              + editorId
+              + " but don't have an active service process for it!");
     }
     return p;
   }

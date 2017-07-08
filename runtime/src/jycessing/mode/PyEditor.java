@@ -90,13 +90,7 @@ public class PyEditor extends Editor {
     // Ensure that the sketch service gets properly destroyed when either the
     // JVM terminates or this editor closes, whichever comes first.
     final Thread cleanup =
-        new Thread(
-            new Runnable() {
-              @Override
-              public void run() {
-                sketchServiceManager.destroySketchService(PyEditor.this);
-              }
-            });
+        new Thread(() -> sketchServiceManager.destroySketchService(PyEditor.this));
     Runtime.getRuntime().addShutdownHook(cleanup);
     addWindowListener(
         new WindowAdapter() {

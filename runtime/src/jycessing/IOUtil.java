@@ -48,28 +48,31 @@ public class IOUtil {
 
   /**
    * Recursively deletes the given directory or file.
+   *
    * @param target Path of file to be deleted.
    * @throws IOException
    */
   public static void rm(final Path target) throws IOException {
-    Files.walkFileTree(target, new SimpleFileVisitor<Path>() {
-      @Override
-      public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
-          throws IOException {
-        Files.delete(file);
-        return CONTINUE;
-      }
+    Files.walkFileTree(
+        target,
+        new SimpleFileVisitor<Path>() {
+          @Override
+          public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
+              throws IOException {
+            Files.delete(file);
+            return CONTINUE;
+          }
 
-      @Override
-      public FileVisitResult postVisitDirectory(final Path dir, final IOException exc)
-          throws IOException {
-        if (exc != null) {
-          throw exc;
-        }
-        Files.delete(dir);
-        return CONTINUE;
-      }
-    });
+          @Override
+          public FileVisitResult postVisitDirectory(final Path dir, final IOException exc)
+              throws IOException {
+            if (exc != null) {
+              throw exc;
+            }
+            Files.delete(dir);
+            return CONTINUE;
+          }
+        });
   }
 
   public static void copy(final Path src, final Path target) throws IOException {

@@ -36,12 +36,10 @@ import processing.app.Sketch;
 import processing.app.ui.ColorChooser;
 
 /**
- * 
- * This is the export window that pops up when the user clicks [=>].
- * It tries to look as much as possible like java mode's exporter.
- * Rather than passing the options they select directly to Exporter, it sets them in their user preferences, which Exporter and the various
- * Export classes reference later.
- *
+ * This is the export window that pops up when the user clicks [=>]. It tries to look as much as
+ * possible like java mode's exporter. Rather than passing the options they select directly to
+ * Exporter, it sets them in their user preferences, which Exporter and the various Export classes
+ * reference later.
  */
 @SuppressWarnings("serial")
 public class ExportDialog extends JDialog {
@@ -84,29 +82,35 @@ public class ExportDialog extends JDialog {
 
     final String[] options = {"Export", "Cancel"};
     optionPane =
-        new JOptionPane(center, JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null,
-            options, options[0]);
+        new JOptionPane(
+            center,
+            JOptionPane.PLAIN_MESSAGE,
+            JOptionPane.YES_NO_OPTION,
+            null,
+            options,
+            options[0]);
 
     this.setContentPane(optionPane);
-    optionPane.addPropertyChangeListener(new PropertyChangeListener() {
-      @Override
-      public void propertyChange(final PropertyChangeEvent e) {
-        final String prop = e.getPropertyName();
+    optionPane.addPropertyChangeListener(
+        new PropertyChangeListener() {
+          @Override
+          public void propertyChange(final PropertyChangeEvent e) {
+            final String prop = e.getPropertyName();
 
-        if (isVisible() && (e.getSource() == optionPane)
-            && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
-          setVisible(false);
-        }
-      }
-    });
+            if (isVisible()
+                && (e.getSource() == optionPane)
+                && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+              setVisible(false);
+            }
+          }
+        });
     this.pack();
     this.setResizable(false);
 
     final Rectangle bounds = editor.getBounds();
     final Dimension size = this.getSize();
-    this.setLocation(bounds.x + (bounds.width - size.width) / 2, bounds.y
-        + (bounds.height - size.height) / 2);
-
+    this.setLocation(
+        bounds.x + (bounds.width - size.width) / 2, bounds.y + (bounds.height - size.height) / 2);
   }
 
   public void go() {
@@ -143,30 +147,34 @@ public class ExportDialog extends JDialog {
   private JPanel createPlatformsPanel() {
     final JCheckBox windowsButton = new JCheckBox("Windows");
     windowsButton.setSelected(Preferences.getBoolean("export.application.platform.windows"));
-    windowsButton.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(final ItemEvent e) {
-        Preferences.setBoolean("export.application.platform.windows", windowsButton.isSelected());
-      }
-    });
+    windowsButton.addItemListener(
+        new ItemListener() {
+          @Override
+          public void itemStateChanged(final ItemEvent e) {
+            Preferences.setBoolean(
+                "export.application.platform.windows", windowsButton.isSelected());
+          }
+        });
 
     final JCheckBox macosxButton = new JCheckBox("Mac OS X");
     macosxButton.setSelected(Preferences.getBoolean("export.application.platform.macosx"));
-    macosxButton.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(final ItemEvent e) {
-        Preferences.setBoolean("export.application.platform.macosx", macosxButton.isSelected());
-      }
-    });
+    macosxButton.addItemListener(
+        new ItemListener() {
+          @Override
+          public void itemStateChanged(final ItemEvent e) {
+            Preferences.setBoolean("export.application.platform.macosx", macosxButton.isSelected());
+          }
+        });
 
     final JCheckBox linuxButton = new JCheckBox("Linux");
     linuxButton.setSelected(Preferences.getBoolean("export.application.platform.linux"));
-    linuxButton.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(final ItemEvent e) {
-        Preferences.setBoolean("export.application.platform.linux", linuxButton.isSelected());
-      }
-    });
+    linuxButton.addItemListener(
+        new ItemListener() {
+          @Override
+          public void itemStateChanged(final ItemEvent e) {
+            Preferences.setBoolean("export.application.platform.linux", linuxButton.isSelected());
+          }
+        });
 
     final JPanel platformPanel = new JPanel();
     platformPanel.add(windowsButton);
@@ -185,25 +193,27 @@ public class ExportDialog extends JDialog {
 
     final JCheckBox showStopButton = new JCheckBox("Show a Stop button");
     showStopButton.setSelected(Preferences.getBoolean("export.application.stop"));
-    showStopButton.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(final ItemEvent e) {
-        Preferences.setBoolean("export.application.stop", showStopButton.isSelected());
-      }
-    });
+    showStopButton.addItemListener(
+        new ItemListener() {
+          @Override
+          public void itemStateChanged(final ItemEvent e) {
+            Preferences.setBoolean("export.application.stop", showStopButton.isSelected());
+          }
+        });
     showStopButton.setEnabled(Preferences.getBoolean("export.application.fullscreen"));
     showStopButton.setBorder(new EmptyBorder(3, 13, 6, 13));
 
     final JCheckBox fullScreenButton = new JCheckBox("Full Screen (Present mode)");
     fullScreenButton.setSelected(Preferences.getBoolean("export.application.fullscreen"));
-    fullScreenButton.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(final ItemEvent e) {
-        final boolean selected = fullScreenButton.isSelected();
-        Preferences.setBoolean("export.application.fullscreen", selected);
-        showStopButton.setEnabled(selected);
-      }
-    });
+    fullScreenButton.addItemListener(
+        new ItemListener() {
+          @Override
+          public void itemStateChanged(final ItemEvent e) {
+            final boolean selected = fullScreenButton.isSelected();
+            Preferences.setBoolean("export.application.fullscreen", selected);
+            showStopButton.setEnabled(selected);
+          }
+        });
     fullScreenButton.setBorder(new EmptyBorder(3, 13, 3, 13));
 
     final Box fullScreenBox = Box.createHorizontalBox();
@@ -241,37 +251,47 @@ public class ExportDialog extends JDialog {
 
     final boolean embed = Preferences.getBoolean("export.application.embed_java");
     final String embedWarning =
-        "<html><div width=\"" + divWidth + "\"><font size=\"2\">" + "Embedding Java will make the "
-            + platformName + " application " + "larger, but it will be far more likely to work. "
+        "<html><div width=\""
+            + divWidth
+            + "\"><font size=\"2\">"
+            + "Embedding Java will make the "
+            + platformName
+            + " application "
+            + "larger, but it will be far more likely to work. "
             + "Users on other platforms will need to <a href=\"\">install Java 7</a>.";
     final String nopeWarning =
-        "<html><div width=\"" + divWidth + "\"><font size=\"2\">"
+        "<html><div width=\""
+            + divWidth
+            + "\"><font size=\"2\">"
             + "Users on all platforms will have to install the latest "
-            + "version of Java 7 from <a href=\"\">http://java.com/download</a>. " + "<br/>&nbsp;";
+            + "version of Java 7 from <a href=\"\">http://java.com/download</a>. "
+            + "<br/>&nbsp;";
     // "from <a href=\"http://java.com/download\">java.com/download</a>.";
     final JLabel warningLabel = new JLabel(embed ? embedWarning : nopeWarning);
-    warningLabel.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mousePressed(final MouseEvent event) {
-        Platform.openURL("http://java.com/download");
-      }
-    });
+    warningLabel.addMouseListener(
+        new MouseAdapter() {
+          @Override
+          public void mousePressed(final MouseEvent event) {
+            Platform.openURL("http://java.com/download");
+          }
+        });
     warningLabel.setBorder(new EmptyBorder(3, 13, 3, 13));
 
     final JCheckBox embedJavaButton = new JCheckBox("Embed Java for " + platformName);
     embedJavaButton.setSelected(embed);
-    embedJavaButton.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(final ItemEvent e) {
-        final boolean selected = embedJavaButton.isSelected();
-        Preferences.setBoolean("export.application.embed_java", selected);
-        if (selected) {
-          warningLabel.setText(embedWarning);
-        } else {
-          warningLabel.setText(nopeWarning);
-        }
-      }
-    });
+    embedJavaButton.addItemListener(
+        new ItemListener() {
+          @Override
+          public void itemStateChanged(final ItemEvent e) {
+            final boolean selected = embedJavaButton.isSelected();
+            Preferences.setBoolean("export.application.embed_java", selected);
+            if (selected) {
+              warningLabel.setText(embedWarning);
+            } else {
+              warningLabel.setText(nopeWarning);
+            }
+          }
+        });
     embedJavaButton.setBorder(new EmptyBorder(3, 13, 3, 13));
 
     embedPanel.add(embedJavaButton);
@@ -292,34 +312,40 @@ public class ExportDialog extends JDialog {
                 + "which makes it more difficult to run applications like those exported from Processing. ");
 
     if (new File("/usr/bin/codesign_allocate").exists()) {
-      thePain
-          .append("This application will be \u201Cself-signed\u201D which means that Finder may report that the "
+      thePain.append(
+          "This application will be \u201Cself-signed\u201D which means that Finder may report that the "
               + "application is from an \u201Cunidentified developer\u201D. If the application will not "
               + "run, try right-clicking the app and selecting Open from the pop-up menu. Or you can visit "
               + "System Preferences \u2192 Security & Privacy and select Allow apps downloaded from: anywhere. ");
     } else {
-      thePain
-          .append("Gatekeeper requires applications to be \u201Csigned\u201D, or they will be reported as damaged. "
+      thePain.append(
+          "Gatekeeper requires applications to be \u201Csigned\u201D, or they will be reported as damaged. "
               + "To prevent this message, install Xcode (and the Command Line Tools) from the App Store, or visit "
               + "System Preferences \u2192 Security & Privacy and select Allow apps downloaded from: anywhere. ");
     }
-    thePain.append("To avoid the messages entirely, manually code sign your app. "
-        + "For more information: <a href=\"\">https://developer.apple.com/developer-id/</a>");
+    thePain.append(
+        "To avoid the messages entirely, manually code sign your app. "
+            + "For more information: <a href=\"\">https://developer.apple.com/developer-id/</a>");
 
     final JLabel area =
-        new JLabel("<html><div width=\"" + divWidth + "\"><font size=\"2\">" + thePain.toString()
-            + "</div></html>");
+        new JLabel(
+            "<html><div width=\""
+                + divWidth
+                + "\"><font size=\"2\">"
+                + thePain.toString()
+                + "</div></html>");
 
     area.setBorder(new EmptyBorder(3, 13, 3, 13));
     signPanel.add(area);
     signPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-    area.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mousePressed(final MouseEvent event) {
-        Platform.openURL("https://developer.apple.com/developer-id/");
-      }
-    });
+    area.addMouseListener(
+        new MouseAdapter() {
+          @Override
+          public void mousePressed(final MouseEvent event) {
+            Platform.openURL("https://developer.apple.com/developer-id/");
+          }
+        });
     return signPanel;
   }
 
@@ -334,14 +360,15 @@ public class ExportDialog extends JDialog {
       setPreferredSize(new Dimension(30, 20));
       setMaximumSize(new Dimension(30, 20));
 
-      addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseReleased(final MouseEvent e) {
-          final Color color = Preferences.getColor(prefName);
-          chooser = new ColorChooser(editor, true, color, "Select", ColorPreference.this);
-          chooser.show();
-        }
-      });
+      addMouseListener(
+          new MouseAdapter() {
+            @Override
+            public void mouseReleased(final MouseEvent e) {
+              final Color color = Preferences.getColor(prefName);
+              chooser = new ColorChooser(editor, true, color, "Select", ColorPreference.this);
+              chooser.show();
+            }
+          });
     }
 
     @Override

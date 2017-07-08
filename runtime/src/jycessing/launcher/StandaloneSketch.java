@@ -19,11 +19,7 @@ import jycessing.Runner.LibraryPolicy;
 import jycessing.annotations.PythonUsage;
 import processing.core.PApplet;
 
-/**
- * 
- * An old-school processing.py script.
- *
- */
+/** An old-school processing.py script. */
 public class StandaloneSketch implements RunnableSketch {
 
   static void log(final Object... objs) {
@@ -42,9 +38,9 @@ public class StandaloneSketch implements RunnableSketch {
 
   /**
    * Returns the path of the main processing-py.jar file.
-   * 
-   * Used from launcher.py
-   * 
+   *
+   * <p>Used from launcher.py
+   *
    * @return the path of processing-py.jar.
    */
   @PythonUsage(methodName = "getMainJarFile")
@@ -59,9 +55,8 @@ public class StandaloneSketch implements RunnableSketch {
   }
 
   /**
-   * Returns the 'root' folder of this instance. Used when running with a
-   * wrapper.
-   * 
+   * Returns the 'root' folder of this instance. Used when running with a wrapper.
+   *
    * @return the distribution root directory.
    */
   public File getRuntimeRoot() {
@@ -75,8 +70,6 @@ public class StandaloneSketch implements RunnableSketch {
     // If we are on Windows
     return jar.getParentFile();
   }
-
-
 
   public StandaloneSketch(final String[] args) throws Exception {
     final List<String> argsList = Arrays.asList(args);
@@ -116,8 +109,8 @@ public class StandaloneSketch implements RunnableSketch {
       }
 
       final Pattern JAR_RESOURCE =
-          Pattern.compile("jar:file:(.+?)/processing-py\\.jar!/jycessing/"
-              + Pattern.quote(BUILD_PROPERTIES));
+          Pattern.compile(
+              "jar:file:(.+?)/processing-py\\.jar!/jycessing/" + Pattern.quote(BUILD_PROPERTIES));
       final Pattern FILE_RESOURCE =
           Pattern.compile("file:(.+?)/bin/jycessing/" + Pattern.quote(BUILD_PROPERTIES));
 
@@ -149,8 +142,8 @@ public class StandaloneSketch implements RunnableSketch {
   @Override
   public String[] getPAppletArguments() {
     return new String[] {
-        PApplet.ARGS_SKETCH_FOLDER + "=" + sketchPath.getParentFile().getAbsolutePath(),
-        sketchPath.getName() // must be last argument
+      PApplet.ARGS_SKETCH_FOLDER + "=" + sketchPath.getParentFile().getAbsolutePath(),
+      sketchPath.getName() // must be last argument
     };
   }
 
@@ -188,5 +181,4 @@ public class StandaloneSketch implements RunnableSketch {
 
     return entries;
   }
-
 }

@@ -13,8 +13,8 @@ public class ReflectionUtil {
     }
   }
 
-  public static <T> void setObjectStatic(final Class<T> klass, final String fieldName,
-      final Object value) {
+  public static <T> void setObjectStatic(
+      final Class<T> klass, final String fieldName, final Object value) {
     try {
       accessibleField(klass, fieldName).set(null, value);
     } catch (final Exception e) {
@@ -22,8 +22,8 @@ public class ReflectionUtil {
     }
   }
 
-  public static <T> void setBooleanStatic(final Class<T> klass, final String fieldName,
-      final boolean value) {
+  public static <T> void setBooleanStatic(
+      final Class<T> klass, final String fieldName, final boolean value) {
     try {
       accessibleField(klass, fieldName).set(null, value);
     } catch (final Exception e) {

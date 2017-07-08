@@ -6,15 +6,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import processing.core.PApplet;
 import jycessing.RunnableSketch;
 import jycessing.Runner.LibraryPolicy;
+import processing.core.PApplet;
 
-/**
- * 
- * Encapsulates a unit test so that it can be run by Runner.
- *
- */
+/** Encapsulates a unit test so that it can be run by Runner. */
 public class TestSketch implements RunnableSketch {
 
   private final Path sourcePath;
@@ -68,5 +64,4 @@ public class TestSketch implements RunnableSketch {
     entries.add(getHomeDirectory());
     return entries;
   }
-
 }

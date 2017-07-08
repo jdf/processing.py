@@ -74,11 +74,7 @@ import processing.javafx.PSurfaceFX;
 import processing.opengl.PShader;
 import processing.opengl.PSurfaceJOGL;
 
-/**
- *
- * @author Jonathan Feinberg &lt;jdf@pobox.com&gt;
- *
- */
+/** @author Jonathan Feinberg &lt;jdf@pobox.com&gt; */
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
 
@@ -87,8 +83,8 @@ public class PAppletJythonDriver extends PApplet {
   public static final String C_LIKE_LOGICAL_OR_ERROR_MESSAGE =
       "Did you maybe use \"||\" instead of \"or\"?";
 
-  private static final ResourceReader resourceReader = new ResourceReader(
-      PAppletJythonDriver.class);
+  private static final ResourceReader resourceReader =
+      new ResourceReader(PAppletJythonDriver.class);
 
   private static final String GET_SETTINGS_SCRIPT = resourceReader.readText("get_settings.py");
   private static final String DETECT_MODE_SCRIPT = resourceReader.readText("detect_sketch_mode.py");
@@ -111,7 +107,9 @@ public class PAppletJythonDriver extends PApplet {
   private final CountDownLatch finishedLatch = new CountDownLatch(1);
 
   private enum Mode {
-    STATIC, ACTIVE, MIXED
+    STATIC,
+    ACTIVE,
+    MIXED
   }
 
   // A static-mode sketch must be interpreted from within the setup() method.
@@ -127,9 +125,9 @@ public class PAppletJythonDriver extends PApplet {
   /**
    * The Processing event handling functions can take 0 or 1 argument. This class represents such a
    * function.
-   * <p>
-   * If the user did not implement the variant that takes an event, then we have to pass through to
-   * the super implementation, or else the zero-arg version won't get called.
+   *
+   * <p>If the user did not implement the variant that takes an event, then we have to pass through
+   * to the super implementation, or else the zero-arg version won't get called.
    */
   private abstract class EventFunction<T> {
     private final PyFunction func;
@@ -138,8 +136,8 @@ public class PAppletJythonDriver extends PApplet {
     protected abstract void callSuper(T event);
 
     public EventFunction(final String funcName) {
-      func = (PyFunction)interp.get(funcName);
-      argCount = func == null ? -1 : ((PyBaseCode)(func).__code__).co_argcount;
+      func = (PyFunction) interp.get(funcName);
+      argCount = func == null ? -1 : ((PyBaseCode) (func).__code__).co_argcount;
     }
 
     public void invoke() {
@@ -165,10 +163,12 @@ public class PAppletJythonDriver extends PApplet {
   // in the user's sketch, and call whatever's defined of those two when the sketch
   // is dispose()d. If you define both, they'll both be called.
   private PyObject stopMeth, disposeMeth;
-
   private EventFunction<KeyEvent> keyPressedFunc, keyReleasedFunc, keyTypedFunc;
-  private EventFunction<MouseEvent> mousePressedFunc, mouseClickedFunc, mouseMovedFunc,
-      mouseReleasedFunc, mouseDraggedFunc;
+  private EventFunction<MouseEvent> mousePressedFunc,
+      mouseClickedFunc,
+      mouseMovedFunc,
+      mouseReleasedFunc,
+      mouseDraggedFunc;
   private PyObject mouseWheelMeth; // Can only be called with a MouseEvent; no need for shenanigans
 
   // Implement the Video library's callbacks.
@@ -188,8 +188,9 @@ public class PAppletJythonDriver extends PApplet {
   private void processSketch(final String scriptSource) throws PythonSketchError {
     try {
       interp.set("__processing_source__", programText);
-      final PyCode code = Py.compile_flags(scriptSource, pySketchPath.toString(), CompileMode.exec,
-          new CompilerFlags());
+      final PyCode code =
+          Py.compile_flags(
+              scriptSource, pySketchPath.toString(), CompileMode.exec, new CompilerFlags());
       try (PushedOut out = wrappedStdout.pushStdout()) {
         interp.exec(code);
       }
@@ -217,20 +218,20 @@ public class PAppletJythonDriver extends PApplet {
       t = t.getCause();
     }
     if (t instanceof PythonSketchError) {
-      return (PythonSketchError)t;
+      return (PythonSketchError) t;
     }
     if (t instanceof PySyntaxError) {
-      final PySyntaxError e = (PySyntaxError)t;
-      return extractSketchErrorFromPyExceptionValue((PyTuple)e.value);
+      final PySyntaxError e = (PySyntaxError) t;
+      return extractSketchErrorFromPyExceptionValue((PyTuple) e.value);
     }
     if (t instanceof PyIndentationError) {
-      final PyIndentationError e = (PyIndentationError)t;
-      return extractSketchErrorFromPyExceptionValue((PyTuple)e.value);
+      final PyIndentationError e = (PyIndentationError) t;
+      return extractSketchErrorFromPyExceptionValue((PyTuple) e.value);
     }
     if (t instanceof PyException) {
-      final PyException e = (PyException)t;
-      final Pattern tbParse = Pattern.compile("^\\s*File \"([^\"]+)\", line (\\d+)",
-          Pattern.MULTILINE);
+      final PyException e = (PyException) t;
+      final Pattern tbParse =
+          Pattern.compile("^\\s*File \"([^\"]+)\", line (\\d+)", Pattern.MULTILINE);
       final Matcher m = tbParse.matcher(e.toString());
       String file = null;
       int line = -1;
@@ -247,7 +248,7 @@ public class PAppletJythonDriver extends PApplet {
         }
         line = Integer.parseInt(m.group(2)) - 1;
       }
-      if (((PyType)e.type).getName().equals("ImportError")) {
+      if (((PyType) e.type).getName().equals("ImportError")) {
         final Pattern importStar = Pattern.compile("import\\s+\\*");
         if (importStar.matcher(e.toString()).find()) {
           return new PythonSketchError("import * does not work in this environment.", file, line);
@@ -261,13 +262,13 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   private static PythonSketchError extractSketchErrorFromPyExceptionValue(final PyTuple tup) {
-    final String pyMessage = (String)tup.get(0);
+    final String pyMessage = (String) tup.get(0);
     final String message = maybeMakeFriendlyMessage(pyMessage);
-    final PyTuple context = (PyTuple)tup.get(1);
-    final File file = new File((String)context.get(0));
+    final PyTuple context = (PyTuple) tup.get(1);
+    final File file = new File((String) context.get(0));
     final String fileName = file.getName();
-    final int lineNumber = ((Integer)context.get(1)).intValue() - 1;
-    final int column = ((Integer)context.get(2)).intValue();
+    final int lineNumber = ((Integer) context.get(1)).intValue() - 1;
+    final int column = ((Integer) context.get(2)).intValue();
     if (pyMessage.startsWith("no viable alternative")) {
       return noViableAlternative(file, lineNumber, column, pyMessage);
     }
@@ -282,8 +283,8 @@ public class PAppletJythonDriver extends PApplet {
    * somewhere before the triggering line. Maybe the user tried to specify a color as in Java
    * Processing, like <code>fill(#FFAA55)</code>, which Python sees as an open paren followed by a
    * comment.
-   * <p>
-   * This function takes a stab at finding such a thing, and reporting it. Otherwise, it throws a
+   *
+   * <p>This function takes a stab at finding such a thing, and reporting it. Otherwise, it throws a
    * slightly less cryptic error message.
    *
    * @param file
@@ -291,28 +292,38 @@ public class PAppletJythonDriver extends PApplet {
    * @param column
    * @return
    */
-  private static PythonSketchError noViableAlternative(final File file, final int lineNo,
-      final int column, final String message) {
+  private static PythonSketchError noViableAlternative(
+      final File file, final int lineNo, final int column, final String message) {
     if (message.equals("no viable alternative at input '&'")) {
-      return new PythonSketchError(C_LIKE_LOGICAL_AND_ERROR_MESSAGE, file.getName(), lineNo,
-          column);
+      return new PythonSketchError(
+          C_LIKE_LOGICAL_AND_ERROR_MESSAGE, file.getName(), lineNo, column);
     }
     if (message.equals("no viable alternative at input '|'")) {
       return new PythonSketchError(C_LIKE_LOGICAL_OR_ERROR_MESSAGE, file.getName(), lineNo, column);
     }
-    final PythonSketchError defaultException = new PythonSketchError(
-        "Maybe there's an unclosed paren or quote mark somewhere before this line?", file.getName(),
-        lineNo, column);
+    final PythonSketchError defaultException =
+        new PythonSketchError(
+            "Maybe there's an unclosed paren or quote mark somewhere before this line?",
+            file.getName(),
+            lineNo,
+            column);
     try {
       int lineIndex = 0;
       for (final String line : Files.readLines(file, Charsets.UTF_8)) {
         final Matcher m = NAKED_COLOR.matcher(line);
         if (m.find()) {
           final String color = m.group(1);
-          return new PythonSketchError("Did you try to name a color here? "
-              + "Colors in Python mode are either strings, like '#" + color + "', or "
-              + "large hex integers, like 0xFF" + color.toUpperCase() + ".", file.getName(),
-              lineIndex, m.start(1));
+          return new PythonSketchError(
+              "Did you try to name a color here? "
+                  + "Colors in Python mode are either strings, like '#"
+                  + color
+                  + "', or "
+                  + "large hex integers, like 0xFF"
+                  + color.toUpperCase()
+                  + ".",
+              file.getName(),
+              lineIndex,
+              m.start(1));
         }
         lineIndex++;
       }
@@ -341,18 +352,23 @@ public class PAppletJythonDriver extends PApplet {
     }
   }
 
-  public PAppletJythonDriver(final InteractiveConsole interp, final String pySketchPath,
-      final String programText, final Printer stdout) throws PythonSketchError {
-    this.wrappedStdout = new WrappedPrintStream(System.out) {
-      @Override
-      public void doPrint(final String s) {
-        stdout.print(s);
-      }
-    };
+  public PAppletJythonDriver(
+      final InteractiveConsole interp,
+      final String pySketchPath,
+      final String programText,
+      final Printer stdout)
+      throws PythonSketchError {
+    this.wrappedStdout =
+        new WrappedPrintStream(System.out) {
+          @Override
+          public void doPrint(final String s) {
+            stdout.print(s);
+          }
+        };
     this.programText = programText;
     this.pySketchPath = Paths.get(pySketchPath);
     this.interp = interp;
-    this.builtins = (PyStringMap)interp.getSystemState().getBuiltins();
+    this.builtins = (PyStringMap) interp.getSystemState().getBuiltins();
 
     interp.set("__file__", new File(pySketchPath).getName());
     processSketch(DETECT_MODE_SCRIPT);
@@ -400,7 +416,7 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("g", Py.java2py(g));
 
     // Make sure key and keyCode are defined.
-    builtins.__setitem__("key", Py.newUnicode((char)0));
+    builtins.__setitem__("key", Py.newUnicode((char) 0));
     builtins.__setitem__("keyCode", pyint(0));
   }
 
@@ -410,23 +426,25 @@ public class PAppletJythonDriver extends PApplet {
     this.frame = null; // eliminate a memory leak from 2.x compat hack
     s.setTitle(pySketchPath.getFileName().toString().replaceAll("\\..*$", ""));
     if (s instanceof PSurfaceAWT) {
-      final PSurfaceAWT surf = (PSurfaceAWT)s;
-      final Component c = (Component)surf.getNative();
-      c.addComponentListener(new ComponentAdapter() {
-        @Override
-        public void componentHidden(final ComponentEvent e) {
-          finishedLatch.countDown();
-        }
-      });
+      final PSurfaceAWT surf = (PSurfaceAWT) s;
+      final Component c = (Component) surf.getNative();
+      c.addComponentListener(
+          new ComponentAdapter() {
+            @Override
+            public void componentHidden(final ComponentEvent e) {
+              finishedLatch.countDown();
+            }
+          });
     } else if (s instanceof PSurfaceJOGL) {
-      final PSurfaceJOGL surf = (PSurfaceJOGL)s;
-      final GLWindow win = (GLWindow)surf.getNative();
-      win.addWindowListener(new com.jogamp.newt.event.WindowAdapter() {
-        @Override
-        public void windowDestroyed(final com.jogamp.newt.event.WindowEvent arg0) {
-          finishedLatch.countDown();
-        }
-      });
+      final PSurfaceJOGL surf = (PSurfaceJOGL) s;
+      final GLWindow win = (GLWindow) surf.getNative();
+      win.addWindowListener(
+          new com.jogamp.newt.event.WindowAdapter() {
+            @Override
+            public void windowDestroyed(final com.jogamp.newt.event.WindowEvent arg0) {
+              finishedLatch.countDown();
+            }
+          });
     } else if (s instanceof PSurfaceFX) {
       System.err.println("I don't know how to watch FX2D windows for close.");
     }
@@ -450,55 +468,63 @@ public class PAppletJythonDriver extends PApplet {
     drawMeth = interp.get("draw");
     setupMeth = interp.get("setup");
 
-    mousePressedFunc = new EventFunction<MouseEvent>("mousePressed") {
-      @Override
-      protected void callSuper(final MouseEvent event) {
-        PAppletJythonDriver.super.mousePressed(event);
-      }
-    };
-    mouseClickedFunc = new EventFunction<MouseEvent>("mouseClicked") {
-      @Override
-      protected void callSuper(final MouseEvent event) {
-        PAppletJythonDriver.super.mouseClicked(event);
-      }
-    };
-    mouseMovedFunc = new EventFunction<MouseEvent>("mouseMoved") {
-      @Override
-      protected void callSuper(final MouseEvent event) {
-        PAppletJythonDriver.super.mouseMoved(event);
-      }
-    };
-    mouseReleasedFunc = new EventFunction<MouseEvent>("mouseReleased") {
-      @Override
-      protected void callSuper(final MouseEvent event) {
-        PAppletJythonDriver.super.mouseReleased(event);
-      }
-    };
-    mouseDraggedFunc = new EventFunction<MouseEvent>("mouseDragged") {
-      @Override
-      protected void callSuper(final MouseEvent event) {
-        PAppletJythonDriver.super.mouseDragged(event);
-      }
-    };
+    mousePressedFunc =
+        new EventFunction<MouseEvent>("mousePressed") {
+          @Override
+          protected void callSuper(final MouseEvent event) {
+            PAppletJythonDriver.super.mousePressed(event);
+          }
+        };
+    mouseClickedFunc =
+        new EventFunction<MouseEvent>("mouseClicked") {
+          @Override
+          protected void callSuper(final MouseEvent event) {
+            PAppletJythonDriver.super.mouseClicked(event);
+          }
+        };
+    mouseMovedFunc =
+        new EventFunction<MouseEvent>("mouseMoved") {
+          @Override
+          protected void callSuper(final MouseEvent event) {
+            PAppletJythonDriver.super.mouseMoved(event);
+          }
+        };
+    mouseReleasedFunc =
+        new EventFunction<MouseEvent>("mouseReleased") {
+          @Override
+          protected void callSuper(final MouseEvent event) {
+            PAppletJythonDriver.super.mouseReleased(event);
+          }
+        };
+    mouseDraggedFunc =
+        new EventFunction<MouseEvent>("mouseDragged") {
+          @Override
+          protected void callSuper(final MouseEvent event) {
+            PAppletJythonDriver.super.mouseDragged(event);
+          }
+        };
 
-    keyPressedFunc = new EventFunction<KeyEvent>("keyPressed") {
-      @Override
-      protected void callSuper(final KeyEvent event) {
-        PAppletJythonDriver.super.keyPressed(event);
-      }
-    };
-    keyReleasedFunc = new EventFunction<KeyEvent>("keyReleased") {
-      @Override
-      protected void callSuper(final KeyEvent event) {
-        PAppletJythonDriver.super.keyReleased(event);
-      }
-    };
-    keyTypedFunc = new EventFunction<KeyEvent>("keyTyped") {
-      @Override
-      protected void callSuper(final KeyEvent event) {
-        PAppletJythonDriver.super.keyTyped(event);
-      }
-    };
+    keyPressedFunc =
+        new EventFunction<KeyEvent>("keyPressed") {
+          @Override
+          protected void callSuper(final KeyEvent event) {
+            PAppletJythonDriver.super.keyPressed(event);
+          }
+        };
+    keyReleasedFunc =
+        new EventFunction<KeyEvent>("keyReleased") {
+          @Override
+          protected void callSuper(final KeyEvent event) {
+            PAppletJythonDriver.super.keyReleased(event);
+          }
+        };
+    keyTypedFunc =
+        new EventFunction<KeyEvent>("keyTyped") {
+          @Override
+          protected void callSuper(final KeyEvent event) {
+            PAppletJythonDriver.super.keyTyped(event);
+          }
+        };
 
     settingsMeth = interp.get("settings");
     stopMeth = interp.get("stop");
@@ -509,17 +535,21 @@ public class PAppletJythonDriver extends PApplet {
     if (mousePressedFunc.func != null) {
       // The user defined a mousePressed() method, which will hide the magical
       // Processing variable boolean mousePressed. We have to do some magic.
-      interp.getLocals().__setitem__("mousePressed", new PyBoolean(false) {
-        @Override
-        public boolean getBooleanValue() {
-          return mousePressed;
-        }
+      interp
+          .getLocals()
+          .__setitem__(
+              "mousePressed",
+              new PyBoolean(false) {
+                @Override
+                public boolean getBooleanValue() {
+                  return mousePressed;
+                }
 
-        @Override
-        public PyObject __call__(final PyObject[] args, final String[] kws) {
-          return mousePressedFunc.func.__call__(args, kws);
-        }
-      });
+                @Override
+                public PyObject __call__(final PyObject[] args, final String[] kws) {
+                  return mousePressedFunc.func.__call__(args, kws);
+                }
+              });
     }
 
     // Video library callbacks.
@@ -577,18 +607,21 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("focused", Py.newBoolean(focused));
     builtins.__setitem__("keyPressed", Py.newBoolean(keyPressed));
     builtins.__setitem__("frameCount", pyint(frameCount));
-    builtins.__setitem__("frameRate", new PyFloat(frameRate) {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        switch (args.length) {
-          default:
-            return raiseTypeError("Can't call \"frameRate\" with " + args.length + " parameters.");
-          case 1:
-            frameRate((float)args[0].asDouble());
-            return Py.None;
-        }
-      }
-    });
+    builtins.__setitem__(
+        "frameRate",
+        new PyFloat(frameRate) {
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            switch (args.length) {
+              default:
+                return raiseTypeError(
+                    "Can't call \"frameRate\" with " + args.length + " parameters.");
+              case 1:
+                frameRate((float) args[0].asDouble());
+                return Py.None;
+            }
+          }
+        });
   }
 
   // We only change the "key" variable as necessary to avoid generating
@@ -624,18 +657,19 @@ public class PAppletJythonDriver extends PApplet {
   public void start() {
     // I want to quit on runtime exceptions.
     // Processing just sits there by default.
-    Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-      @Override
-      public void uncaughtException(final Thread t, final Throwable e) {
-        terminalException = toSketchException(e);
-        try {
-          handleMethods("dispose");
-        } catch (final Exception noop) {
-          // give up
-        }
-        finishedLatch.countDown();
-      }
-    });
+    Thread.setDefaultUncaughtExceptionHandler(
+        new UncaughtExceptionHandler() {
+          @Override
+          public void uncaughtException(final Thread t, final Throwable e) {
+            terminalException = toSketchException(e);
+            try {
+              handleMethods("dispose");
+            } catch (final Exception noop) {
+              // give up
+            }
+            finishedLatch.countDown();
+          }
+        });
     super.start();
   }
 
@@ -668,7 +702,7 @@ public class PAppletJythonDriver extends PApplet {
       }
       final Object nativeWindow = surface.getNative();
       if (nativeWindow instanceof com.jogamp.newt.Window) {
-        ((com.jogamp.newt.Window)nativeWindow).destroy();
+        ((com.jogamp.newt.Window) nativeWindow).destroy();
       } else {
         surface.setVisible(false);
       }
@@ -679,10 +713,10 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   /**
-   * Use reflection to call
-   * <code>com.apple.eawt.Application.getApplication().requestToggleFullScreen(window);</code>
+   * Use reflection to call <code>
+   * com.apple.eawt.Application.getApplication().requestToggleFullScreen(window);</code>
    */
-  static private void macosxFullScreenToggle(final Window window) {
+  private static void macosxFullScreenToggle(final Window window) {
     try {
       final Class<?> appClass = Class.forName("com.apple.eawt.Application");
       final Method getAppMethod = appClass.getMethod("getApplication");
@@ -702,34 +736,36 @@ public class PAppletJythonDriver extends PApplet {
    * args, it constructs a Python set.
    */
   private void setSet() {
-    final PyType originalSet = (PyType)builtins.__getitem__("set");
-    builtins.__setitem__("set", new PyType(PyType.TYPE) {
-      {
-        builtin = true;
-        init(PySet.class, new HashSet<PyJavaType>());
-        invalidateMethodCache();
-      }
+    final PyType originalSet = (PyType) builtins.__getitem__("set");
+    builtins.__setitem__(
+        "set",
+        new PyType(PyType.TYPE) {
+          {
+            builtin = true;
+            init(PySet.class, new HashSet<PyJavaType>());
+            invalidateMethodCache();
+          }
 
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        switch (args.length) {
-          default:
-            return originalSet.__call__(args, kws);
-          case 3:
-            final int x = args[0].asInt();
-            final int y = args[1].asInt();
-            final PyObject c = args[2];
-            final PyType tc = c.getType();
-            if (tc.getProxyType() != null && PImage.class.isAssignableFrom(tc.getProxyType())) {
-              set(x, y, (processing.core.PImage)c.__tojava__(processing.core.PImage.class));
-              return Py.None;
-            } else {
-              set(x, y, interpretColorArg(c));
-              return Py.None;
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            switch (args.length) {
+              default:
+                return originalSet.__call__(args, kws);
+              case 3:
+                final int x = args[0].asInt();
+                final int y = args[1].asInt();
+                final PyObject c = args[2];
+                final PyType tc = c.getType();
+                if (tc.getProxyType() != null && PImage.class.isAssignableFrom(tc.getProxyType())) {
+                  set(x, y, (processing.core.PImage) c.__tojava__(processing.core.PImage.class));
+                  return Py.None;
+                } else {
+                  set(x, y, interpretColorArg(c));
+                  return Py.None;
+                }
             }
-        }
-      }
-    });
+          }
+        });
   }
 
   /**
@@ -738,29 +774,39 @@ public class PAppletJythonDriver extends PApplet {
    */
   private void setMap() {
     final PyObject builtinMap = builtins.__getitem__("map");
-    builtins.__setitem__("map", new PyObject() {
+    builtins.__setitem__(
+        "map",
+        new PyObject() {
 
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        switch (args.length) {
-          default:
-            return builtinMap.__call__(args, kws);
-          case 5:
-            final PyObject value = args[0];
-            final PyObject start1 = args[1];
-            final PyObject stop1 = args[2];
-            final PyObject start2 = args[3];
-            final PyObject stop2 = args[4];
-            if (value.isNumberType() && start1.isNumberType() && stop1.isNumberType() && start2
-                .isNumberType() && stop2.isNumberType()) {
-              return Py.newFloat(map((float)value.asDouble(), (float)start1.asDouble(), (float)stop1
-                  .asDouble(), (float)start2.asDouble(), (float)stop2.asDouble()));
-            } else {
-              return builtinMap.__call__(args, kws);
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            switch (args.length) {
+              default:
+                return builtinMap.__call__(args, kws);
+              case 5:
+                final PyObject value = args[0];
+                final PyObject start1 = args[1];
+                final PyObject stop1 = args[2];
+                final PyObject start2 = args[3];
+                final PyObject stop2 = args[4];
+                if (value.isNumberType()
+                    && start1.isNumberType()
+                    && stop1.isNumberType()
+                    && start2.isNumberType()
+                    && stop2.isNumberType()) {
+                  return Py.newFloat(
+                      map(
+                          (float) value.asDouble(),
+                          (float) start1.asDouble(),
+                          (float) stop1.asDouble(),
+                          (float) start2.asDouble(),
+                          (float) stop2.asDouble()));
+                } else {
+                  return builtinMap.__call__(args, kws);
+                }
             }
-        }
-      }
-    });
+          }
+        });
   }
 
   /**
@@ -769,31 +815,33 @@ public class PAppletJythonDriver extends PApplet {
    */
   private void setFilter() {
     final PyObject builtinFilter = builtins.__getitem__("filter");
-    builtins.__setitem__("filter", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        switch (args.length) {
-          case 1:
-            final PyObject value = args[0];
-            if (value.isNumberType()) {
-              filter(value.asInt());
-            } else {
-              filter(Py.tojava(value, PShader.class));
+    builtins.__setitem__(
+        "filter",
+        new PyObject() {
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            switch (args.length) {
+              case 1:
+                final PyObject value = args[0];
+                if (value.isNumberType()) {
+                  filter(value.asInt());
+                } else {
+                  filter(Py.tojava(value, PShader.class));
+                }
+                return Py.None;
+              case 2:
+                final PyObject a = args[0];
+                final PyObject b = args[1];
+                if (a.isNumberType()) {
+                  filter(a.asInt(), (float) b.asDouble());
+                  return Py.None;
+                }
+                //$FALL-THROUGH$
+              default:
+                return builtinFilter.__call__(args, kws);
             }
-            return Py.None;
-          case 2:
-            final PyObject a = args[0];
-            final PyObject b = args[1];
-            if (a.isNumberType()) {
-              filter(a.asInt(), (float)b.asDouble());
-              return Py.None;
-            }
-            //$FALL-THROUGH$
-          default:
-            return builtinFilter.__call__(args, kws);
-        }
-      }
-    });
+          }
+        });
   }
 
   // If you call lerpColor in an active-mode sketch before setup() has run,
@@ -813,15 +861,15 @@ public class PAppletJythonDriver extends PApplet {
    * version to catch it.
    */
   public void fill(final long argb) {
-    fill((int)(argb & 0xFFFFFFFF));
+    fill((int) (argb & 0xFFFFFFFF));
   }
 
   public void stroke(final long argb) {
-    stroke((int)(argb & 0xFFFFFFFF));
+    stroke((int) (argb & 0xFFFFFFFF));
   }
 
   public void background(final long argb) {
-    background((int)(argb & 0xFFFFFFFF));
+    background((int) (argb & 0xFFFFFFFF));
   }
 
   /*
@@ -867,66 +915,82 @@ public class PAppletJythonDriver extends PApplet {
    * 0xAARRGGBB, '#RRGGBB', and 0-255.
    */
   private void setColorMethods() {
-    builtins.__setitem__("lerpColor", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        final int c1 = interpretColorArg(args[0]);
-        final int c2 = interpretColorArg(args[1]);
-        final float amt = (float)args[2].asDouble();
-        switch (args.length) {
-          case 3:
-            return pyint(lerpColor(c1, c2, amt));
-          case 4:
-            final int colorMode = (int)(args[3].asLong() & 0xFFFFFFFF);
-            return pyint(lerpColor(c1, c2, amt, colorMode));
-          default:
-            return raiseTypeError("lerpColor takes either 3 or 4 arguments, but I got "
-                + args.length + ".");
-        }
-      }
-    });
-    builtins.__setitem__("alpha", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        return Py.newFloat(alpha(interpretColorArg(args[0])));
-      }
-    });
-    builtins.__setitem__("red", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        return Py.newFloat(red(interpretColorArg(args[0])));
-      }
-    });
-    builtins.__setitem__("green", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        return Py.newFloat(green(interpretColorArg(args[0])));
-      }
-    });
-    builtins.__setitem__("blue", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        return Py.newFloat(blue(interpretColorArg(args[0])));
-      }
-    });
-    builtins.__setitem__("hue", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        return Py.newFloat(hue(interpretColorArg(args[0])));
-      }
-    });
-    builtins.__setitem__("saturation", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        return Py.newFloat(saturation(interpretColorArg(args[0])));
-      }
-    });
-    builtins.__setitem__("brightness", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        return Py.newFloat(brightness(interpretColorArg(args[0])));
-      }
-    });
+    builtins.__setitem__(
+        "lerpColor",
+        new PyObject() {
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            final int c1 = interpretColorArg(args[0]);
+            final int c2 = interpretColorArg(args[1]);
+            final float amt = (float) args[2].asDouble();
+            switch (args.length) {
+              case 3:
+                return pyint(lerpColor(c1, c2, amt));
+              case 4:
+                final int colorMode = (int) (args[3].asLong() & 0xFFFFFFFF);
+                return pyint(lerpColor(c1, c2, amt, colorMode));
+              default:
+                return raiseTypeError(
+                    "lerpColor takes either 3 or 4 arguments, but I got " + args.length + ".");
+            }
+          }
+        });
+    builtins.__setitem__(
+        "alpha",
+        new PyObject() {
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            return Py.newFloat(alpha(interpretColorArg(args[0])));
+          }
+        });
+    builtins.__setitem__(
+        "red",
+        new PyObject() {
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            return Py.newFloat(red(interpretColorArg(args[0])));
+          }
+        });
+    builtins.__setitem__(
+        "green",
+        new PyObject() {
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            return Py.newFloat(green(interpretColorArg(args[0])));
+          }
+        });
+    builtins.__setitem__(
+        "blue",
+        new PyObject() {
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            return Py.newFloat(blue(interpretColorArg(args[0])));
+          }
+        });
+    builtins.__setitem__(
+        "hue",
+        new PyObject() {
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            return Py.newFloat(hue(interpretColorArg(args[0])));
+          }
+        });
+    builtins.__setitem__(
+        "saturation",
+        new PyObject() {
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            return Py.newFloat(saturation(interpretColorArg(args[0])));
+          }
+        });
+    builtins.__setitem__(
+        "brightness",
+        new PyObject() {
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            return Py.newFloat(brightness(interpretColorArg(args[0])));
+          }
+        });
   }
 
   /**
@@ -934,43 +998,43 @@ public class PAppletJythonDriver extends PApplet {
    * in Python, and since they mask the text()s that take take strings.
    */
   private void setText() {
-    builtins.__setitem__("text", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        if (args.length < 3 || args.length > 5) {
-          raiseTypeError("text() takes 3-5 arguments, but I got " + args.length + ".");
-        }
-        final PyObject a = args[0];
-        final float x1 = (float)args[1].asDouble();
-        final float y1 = (float)args[2].asDouble();
-        if (args.length == 3) {
-          if (isString(a)) {
-            text(a.asString(), x1, y1);
-          } else if (a.getType() == PyInteger.TYPE) {
-            text(a.asInt(), x1, y1);
-          } else {
-            text((float)a.asDouble(), x1, y1);
+    builtins.__setitem__(
+        "text",
+        new PyObject() {
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            if (args.length < 3 || args.length > 5) {
+              raiseTypeError("text() takes 3-5 arguments, but I got " + args.length + ".");
+            }
+            final PyObject a = args[0];
+            final float x1 = (float) args[1].asDouble();
+            final float y1 = (float) args[2].asDouble();
+            if (args.length == 3) {
+              if (isString(a)) {
+                text(a.asString(), x1, y1);
+              } else if (a.getType() == PyInteger.TYPE) {
+                text(a.asInt(), x1, y1);
+              } else {
+                text((float) a.asDouble(), x1, y1);
+              }
+            } else if (args.length == 4) {
+              final float z1 = (float) args[3].asDouble();
+              if (isString(a)) {
+                text(a.asString(), x1, y1, z1);
+              } else if (a.getType() == PyInteger.TYPE) {
+                text(a.asInt(), x1, y1, z1);
+              } else {
+                text((float) a.asDouble(), x1, y1, z1);
+              }
+            } else /* 5 */ {
+              text(a.asString(), x1, y1, (float) args[3].asDouble(), (float) args[4].asDouble());
+            }
+            return Py.None;
           }
-        } else if (args.length == 4) {
-          final float z1 = (float)args[3].asDouble();
-          if (isString(a)) {
-            text(a.asString(), x1, y1, z1);
-          } else if (a.getType() == PyInteger.TYPE) {
-            text(a.asInt(), x1, y1, z1);
-          } else {
-            text((float)a.asDouble(), x1, y1, z1);
-          }
-        } else /* 5 */ {
-          text(a.asString(), x1, y1, (float)args[3].asDouble(), (float)args[4].asDouble());
-        }
-        return Py.None;
-      }
-    });
+        });
   }
 
-  /**
-   * Populate the Python builtins namespace with PConstants.
-   */
+  /** Populate the Python builtins namespace with PConstants. */
   public static void initializeStatics(final PyStringMap builtins) {
     for (final Field f : PConstants.class.getDeclaredFields()) {
       final int mods = f.getModifiers();
@@ -990,8 +1054,8 @@ public class PAppletJythonDriver extends PApplet {
    * height.
    */
   @Override
-  public void size(final int iwidth, final int iheight, final String irenderer,
-      final String ipath) {
+  public void size(
+      final int iwidth, final int iheight, final String irenderer, final String ipath) {
     super.size(iwidth, iheight, irenderer, ipath);
     builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("frame", Py.java2py(frame));
@@ -1017,7 +1081,7 @@ public class PAppletJythonDriver extends PApplet {
         pixelDensity(detectedPixelDensity);
         if (detectedSmooth && detectedNoSmooth) {
           throw new MixedSmoothError();
-        }        
+        }
         if (detectedSmooth) {
           smooth();
         } else if (detectedNoSmooth) {

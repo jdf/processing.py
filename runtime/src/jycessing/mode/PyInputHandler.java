@@ -12,22 +12,20 @@ import processing.app.syntax.JEditTextArea;
 import processing.app.syntax.PdeInputHandler;
 import processing.app.ui.Editor;
 
-/**
- * This class provides Pythonic handling of keystrokes.
- */
+/** This class provides Pythonic handling of keystrokes. */
 public class PyInputHandler extends PdeInputHandler {
   final PyEditor pyEditor;
 
   // ctrl-alt on windows & linux, cmd-alt on os x
-  private static int CTRL_ALT = ActionEvent.ALT_MASK
-      | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+  private static int CTRL_ALT =
+      ActionEvent.ALT_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
   // 4 spaces per pep8
   private static final String TAB = "    ";
   private static final int TAB_SIZE = TAB.length();
 
   public PyInputHandler(final Editor editor) {
-    pyEditor = (PyEditor)editor;
+    pyEditor = (PyEditor) editor;
   }
 
   private static boolean isPrintableChar(final char c) {
@@ -45,7 +43,6 @@ public class PyInputHandler extends PdeInputHandler {
     return pyEditor.getTextArea();
   }
 
-
   @Override
   public boolean handlePressed(final KeyEvent event) {
     final char c = event.getKeyChar();
@@ -57,7 +54,10 @@ public class PyInputHandler extends PdeInputHandler {
 
     // things that change the content of the text area
     if (!event.isMetaDown()
-        && (code == KeyEvent.VK_BACK_SPACE || code == KeyEvent.VK_TAB || code == KeyEvent.VK_ENTER || isPrintableChar(c))) {
+        && (code == KeyEvent.VK_BACK_SPACE
+            || code == KeyEvent.VK_TAB
+            || code == KeyEvent.VK_ENTER
+            || isPrintableChar(c))) {
       sketch.setModified(true);
     }
 
@@ -120,14 +120,10 @@ public class PyInputHandler extends PdeInputHandler {
     return false;
   }
 
-  /**
-   * A line is some whitespace followed by a bunch of whatever.
-   */
+  /** A line is some whitespace followed by a bunch of whatever. */
   private static final Pattern LINE = Pattern.compile("^(\\s*)(.*)$");
 
-  /**
-   * Everything we need to know about a line in the text editor.
-   */
+  /** Everything we need to know about a line in the text editor. */
   private class LineInfo {
     public final int lineNumber;
 
@@ -177,10 +173,13 @@ public class PyInputHandler extends PdeInputHandler {
   /**
    * Maybe change the indent of the current selection. If sign is positive, then increase the
    * indent; otherwise, decrease it.
+   *
    * <p>If the last non-comment, non-blank line ends with ":", then the maximum indent for the
    * current line is one greater than the indent of that ":"-bearing line. Otherwise, the maximum
    * indent is equal to the indent of the last non-comment line.
+   *
    * <p>The minimum indent is 0.
+   *
    * @param sign The direction in which to modify the indent of the current line.
    */
   public void indent(final int sign) {
@@ -225,18 +224,19 @@ public class PyInputHandler extends PdeInputHandler {
     for (int i = startLine; i <= stopLine; i++) {
       indentLineBy(i, deltaIndent);
     }
-    textArea.setSelectionStart(getAbsoluteCaretPositionRelativeToLineEnd(startLine,
-        startLineEndRelativePos));
-    textArea.setSelectionEnd(getAbsoluteCaretPositionRelativeToLineEnd(stopLine,
-        stopLineEndRelativePos));
+    textArea.setSelectionStart(
+        getAbsoluteCaretPositionRelativeToLineEnd(startLine, startLineEndRelativePos));
+    textArea.setSelectionEnd(
+        getAbsoluteCaretPositionRelativeToLineEnd(stopLine, stopLineEndRelativePos));
   }
 
-  private int getAbsoluteCaretPositionRelativeToLineEnd(final int line,
-      final int lineEndRelativePosition) {
+  private int getAbsoluteCaretPositionRelativeToLineEnd(
+      final int line, final int lineEndRelativePosition) {
     final JEditTextArea textArea = getTextArea();
 
-    return Math.max(textArea.getLineStopOffset(line) - lineEndRelativePosition, textArea
-        .getLineStartOffset(line));
+    return Math.max(
+        textArea.getLineStopOffset(line) - lineEndRelativePosition,
+        textArea.getLineStartOffset(line));
   }
 
   private void indentLineBy(final int line, final int deltaIndent) {
@@ -273,10 +273,13 @@ public class PyInputHandler extends PdeInputHandler {
   }
 
   /**
-   * Search for an unterminated paren or bracket. If found, return
-   * its index in the given text. Otherwise return -1.
+   * Search for an unterminated paren or bracket. If found, return its index in the given text.
+   * Otherwise return -1.
+   *
    * <p>Ignores syntax errors, treating (foo] as a valid construct.
+   *
    * <p>Assumes that the text contains no surrogate characters.
+   *
    * @param cursor The current cursor position in the given text.
    * @param text The text to search for an unterminated paren or bracket.
    * @return The index of the unterminated paren, or -1.

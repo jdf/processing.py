@@ -8,5 +8,4 @@ public class MixedModeError extends PythonSketchError {
   public MixedModeError(final String message, final String fileName, final int line) {
     super(message, fileName, line);
   }
-
 }

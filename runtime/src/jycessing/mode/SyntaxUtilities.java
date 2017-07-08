@@ -5,8 +5,8 @@ import javax.swing.text.Segment;
 public class SyntaxUtilities {
 
   /**
-   * Checks if a subregion of a <code>Segment</code> is equal to a
-   * string.
+   * Checks if a subregion of a <code>Segment</code> is equal to a string.
+   *
    * @param text The segment
    * @param offset The offset into the segment
    * @param match The string to match
@@ -26,8 +26,8 @@ public class SyntaxUtilities {
   }
 
   /**
-   * Checks if a subregion of a <code>Segment</code> is equal to a
-   * character array.
+   * Checks if a subregion of a <code>Segment</code> is equal to a character array.
+   *
    * @param text The segment
    * @param offset The offset into the segment
    * @param match The character array to match
@@ -45,5 +45,4 @@ public class SyntaxUtilities {
     }
     return true;
   }
-
 }

@@ -48,9 +48,7 @@ import java.nio.file.attribute.FileTime;
 
 class TreeCopier implements FileVisitor<Path> {
 
-  /**
-   * Copy source file to target location. 
-   */
+  /** Copy source file to target location. */
   static void copyFile(final Path source, final Path target) {
     try {
       Files.copy(source, target, COPY_ATTRIBUTES, REPLACE_EXISTING);

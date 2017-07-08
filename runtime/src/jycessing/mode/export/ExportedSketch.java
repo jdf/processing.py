@@ -14,11 +14,11 @@ import jycessing.Runner.LibraryPolicy;
 import processing.core.PApplet;
 
 /**
- * A sketch that's been exported from the PDE.
- * Runner.main() will create one of these if ARGS_EXPORTED is in argv.
- * 
- * This class tries to make sure that the exported sketch is in the right configuration - if it isn't,
- * it will warn the user and fail.
+ * A sketch that's been exported from the PDE. Runner.main() will create one of these if
+ * ARGS_EXPORTED is in argv.
+ *
+ * <p>This class tries to make sure that the exported sketch is in the right configuration - if it
+ * isn't, it will warn the user and fail.
  */
 public class ExportedSketch implements RunnableSketch {
 
@@ -148,5 +148,4 @@ public class ExportedSketch implements RunnableSketch {
 
     return entries;
   }
-
 }

@@ -9,14 +9,14 @@ import jycessing.IOUtil;
 
 /**
  * Launch and deployment service for various platforms.
- * 
+ *
  * @author Ralf Biedert <rb@xr.io>
  */
 public class LaunchHelper {
 
   /**
    * Copies one of our resources to a given file.
-   *  
+   *
    * @param name
    * @param path
    * @throws IOException

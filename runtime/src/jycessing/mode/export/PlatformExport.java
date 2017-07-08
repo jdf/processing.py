@@ -12,11 +12,7 @@ import processing.app.Sketch;
 import processing.app.SketchCode;
 import processing.app.Util;
 
-/**
- * 
- * Subclass this to add more platforms, if we ever want to add freebsd or haiku or something
- *
- */
+/** Subclass this to add more platforms, if we ever want to add freebsd or haiku or something */
 public abstract class PlatformExport {
   protected int id;
   protected String name;
@@ -25,17 +21,12 @@ public abstract class PlatformExport {
   protected Set<Library> libraries;
   protected Arch arch;
 
-  /**
-   * Instance so that subclasses can override it.
-   */
+  /** Instance so that subclasses can override it. */
   protected abstract void log(final String msg);
 
   public abstract void export() throws IOException;
 
-  /**
-   * This is the same between platforms.
-   * 
-   */
+  /** This is the same between platforms. */
   public void copyBasicStructure(final File destFolder) throws IOException {
     final boolean hasData = sketch.hasDataFolder();
     final boolean hasCode = sketch.hasCodeFolder();
@@ -85,12 +76,17 @@ public abstract class PlatformExport {
         final File libraryExportFolder =
             new File(libFolder, library.getFolder().getName() + "/library/");
         libraryExportFolder.mkdirs();
-        for (final File exportFile : library.getApplicationExports(id, Integer.toString(arch.bits))) {
+        for (final File exportFile :
+            library.getApplicationExports(id, Integer.toString(arch.bits))) {
           log("Exporting: " + exportFile);
           final String exportName = exportFile.getName();
           if (!exportFile.exists()) {
-            System.err.println("The file " + exportName + " is mentioned in the export.txt from "
-                + library + " but does not actually exist. Moving on.");
+            System.err.println(
+                "The file "
+                    + exportName
+                    + " is mentioned in the export.txt from "
+                    + library
+                    + " but does not actually exist. Moving on.");
             continue;
           }
           if (exportFile.isDirectory()) {
@@ -106,8 +102,9 @@ public abstract class PlatformExport {
     {
       jycessingFolder.mkdirs();
       log("Copying core processing stuff to export");
-      for (final File exportFile : new Library(Platform.getContentFile("core"))
-          .getApplicationExports(id, Integer.toString(arch.bits))) {
+      for (final File exportFile :
+          new Library(Platform.getContentFile("core"))
+              .getApplicationExports(id, Integer.toString(arch.bits))) {
         if (exportFile.isDirectory()) {
           Util.copyDir(exportFile, new File(jycessingFolder, exportFile.getName()));
         } else {

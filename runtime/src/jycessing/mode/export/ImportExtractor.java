@@ -5,14 +5,13 @@ import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Set;
 
-import jycessing.mode.PythonMode;
-
 import org.python.antlr.ast.Call;
 import org.python.antlr.ast.Str;
 import org.python.antlr.base.mod;
 import org.python.core.CompilerFlags;
 import org.python.core.ParserFacade;
 
+import jycessing.mode.PythonMode;
 import processing.app.Base;
 import processing.app.Library;
 import processing.app.Messages;
@@ -21,13 +20,12 @@ import processing.app.Sketch;
 import processing.app.SketchCode;
 
 /**
- * Parses pyde source files using jython's ANTLR parser, goes through all
- * function calls with a Visitor, finds all calls to add_library, and finds
- * the libraries that are being imported. This WON'T WORK if add_library
- * is reassigned or passed not-a-string. We currently only warn the user
+ * Parses pyde source files using jython's ANTLR parser, goes through all function calls with a
+ * Visitor, finds all calls to add_library, and finds the libraries that are being imported. This
+ * WON'T WORK if add_library is reassigned or passed not-a-string. We currently only warn the user
  * if they don't pass a string.
- * 
- * TODO More stringent warnings.
+ *
+ * <p>TODO More stringent warnings.
  */
 public class ImportExtractor {
   @SuppressWarnings("unused")
@@ -37,8 +35,10 @@ public class ImportExtractor {
     }
   }
 
-  private final static File[] libLocations = new File[] {
-      Platform.getContentFile("modes/java/libraries"), Base.getSketchbookLibrariesFolder()};
+  private static final File[] libLocations =
+      new File[] {
+        Platform.getContentFile("modes/java/libraries"), Base.getSketchbookLibrariesFolder()
+      };
 
   private final Sketch sketch;
   private final Set<Library> libraries;
@@ -60,8 +60,8 @@ public class ImportExtractor {
       final mod ast;
       try {
         ast =
-            ParserFacade.parseExpressionOrModule(new StringReader(code.getProgram()), code
-                .getFileName(), new CompilerFlags());
+            ParserFacade.parseExpressionOrModule(
+                new StringReader(code.getProgram()), code.getFileName(), new CompilerFlags());
       } catch (final Exception e) {
         System.err.println("Couldn't parse " + code.getFileName());
         // I don't like this but I'm not sure what else to do
@@ -77,7 +77,8 @@ public class ImportExtractor {
       }
     }
     if (visitor.failure) {
-      Messages.showWarning("Library Problems",
+      Messages.showWarning(
+          "Library Problems",
           "I can't figure out all of the java libraries you're using. "
               + "Your exported sketch might not work.");
     }
@@ -104,7 +105,6 @@ public class ImportExtractor {
     }
   }
 
-
   private static class ImportVisitor extends org.python.antlr.Visitor {
     public final Set<String> importNames;
     public boolean failure;
@@ -123,8 +123,8 @@ public class ImportExtractor {
           importNames.add(lib);
           log("Found library: " + lib);
         } else {
-          System.err
-              .println("I can't figure out what libraries you're using if you don't pass a string to add_library.\n"
+          System.err.println(
+              "I can't figure out what libraries you're using if you don't pass a string to add_library.\n"
                   + "Please replace "
                   + funcall.getInternalArgs().get(0).getToken().getText()
                   + " with the name of the library you're importing.");
@@ -134,5 +134,4 @@ public class ImportExtractor {
       return super.visitCall(funcall);
     }
   }
-
 }
