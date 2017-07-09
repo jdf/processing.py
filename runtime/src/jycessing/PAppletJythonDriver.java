@@ -34,6 +34,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.sound.midi.MidiMessage;
+
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
 import org.python.core.Py;
@@ -122,6 +124,13 @@ public class PAppletJythonDriver extends PApplet {
   private boolean detectedSmooth, detectedNoSmooth, detectedFullScreen;
   private PyObject processedStaticSketch;
 
+  private static int argCount(final PyObject func) {
+    if (!(func instanceof PyFunction)) {
+      return -1;
+    }
+    return ((PyBaseCode) ((PyFunction) func).__code__).co_argcount;
+  }
+
   /**
    * The Processing event handling functions can take 0 or 1 argument. This class represents such a
    * function.
@@ -137,7 +146,7 @@ public class PAppletJythonDriver extends PApplet {
 
     public EventFunction(final String funcName) {
       func = (PyFunction) interp.get(funcName);
-      argCount = func == null ? -1 : ((PyBaseCode) (func).__code__).co_argcount;
+      argCount = argCount(func);
     }
 
     public void invoke() {
@@ -182,6 +191,18 @@ public class PAppletJythonDriver extends PApplet {
 
   // Implement the oscP5 library's callback.
   private PyObject oscEventMeth;
+
+  // Implement themidibus callbacks.
+  private PyObject noteOn3Meth,
+      noteOff3Meth,
+      controllerChange3Meth,
+      rawMidi1Meth,
+      midiMessage1Meth,
+      noteOn5Meth,
+      noteOff5Meth,
+      controllerChange5Meth,
+      rawMidi3Meth,
+      midiMessage3Meth;
 
   private SketchPositionListener sketchPositionListener;
 
@@ -566,6 +587,69 @@ public class PAppletJythonDriver extends PApplet {
 
     // oscP5 library callback.
     oscEventMeth = interp.get("oscEvent");
+
+    // themidibus callbacks
+    PyObject meth;
+    if ((meth = interp.get("noteOn")) != null) {
+      switch (argCount(meth)) {
+        default:
+          throw new RuntimeException(
+              "only noteOn(channel, pitch, velocity) or "
+                  + "noteOn(channel, pitch, velocity, timestamp, bus_name) "
+                  + "are supported by Python Mode");
+        case 3:
+          noteOn3Meth = meth;
+          break;
+        case 5:
+          noteOn5Meth = meth;
+      }
+    }
+    if ((meth = interp.get("noteOff")) != null) {
+      switch (argCount(meth)) {
+        case 1:
+          throw new RuntimeException(
+              "only noteOff(channel, pitch, velocity) or "
+                  + "noteOff(channel, pitch, velocity, timestamp, bus_name) "
+                  + "are supported by Python Mode");
+        case 3:
+          noteOff3Meth = meth;
+          break;
+        case 5:
+          noteOff5Meth = meth;
+      }
+    }
+    if ((meth = interp.get("controllerChange")) != null) {
+      switch (argCount(meth)) {
+        case 1:
+          throw new RuntimeException(
+              "only controllerChange(channel, pitch, velocity) or "
+                  + "controllerChange(channel, pitch, velocity, timestamp, bus_name) "
+                  + "are supported by Python Mode");
+        case 3:
+          controllerChange3Meth = meth;
+          break;
+        case 5:
+          controllerChange5Meth = meth;
+      }
+    }
+    if ((meth = interp.get("rawMidi")) != null) {
+      switch (argCount(meth)) {
+        case 1:
+          rawMidi1Meth = meth;
+          break;
+        case 3:
+          rawMidi3Meth = meth;
+      }
+    }
+    if ((meth = interp.get("midiMessage")) != null) {
+      switch (argCount(meth)) {
+        case 1:
+          midiMessage1Meth = meth;
+          break;
+        case 3:
+          midiMessage3Meth = meth;
+      }
+    }
   }
 
   /*
@@ -1387,6 +1471,87 @@ public class PAppletJythonDriver extends PApplet {
   public void oscEvent(final Object oscMessage) {
     if (oscEventMeth != null) {
       oscEventMeth.__call__(Py.java2py(oscMessage));
+    }
+  }
+
+  // themidibus callbacks
+  public void noteOn(final int channel, final int pitch, final int velocity) {
+    if (noteOn3Meth != null) {
+      noteOn3Meth.__call__(pyint(channel), pyint(pitch), pyint(velocity));
+    }
+  }
+
+  public void noteOn(
+      final int channel,
+      final int pitch,
+      final int velocity,
+      final long time,
+      final String busName) {
+    if (noteOn5Meth != null) {
+      noteOn5Meth.__call__(
+          new PyObject[] {
+            pyint(channel), pyint(pitch), pyint(velocity), Py.newLong(time), Py.newString(busName)
+          });
+    }
+  }
+
+  public void noteOff(final int channel, final int pitch, final int velocity) {
+    if (noteOff3Meth != null) {
+      noteOff3Meth.__call__(pyint(channel), pyint(pitch), pyint(velocity));
+    }
+  }
+
+  public void noteOff(
+      final int channel,
+      final int pitch,
+      final int velocity,
+      final long time,
+      final String busName) {
+    if (noteOff5Meth != null) {
+      noteOff5Meth.__call__(
+          new PyObject[] {
+            pyint(channel), pyint(pitch), pyint(velocity), Py.newLong(time), Py.newString(busName)
+          });
+    }
+  }
+
+  public void controllerChange(final int channel, final int number, final int value) {
+    if (controllerChange3Meth != null) {
+      controllerChange3Meth.__call__(pyint(channel), pyint(number), pyint(value));
+    }
+  }
+
+  public void controllerChange(
+      final int channel, final int number, final int value, final long time, final String busName) {
+    if (controllerChange5Meth != null) {
+      controllerChange5Meth.__call__(
+          new PyObject[] {
+            pyint(channel), pyint(number), pyint(value), Py.newLong(time), Py.newString(busName)
+          });
+    }
+  }
+
+  public void rawMidi(final byte[] data) {
+    if (rawMidi1Meth != null) {
+      rawMidi1Meth.__call__(Py.java2py(data));
+    }
+  }
+
+  public void rawMidi(final byte[] data, final long time, final String busName) {
+    if (rawMidi3Meth != null) {
+      rawMidi3Meth.__call__(Py.java2py(data), Py.newLong(time), Py.newString(busName));
+    }
+  }
+
+  public void midiMessage(final MidiMessage msg) {
+    if (midiMessage1Meth != null) {
+      midiMessage1Meth.__call__(Py.java2py(msg));
+    }
+  }
+
+  public void midiMessage(final MidiMessage msg, final long time, final String busName) {
+    if (midiMessage3Meth != null) {
+      midiMessage3Meth.__call__(Py.java2py(msg), Py.newLong(time), Py.newString(busName));
     }
   }
 
