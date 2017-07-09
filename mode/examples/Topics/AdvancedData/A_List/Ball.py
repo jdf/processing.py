@@ -22,13 +22,10 @@ class Ball():
     def finished(self):
         # Balls fade out
         self.life -= 1
-        if self.life < 0:
-            return True
-        else:
-            return False
+        return self.life < 0
 
     def display(self):
         # Dispaly the circle
         fill(0, self.life)
-        # strike(0, self.life)
+        # stroke(0, self.life)
         ellipse(self.x, self.y, self.w, self.w)
