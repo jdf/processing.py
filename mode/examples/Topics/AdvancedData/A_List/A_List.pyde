@@ -1,7 +1,7 @@
 """
-Daniel Shiffman demonstrates an ArrayList of objects on Java Mode,
-to the same effect, this example demonstrates how to use a simple
-Python list to store  a variable number of objects.
+Based on the ArrayList of objects Java Mode example by Daniel Shiffman,
+this demonstrates, to the same effect, how to use a simple Python list
+to store a variable number of objects.
 Items can be added and removed from the list.
 
 Click the mouse to add bouncing balls.
