@@ -113,7 +113,7 @@
       match="@@version@@" replace="${jycessing.build.number}" />
     <replaceregexp file="${bundle}/mode.properties" flags="g"
       match="@@pretty-version@@"
-      replace="Build ${jycessing.build.number}, built ${jycessing.build.date}" />
+      replace="${jycessing.build.number}" />
 
     <copy tofile="work/modedist/PythonMode.txt" file="${bundle}/mode.properties"/>
   </target>
