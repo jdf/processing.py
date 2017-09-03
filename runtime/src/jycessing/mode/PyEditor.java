@@ -445,4 +445,10 @@ public class PyEditor extends Editor {
   public void printErr(final String msg) {
     console.message(msg, true);
   }
+
+  @Override
+  public void showReference(final String filename) {
+    Platform.openURL(
+        String.format("http://py.processing.org/reference/%s", filename.replace("_.", ".")));
+  }
 }
