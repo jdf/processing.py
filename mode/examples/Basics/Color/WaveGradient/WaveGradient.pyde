@@ -28,7 +28,7 @@ def draw():
                       * 255 / amplitude, j * (255.0 / (width + 50)))
             # Hack to fill gaps. Raise value of fillGap if you increase
             # frequency
-            for filler in range(0, fillGap):
+            for filler in range(0, int(fillGap)):
                 set(int(j - filler), int(py) - filler, c)
                 set(int(j), int(py), c)
                 set(int(j + filler), int(py) + filler, c)
