@@ -55,20 +55,26 @@ public class RMIUtils {
     final String registryKey = remoteInterface.getSimpleName();
     try {
       final Remote stub = export(remote);
-      log("Attempting to bind instance of " + remote.getClass().getName() + " to registry as "
-          + registryKey);
+      log(
+          "Attempting to bind instance of "
+              + remote.getClass().getName()
+              + " to registry as "
+              + registryKey);
       registry().bind(registryKey, stub);
       log("Bound.");
-      Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            log("Unbinding " + registryKey + " from registry.");
-            registry().unbind(registryKey);
-          } catch (final Exception e) {
-          }
-        }
-      }));
+      Runtime.getRuntime()
+          .addShutdownHook(
+              new Thread(
+                  new Runnable() {
+                    @Override
+                    public void run() {
+                      try {
+                        log("Unbinding " + registryKey + " from registry.");
+                        registry().unbind(registryKey);
+                      } catch (final Exception e) {
+                      }
+                    }
+                  }));
     } catch (final Exception e) {
       throw new RMIProblem(e);
     }
@@ -86,7 +92,7 @@ public class RMIUtils {
   public static <T extends Remote> T lookup(final Class<T> klass) throws RMIProblem {
     try {
       log("Looking up ModeService in registry.");
-      return (T)registry().lookup(klass.getSimpleName());
+      return (T) registry().lookup(klass.getSimpleName());
     } catch (final Exception e) {
       throw new RMIProblem(e);
     }

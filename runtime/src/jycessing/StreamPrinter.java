@@ -15,4 +15,9 @@ public class StreamPrinter implements Printer {
     stream.print(String.valueOf(o));
     stream.flush();
   }
+
+  @Override
+  public void flush() {
+    stream.flush();
+  }
 }

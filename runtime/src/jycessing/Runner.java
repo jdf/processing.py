@@ -15,20 +15,6 @@
  */
 package jycessing;
 
-import org.python.core.Py;
-import org.python.core.PyList;
-import org.python.core.PyObject;
-import org.python.core.PyStringMap;
-import org.python.core.PySystemState;
-import org.python.util.InteractiveConsole;
-import org.python.util.PythonInterpreter;
-
-import jycessing.launcher.LaunchHelper;
-import jycessing.launcher.StandaloneSketch;
-import jycessing.mode.export.ExportedSketch;
-import processing.core.PApplet;
-import processing.core.PConstants;
-
 import java.awt.SplashScreen;
 import java.io.File;
 import java.io.FileFilter;
@@ -43,6 +29,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
+import org.python.core.Py;
+import org.python.core.PyList;
+import org.python.core.PyObject;
+import org.python.core.PyStringMap;
+import org.python.core.PySystemState;
+import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
+
+import jycessing.launcher.LaunchHelper;
+import jycessing.launcher.StandaloneSketch;
+import jycessing.mode.export.ExportedSketch;
+import processing.core.PApplet;
+import processing.core.PConstants;
 
 public class Runner {
 
@@ -76,12 +76,12 @@ public class Runner {
     }
   }
 
-  private static final String LAUNCHER_TEXT = IOUtil.readResourceAsText(LaunchHelper.class,
-      "launcher.py");
+  private static final String LAUNCHER_TEXT =
+      IOUtil.readResourceAsText(LaunchHelper.class, "launcher.py");
   private static final String CORE_TEXT = IOUtil.readResourceAsText(Runner.class, "core.py");
 
   // -Dverbose=true for some logging
-  static public boolean VERBOSE = Boolean.getBoolean("verbose");
+  public static boolean VERBOSE = Boolean.getBoolean("verbose");
 
   static void log(final Object... objs) {
     if (!VERBOSE) {
@@ -94,9 +94,8 @@ public class Runner {
   }
 
   /**
-   * Recursively search the given directory for jar files and directories
-   * containing dynamic libraries, adding them to the classpath and the
-   * library path respectively.
+   * Recursively search the given directory for jar files and directories containing dynamic
+   * libraries, adding them to the classpath and the library path respectively.
    */
   private static void searchForExtraStuff(final File dir, final Set<String> entries) {
     if (dir == null) {
@@ -111,24 +110,28 @@ public class Runner {
 
     log("Searching: ", dir);
 
-    final File[] dlls = dir.listFiles(new FilenameFilter() {
-      @Override
-      public boolean accept(final File dir, final String name) {
-        return name.matches("^.+\\.(so|dll|jnilib|dylib)$");
-      }
-    });
+    final File[] dlls =
+        dir.listFiles(
+            new FilenameFilter() {
+              @Override
+              public boolean accept(final File dir, final String name) {
+                return name.matches("^.+\\.(so|dll|jnilib|dylib)$");
+              }
+            });
     if (dlls != null && dlls.length > 0) {
       entries.add(dir.getAbsolutePath());
     } else {
       log("No DLLs in ", dir);
     }
 
-    final File[] jars = dir.listFiles(new FilenameFilter() {
-      @Override
-      public boolean accept(final File dir, final String name) {
-        return name.matches("^.+\\.jar$");
-      }
-    });
+    final File[] jars =
+        dir.listFiles(
+            new FilenameFilter() {
+              @Override
+              public boolean accept(final File dir, final String name) {
+                return name.matches("^.+\\.jar$");
+              }
+            });
     if (!(jars == null || jars.length == 0)) {
       for (final File jar : jars) {
         entries.add(jar.getAbsolutePath());
@@ -137,12 +140,14 @@ public class Runner {
       log("No JARs in ", dir);
     }
 
-    final File[] dirs = dir.listFiles(new FileFilter() {
-      @Override
-      public boolean accept(final File f) {
-        return f.isDirectory() && f.getName().charAt(0) != '.';
-      }
-    });
+    final File[] dirs =
+        dir.listFiles(
+            new FileFilter() {
+              @Override
+              public boolean accept(final File f) {
+                return f.isDirectory() && f.getName().charAt(0) != '.';
+              }
+            });
     if (!(dirs == null || dirs.length == 0)) {
       for (final File d : dirs) {
         searchForExtraStuff(d, entries);
@@ -155,11 +160,8 @@ public class Runner {
   public static RunnableSketch sketch;
 
   /**
-   *
-   * Entrypoint for non-PDE sketches. If we find ARGS_EXPORTED in the argument list,
-   * Launch as an exported sketch.
-   * Otherwise, launch as a standalone processing.py sketch.
-   *
+   * Entrypoint for non-PDE sketches. If we find ARGS_EXPORTED in the argument list, Launch as an
+   * exported sketch. Otherwise, launch as a standalone processing.py sketch.
    */
   public static void main(final String[] args) throws Exception {
     if (args.length < 1) {
@@ -187,18 +189,12 @@ public class Runner {
     System.exit(0);
   }
 
-  /**
-   * Specifies how to deal with the libraries directory.
-   */
+  /** Specifies how to deal with the libraries directory. */
   public enum LibraryPolicy {
-    /**
-     * Preemptively put every jar file and directory under the library path on sys.path.
-     */
+    /** Preemptively put every jar file and directory under the library path on sys.path. */
     PROMISCUOUS,
 
-    /**
-     * Only put jar files and directories onto sys.path as called for by add_library.
-     */
+    /** Only put jar files and directories onto sys.path as called for by add_library. */
     SELECTIVE
   }
 
@@ -266,8 +262,8 @@ public class Runner {
   }
 
   /**
-   * warmup() front-loads a huge amount of slow IO so that when the user gets around
-   * to running a sketch, most of the slow work is already done.
+   * warmup() front-loads a huge amount of slow IO so that when the user gets around to running a
+   * sketch, most of the slow work is already done.
    */
   public static void warmup() {
     try (final WarmupSketch warmup = new WarmupSketch()) {
@@ -277,14 +273,18 @@ public class Runner {
     }
   }
 
-  public synchronized static void runSketchBlocking(final RunnableSketch sketch,
-      final Printer stdout, final Printer stderr) throws PythonSketchError {
+  public static synchronized void runSketchBlocking(
+      final RunnableSketch sketch, final Printer stdout, final Printer stderr)
+      throws PythonSketchError {
     runSketchBlocking(sketch, stdout, stderr, null);
   }
 
-  public synchronized static void runSketchBlocking(final RunnableSketch sketch,
-      final Printer stdout, final Printer stderr,
-      final SketchPositionListener sketchPositionListener) throws PythonSketchError {
+  public static synchronized void runSketchBlocking(
+      final RunnableSketch sketch,
+      final Printer stdout,
+      final Printer stderr,
+      final SketchPositionListener sketchPositionListener)
+      throws PythonSketchError {
     final Properties props = new Properties();
 
     // Suppress sys-package-manager output.
@@ -312,9 +312,9 @@ public class Runner {
     PythonInterpreter.initialize(null, props, args);
 
     final PySystemState sys = Py.getSystemState();
-    final PyStringMap originalModules = ((PyStringMap)sys.modules).copy();
-    final PyList originalPath = new PyList((PyObject)sys.path);
-    final PyStringMap builtins = (PyStringMap)sys.getBuiltins();
+    final PyStringMap originalModules = ((PyStringMap) sys.modules).copy();
+    final PyList originalPath = new PyList((PyObject) sys.path);
+    final PyStringMap builtins = (PyStringMap) sys.getBuiltins();
     final PyStringMap originalBuiltins = builtins.copy();
     try {
       final InteractiveConsole interp = new InteractiveConsole();
@@ -370,8 +370,8 @@ public class Runner {
       interp.set("__stdout__", stdout);
       interp.set("__stderr__", stderr);
       final PAppletJythonDriver applet =
-          new PAppletJythonDriver(interp, sketch.getMainFile().toString(), sketch.getMainCode(),
-              stdout);
+          new PAppletJythonDriver(
+              interp, sketch.getMainFile().toString(), sketch.getMainCode(), stdout);
       interp.set("__papplet__", applet);
       interp.exec(CORE_TEXT);
 
@@ -410,9 +410,8 @@ public class Runner {
   }
 
   /**
-   * The urllib module unit tests exposed a bug in how the codecs module
-   * is mangled when the world is reset around it. This hack forces it to
-   * reinitialize.
+   * The urllib module unit tests exposed a bug in how the codecs module is mangled when the world
+   * is reset around it. This hack forces it to reinitialize.
    */
   private static void resetCodecsModule() {
     ReflectionUtil.setObject(Py.getSystemState(), "codecState", null);

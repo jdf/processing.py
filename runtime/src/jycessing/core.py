@@ -59,6 +59,7 @@ class PVector(__pvector__):
             self.x += args[0]
             self.y += args[1]
             self.z += args[2]
+        return self
         
     def __instance_sub__(self, *args):
         if len(args) == 1:
@@ -70,12 +71,13 @@ class PVector(__pvector__):
             self.x -= args[0]
             self.y -= args[1]
             self.z -= args[2]
+        return self
 
     def __instance_mult__(self, o):
-        PVector.mult(self, o, self)
+        return PVector.mult(self, o, self)
 
     def __instance_div__(self, f):
-        PVector.div(self, f, self)
+        return PVector.div(self, f, self)
 
     def __instance_cross__(self, o):
         return PVector.cross(self, o, self)
@@ -104,6 +106,7 @@ class PVector(__pvector__):
         else:
             raise Exception('lerp takes either (x, y, z, t) or (v, t)')
         __pvector__.lerp(self, x, y, z, t)
+        return self
 
     def __init__(self, x=0, y=0, z=0):
         __pvector__.__init__(self, x, y, z)
@@ -239,8 +242,8 @@ class PVector(__pvector__):
 # Now expose the funky PVector class as a builtin.
 __builtin__.PVector = PVector
 
-# Make it available to sketches by the name "this", to better match existing
-# Java-based documentation for third-party libraries, and such.
+# Make the PApplet available to sketches by the name "this", to better match
+# existing Java-based documentation for third-party libraries, and such.
 __builtin__.this = __papplet__
 
 
@@ -616,11 +619,15 @@ __builtin__.open = __open__
 class FakeStdOut():
     def write(self, s):
         __stdout__.print(s)
+    def flush(self):
+        __stdout__.flush()
 sys.stdout = FakeStdOut()
 
 class FakeStdErr():
     def write(self, s):
         __stderr__.print(s)
+    def flush(self):
+        __stderr__.flush()
 sys.stderr = FakeStdErr()
 
 del FakeStdOut, FakeStdErr

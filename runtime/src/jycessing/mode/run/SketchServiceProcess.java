@@ -17,14 +17,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Joiner;
+
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
 import processing.app.Messages;
 import processing.app.Platform;
 import processing.app.Preferences;
 import processing.app.SketchException;
-
-import com.google.common.base.Joiner;
 
 public class SketchServiceProcess {
   private static void log(final String msg) {
@@ -33,12 +33,13 @@ public class SketchServiceProcess {
     }
   }
 
-  private static final FilenameFilter JARS = new FilenameFilter() {
-    @Override
-    public boolean accept(final File dir, final String name) {
-      return name.endsWith(".jar");
-    }
-  };
+  private static final FilenameFilter JARS =
+      new FilenameFilter() {
+        @Override
+        public boolean accept(final File dir, final String name) {
+          return name.endsWith(".jar");
+        }
+      };
 
   private final PythonMode mode;
   private final PyEditor editor;
@@ -56,12 +57,11 @@ public class SketchServiceProcess {
   }
 
   /**
-   * This constructor should only be used while instrumenting or debugging the
-   * {@link SketchRunner}, in which case it has already been started in the
-   * debugger or such like.
+   * This constructor should only be used while instrumenting or debugging the {@link SketchRunner},
+   * in which case it has already been started in the debugger or such like.
    */
-  SketchServiceProcess(final PythonMode mode, final PyEditor editor,
-      final SketchService runningService) {
+  SketchServiceProcess(
+      final PythonMode mode, final PyEditor editor, final SketchService runningService) {
     this.mode = mode;
     this.editor = editor;
     this.sketchService = runningService;
@@ -133,10 +133,15 @@ public class SketchServiceProcess {
     command.add("-Djava.library.path=" + System.getProperty("java.library.path"));
 
     final List<String> cp = new ArrayList<>();
-    cp.addAll(filter(Arrays.asList(System.getProperty("java.class.path").split(
-        Pattern.quote(File.pathSeparator))), not(or(
-        containsPattern("(ant|ant-launcher|antlr|netbeans.*|osgi.*|jdi.*|ibm\\.icu.*|jna)\\.jar$"),
-        containsPattern("/processing/app/(test|lib)/")))));
+    cp.addAll(
+        filter(
+            Arrays.asList(
+                System.getProperty("java.class.path").split(Pattern.quote(File.pathSeparator))),
+            not(
+                or(
+                    containsPattern(
+                        "(ant|ant-launcher|antlr|netbeans.*|osgi.*|jdi.*|ibm\\.icu.*|jna)\\.jar$"),
+                    containsPattern("/processing/app/(test|lib)/")))));
     for (final File jar : new File(Platform.getContentFile("core"), "library").listFiles(JARS)) {
       cp.add(jar.getAbsolutePath());
     }
@@ -170,16 +175,17 @@ public class SketchServiceProcess {
 
   public void runSketch(final PdeSketch sketch) throws SketchException {
     // Create a pending request in case of various failure modes.
-    pendingSketchRequest = new Runnable() {
-      @Override
-      public void run() {
-        try {
-          runSketch(sketch);
-        } catch (final SketchException e) {
-          editor.statusError(e);
-        }
-      }
-    };
+    pendingSketchRequest =
+        new Runnable() {
+          @Override
+          public void run() {
+            try {
+              runSketch(sketch);
+            } catch (final SketchException e) {
+              editor.statusError(e);
+            }
+          }
+        };
     if (sketchService == null) {
       log("Sketch service not running. Leaving pending request to run sketch.");
       restartServerProcess();
@@ -196,7 +202,6 @@ public class SketchServiceProcess {
     }
   }
 
-
   public void stopSketch() throws SketchException {
     if (sketchService == null) {
       log("Sketch runner apparently not running; can't stop sketch.");
@@ -210,7 +215,6 @@ public class SketchServiceProcess {
       handleRemoteException(e);
     }
   }
-
 
   public void shutdown() {
     if (sketchService != null) {
@@ -249,5 +253,4 @@ public class SketchServiceProcess {
   public void handleSketchMoved(final Point leftTop) {
     editor.setSketchLocation(leftTop);
   }
-
 }

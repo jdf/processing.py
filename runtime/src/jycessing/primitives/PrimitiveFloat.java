@@ -4,7 +4,7 @@ import jycessing.annotations.PythonUsage;
 
 /**
  * Primitive float class. Serves as a container for libraries such as Ani.
- * 
+ *
  * @author Ralf Biedert <rb@xr.io>
  */
 @PythonUsage(methodName = "PrimitiveFloat")

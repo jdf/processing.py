@@ -20,26 +20,15 @@ import processing.app.Util;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
-
-
 /**
- * 
- * Performs an export to Linux (32/64).
- * The linux export folder layout is as follows:
- * 
- * $appdir/                        (e.g. $sketchname/application.linux32)
- *        /$sketchname             (executable shell script to run the application)
- *        /source/                 (the source code of the sketch; used to run it)
- *        /lib/                    (where java imports are stored)
- *            /jycessing/          (where stuff necessary to jycessing is stored;
- *                                  everything in here is added to the classpath.)
- *            /$libname/library/   (where resources for $libname - imported with
- *                                  add_library - are stored. Not added to classpath.)
- *        /code/                   (any other code resources the user wanted to add;
- *                                  copied verbatim.)
- *        /data/                   (all non-code resources; copied verbatim.)
- *        
+ * Performs an export to Linux (32/64). The linux export folder layout is as follows:
  *
+ * <p>$appdir/ (e.g. $sketchname/application.linux32) /$sketchname (executable shell script to run
+ * the application) /source/ (the source code of the sketch; used to run it) /lib/ (where java
+ * imports are stored) /jycessing/ (where stuff necessary to jycessing is stored; everything in here
+ * is added to the classpath.) /$libname/library/ (where resources for $libname - imported with
+ * add_library - are stored. Not added to classpath.) /code/ (any other code resources the user
+ * wanted to add; copied verbatim.) /data/ (all non-code resources; copied verbatim.)
  */
 public class LinuxExport extends PlatformExport {
 
@@ -52,8 +41,8 @@ public class LinuxExport extends PlatformExport {
     }
   }
 
-  public LinuxExport(final Arch arch, final Sketch sketch, final PyEditor editor,
-      final Set<Library> libraries) {
+  public LinuxExport(
+      final Arch arch, final Sketch sketch, final PyEditor editor, final Set<Library> libraries) {
     this.id = PConstants.LINUX;
     this.arch = arch;
     this.name = PConstants.platformNames[id] + arch.bits;
@@ -66,7 +55,8 @@ public class LinuxExport extends PlatformExport {
   public void export() throws IOException {
     // Work out user preferences and other possibilities we care about
     final boolean embedJava =
-        (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java")
+        (id == PApplet.platform)
+            && Preferences.getBoolean("export.application.embed_java")
             && arch == Exporter.processingArch;
 
     // Work out the folders we'll be (maybe) using
@@ -89,7 +79,6 @@ public class LinuxExport extends PlatformExport {
 
   private void buildShellScript(final File destFolder, final boolean embedJava) throws IOException {
     log("Creating shell script.");
-
 
     final boolean setMemory = Preferences.getBoolean("run.options.memory");
     final boolean presentMode = Preferences.getBoolean("export.application.fullscreen");
@@ -131,7 +120,8 @@ public class LinuxExport extends PlatformExport {
     // Work out classpath - only add core stuff, the rest will be found by add_library
     final StringWriter classpath = new StringWriter();
     for (final File f : jycessingFolder.listFiles()) {
-      if (f.getName().toLowerCase().endsWith(".jar") || f.getName().toLowerCase().endsWith(".zip")) {
+      if (f.getName().toLowerCase().endsWith(".jar")
+          || f.getName().toLowerCase().endsWith(".zip")) {
         classpath.append("$APPDIR/lib/jycessing/" + f.getName() + ":");
       }
     }
@@ -175,8 +165,8 @@ public class LinuxExport extends PlatformExport {
 
     log("Setting script executable.");
     try {
-      Files.setPosixFilePermissions(scriptFile.toPath(), PosixFilePermissions
-          .fromString("rwxrwxrwx"));
+      Files.setPosixFilePermissions(
+          scriptFile.toPath(), PosixFilePermissions.fromString("rwxrwxrwx"));
     } catch (final UnsupportedOperationException e) {
       // Windows, probably
       log("Couldn't set script executable... we'll assume whoever gets it can handle it");

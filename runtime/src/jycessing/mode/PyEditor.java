@@ -37,6 +37,7 @@ import processing.app.Platform;
 import processing.app.SketchCode;
 import processing.app.SketchException;
 import processing.app.syntax.JEditTextArea;
+import processing.app.syntax.PdeTextArea;
 import processing.app.syntax.PdeTextAreaDefaults;
 import processing.app.ui.Editor;
 import processing.app.ui.EditorException;
@@ -55,8 +56,8 @@ public class PyEditor extends Editor {
   }
 
   /**
-   * Every PyEditor has a UUID that the {@link SketchServiceManager} uses to
-   * route events from the {@link SketchService} to its owning editor.
+   * Every PyEditor has a UUID that the {@link SketchServiceManager} uses to route events from the
+   * {@link SketchService} to its owning editor.
    */
   private final String id;
 
@@ -65,12 +66,11 @@ public class PyEditor extends Editor {
   private final SketchServiceProcess sketchService;
 
   /**
-   * If the user runs a dirty sketch, we create a temp dir containing the
-   * modified state of the sketch and run it from there. We keep track
-   * of it in this variable in order to delete it when done running.
+   * If the user runs a dirty sketch, we create a temp dir containing the modified state of the
+   * sketch and run it from there. We keep track of it in this variable in order to delete it when
+   * done running.
    */
   private Path tempSketch;
-
 
   protected PyEditor(final Base base, final String path, final EditorState state, final Mode mode)
       throws EditorException {
@@ -78,7 +78,7 @@ public class PyEditor extends Editor {
 
     id = UUID.randomUUID().toString();
     inputHandler = new PyInputHandler(this);
-    pyMode = (PythonMode)mode;
+    pyMode = (PythonMode) mode;
 
     // Provide horizontal scrolling.
     textarea.addMouseWheelListener(createHorizontalScrollListener());
@@ -89,25 +89,22 @@ public class PyEditor extends Editor {
 
     // Ensure that the sketch service gets properly destroyed when either the
     // JVM terminates or this editor closes, whichever comes first.
-    final Thread cleanup = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        sketchServiceManager.destroySketchService(PyEditor.this);
-      }
-    });
+    final Thread cleanup =
+        new Thread(() -> sketchServiceManager.destroySketchService(PyEditor.this));
     Runtime.getRuntime().addShutdownHook(cleanup);
-    addWindowListener(new WindowAdapter() {
-      @Override
-      public void windowClosing(final WindowEvent e) {
-        cleanup.run();
-        Runtime.getRuntime().removeShutdownHook(cleanup);
-      }
-    });
+    addWindowListener(
+        new WindowAdapter() {
+          @Override
+          public void windowClosing(final WindowEvent e) {
+            cleanup.run();
+            Runtime.getRuntime().removeShutdownHook(cleanup);
+          }
+        });
   }
 
   @Override
   protected JEditTextArea createTextArea() {
-    return new JEditTextArea(new PdeTextAreaDefaults(mode), new PyInputHandler(this));
+    return new PdeTextArea(new PdeTextAreaDefaults(mode), new PyInputHandler(this), this);
   }
 
   public String getId() {
@@ -159,83 +156,95 @@ public class PyEditor extends Editor {
     }
   }
 
-  /**
-   * Build menus.
-   */
+  /** Build menus. */
   @Override
   public JMenu buildFileMenu() {
     final String appTitle = Language.text("Export Application");
     final JMenuItem exportApplication = Toolkit.newJMenuItem(appTitle, 'E');
-    exportApplication.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        handleExportApplication();
-      }
-    });
+    exportApplication.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(final ActionEvent e) {
+            handleExportApplication();
+          }
+        });
     return buildFileMenu(new JMenuItem[] {exportApplication});
   }
 
   @Override
   public JMenu buildHelpMenu() {
     final JMenu menu = new JMenu("Help");
-    menu.add(new JMenuItem(new AbstractAction("References") {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        Platform.openURL("http://py.processing.org/reference/");
-      }
-    }));
-    menu.add(new JMenuItem(new AbstractAction("Tutorials") {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        Platform.openURL("http://py.processing.org/tutorials/");
-      }
-    }));
-    menu.add(new JMenuItem(new AbstractAction("Examples") {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        Platform.openURL("http://py.processing.org/examples/");
-      }
-    }));
-    menu.add(new JMenuItem(new AbstractAction("Report a bug in Python Mode") {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        Platform.openURL("http://github.com/jdf/processing.py-bugs/issues");
-      }
-    }));
-    menu.add(new JMenuItem(new AbstractAction("Contribute to Python Mode") {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        Platform.openURL("http://github.com/jdf/processing.py");
-      }
-    }));
+    menu.add(
+        new JMenuItem(
+            new AbstractAction("References") {
+              @Override
+              public void actionPerformed(final ActionEvent e) {
+                Platform.openURL("http://py.processing.org/reference/");
+              }
+            }));
+    menu.add(
+        new JMenuItem(
+            new AbstractAction("Tutorials") {
+              @Override
+              public void actionPerformed(final ActionEvent e) {
+                Platform.openURL("http://py.processing.org/tutorials/");
+              }
+            }));
+    menu.add(
+        new JMenuItem(
+            new AbstractAction("Examples") {
+              @Override
+              public void actionPerformed(final ActionEvent e) {
+                Platform.openURL("http://py.processing.org/examples/");
+              }
+            }));
+    menu.add(
+        new JMenuItem(
+            new AbstractAction("Report a bug in Python Mode") {
+              @Override
+              public void actionPerformed(final ActionEvent e) {
+                Platform.openURL("http://github.com/jdf/processing.py-bugs/issues");
+              }
+            }));
+    menu.add(
+        new JMenuItem(
+            new AbstractAction("Contribute to Python Mode") {
+              @Override
+              public void actionPerformed(final ActionEvent e) {
+                Platform.openURL("http://github.com/jdf/processing.py");
+              }
+            }));
     return menu;
   }
 
   @Override
   public JMenu buildSketchMenu() {
     final JMenuItem runItem = Toolkit.newJMenuItem(Language.text("toolbar.run"), 'R');
-    runItem.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        handleRun();
-      }
-    });
+    runItem.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(final ActionEvent e) {
+            handleRun();
+          }
+        });
 
     final JMenuItem presentItem = Toolkit.newJMenuItemShift(Language.text("toolbar.present"), 'R');
-    presentItem.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        handlePresent();
-      }
-    });
+    presentItem.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(final ActionEvent e) {
+            handlePresent();
+          }
+        });
 
     final JMenuItem stopItem = new JMenuItem(Language.text("toolbar.stop"));
-    stopItem.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        handleStop();
-      }
-    });
+    stopItem.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(final ActionEvent e) {
+            handleStop();
+          }
+        });
 
     return buildSketchMenu(new JMenuItem[] {runItem, presentItem, stopItem});
   }
@@ -250,19 +259,21 @@ public class PyEditor extends Editor {
     return new PyToolbar(this);
   }
 
-  /**
-   * TODO(James Gilles): Create this!
-   * Create export GUI and hand off results to performExport()
-   */
+  /** TODO(James Gilles): Create this! Create export GUI and hand off results to performExport() */
   public void handleExportApplication() {
     // Leaving this here because it seems like it's more the editor's responsibility
     if (sketch.isModified()) {
       final Object[] options = {"OK", "Cancel"};
       final int result =
-          JOptionPane
-              .showOptionDialog(this, "Save changes before export?", "Save",
-                  JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-                  options[0]);
+          JOptionPane.showOptionDialog(
+              this,
+              "Save changes before export?",
+              "Save",
+              JOptionPane.OK_CANCEL_OPTION,
+              JOptionPane.QUESTION_MESSAGE,
+              null,
+              options,
+              options[0]);
       if (result == JOptionPane.OK_OPTION) {
         handleSave(true);
       } else {
@@ -282,10 +293,10 @@ public class PyEditor extends Editor {
   }
 
   /**
-   * Save the current state of the sketch code into a temp dir, and return
-   * the created directory.
-   * @return a new directory containing a saved version of the current
-   * (presumably modified) sketch code.
+   * Save the current state of the sketch code into a temp dir, and return the created directory.
+   *
+   * @return a new directory containing a saved version of the current (presumably modified) sketch
+   *     code.
    * @throws IOException
    */
   private Path createTempSketch() throws IOException {
@@ -307,8 +318,8 @@ public class PyEditor extends Editor {
         tempSketch = createTempSketch();
         sketchPath = tempSketch.resolve(sketchMainFileName).toFile();
       } catch (final IOException e) {
-        Messages.showError("Sketchy Behavior", "I can't copy your unsaved work\n"
-            + "to a temp directory.", e);
+        Messages.showError(
+            "Sketchy Behavior", "I can't copy your unsaved work\n" + "to a temp directory.", e);
         return;
       }
     } else {
@@ -326,8 +337,8 @@ public class PyEditor extends Editor {
     }
 
     try {
-      sketchService
-          .runSketch(new PdeSketch(sketch, sketchPath, displayType, location, locationType));
+      sketchService.runSketch(
+          new PdeSketch(sketch, sketchPath, displayType, location, locationType));
     } catch (final SketchException e) {
       statusError(e);
     }
@@ -384,7 +395,8 @@ public class PyEditor extends Editor {
 
     final String name = new File(lib.getJarPath()).getParentFile().getParentFile().getName();
     if (Pattern.compile("^add_library\\(\\s*'" + name + "'\\s*\\)\\s*$", Pattern.MULTILINE)
-        .matcher(getText()).find()) {
+        .matcher(getText())
+        .find()) {
       return;
     }
     setSelection(0, 0); // scroll to start
@@ -432,5 +444,11 @@ public class PyEditor extends Editor {
 
   public void printErr(final String msg) {
     console.message(msg, true);
+  }
+
+  @Override
+  public void showReference(final String filename) {
+    Platform.openURL(
+        String.format("http://py.processing.org/reference/%s", filename.replace("_.", ".")));
   }
 }

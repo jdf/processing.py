@@ -61,9 +61,9 @@
     <sequential>
         <echo message="Pushing @{srcfile} to py.processing.org..." />
         <exec executable="/bin/sh" failonerror="true">
-        <arg value="-c"/>
-        <arg value="scp -i ~/.ssh/id_rsa-processing.org -r @{srcfile} jdf@py.processing.org:/var/www/py/3" />
-      </exec>
+            <arg value="-c"/>
+            <arg value="rsync --progress -avz @{srcfile} jdf@py.processing.org:/var/www/py/3" />
+        </exec>
     </sequential>
   </macrodef>
 
@@ -112,7 +112,7 @@
       match="@@version@@" replace="${jycessing.build.number}" />
     <replaceregexp file="${bundle}/mode.properties" flags="g"
       match="@@pretty-version@@"
-      replace="Build ${jycessing.build.number}, built ${jycessing.build.date}" />
+      replace="${jycessing.build.number}" />
 
     <copy tofile="work/modedist/PythonMode.txt" file="${bundle}/mode.properties"/>
   </target>
@@ -125,9 +125,12 @@
   </target>
 
   <target name="mode.upload" depends="mode.zip">
-    <push srcfile="work/PythonMode.zip"/>
     <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>
     <push srcfile="work/PythonMode_${jycessing.build.number}.zip"/>
+    <exec executable="/bin/sh" failonerror="true">
+        <arg value="-c"/>
+        <arg value="ssh jdf@py.processing.org 'cp /var/www/py/3/PythonMode_${jycessing.build.number}.zip /var/www/py/3/PythonMode.zip'" />
+    </exec>    
     <push srcfile="work/modedist/PythonMode.txt"/>
   	<echo message="Uploaded build ${jycessing.build.number}"></echo>
   </target>
@@ -424,6 +427,7 @@
                includes="*.txt,*.jar,${platform}/**,${platform}64/**"/>
     </copy>
     <copy-processing-library dir="${cache}" library="dxf"/>
+    <copy-processing-library dir="${cache}" library="io"/>
     <copy-processing-library dir="${cache}" library="net"/>
     <copy-processing-library dir="${cache}" library="pdf"/>
     <copy-processing-library dir="${cache}" library="serial"/>

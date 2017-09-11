@@ -17,9 +17,8 @@ import processing.core.PApplet;
 /**
  * A sketch run from the PDE.
  *
- * This is created in the PDE process, serialized, and then used in the sketch process.
+ * <p>This is created in the PDE process, serialized, and then used in the sketch process.
  */
-
 @SuppressWarnings("serial")
 public class PdeSketch implements RunnableSketch, Serializable {
 
@@ -34,8 +33,12 @@ public class PdeSketch implements RunnableSketch, Serializable {
 
   public final String[] codeFileNames; // unique to PdeSketch - leave as public field?
 
-  public PdeSketch(final Sketch sketch, final File sketchPath, final DisplayType displayType,
-      final Point location, final LocationType locationType) {
+  public PdeSketch(
+      final Sketch sketch,
+      final File sketchPath,
+      final DisplayType displayType,
+      final Point location,
+      final LocationType locationType) {
 
     this.displayType = displayType;
     this.location = location;
@@ -60,7 +63,8 @@ public class PdeSketch implements RunnableSketch, Serializable {
   }
 
   public static enum LocationType {
-    EDITOR_LOCATION, SKETCH_LOCATION;
+    EDITOR_LOCATION,
+    SKETCH_LOCATION;
   }
 
   @Override

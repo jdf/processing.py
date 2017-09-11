@@ -30,8 +30,9 @@ public abstract class WrappedPrintStream extends PrintStream {
   private PushedOut cachedOut = null;
 
   /**
-   * {@link #pushStdout()} swaps this {@link WrappedPrintStream} in for System.out,
-   * and then puts the original stream back when the {@link PushedOut} is closed.
+   * {@link #pushStdout()} swaps this {@link WrappedPrintStream} in for System.out, and then puts
+   * the original stream back when the {@link PushedOut} is closed.
+   *
    * @return an AutoCloseable context that restores System.out.
    */
   public PushedOut pushStdout() {
@@ -143,5 +144,4 @@ public abstract class WrappedPrintStream extends PrintStream {
   public void println(final Object x) {
     println(String.valueOf(x));
   }
-
 }

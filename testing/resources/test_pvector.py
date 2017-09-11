@@ -130,6 +130,11 @@ assert end == PVector(100.0, 100.0)
 end.lerp(200, 200, 0, .5)
 assert end == PVector(150.0, 150.0)
 
+# test that instance op returns self
+a = PVector(3, 5, 7)
+b = a * 10
+assert a.mult(10) == b
+
 print 'OK'
 
 exit()

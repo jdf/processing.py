@@ -12,14 +12,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import org.junit.Test;
+
 import jycessing.MixedModeError;
+import jycessing.MixedSmoothError;
 import jycessing.PAppletJythonDriver;
 import jycessing.Printer;
 import jycessing.PythonSketchError;
 import jycessing.Runner;
 import jycessing.StreamPrinter;
-
-import org.junit.Test;
 
 public class JycessingTests {
 
@@ -32,16 +33,21 @@ public class JycessingTests {
       out.print(String.valueOf(o));
     }
 
+    @Override
+    public void flush() {
+      out.flush();
+    }
+
     public String getText() {
       try {
-        return new String(baos.toByteArray(), "utf-8").replaceAll("\r\n", "\n").replaceAll("\r",
-            "\n");
+        return new String(baos.toByteArray(), "utf-8")
+            .replaceAll("\r\n", "\n")
+            .replaceAll("\r", "\n");
       } catch (final UnsupportedEncodingException e) {
         throw new RuntimeException(e);
       }
     }
   }
-
 
   private static String run(final String testResource) throws Exception {
     System.err.println("Running " + testResource + " test.");
@@ -62,7 +68,9 @@ public class JycessingTests {
     final Path src = Paths.get(tmp.toString(), "test_import_" + module + ".pyde");
     try {
       final String testText = "import " + module + "\nprint 'OK'\nexit()";
-      Files.copy(new ByteArrayInputStream(testText.getBytes("utf-8")), src,
+      Files.copy(
+          new ByteArrayInputStream(testText.getBytes("utf-8")),
+          src,
           StandardCopyOption.REPLACE_EXISTING);
       final CapturingPrinter out = new CapturingPrinter();
       System.err.println("Running import " + module + " test.");
@@ -78,7 +86,6 @@ public class JycessingTests {
   private static void expectOK(final String testName) throws Exception {
     assertEquals("OK\n", run(testName));
   }
-
 
   @Test
   public void inherit_str() throws Exception {
@@ -288,8 +295,27 @@ public class JycessingTests {
   public void matrix3d_print() throws Exception {
     final String actual = run("pmatrixprint");
     final String expected =
-        " 1.0000  0.0000  0.0000  0.0000\n" + " 0.0000  1.0000  0.0000  0.0000\n"
-            + " 0.0000  0.0000  1.0000  0.0000\n" + " 0.0000  0.0000  0.0000  1.0000\n\n";
+        " 1.0000  0.0000  0.0000  0.0000\n"
+            + " 0.0000  1.0000  0.0000  0.0000\n"
+            + " 0.0000  0.0000  1.0000  0.0000\n"
+            + " 0.0000  0.0000  0.0000  1.0000\n\n";
     assertEquals(expected, actual);
+  }
+
+  // https://github.com/jdf/processing.py/issues/264
+  @Test
+  public void unittest() throws Exception {
+    expectOK("unittest");
+  }
+
+  // https://github.com/jdf/processing.py/issues/251
+  @Test
+  public void detectMixedSmooth() throws Exception {
+    try {
+      run("mixed_smooth_error");
+      fail("Expected mixed smooth error.");
+    } catch (final MixedSmoothError expected) {
+      // noop
+    }
   }
 }

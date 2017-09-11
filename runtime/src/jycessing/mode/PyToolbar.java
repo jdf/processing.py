@@ -14,7 +14,7 @@ public class PyToolbar extends EditorToolbar {
 
   @Override
   public void handleRun(final int modifiers) {
-    final PyEditor peditor = (PyEditor)editor;
+    final PyEditor peditor = (PyEditor) editor;
     final boolean shift = (modifiers & InputEvent.SHIFT_MASK) != 0;
     if (shift) {
       peditor.handlePresent();
@@ -25,7 +25,7 @@ public class PyToolbar extends EditorToolbar {
 
   @Override
   public void handleStop() {
-    final PyEditor peditor = (PyEditor)editor;
+    final PyEditor peditor = (PyEditor) editor;
     peditor.handleStop();
   }
 }

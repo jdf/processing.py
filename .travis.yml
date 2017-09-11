@@ -1,6 +1,11 @@
 env: DISPLAY=:99.0
 
 sudo: false
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+      - ant-optional
 
 language: java
 
@@ -8,10 +13,7 @@ jdk: oraclejdk8
 
 before_install:
   - git clone --depth=1 https://github.com/processing/processing
-  - cd processing/build/linux
-  - wget -O jre-8u92.tgz --header Cookie:\ oraclelicense=accept-securebackup-cookie http://download.oracle.com/otn-pub/java/jdk/8u92-b14/jre-8u92-linux-x64.tar.gz
-  - tar zxf jre-8u92.tgz
-  - cd ..
+  - cd processing/build
   - ant
   - cd ../..
   - git clone --depth=1 https://github.com/processing/processing-video

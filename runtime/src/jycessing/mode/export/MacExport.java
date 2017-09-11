@@ -25,36 +25,21 @@ import processing.app.Util;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
-
 /**
- * 
  * A Mac export.
- * 
- * If we embed java, we embed Processing's java, since we know it's been properly appbundled
- * and all symlinks work and stuff.
- * 
- * N.B. We use bash for the executable, so that we can easily include a pile of command line arguments,
- * as well as being able to prompt the user to install Java.
  *
- * Inspired by: https://github.com/tofi86/universalJavaApplicationStub
- * 
- * Layout:
- * $appdir/
- *        /$sketch.app/Contents/
- *              /MacOS/
- *                    /$sketch (shell script that cd's to ../Processing and runs the sketch)
- *              /Info.plist
- *              /Resources/
- *                    /sketch.icns (pretty icon)
- *                    /dialogs.applescript (used by main script to show native prompts)
- *              /Processing/
- *                    /source/
- *                    /lib/
- *                    /code/
- *                    /data/
- *              /PlugIns/jdk$version.jdk/ (copied from core processing)
- *                     
+ * <p>If we embed java, we embed Processing's java, since we know it's been properly appbundled and
+ * all symlinks work and stuff.
  *
+ * <p>N.B. We use bash for the executable, so that we can easily include a pile of command line
+ * arguments, as well as being able to prompt the user to install Java.
+ *
+ * <p>Inspired by: https://github.com/tofi86/universalJavaApplicationStub
+ *
+ * <p>Layout: $appdir/ /$sketch.app/Contents/ /MacOS/ /$sketch (shell script that cd's to
+ * ../Processing and runs the sketch) /Info.plist /Resources/ /sketch.icns (pretty icon)
+ * /dialogs.applescript (used by main script to show native prompts) /Processing/ /source/ /lib/
+ * /code/ /data/ /PlugIns/jdk$version.jdk/ (copied from core processing)
  */
 public class MacExport extends PlatformExport {
 
@@ -105,18 +90,21 @@ public class MacExport extends PlatformExport {
 
   /**
    * Copy Processing's builtin JDK to the export.
-   * 
-   * (This only makes sense when we're on a Mac, running Processing from a .app bundle.)
+   *
+   * <p>(This only makes sense when we're on a Mac, running Processing from a .app bundle.)
    */
   private void copyJDKPlugin(final File targetPluginsFolder) throws IOException {
     // This is how Java Mode finds it... basically
     final File sourceJDKFolder =
-        Platform.getContentFile("../PlugIns").listFiles(new FilenameFilter() {
-          @Override
-          public boolean accept(final File dir, final String name) {
-            return name.endsWith(".jdk") && !name.startsWith(".");
-          }
-        })[0].getAbsoluteFile();
+        Platform.getContentFile("../PlugIns")
+            .listFiles(
+                new FilenameFilter() {
+                  @Override
+                  public boolean accept(final File dir, final String name) {
+                    return name.endsWith(".jdk") && !name.startsWith(".");
+                  }
+                })[0]
+            .getAbsoluteFile();
 
     log("Copying JDK from " + sourceJDKFolder);
 
@@ -125,12 +113,9 @@ public class MacExport extends PlatformExport {
     Util.copyDirNative(sourceJDKFolder, targetJDKFolder);
   }
 
+  private static final Pattern sketchPattern = Pattern.compile("@@sketch@@");
 
-  private final static Pattern sketchPattern = Pattern.compile("@@sketch@@");
-
-  /**
-   * Read in Info.plist.tmpl, modify fields, package away in .app
-   */
+  /** Read in Info.plist.tmpl, modify fields, package away in .app */
   private void setUpInfoPlist(final File targetInfoPlist, final String sketchName)
       throws IOException {
     log("Setting up Info.plist.");
@@ -140,29 +125,36 @@ public class MacExport extends PlatformExport {
         editor.getModeContentFile("application/macosx/Info.plist.tmpl").toPath();
     final String infoPlistTemplateText = new String(Files.readAllBytes(infoPlistTemplate), "UTF-8");
     final Matcher sketchNameMatcher = sketchPattern.matcher(infoPlistTemplateText);
-    Files.write(targetInfoPlist.toPath(), sketchNameMatcher.replaceAll(sketchName).getBytes(),
-        StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+    Files.write(
+        targetInfoPlist.toPath(),
+        sketchNameMatcher.replaceAll(sketchName).getBytes(),
+        StandardOpenOption.WRITE,
+        StandardOpenOption.CREATE);
   }
 
-  /**
-   * Copy things that don't change between runs.
-   */
+  /** Copy things that don't change between runs. */
   private void copyStaticResources(final File resourcesFolder) throws IOException {
     log("Moving static macosx resources.");
     final File osxFolder = editor.getModeContentFile("application/macosx");
     resourcesFolder.mkdirs();
     Util.copyFile(new File(osxFolder, "sketch.icns"), new File(resourcesFolder, "sketch.icns"));
-    Util.copyFile(new File(osxFolder, "dialogs.applescript"), new File(resourcesFolder,
-        "dialogs.applescript"));
+    Util.copyFile(
+        new File(osxFolder, "dialogs.applescript"),
+        new File(resourcesFolder, "dialogs.applescript"));
   }
 
   /**
    * Create the shell script that will run the sketch.
-   * 
-   * Some duplicated code here from LinuxExport, but there's enough differences that I want to keep them separate
+   *
+   * <p>Some duplicated code here from LinuxExport, but there's enough differences that I want to
+   * keep them separate
    */
-  private void setUpExecutable(final File binFolder, final File processingFolder,
-      final String sketchName, final boolean embedJava) throws IOException {
+  private void setUpExecutable(
+      final File binFolder,
+      final File processingFolder,
+      final String sketchName,
+      final boolean embedJava)
+      throws IOException {
 
     log("Creating shell script.");
 
@@ -174,7 +166,6 @@ public class MacExport extends PlatformExport {
 
     final File scriptFile = new File(binFolder, sketch.getName());
     final PrintWriter script = new PrintWriter(scriptFile);
-
 
     // We explicitly use "\n" because PrintWriter.println() uses the system line ending,
     // which will confuse Macs if we're running from Windows.
@@ -189,8 +180,8 @@ public class MacExport extends PlatformExport {
           new String(Files.readAllBytes(findJavaScript), "UTF-8").replaceAll("\\r\\n?", "\n");
       script.print(findJava + "\n");
     } else {
-      script
-          .print("JAVA=\"$(find $CONTENTS/PlugIns -maxdepth 1 -type d -name '*jdk')/Contents/Home/jre/bin/java\""
+      script.print(
+          "JAVA=\"$(find $CONTENTS/PlugIns -maxdepth 1 -type d -name '*jdk')/Contents/Home/jre/bin/java\""
               + "\n");
     }
 
@@ -216,7 +207,8 @@ public class MacExport extends PlatformExport {
     // Work out classpath - only add core stuff, the rest will be found by add_library
     final StringWriter classpath = new StringWriter();
     for (final File f : new File(processingFolder, "lib/jycessing").listFiles()) {
-      if (f.getName().toLowerCase().endsWith(".jar") || f.getName().toLowerCase().endsWith(".zip")) {
+      if (f.getName().toLowerCase().endsWith(".jar")
+          || f.getName().toLowerCase().endsWith(".zip")) {
         classpath.append("$APPDIR/lib/jycessing/" + f.getName() + ":");
       }
     }
@@ -271,8 +263,8 @@ public class MacExport extends PlatformExport {
 
     log("Setting script executable.");
     try {
-      Files.setPosixFilePermissions(scriptFile.toPath(), PosixFilePermissions
-          .fromString("rwxrwxrwx"));
+      Files.setPosixFilePermissions(
+          scriptFile.toPath(), PosixFilePermissions.fromString("rwxrwxrwx"));
     } catch (final UnsupportedOperationException e) {
       // Windows, probably
       log("Couldn't set script executable... .app should work anyway, though");
