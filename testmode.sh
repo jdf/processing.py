@@ -1,8 +1,8 @@
 #!/bin/bash
 export VERBOSE_PYTHON_MODE=true
 
-PROCESSING=~/processing
-PROCESSINGPY=~/processing.py
+PROCESSINGPY=$(pwd)
+PROCESSING=../processing
 
 MODES=~/Documents/Processing/modes;
 if [[ $(uname) == 'Darwin' ]]; then
