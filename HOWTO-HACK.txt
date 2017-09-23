@@ -28,8 +28,8 @@ These build steps assume your file structure will look like this:
         |- processing/
         |- processing-video/
 
-If you think you're going to want to submit your own work to Processing.py,
-you should start by creating a fork of Processing.py on GitHub. Let's say
+If you think you're going to want to submit your own work to processing.py,
+you should start by creating a fork of processing.py on GitHub. Let's say
 you've done so, and that your fork can be found at:
 
     https://github.com/JRandomHacker/processing.py
@@ -49,15 +49,10 @@ You'll need source for processing and processing-video.
     $ git clone --depth=1 https://github.com/processing/processing.git
     $ git clone --depth=1 https://github.com/processing/processing-video.git
 
-Build processing core from source (according to the Processing build instructions):
-
-    $ cd processing/build
-    $ ant run
-
 Then, to sanity-check your environment and run all of Python Mode's
 integration tests, do the following:
 
-    $ cd ../../processing.py
+    $ cd processing.py
     $ ant test
 
 That will take 2-5 minutes.
