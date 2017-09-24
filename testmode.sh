@@ -19,5 +19,5 @@ cd "$PROCESSING/build" && \
   cd "$MODES" && \
   rm -rf PythonMode && \
   unzip "$PROCESSINGPY/work/PythonMode.zip" && \
-  cd /tmp && \
+  cd "$PROCESSINGPY" && \
   "$RUNPROCESSING"
