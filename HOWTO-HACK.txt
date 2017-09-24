@@ -3,10 +3,8 @@ Instructions for folks who want to contribute to processing.py itself.
 Prerequisites:
 
     git - http://git-scm.com/downloads
-    JDK 8u144 - http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+    Latest JDK 8 - http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
     Apache ant - http://ant.apache.org/bindownload.cgi
-
-JDK 8u144 is required until such time as Processing is built with JDK 9 or later.
 
 The Processing and Python Mode developers use Eclipse for their development,
 but it is not required. There are Eclipse project configs in our source trees.
