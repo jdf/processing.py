@@ -32,6 +32,8 @@ public class PythonMode extends Mode {
   public static final boolean SKETCH_RUNNER_FIRST =
       Boolean.parseBoolean(System.getenv("SKETCH_RUNNER_FIRST"));
 
+  public static final String SITE_PACKAGES = "site-packages";
+
   /**
    * Python auto-formatting is handled by a server. {@link FormatServer} handles the lifecycle of,
    * and communication with, that server.
@@ -56,6 +58,20 @@ public class PythonMode extends Mode {
      * and not on any API. May break in the future.
      */
     librariesFolder = Platform.getContentFile("modes/java/libraries");
+    final File pythonLibs = getSitePackages();
+    if (pythonLibs.exists()) {
+      if (!pythonLibs.isDirectory()) {
+        System.err.println(pythonLibs + " exists but is not directory");
+      }
+    } else {
+      if (!pythonLibs.mkdirs()) {
+        System.err.println("cannot create " + pythonLibs);
+      }
+    }
+  }
+
+  public static File getSitePackages() {
+    return new File(Base.getSketchbookLibrariesFolder(), SITE_PACKAGES);
   }
 
   @Override
@@ -76,7 +92,7 @@ public class PythonMode extends Mode {
 
     try {
       return new PyEditor(base, path, state, this);
-    } catch (EditorException e) {
+    } catch (final EditorException e) {
       Messages.showError("Editor Exception", "Issue Creating Editor", e);
       return null;
     }

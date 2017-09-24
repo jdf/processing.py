@@ -4,11 +4,13 @@ import java.awt.Point;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import jycessing.DisplayType;
 import jycessing.RunnableSketch;
 import jycessing.Runner.LibraryPolicy;
+import jycessing.mode.PythonMode;
 import processing.app.Base;
 import processing.app.Platform;
 import processing.app.Sketch;
@@ -23,6 +25,7 @@ import processing.core.PApplet;
 public class PdeSketch implements RunnableSketch, Serializable {
 
   private final List<File> libraryDirs;
+  private final List<File> pythonLibraryDirs;
   private final File mainFile;
   private final String mainCode;
   private final File sketchHome;
@@ -60,6 +63,8 @@ public class PdeSketch implements RunnableSketch, Serializable {
       codeFileNames[i] = sketch.getCode(i).getFile().getName();
     }
     this.codeFileNames = codeFileNames;
+    this.pythonLibraryDirs =
+        Arrays.asList(PythonMode.getSitePackages().getAbsoluteFile());
   }
 
   public static enum LocationType {
@@ -132,6 +137,7 @@ public class PdeSketch implements RunnableSketch, Serializable {
     if (code.exists()) {
       entries.add(code);
     }
+    entries.addAll(pythonLibraryDirs);
     return entries;
   }
 }

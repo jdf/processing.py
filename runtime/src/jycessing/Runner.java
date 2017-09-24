@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.python.core.Py;
 import org.python.core.PyList;
@@ -295,15 +296,12 @@ public class Runner {
 
     final StringBuilder pythonPath = new StringBuilder();
 
-    final List<File> libDirs = sketch.getLibraryDirectories();
-
     // The code may be located in a temp dir, if the sketch is unsaved.
     final String actualCodeLocation = sketch.getMainFile().getParentFile().getAbsolutePath();
     pythonPath.append(File.pathSeparator).append(actualCodeLocation);
 
     final String sketchDirPath = sketch.getHomeDirectory().getAbsolutePath();
     pythonPath.append(File.pathSeparator).append(sketchDirPath);
-
     props.setProperty("python.path", pythonPath.toString());
     props.setProperty("python.main", sketch.getMainFile().getAbsolutePath());
     props.setProperty("python.main.root", sketchDirPath);
@@ -326,15 +324,16 @@ public class Runner {
 
       // Add all of the sketch's requested sys.path entries, and add all jar
       // files found there, recursively.
-      final Set<String> userLibs = new HashSet<>();
+      final Set<String> userLibs = new TreeSet<>();
       for (final File entry : sketch.getPathEntries()) {
-        sys.path.append(Py.newString(entry.getAbsolutePath()));
+        userLibs.add(entry.getAbsolutePath());
         searchForExtraStuff(entry, userLibs);
       }
 
       // Add the add_library function to the sketch namespace.
+      final List<File> libDirs = sketch.getLibraryDirectories();
       if (libDirs != null) {
-        new LibraryImporter(sketch.getLibraryDirectories(), interp);
+        new LibraryImporter(libDirs, interp);
 
         if (sketch.getLibraryPolicy() == LibraryPolicy.PROMISCUOUS) {
           log("Promiscusouly adding all libraries in " + libDirs);
@@ -345,7 +344,7 @@ public class Runner {
             searchForExtraStuff(dir, libs);
           }
           for (final String lib : libs) {
-            sys.path.insert(0, Py.newString(lib));
+            userLibs.add(lib);
           }
         }
       }
