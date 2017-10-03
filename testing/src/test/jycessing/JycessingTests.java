@@ -318,4 +318,10 @@ public class JycessingTests {
       // noop
     }
   }
+
+  // https://github.com/jdf/processing.py/issues/280
+  @Test
+  public void g() throws Exception {
+    expectOK("g");
+  }
 }

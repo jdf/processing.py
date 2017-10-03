@@ -434,7 +434,6 @@ public class PAppletJythonDriver extends PApplet {
     setSet();
     setColorMethods();
     setText();
-    builtins.__setitem__("g", Py.java2py(g));
 
     // Make sure key and keyCode are defined.
     builtins.__setitem__("key", Py.newUnicode((char) 0));
@@ -469,6 +468,7 @@ public class PAppletJythonDriver extends PApplet {
     } else if (s instanceof PSurfaceFX) {
       System.err.println("I don't know how to watch FX2D windows for close.");
     }
+    builtins.__setitem__("g", Py.java2py(g));    
     return s;
   }
 
