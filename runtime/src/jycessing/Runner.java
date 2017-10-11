@@ -290,6 +290,9 @@ public class Runner {
 
     // Suppress sys-package-manager output.
     props.setProperty("python.verbose", "error");
+    // Prevent "Failed to install '': java.nio.charset.UnsupportedCharsetException: cp0."
+    props.put("python.console.encoding", "UTF-8"); 
+    props.put("python.import.site", "false");
 
     // Can be handy for class loading issues and the like.
     // props.setProperty("python.verbose", "debug");
