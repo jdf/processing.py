@@ -1,9 +1,15 @@
 package jycessing.mode.run;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.RMIClientSocketFactory;
+import java.rmi.server.RMIServerSocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 
 import jycessing.mode.PythonMode;
@@ -12,6 +18,22 @@ public class RMIUtils {
   private static final boolean EXTREMELY_VERBOSE = false;
 
   static final int RMI_PORT = 8220;
+
+  private static final RMIClientSocketFactory clientFactory =
+      new RMIClientSocketFactory() {
+        @Override
+        public Socket createSocket(final String host, final int port) throws IOException {
+          return new Socket(host, port);
+        }
+      };
+
+  private static final RMIServerSocketFactory serverFactory =
+      new RMIServerSocketFactory() {
+        @Override
+        public ServerSocket createServerSocket(final int port) throws IOException {
+          return new ServerSocket(port, 50, InetAddress.getLoopbackAddress());
+        }
+      };
 
   static {
     System.setProperty("sun.rmi.transport.tcp.localHostNameTimeOut", "1000");
@@ -42,12 +64,19 @@ public class RMIUtils {
 
   private RMIUtils() {}
 
+  private static Registry registry;
+
   public static Registry registry() throws RemoteException {
-    try {
-      return LocateRegistry.createRegistry(RMI_PORT);
-    } catch (final RemoteException e) {
+    if (registry == null) {
+      try {
+        registry = LocateRegistry.createRegistry(RMI_PORT, clientFactory, serverFactory);
+        System.err.println("created registry at port " + RMI_PORT);
+      } catch (final RemoteException e) {
+        System.err.println("could not create registry; assume it's already created");
+        registry = LocateRegistry.getRegistry("127.0.0.1", RMI_PORT, clientFactory);
+      }
     }
-    return LocateRegistry.getRegistry(RMI_PORT);
+    return registry;
   }
 
   public static void bind(final Remote remote, final Class<? extends Remote> remoteInterface)
