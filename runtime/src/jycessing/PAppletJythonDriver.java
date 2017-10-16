@@ -38,6 +38,7 @@ import javax.sound.midi.MidiMessage;
 
 import org.python.core.CompileMode;
 import org.python.core.CompilerFlags;
+import org.python.core.JyAttribute;
 import org.python.core.Py;
 import org.python.core.PyBaseCode;
 import org.python.core.PyBoolean;
@@ -49,6 +50,7 @@ import org.python.core.PyIndentationError;
 import org.python.core.PyInteger;
 import org.python.core.PyJavaType;
 import org.python.core.PyObject;
+import org.python.core.PyObjectDerived;
 import org.python.core.PySet;
 import org.python.core.PyString;
 import org.python.core.PyStringMap;
@@ -73,10 +75,10 @@ import processing.core.PSurface;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 import processing.javafx.PSurfaceFX;
+import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PShader;
 import processing.opengl.PSurfaceJOGL;
 
-/** @author Jonathan Feinberg &lt;jdf@pobox.com&gt; */
 @SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
 
@@ -468,7 +470,63 @@ public class PAppletJythonDriver extends PApplet {
     } else if (s instanceof PSurfaceFX) {
       System.err.println("I don't know how to watch FX2D windows for close.");
     }
-    builtins.__setitem__("g", Py.java2py(g));    
+
+    final PyObject pyG;
+    if (g instanceof PGraphicsOpenGL) {
+      /*
+       * The name "camera" in PGraphicsOpenGL can refer to either a PMatrix3D field
+       * or a couple of functions of that name. Unfortunately, Python only has one namespace,
+       * not separate namespaces for functions and fields. So here we create new attributes
+       * on the "g" object that are aliases to the matrix fields. It's only necessary to
+       * do this for "camera" itself, but, for the sake of consistency, we do it for
+       * all of them.
+       *
+       *  So, in Python Mode:
+       *
+       *  def setup():
+       *    size(300, 300, P3D)
+       *
+       *  def mousePressed():
+       *    # do something silly to the PGraphics camera
+       *    g.camera(1, 2, 3, 4, 5, 6, 7, 8, 9)
+       *
+       *    # read back what we did
+       *    print g.cameraMatrix.m02
+       */
+      final PGraphicsOpenGL glGraphics = (PGraphicsOpenGL) g;
+      final PyObject cameraMatrix = Py.java2py(glGraphics.camera);
+      final PyObject cameraInvMatrix = Py.java2py(glGraphics.cameraInv);
+      final PyObject modelviewMatrix = Py.java2py(glGraphics.modelview);
+      final PyObject modelviewInvMatrix = Py.java2py(glGraphics.modelviewInv);
+      final PyObject projmodelviewMatrix = Py.java2py(glGraphics.projmodelview);
+      pyG =
+          new PyObjectDerived(PyType.fromClass(g.getClass(), false)) {
+            @Override
+            public PyObject __findattr_ex__(final String name) {
+              if (name == "cameraMatrix") { // name is interned
+                return cameraMatrix;
+              }
+              if (name == "cameraInvMatrix") {
+                return cameraInvMatrix;
+              }
+              if (name == "modelviewMatrix") {
+                return modelviewMatrix;
+              }
+              if (name == "modelviewInvMatrix") {
+                return modelviewInvMatrix;
+              }
+              if (name == "projmodelviewMatrix") {
+                return projmodelviewMatrix;
+              }
+              return super.__findattr_ex__(name);
+            }
+          };
+      JyAttribute.setAttr(pyG, JyAttribute.JAVA_PROXY_ATTR, g);
+    } else {
+      pyG = Py.java2py(g);
+    }
+    builtins.__setitem__("g", pyG);
+
     return s;
   }
 
@@ -1141,7 +1199,6 @@ public class PAppletJythonDriver extends PApplet {
   public void size(
       final int iwidth, final int iheight, final String irenderer, final String ipath) {
     super.size(iwidth, iheight, irenderer, ipath);
-    builtins.__setitem__("g", Py.java2py(g));
     builtins.__setitem__("frame", Py.java2py(frame));
     builtins.__setitem__("width", pyint(width));
     builtins.__setitem__("height", pyint(height));
