@@ -58,7 +58,7 @@ import org.python.core.PySyntaxError;
 import org.python.core.PyTuple;
 import org.python.core.PyType;
 import org.python.core.PyUnicode;
-import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -103,7 +103,7 @@ public class PAppletJythonDriver extends PApplet {
   private PythonSketchError terminalException = null;
 
   protected final PyStringMap builtins;
-  protected final InteractiveConsole interp;
+  protected final PythonInterpreter interp;
   private final Path pySketchPath;
   private final String programText;
   private final WrappedPrintStream wrappedStdout;
@@ -253,6 +253,7 @@ public class PAppletJythonDriver extends PApplet {
     }
     if (t instanceof PyException) {
       final PyException e = (PyException) t;
+      System.err.println(t);
       final Pattern tbParse =
           Pattern.compile("^\\s*File \"([^\"]+)\", line (\\d+)", Pattern.MULTILINE);
       final Matcher m = tbParse.matcher(e.toString());
@@ -272,7 +273,7 @@ public class PAppletJythonDriver extends PApplet {
         line = Integer.parseInt(m.group(2)) - 1;
       }
       if (((PyType) e.type).getName().equals("ImportError")) {
-        final Pattern importStar = Pattern.compile("import\\s+\\*");
+        final Pattern importStar = Pattern.compile("import +\\* *$");
         if (importStar.matcher(e.toString()).find()) {
           return new PythonSketchError("import * does not work in this environment.", file, line);
         }
@@ -376,7 +377,7 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   public PAppletJythonDriver(
-      final InteractiveConsole interp,
+      final PythonInterpreter interp,
       final String pySketchPath,
       final String programText,
       final Printer stdout)

@@ -36,7 +36,6 @@ import org.python.core.PyList;
 import org.python.core.PyObject;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
-import org.python.util.InteractiveConsole;
 import org.python.util.PythonInterpreter;
 
 import jycessing.launcher.LaunchHelper;
@@ -291,8 +290,7 @@ public class Runner {
     // Suppress sys-package-manager output.
     props.setProperty("python.verbose", "error");
     // Prevent "Failed to install '': java.nio.charset.UnsupportedCharsetException: cp0."
-    props.put("python.console.encoding", "UTF-8"); 
-    props.put("python.import.site", "false");
+    props.put("python.console.encoding", "UTF-8");
 
     // Can be handy for class loading issues and the like.
     // props.setProperty("python.verbose", "debug");
@@ -318,7 +316,7 @@ public class Runner {
     final PyStringMap builtins = (PyStringMap) sys.getBuiltins();
     final PyStringMap originalBuiltins = builtins.copy();
     try {
-      final InteractiveConsole interp = new InteractiveConsole();
+      final PythonInterpreter interp = new PythonInterpreter();
 
       // For moar useful error messages.
       interp.set("__file__", sketch.getMainFile().getAbsolutePath());
@@ -354,6 +352,9 @@ public class Runner {
 
       for (final String lib : userLibs) {
         sys.path.insert(0, Py.newString(lib));
+      }
+      for (final String lib : SystemPython.getSysPath()) {
+        sys.path.add(Py.newString(lib));
       }
 
       // Make fake "launcher" module available to sketches - will only work with standalone sketches

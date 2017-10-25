@@ -28,7 +28,7 @@ import org.python.core.PyObject;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
 import org.python.google.common.base.Joiner;
-import org.python.util.InteractiveConsole;
+import org.python.util.PythonInterpreter;
 
 import processing.core.PApplet;
 
@@ -68,9 +68,9 @@ class LibraryImporter {
   /*
    * The interpreter into which we inject import statements.
    */
-  private final InteractiveConsole interp;
+  private final PythonInterpreter interp;
 
-  public LibraryImporter(final List<File> libdirs, final InteractiveConsole interp) {
+  public LibraryImporter(final List<File> libdirs, final PythonInterpreter interp) {
     this.libSearchPath = libdirs;
     this.interp = interp;
 

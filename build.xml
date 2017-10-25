@@ -38,6 +38,7 @@
 
   <property name="pdejar" value="${processing}/app/pde.jar"/>
   <property name="corejar" value="${processing}/core/library/core.jar"/>
+  <property name="jyni" value="buildtime/lib/jyni"/>
   <property name="jython" value="buildtime/lib/jython/jython.jar"/>
   <property name="jython.license" value="buildtime/lib/jython/LICENSE.txt"/>
   <property name="guava" value="buildtime/lib/java/guava-17.0.jar"/>
@@ -93,6 +94,9 @@
    	<mkdir dir="${bundle}/mode" />
     <copy todir="${bundle}/mode" file="work/PythonMode.jar"/>
     <copy todir="${bundle}/mode" file="${guava}"/>
+    <copy todir="${bundle}/mode">
+        <fileset dir="${jyni}"/>
+    </copy>
     <copy todir="${bundle}/mode" file="${jython}"/>
     <copy tofile="${bundle}/mode/LICENSE.jython" file="${jython.license}"/>
 

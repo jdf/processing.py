@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.AlreadyBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -89,7 +90,13 @@ public class RMIUtils {
               + remote.getClass().getName()
               + " to registry as "
               + registryKey);
-      registry().bind(registryKey, stub);
+      try {
+        registry().bind(registryKey, stub);
+      } catch (final AlreadyBoundException e) {
+        System.err.println(registryKey + " already bound. Trying to unbind.");
+        registry().unbind(registryKey);
+        registry().bind(registryKey, stub);
+      }
       log("Bound.");
       Runtime.getRuntime()
           .addShutdownHook(

@@ -14,10 +14,13 @@ import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 
 import jycessing.mode.PyEditor;
 import jycessing.mode.PythonMode;
@@ -130,7 +133,16 @@ public class SketchServiceProcess {
       command.add("-Dverbose=true");
     }
 
-    command.add("-Djava.library.path=" + System.getProperty("java.library.path"));
+    final Set<String> libraryPath =
+        new HashSet<>(
+            Splitter.on(File.pathSeparatorChar)
+                .splitToList(System.getProperty("java.library.path")));
+    libraryPath.add(
+        new File(
+                mode.getContentFile("mode").getAbsolutePath(),
+                "JyNI-2.7-alpha.5-bin-all-platforms-64")
+            .getAbsolutePath());
+    command.add("-Djava.library.path=" + Joiner.on(File.pathSeparatorChar).join(libraryPath));
 
     final List<String> cp = new ArrayList<>();
     cp.addAll(

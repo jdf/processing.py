@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 
+import jycessing.SystemPython;
 import processing.app.Formatter;
 import processing.app.Platform;
 import processing.app.exec.StreamPump;
@@ -31,14 +32,6 @@ public class FormatServer implements Formatter {
     this.modeHome = modeHome;
   }
 
-  private static boolean nativePythonAvailable() {
-    try {
-      return Runtime.getRuntime().exec("python --version").waitFor() == 0;
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
   /**
    * If a python exectuable is available on this machine, use it to run the formatting server.
    * Otherwise, use the same Java that ran the PDE to interpret the formatting server with Jython,
@@ -48,9 +41,9 @@ public class FormatServer implements Formatter {
    * @return a ProcessBuilder that, when started, will run the formatting server.
    */
   private ProcessBuilder getPythonProcess(final String formatServerPath) {
-    if (nativePythonAvailable()) {
+    if (SystemPython.nativePythonAvailable()) {
       log("Native python available for formatting.");
-      return new ProcessBuilder("python", formatServerPath);
+      return new ProcessBuilder(SystemPython.getSystemPython().getAbsolutePath(), formatServerPath);
     }
     log("Native python not available for formatting.");
     final String jython = new File(modeHome, "mode/jython.jar").getAbsolutePath();

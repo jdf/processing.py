@@ -9,5 +9,10 @@
 	<classpathentry kind="lib" path="buildtime/lib/java/guava-17.0.jar" sourcepath="buildtime/lib/java/guava-17.0-sources.jar"/>
 	<classpathentry kind="lib" path="/processing-core/library/jogl-all.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="buildtime/lib/jyni/JyNI.jar" sourcepath="buildtime/lib/jyni/JyNI-2.7-alpha.5.zip">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="processing.py/buildtime/lib/jyni/JyNI-2.7-alpha.5-bin-all-platforms-64"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
