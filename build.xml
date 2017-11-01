@@ -135,6 +135,10 @@
         <arg value="-c"/>
         <arg value="ssh jdf@py.processing.org 'cp /var/www/py/3/PythonMode_${jycessing.build.number}.zip /var/www/py/3/PythonMode.zip'" />
     </exec>    
+    <exec executable="/bin/sh" failonerror="true">
+        <arg value="-c"/>
+        <arg value="ssh jdf@py.processing.org 'chmod a+rX /var/www/py/3/*'" />
+    </exec>
     <push srcfile="work/modedist/PythonMode.txt"/>
   	<echo message="Uploaded build ${jycessing.build.number}"></echo>
   </target>
