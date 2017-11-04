@@ -228,24 +228,26 @@ class LibraryImporter {
     return resources;
   }
 
-  private List<File> findResourcesFromDirectoryStructure(final File contentsDir) {
+  private File findPlatformDir(final File contentsDir) {
     final List<String> childNames = Arrays.asList(contentsDir.list());
+    final String variant =
+        (PLATFORM.equals("linux") && System.getProperty("os.arch").equals("arm"))
+            ? "-armv6hf"
+            : BITS;
+    for (final String dirName : new String[] {PLATFORM + variant, PLATFORM}) {
+      final File potentialPlatformDir = new File(contentsDir, dirName);
+      if (potentialPlatformDir.isDirectory()) {
+        return potentialPlatformDir;
+      }
+    }
+    return null;
+  }
+
+  private List<File> findResourcesFromDirectoryStructure(final File contentsDir) {
     final List<File> resources = new ArrayList<File>();
 
     // Find platform-specific stuff
-    File platformDir = null;
-    if (childNames.contains(PLATFORM + BITS)) {
-      final File potentialPlatformDir = new File(contentsDir, PLATFORM + BITS);
-      if (potentialPlatformDir.isDirectory()) {
-        platformDir = potentialPlatformDir;
-      }
-    }
-    if (platformDir == null && childNames.contains(PLATFORM)) {
-      final File potentialPlatformDir = new File(contentsDir, PLATFORM);
-      if (potentialPlatformDir.isDirectory()) {
-        platformDir = potentialPlatformDir;
-      }
-    }
+    final File platformDir = findPlatformDir(contentsDir);
     if (platformDir != null) {
       log("Found platform-specific directory " + platformDir.getAbsolutePath());
       for (final File resource : platformDir.listFiles()) {
