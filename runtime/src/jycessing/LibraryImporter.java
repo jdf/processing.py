@@ -155,7 +155,9 @@ class LibraryImporter {
       }
     }
 
-    importPublicClassesFromJar(mainJar);
+    if (mainJar.exists()) {
+      importPublicClassesFromJar(mainJar);
+    }
   }
 
   /**
