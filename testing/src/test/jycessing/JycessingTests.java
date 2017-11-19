@@ -324,4 +324,9 @@ public class JycessingTests {
   public void g() throws Exception {
     expectOK("g");
   }
+
+  @Test
+  public void keyPressed_redefined() throws Exception {
+    expectOK("keyPressed_redefined");
+  }
 }
