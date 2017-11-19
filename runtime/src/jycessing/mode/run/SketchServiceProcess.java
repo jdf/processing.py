@@ -130,7 +130,11 @@ public class SketchServiceProcess {
       command.add("-Dverbose=true");
     }
 
-    command.add("-Djava.library.path=" + System.getProperty("java.library.path"));
+    command.add(
+        "-Djava.library.path="
+            + System.getProperty("java.library.path")
+            + File.pathSeparator
+            + mode.getContentFile("mode").getAbsolutePath());
 
     final List<String> cp = new ArrayList<>();
     cp.addAll(

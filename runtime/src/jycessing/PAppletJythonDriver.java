@@ -65,6 +65,7 @@ import com.google.common.io.Files;
 import com.jogamp.newt.opengl.GLWindow;
 
 import jycessing.IOUtil.ResourceReader;
+import jycessing.jni.OSX;
 import jycessing.mode.run.WrappedPrintStream;
 import jycessing.mode.run.WrappedPrintStream.PushedOut;
 import processing.awt.PSurfaceAWT;
@@ -205,6 +206,9 @@ public class PAppletJythonDriver extends PApplet {
       controllerChange5Meth,
       rawMidi3Meth,
       midiMessage3Meth;
+
+  // Implement processing_websockets callbacks.
+  private PyObject webSocketEventMeth, webSocketServerEventMeth;
 
   private SketchPositionListener sketchPositionListener;
 
@@ -583,8 +587,9 @@ public class PAppletJythonDriver extends PApplet {
           }
         };
 
+    // keyPressed is renamed to __keyPressed__ by the preprocessor.
     keyPressedFunc =
-        new EventFunction<KeyEvent>("keyPressed") {
+        new EventFunction<KeyEvent>("__keyPressed__") {
           @Override
           protected void callSuper(final KeyEvent event) {
             PAppletJythonDriver.super.keyPressed(event);
@@ -708,6 +713,10 @@ public class PAppletJythonDriver extends PApplet {
           midiMessage3Meth = meth;
       }
     }
+
+    // processing_websockets callbacks.
+    webSocketEventMeth = interp.get("webSocketEvent");
+    webSocketServerEventMeth = interp.get("webSocketServerEvent");
   }
 
   /*
@@ -815,7 +824,15 @@ public class PAppletJythonDriver extends PApplet {
     super.start();
   }
 
+  private void bringToFront() {
+    if (PApplet.platform == PConstants.MACOSX) {
+      OSX.bringToFront();
+    }
+  }
+
   public void runAndBlock(final String[] args) throws PythonSketchError {
+    bringToFront();
+
     PApplet.runSketch(args, this);
     try {
       finishedLatch.await();
@@ -1609,6 +1626,19 @@ public class PAppletJythonDriver extends PApplet {
   public void midiMessage(final MidiMessage msg, final long time, final String busName) {
     if (midiMessage3Meth != null) {
       midiMessage3Meth.__call__(Py.java2py(msg), Py.newLong(time), Py.newString(busName));
+    }
+  }
+
+  // processing_websockets callbacks.
+  public void webSocketEvent(final String msg) {
+    if (webSocketEventMeth != null) {
+      webSocketEventMeth.__call__(Py.java2py(msg));
+    }
+  }
+
+  public void webSocketServerEvent(final String msg) {
+    if (webSocketServerEventMeth != null) {
+      webSocketServerEventMeth.__call__(Py.java2py(msg));
     }
   }
 

@@ -100,7 +100,11 @@
       <fileset dir="mode/" />
     </copy>
 
-    <copy todir="${bundle}/theme" file="libraries/runtime/splash.png"/>
+    <copy todir="${bundle}/mode">
+      <fileset dir="native/" />
+    </copy>
+
+  	<copy todir="${bundle}/theme" file="libraries/runtime/splash.png"/>
 
     <zip destfile="${bundle}/src.zip" basedir="."
         includes="runtime/src/**,testing/src/**,testing/resources/**"
@@ -308,6 +312,13 @@
     </sequential>
   </macrodef>
 
+  <target name="jni-OSX" depends="build">
+    <javah destdir="runtime/src/jycessing/jni" 
+    	force="yes" 
+    	class="jycessing.jni.OSX" 
+    	classpath="./bin"/>
+  </target>
+	
   <macrodef name="for-all-platforms">
     <attribute name="target"/>
     <sequential>

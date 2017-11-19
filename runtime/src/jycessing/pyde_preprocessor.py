@@ -18,6 +18,9 @@
 #   <statements>
 # def draw():
 #   <statements>
+#
+# This also renames a "keyPressed" function to "__keyPressed__", to avoid hiding
+# the boolean variable with the same name.
 
 import ast
 
@@ -41,6 +44,10 @@ def pyde_preprocessor(module):
     # Walk throught the abstract syntax tree for the original sketch. 
 	for node in module.body:
 		if isinstance(node, ast.FunctionDef):
+			if (node.name == 'keyPressed'):
+				# rename keyPressed to not clash with the builtin boolean variable
+				node.name = '__keyPressed__'
+				continue
 			if (node.name == 'setup'):
 				toremove = []
 				# The user has defined a setup() function. Look through setup() for calls
