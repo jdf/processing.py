@@ -29,7 +29,9 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -166,6 +168,12 @@ public class PAppletJythonDriver extends PApplet {
       }
     }
   }
+
+  /**
+   * We maintain a map from function name to function in order to implement {@link
+   * PApplet#method(String)}.
+   */
+  private final Map<String, PyFunction> allFunctionsByName = new HashMap<>();
 
   // These are all of the methods that PApplet might call in your sketch. If
   // you have implemented a method, we save it and call it.
@@ -539,12 +547,51 @@ public class PAppletJythonDriver extends PApplet {
     finishedLatch.countDown();
   }
 
+  /** Call the user-defined Python function with the given name. */
+  @Override
+  public void method(final String name) {
+    final PyFunction f = allFunctionsByName.get(name);
+    if (f != null) {
+      f.__call__();
+    } else {
+      super.method(name);
+    }
+  }
+
+  /**
+   * Python Mode's {@link PApplet#thread(String)} can take a {@link String} (like Java mode) or a
+   * function object.
+   *
+   * @param obj either a {@link PyString} or a {@link PyFunction} to run in a thread.
+   */
+  public void thread(final Object obj) {
+    if (obj instanceof String) {
+      super.thread((String) obj);
+    } else if (obj instanceof PyFunction) {
+      new Thread() {
+        @Override
+        public void run() {
+          ((PyFunction) obj).__call__();
+        }
+      }.start();
+    }
+  }
+
   public void findSketchMethods() throws PythonSketchError {
     if (mode == Mode.ACTIVE) {
       // Executing the sketch will bind method names ("draw") to PyCode
       // objects (the sketch's draw method), which can then be invoked
       // during the run loop
       processSketch(PREPROCESS_SCRIPT);
+    }
+
+    for (final Object local : ((PyStringMap) interp.getLocals()).items()) {
+      final PyTuple t = (PyTuple) local;
+      final String k = t.get(0).toString();
+      final Object v = t.get(1);
+      if (v instanceof PyFunction) {
+        allFunctionsByName.put(k, (PyFunction) v);
+      }
     }
 
     // Find and cache any PApplet callbacks defined in the Python sketch

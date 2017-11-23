@@ -427,6 +427,7 @@ __builtin__.textWidth = __papplet__.textWidth
 __builtin__.texture = __papplet__.texture
 __builtin__.textureMode = __papplet__.textureMode
 __builtin__.textureWrap = __papplet__.textureWrap
+__builtin__.thread = __papplet__.thread
 __builtin__.tint = __papplet__.tint
 __builtin__.translate = __papplet__.translate
 __builtin__.triangle = __papplet__.triangle

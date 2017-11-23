@@ -329,4 +329,10 @@ public class JycessingTests {
   public void keyPressed_redefined() throws Exception {
     expectOK("keyPressed_redefined");
   }
+
+  //https://github.com/jdf/processing.py/issues/281
+  @Test
+  public void thread() throws Exception {
+    expectOK("thread");
+  }
 }
