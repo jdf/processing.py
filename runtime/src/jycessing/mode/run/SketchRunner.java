@@ -118,8 +118,12 @@ public class SketchRunner implements SketchService {
                   Runner.runSketchBlocking(sketch, stdout, stderr, sketchPositionListener);
                 } catch (final PythonSketchError e1) {
                   log("Sketch runner caught " + e1);
-                  modeService.handleSketchException(
-                      id, convertPythonSketchError(e1, sketch.codeFileNames));
+                  if (e1.getMessage().startsWith("SystemExit")) {
+                    // Someone called sys.exit(). No-op.
+                  } else {
+                    modeService.handleSketchException(
+                        id, convertPythonSketchError(e1, sketch.codeFileNames));
+                  }
                 } catch (final Exception e2) {
                   if (e2.getCause() != null && e2.getCause() instanceof PythonSketchError) {
                     modeService.handleSketchException(
