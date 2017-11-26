@@ -409,6 +409,19 @@ class LibraryImporter {
           continue;
         }
 
+        /**
+         * A class in a library jar may refer to other classes not present in this runtime.
+         * Proactively draw out such an error now, so we can catch it (rather than way inside the
+         * Jython interpreter, where it unceremoniously throws and terminates). The particular
+         * example that led to this hack is proscene's reference to Android classes.
+         */
+        try {
+          Class.forName(String.format("%s.%s", packageName, className)).getMethods();
+        } catch (final ClassNotFoundException | NoClassDefFoundError e) {
+          log("Rejecting " + name);
+          continue;
+        }
+
         final String importStatement = String.format("from %s import %s", packageName, className);
         log(importStatement);
         interp.exec(importStatement);
