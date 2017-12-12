@@ -5,7 +5,7 @@ Write real [Processing](http://processing.org/) sketches in Python.
   * Based on [Processing 3.0](http://processing.org/), and compatible with most [3rd party libraries](http://www.processing.org/reference/libraries/).
   * Source compatible with [Python 2.7.3](http://python.org).
 
-Tested on Mac OS 10.10 and Ubuntu 14.
+Successfully passed tests on Mac OS 10.10 and Ubuntu 14.
 
 [![Build Status](https://travis-ci.org/jdf/processing.py.svg?branch=master)](https://travis-ci.org/jdf/processing.py)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjdf%2Fprocessing.py.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjdf%2Fprocessing.py?ref=badge_shield)
@@ -40,7 +40,7 @@ def draw():
     fill(frameCount % 255, 255, 255)
     ellipse(mouseX, mouseY, 20, 20)
 ```
-If you are just getting started, it is a good idea to go through the [tutorials on our website](http://py.processing.org/tutorials/), and alternatively some [examples](mode/examples).
+If you are a beginner, it is a good idea to go through the [tutorials on our website](http://py.processing.org/tutorials/), and alternatively some [examples](mode/examples).
 
 
 ## Using Processing Libraries ##
@@ -137,3 +137,5 @@ innovative and intelligent tools for profiling Java and .NET applications.
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjdf%2Fprocessing.py.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjdf%2Fprocessing.py?ref=badge_large)
+
+
