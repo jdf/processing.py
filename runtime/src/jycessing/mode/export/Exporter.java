@@ -10,12 +10,9 @@ import processing.app.Platform;
 import processing.app.Preferences;
 import processing.app.Sketch;
 
-
 /**
- * 
- * Class that handles doing the actual exporting.
- * All this currently does is figure out libraries and then hand off to each platform export.
- *
+ * Class that handles doing the actual exporting. All this currently does is figure out libraries
+ * and then hand off to each platform export.
  */
 public class Exporter {
 
@@ -29,6 +26,7 @@ public class Exporter {
   // Architecture of the currently running Processing JRE.
   // Used to determine what platform we can embed java in.
   public static final Arch processingArch;
+
   static {
     if (Platform.getNativeBits() == Arch.X86.bits) {
       processingArch = Arch.X86;
@@ -39,7 +37,7 @@ public class Exporter {
 
   private final Sketch sketch;
   private final PyEditor editor; // I don't really want to pass this around but there's some
-                                 // functionality
+  // functionality
 
   // I need
 

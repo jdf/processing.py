@@ -11,9 +11,9 @@ import processing.app.Platform;
 import processing.app.exec.StreamPump;
 
 /**
- * This class manages running and communicating with a server that knows how to pretty-print
- * Python source code. The server is written in python. If a CPython interpreter is available,
- * we'll use it; otherwise we start up a Java processes using Jython to run the server.
+ * This class manages running and communicating with a server that knows how to pretty-print Python
+ * source code. The server is written in python. If a CPython interpreter is available, we'll use
+ * it; otherwise we start up a Java processes using Jython to run the server.
  */
 public class FormatServer implements Formatter {
 
@@ -41,8 +41,9 @@ public class FormatServer implements Formatter {
 
   /**
    * If a python exectuable is available on this machine, use it to run the formatting server.
-   * Otherwise, use the same Java that ran the PDE to interpret the formatting server with
-   * Jython, which takes a very long time to start up.
+   * Otherwise, use the same Java that ran the PDE to interpret the formatting server with Jython,
+   * which takes a very long time to start up.
+   *
    * @param formatServerPath Path to the format server script source.
    * @return a ProcessBuilder that, when started, will run the formatting server.
    */
@@ -56,43 +57,40 @@ public class FormatServer implements Formatter {
     return new ProcessBuilder(Platform.getJavaPath(), "-jar", jython, formatServerPath);
   }
 
-  /**
-   * Starts the formatting server.
-   */
+  /** Starts the formatting server. */
   public void start() {
     started = true;
     final String serverpy = new File(modeHome, "formatter/format_server.py").getAbsolutePath();
     final ProcessBuilder pb = getPythonProcess(serverpy);
     pb.redirectErrorStream(true);
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          log("Starting up the format server.");
-          server = pb.start();
-          Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-              started = false;
-              shutdown();
-            }
-          }));
-          new StreamPump(server.getInputStream(), "Format Server Output").addTarget(System.err)
-              .start();
-        } catch (final Exception e) {
-          throw new RuntimeException(pb.toString(), e);
-        }
-      }
-    }, "FormatServerStarter").start();
+    new Thread(
+            () -> {
+              try {
+                log("Starting up the format server.");
+                server = pb.start();
+                Runtime.getRuntime()
+                    .addShutdownHook(
+                        new Thread(
+                            () -> {
+                              started = false;
+                              shutdown();
+                            }));
+                new StreamPump(server.getInputStream(), "Format Server Output")
+                    .addTarget(System.err)
+                    .start();
+              } catch (final Exception e) {
+                throw new RuntimeException(pb.toString(), e);
+              }
+            },
+            "FormatServerStarter")
+        .start();
   }
 
   public boolean isStarted() {
     return started;
   }
 
-  /**
-   * Called as a ShutdownHook. Stops the formatting server.
-   */
+  /** Called as a ShutdownHook. Stops the formatting server. */
   public void shutdown() {
     sendShutdown();
     server.destroy();
@@ -104,7 +102,7 @@ public class FormatServer implements Formatter {
     // Connect to format server.
     try (final Socket sock = new Socket("localhost", 10011);
         final DataOutputStream out = new DataOutputStream(sock.getOutputStream());
-        final DataInputStream in = new DataInputStream(sock.getInputStream());) {
+        final DataInputStream in = new DataInputStream(sock.getInputStream()); ) {
       final byte[] encoded = text.getBytes("utf-8");
       // Send big-endian encoded integer representing length of utf-8 encoded source code.
       out.writeInt(encoded.length);
@@ -124,13 +122,11 @@ public class FormatServer implements Formatter {
     }
   }
 
-  /**
-   * Tells the formatting server to shut down gracefully.
-   */
+  /** Tells the formatting server to shut down gracefully. */
   private void sendShutdown() {
     log("Sending shutdown message to format server.");
     try (final Socket sock = new Socket("localhost", 10011);
-        final DataOutputStream out = new DataOutputStream(sock.getOutputStream());) {
+        final DataOutputStream out = new DataOutputStream(sock.getOutputStream()); ) {
       // -1 is a sentinel value meaning "die".
       out.writeInt(-1);
       out.flush();

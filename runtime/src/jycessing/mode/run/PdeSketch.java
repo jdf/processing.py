@@ -4,11 +4,13 @@ import java.awt.Point;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import jycessing.DisplayType;
 import jycessing.RunnableSketch;
 import jycessing.Runner.LibraryPolicy;
+import jycessing.mode.PythonMode;
 import processing.app.Base;
 import processing.app.Platform;
 import processing.app.Sketch;
@@ -17,13 +19,13 @@ import processing.core.PApplet;
 /**
  * A sketch run from the PDE.
  *
- * This is created in the PDE process, serialized, and then used in the sketch process.
+ * <p>This is created in the PDE process, serialized, and then used in the sketch process.
  */
-
 @SuppressWarnings("serial")
 public class PdeSketch implements RunnableSketch, Serializable {
 
   private final List<File> libraryDirs;
+  private final List<File> pythonLibraryDirs;
   private final File mainFile;
   private final String mainCode;
   private final File sketchHome;
@@ -34,8 +36,12 @@ public class PdeSketch implements RunnableSketch, Serializable {
 
   public final String[] codeFileNames; // unique to PdeSketch - leave as public field?
 
-  public PdeSketch(final Sketch sketch, final File sketchPath, final DisplayType displayType,
-      final Point location, final LocationType locationType) {
+  public PdeSketch(
+      final Sketch sketch,
+      final File sketchPath,
+      final DisplayType displayType,
+      final Point location,
+      final LocationType locationType) {
 
     this.displayType = displayType;
     this.location = location;
@@ -57,10 +63,13 @@ public class PdeSketch implements RunnableSketch, Serializable {
       codeFileNames[i] = sketch.getCode(i).getFile().getName();
     }
     this.codeFileNames = codeFileNames;
+    this.pythonLibraryDirs =
+        Arrays.asList(PythonMode.getSitePackages().getAbsoluteFile());
   }
 
   public static enum LocationType {
-    EDITOR_LOCATION, SKETCH_LOCATION;
+    EDITOR_LOCATION,
+    SKETCH_LOCATION;
   }
 
   @Override
@@ -128,6 +137,7 @@ public class PdeSketch implements RunnableSketch, Serializable {
     if (code.exists()) {
       entries.add(code);
     }
+    entries.addAll(pythonLibraryDirs);
     return entries;
   }
 }

@@ -34,16 +34,16 @@ import processing.core.PApplet;
 
 /**
  * {@link LibraryImporter} contributes the add_library function to processing.py.
- * 
- * <p>add_library causes the given Processing library (all of its jar files and
- * library subdirectories potentially containing native code) to be added to the
- * system {@link ClassLoader}, the native code search path, and the Jython sys.path.
- * It then generates import statements bringing all top-level classes available
- * in the main library jar file into the sketch's namespace.
- * 
- * <p>Note: Once jar files and directories have been added in this fashion to the
- * classloader and native lib search path, they're good and stuck there. In practice,
- * this hasn't presented any difficulty. But it's good to keep in mind.
+ *
+ * <p>add_library causes the given Processing library (all of its jar files and library
+ * subdirectories potentially containing native code) to be added to the system {@link ClassLoader},
+ * the native code search path, and the Jython sys.path. It then generates import statements
+ * bringing all top-level classes available in the main library jar file into the sketch's
+ * namespace.
+ *
+ * <p>Note: Once jar files and directories have been added in this fashion to the classloader and
+ * native lib search path, they're good and stuck there. In practice, this hasn't presented any
+ * difficulty. But it's good to keep in mind.
  */
 class LibraryImporter {
   private static void log(final String msg) {
@@ -75,26 +75,27 @@ class LibraryImporter {
     this.interp = interp;
 
     // Define the add_library function in the sketch interpreter.
-    final PyStringMap builtins = (PyStringMap)interp.getSystemState().getBuiltins();
-    builtins.__setitem__("add_library", new PyObject() {
-      @Override
-      public PyObject __call__(final PyObject[] args, final String[] kws) {
-        log("Adding library " + args[0].asString());
-        addLibrary(args[0].asString());
-        return Py.None;
-      }
-    });
+    final PyStringMap builtins = (PyStringMap) interp.getSystemState().getBuiltins();
+    builtins.__setitem__(
+        "add_library",
+        new PyObject() {
+          @Override
+          public PyObject __call__(final PyObject[] args, final String[] kws) {
+            log("Adding library " + args[0].asString());
+            addLibrary(args[0].asString());
+            return Py.None;
+          }
+        });
   }
 
   /**
-   * Locate the library in the library folder "libName", find what
-   * it exports for the current platform, and add exports to the
-   * system classpath, the system native library path, and jython's
+   * Locate the library in the library folder "libName", find what it exports for the current
+   * platform, and add exports to the system classpath, the system native library path, and jython's
    * sys.path.
-   * 
-   * Then, go through the main jar file of the library and import
-   * all of its publicly exposed classes.
-   * 
+   *
+   * <p>Then, go through the main jar file of the library and import all of its publicly exposed
+   * classes.
+   *
    * @param libName The name of the library to import
    */
   protected void addLibrary(final String libName) {
@@ -154,17 +155,18 @@ class LibraryImporter {
       }
     }
 
-    importPublicClassesFromJar(mainJar);
+    if (mainJar.exists()) {
+      importPublicClassesFromJar(mainJar);
+    }
   }
 
   /**
-   * Find all of the resources a library requires on this platform.
-   * See https://github.com/processing/processing/wiki/Library-Basics.
-   * 
-   * First, finds the library.
-   * Second, tries to parse export.txt, and follow its instructions.
+   * Find all of the resources a library requires on this platform. See
+   * https://github.com/processing/processing/wiki/Library-Basics.
+   *
+   * <p>First, finds the library. Second, tries to parse export.txt, and follow its instructions.
    * Third, tries to understand folder structure, and export according to that.
-   * 
+   *
    * @param libName The name of the library to add.
    * @return The list of files we need to import.
    */
@@ -215,32 +217,37 @@ class LibraryImporter {
       if (resource.exists()) {
         resources.add(resource);
       } else {
-        log(resourceName + " is mentioned in " + exportTxt.getAbsolutePath()
-            + "but doesn't actually exist. Moving on.");
+        log(
+            resourceName
+                + " is mentioned in "
+                + exportTxt.getAbsolutePath()
+                + "but doesn't actually exist. Moving on.");
         continue;
       }
     }
     return resources;
   }
 
-  private List<File> findResourcesFromDirectoryStructure(final File contentsDir) {
+  private File findPlatformDir(final File contentsDir) {
     final List<String> childNames = Arrays.asList(contentsDir.list());
+    final String variant =
+        (PLATFORM.equals("linux") && System.getProperty("os.arch").equals("arm"))
+            ? "-armv6hf"
+            : BITS;
+    for (final String dirName : new String[] {PLATFORM + variant, PLATFORM}) {
+      final File potentialPlatformDir = new File(contentsDir, dirName);
+      if (potentialPlatformDir.isDirectory()) {
+        return potentialPlatformDir;
+      }
+    }
+    return null;
+  }
+
+  private List<File> findResourcesFromDirectoryStructure(final File contentsDir) {
     final List<File> resources = new ArrayList<File>();
 
     // Find platform-specific stuff
-    File platformDir = null;
-    if (childNames.contains(PLATFORM + BITS)) {
-      final File potentialPlatformDir = new File(contentsDir, PLATFORM + BITS);
-      if (potentialPlatformDir.isDirectory()) {
-        platformDir = potentialPlatformDir;
-      }
-    }
-    if (platformDir == null && childNames.contains(PLATFORM)) {
-      final File potentialPlatformDir = new File(contentsDir, PLATFORM);
-      if (potentialPlatformDir.isDirectory()) {
-        platformDir = potentialPlatformDir;
-      }
-    }
+    final File platformDir = findPlatformDir(contentsDir);
     if (platformDir != null) {
       log("Found platform-specific directory " + platformDir.getAbsolutePath());
       for (final File resource : platformDir.listFiles()) {
@@ -249,12 +256,14 @@ class LibraryImporter {
     }
 
     // Find multi-platform stuff; always do this
-    final File[] commonResources = contentsDir.listFiles(new FileFilter() {
-      @Override
-      public boolean accept(final File file) {
-        return !file.isDirectory();
-      }
-    });
+    final File[] commonResources =
+        contentsDir.listFiles(
+            new FileFilter() {
+              @Override
+              public boolean accept(final File file) {
+                return !file.isDirectory();
+              }
+            });
     for (final File resource : commonResources) {
       resources.add(resource);
     }
@@ -262,10 +271,10 @@ class LibraryImporter {
   }
 
   /**
-   * Parse an export.txt file to figure out what we need to load for this platform.
-   * This is all duplicated from processing.app.Library / processing.app.Base,
-   * but we don't have the PDE around at runtime so we can't use them.
-   * 
+   * Parse an export.txt file to figure out what we need to load for this platform. This is all
+   * duplicated from processing.app.Library / processing.app.Base, but we don't have the PDE around
+   * at runtime so we can't use them.
+   *
    * @param exportTxt The export.txt file; must exist.
    */
   private Map<String, String[]> parseExportTxt(final File exportTxt) throws Exception {
@@ -290,14 +299,14 @@ class LibraryImporter {
   }
 
   /**
-   * Use a brittle and egregious hack to forcibly add the given jar file to the
-   * system classloader.
+   * Use a brittle and egregious hack to forcibly add the given jar file to the system classloader.
+   *
    * @param jar The jar to add to the system classloader.
    */
   private void addJarToClassLoader(final File jar) {
     try {
       final URL url = jar.toURI().toURL();
-      final URLClassLoader ucl = (URLClassLoader)ClassLoader.getSystemClassLoader();
+      final URLClassLoader ucl = (URLClassLoader) ClassLoader.getSystemClassLoader();
       // Linear search for url. It's ok for this to be slow.
       for (final URL existing : ucl.getURLs()) {
         if (existing.equals(url)) {
@@ -308,28 +317,29 @@ class LibraryImporter {
       final Method addUrl = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
       addUrl.setAccessible(true);
       addUrl.invoke(ucl, url);
-    } catch (NoSuchMethodException | SecurityException | IllegalAccessException
-        | IllegalArgumentException | InvocationTargetException | MalformedURLException e) {
+    } catch (NoSuchMethodException
+        | SecurityException
+        | IllegalAccessException
+        | IllegalArgumentException
+        | InvocationTargetException
+        | MalformedURLException e) {
       throw new RuntimeException(e);
     }
   }
 
   /**
-   * Add the given path to the list of paths searched for DLLs (as in those
-   * loaded by loadLibrary). A hack, which depends on the presence of a
-   * particular field in ClassLoader. Known to work on all recent Sun JVMs and
-   * OS X.
+   * Add the given path to the list of paths searched for DLLs (as in those loaded by loadLibrary).
+   * A hack, which depends on the presence of a particular field in ClassLoader. Known to work on
+   * all recent Sun JVMs and OS X.
    *
-   * <p>
-   * See <a href="http://forums.sun.com/thread.jspa?threadID=707176">this
-   * thread</a>.
+   * <p>See <a href="http://forums.sun.com/thread.jspa?threadID=707176">this thread</a>.
    */
   private void addDirectoryToNativeSearchPath(final File dllDir) {
     final String newPath = dllDir.getAbsolutePath();
     try {
       final Field field = ClassLoader.class.getDeclaredField("usr_paths");
       field.setAccessible(true);
-      final String[] paths = (String[])field.get(null);
+      final String[] paths = (String[]) field.get(null);
       for (final String path : paths) {
         if (newPath.equals(path)) {
           return;
@@ -340,12 +350,15 @@ class LibraryImporter {
       field.set(null, tmp);
       log("Added " + newPath + " to java.library.path.");
     } catch (final Exception e) {
-      System.err.println("While attempting to add " + newPath
-          + " to the processing.py library search path: " + e.getClass().getSimpleName() + "--"
-          + e.getMessage());
+      System.err.println(
+          "While attempting to add "
+              + newPath
+              + " to the processing.py library search path: "
+              + e.getClass().getSimpleName()
+              + "--"
+              + e.getMessage());
     }
   }
-
 
   private static final Pattern validPythonIdentifier = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
 
@@ -357,9 +370,9 @@ class LibraryImporter {
     com.foo.Banana$1.class
     com.foo.Banana$2.class
     com.bar.Kiwi.class
-  
+
   then we'll generate these import statements:
-  
+
     from com.foo import Banana
     from com.bar import Kiwi
   */
@@ -392,6 +405,19 @@ class LibraryImporter {
             Joiner.on(".").join(Arrays.asList(path).subList(0, path.length - 1));
 
         if (!validPythonIdentifier.matcher(className).matches()) {
+          log("Rejecting " + name);
+          continue;
+        }
+
+        /**
+         * A class in a library jar may refer to other classes not present in this runtime.
+         * Proactively draw out such an error now, so we can catch it (rather than way inside the
+         * Jython interpreter, where it unceremoniously throws and terminates). The particular
+         * example that led to this hack is proscene's reference to Android classes.
+         */
+        try {
+          Class.forName(String.format("%s.%s", packageName, className)).getMethods();
+        } catch (final ClassNotFoundException | NoClassDefFoundError e) {
           log("Rejecting " + name);
           continue;
         }

@@ -2,45 +2,75 @@ Instructions for folks who want to contribute to processing.py itself.
 
 Prerequisites:
 
-	git - http://git-scm.com/downloads
-	Java 7 SDK - http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html
-	Apache ant - http://ant.apache.org/bindownload.cgi
+    git - http://git-scm.com/downloads
+    Latest JDK 8 - http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+    Apache ant - http://ant.apache.org/bindownload.cgi
 
-Recommended:
+The Processing and Python Mode developers use Eclipse for their development,
+but it is not required. There are Eclipse project configs in our source trees.
 
-	Eclipse Standard - https://www.eclipse.org/downloads/
+    Eclipse - https://www.eclipse.org/downloads/
 
-Steps:
+Steps
+-----
+
+Create a directory to organize your Processing-related source, say
+
+    $ mkdir processing-source
+    $ cd processing-source
+
+These build steps assume your file structure will look like this:
+
+    processing-source/
+        |- processing.py/
+        |- processing/
+        |- processing-video/
 
 If you think you're going to want to submit your own work to processing.py,
-you should start by creating a fork of processing.py on github. Let's say
+you should start by creating a fork of processing.py on GitHub. Let's say
 you've done so, and that your fork can be found at:
 
-  https://github.com/JRandomHacker/processing.py
+    https://github.com/JRandomHacker/processing.py
 
-I'll also assume you've uploaded your SSH public key to Github.  
+I'll also assume you've uploaded your SSH public key to GitHub.
 
-  $ git clone git@github.com:JRandomHacker/processing.py.git
+    $ git clone git@github.com:JRandomHacker/processing.py.git
 
-You'll need my forks of processing and processing-video (at least until such time as
-processing.py has been rewritten to be compatible with versions of Processing
-> 3.0a5).
+Otherwise, if you just want to build or examine Python Mode, you can clone
+the original repo:
 
-  $ git clone https://github.com/jdf/processing.git
-  $ git clone https://github.com/jdf/processing-video.git
+    $ git clone https://github.com/jdf/processing.py.git
 
-Then:
+  
+You'll need source for processing and processing-video.
 
-  $ cd processing.py
-  $ ant test
+    $ git clone --depth=1 https://github.com/processing/processing.git
+    $ git clone --depth=1 https://github.com/processing/processing-video.git
+
+Then, to sanity-check your environment and run all of Python Mode's
+integration tests, do the following:
+
+    $ cd processing.py
+    $ ant test
+
+That will take 2-5 minutes.
+
+Take a look at the script testmode.sh and modify it, if necessary, to
+match your Processing install. This script will build Python Mode,
+install it in your copy of Processing, and launch it.
+
+
+Configuring Eclipse
+-------------------
 
 If you want to modify the code, and you're an Eclipse user, you can "Import
-existing project into workspace" a couple of times, once for processing.py
-itself (which lives in the processing.py top level directory), and once for
-processing.core, which you'll find in the directory where you've cloned
-jdf/processing.
+existing project into workspace" a few of times, once for processing.py
+itself (which lives in the processing.py top level directory), and once
+each for processing.core, processing-java, processing-app, and
+processing-video, which you'll find in the directories where you've
+cloned processing and processing-video.
 
-Once you've imported those two projects, you should be able to run
+Once you've imported those projects, you should be able to run
 test.jycessing.JycessingTests as a JUnit test.
 
 There are several Eclipse Run Configurations included in the processing.py
@@ -48,7 +78,7 @@ directory, which are essential for debugging the Python mode sketch runner,
 which is an independent application, and which communicates with the Mode
 stuff via sockets.
 
-To run or debug the SketchRunner, launch the SketchRunner Run Configuration
+To run or debug the SketchRunner, launch the "SketchRunner" Run Configuration
 from Eclipse's Java runner menu. Once it has started up, run the "Base - Sketch
 Runner First" configuration. This sequence runs things backwards; normally the
 Mode runs, and itself launches the SketchRunner.

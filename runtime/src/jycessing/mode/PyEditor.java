@@ -90,13 +90,7 @@ public class PyEditor extends Editor {
     // Ensure that the sketch service gets properly destroyed when either the
     // JVM terminates or this editor closes, whichever comes first.
     final Thread cleanup =
-        new Thread(
-            new Runnable() {
-              @Override
-              public void run() {
-                sketchServiceManager.destroySketchService(PyEditor.this);
-              }
-            });
+        new Thread(() -> sketchServiceManager.destroySketchService(PyEditor.this));
     Runtime.getRuntime().addShutdownHook(cleanup);
     addWindowListener(
         new WindowAdapter() {
@@ -450,5 +444,11 @@ public class PyEditor extends Editor {
 
   public void printErr(final String msg) {
     console.message(msg, true);
+  }
+
+  @Override
+  public void showReference(final String filename) {
+    Platform.openURL(
+        String.format("http://py.processing.org/reference/%s", filename.replace("_.", ".")));
   }
 }

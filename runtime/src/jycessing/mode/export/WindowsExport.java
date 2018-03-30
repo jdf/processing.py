@@ -21,30 +21,22 @@ import processing.core.PConstants;
 import processing.data.XML;
 
 /**
- * 
  * Perform an export to Windows, using launch4j to generate the Windows executable.
- * 
- * N.B. We use relative paths for everything. This is not laziness, this solves problems:
- *      - It allows us to specify the location of the sketch consistently
- *      - It prevents parent directories with special characters from confusing java / JOGL (which loads libs dynamically)
- *      - It is guaranteed to work, since we specify working directory with <chdir />
- * 
- * N.B. We don't use launch4j's splash screen functionality because it apparently only works with a very specific breed of 24-bit BMPs.
- * Java's works just as well.
- * 
- * Structure:
- * $appdir/                        (e.g. $sketchname/application.windows32)
- *        /$sketchname.exe         (executable shell script to run the application)
- *        /source/                 (the source code of the sketch; used to run it)
- *        /lib/                    (where java imports are stored)
- *            /jycessing/          (where stuff necessary to jycessing is stored;
- *                                  everything in here is added to the classpath.)
- *            /$libname/library/   (where resources for $libname - imported with
- *                                  add_library - are stored. Not added to classpath.)
- *        /code/                   (any other code resources the user wanted to add;
- *                                  copied verbatim.)
- *        /data/                   (all non-code resources; copied verbatim.)
  *
+ * <p>N.B. We use relative paths for everything. This is not laziness, this solves problems: - It
+ * allows us to specify the location of the sketch consistently - It prevents parent directories
+ * with special characters from confusing java / JOGL (which loads libs dynamically) - It is
+ * guaranteed to work, since we specify working directory with <chdir />
+ *
+ * <p>N.B. We don't use launch4j's splash screen functionality because it apparently only works with
+ * a very specific breed of 24-bit BMPs. Java's works just as well.
+ *
+ * <p>Structure: $appdir/ (e.g. $sketchname/application.windows32) /$sketchname.exe (executable
+ * shell script to run the application) /source/ (the source code of the sketch; used to run it)
+ * /lib/ (where java imports are stored) /jycessing/ (where stuff necessary to jycessing is stored;
+ * everything in here is added to the classpath.) /$libname/library/ (where resources for $libname -
+ * imported with add_library - are stored. Not added to classpath.) /code/ (any other code resources
+ * the user wanted to add; copied verbatim.) /data/ (all non-code resources; copied verbatim.)
  */
 public class WindowsExport extends PlatformExport {
 
@@ -55,8 +47,8 @@ public class WindowsExport extends PlatformExport {
     }
   }
 
-  public WindowsExport(final Arch arch, final Sketch sketch, final PyEditor editor,
-      final Set<Library> libraries) {
+  public WindowsExport(
+      final Arch arch, final Sketch sketch, final PyEditor editor, final Set<Library> libraries) {
     this.id = PConstants.WINDOWS;
     this.arch = arch;
     this.name = PConstants.platformNames[id] + arch.bits;
@@ -68,7 +60,8 @@ public class WindowsExport extends PlatformExport {
   @Override
   public void export() throws IOException {
     final boolean embedJava =
-        (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java")
+        (id == PApplet.platform)
+            && Preferences.getBoolean("export.application.embed_java")
             && arch == Exporter.processingArch;
 
     final File destFolder = new File(sketch.getFolder(), "application." + name);
@@ -94,8 +87,8 @@ public class WindowsExport extends PlatformExport {
   }
 
   /**
-   * Construct a Processing XML object containing the configuration for launch4j.
-   * Config file docs: http://launch4j.sourceforge.net/docs.html
+   * Construct a Processing XML object containing the configuration for launch4j. Config file docs:
+   * http://launch4j.sourceforge.net/docs.html
    */
   private XML buildLaunch4jConfig(final File destFolder, final boolean embedJava) {
     log("Building launch4j configuration.");
@@ -109,8 +102,9 @@ public class WindowsExport extends PlatformExport {
 
     final XML config = new XML("launch4jConfig");
     config.addChild("headerType").setContent("gui"); // Not a console application
-    config.addChild("outfile").setContent(
-        new File(destFolder, sketchName + ".exe").getAbsolutePath());
+    config
+        .addChild("outfile")
+        .setContent(new File(destFolder, sketchName + ".exe").getAbsolutePath());
     config.addChild("dontWrapJar").setContent("true"); // We just want a launcher
     config.addChild("errTitle").setContent("Sketchy Behavior");
     config.addChild("icon").setContent(iconFile.getAbsolutePath());
@@ -123,9 +117,7 @@ public class WindowsExport extends PlatformExport {
     return config;
   }
 
-  /**
-   * Run launch4j on a given configuration file
-   */
+  /** Run launch4j on a given configuration file */
   private void runLaunch4j(final File configFile) throws IOException {
     log("Running launch4j.");
 
@@ -150,9 +142,14 @@ public class WindowsExport extends PlatformExport {
     final File xstreamJar = new File(launch4jFolder, "lib/xstream.jar");
 
     final ProcessBuilder pb =
-        new ProcessBuilder(javaExecutable.getAbsolutePath(), "-cp", launch4jJar.getAbsolutePath()
-            + System.getProperty("path.separator") + xstreamJar.getAbsolutePath(),
-            "net.sf.launch4j.Main", configFile.getAbsolutePath());
+        new ProcessBuilder(
+            javaExecutable.getAbsolutePath(),
+            "-cp",
+            launch4jJar.getAbsolutePath()
+                + System.getProperty("path.separator")
+                + xstreamJar.getAbsolutePath(),
+            "net.sf.launch4j.Main",
+            configFile.getAbsolutePath());
 
     if (PythonMode.VERBOSE) {
       log("Launch4j command:");
@@ -164,20 +161,20 @@ public class WindowsExport extends PlatformExport {
     final Process launch4jProcess = pb.start();
 
     if (PythonMode.VERBOSE) {
-      final Thread captureOutput = new Thread(new Runnable() {
-        @Override
-        public void run() {
-          final BufferedReader stderr =
-              new BufferedReader(new InputStreamReader(launch4jProcess.getInputStream()));
-          String line;
-          try {
-            while ((line = stderr.readLine()) != null) {
-              log(line);
-            }
-          } catch (final Exception e) {
-          }
-        }
-      });
+      final Thread captureOutput =
+          new Thread(
+              () -> {
+                final BufferedReader stderr =
+                    new BufferedReader(new InputStreamReader(launch4jProcess.getInputStream()));
+                String line;
+                try {
+                  while ((line = stderr.readLine()) != null) {
+                    log(line);
+                  }
+                  stderr.close();
+                } catch (final Exception e) {
+                }
+              });
       captureOutput.start();
     }
 
@@ -197,7 +194,7 @@ public class WindowsExport extends PlatformExport {
     if (embedJava) {
       // note that "Path" is relative to the output executable at runtime
       jre.addChild("path").setContent("\"%EXEDIR%\\java\""); // "java" folder is next to the
-                                                             // executable?
+      // executable?
       // TODO check
     }
     // We always add the minVersion tag, which means that the sketch will always try to look for
@@ -268,7 +265,8 @@ public class WindowsExport extends PlatformExport {
     final XML classPathOptions = new XML("classPath");
     classPathOptions.addChild("mainClass").setContent("jycessing.Runner");
     for (final File f : jycessingFolder.listFiles()) {
-      if (f.getName().toLowerCase().endsWith(".jar") || f.getName().toLowerCase().endsWith(".zip")) {
+      if (f.getName().toLowerCase().endsWith(".jar")
+          || f.getName().toLowerCase().endsWith(".zip")) {
         // Don't need to quote classpath entries, launch4j at least handles that for us
         classPathOptions.addChild("cp").setContent("./lib/jycessing/" + f.getName());
       }

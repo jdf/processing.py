@@ -17,8 +17,8 @@ public class PythonSketchError extends Exception {
     this(message, fileName, line, 0);
   }
 
-  public PythonSketchError(final String message, final String fileName, final int line,
-      final int column) {
+  public PythonSketchError(
+      final String message, final String fileName, final int line, final int column) {
     super(message);
 
     this.fileName = fileName;

@@ -7,17 +7,16 @@ import processing.app.syntax.Token;
 public class PyKeywordMap {
   private final Keyword[] map;
 
-  /**
-   * Creates a new <code>KeywordMap</code>.
-   */
+  /** Creates a new <code>KeywordMap</code>. */
   public PyKeywordMap() {
     this(52);
   }
 
   /**
    * Creates a new <code>KeywordMap</code>.
-   * @param mapLength The number of `buckets' to create.
-   * A value of 52 will give good performance for most maps.
+   *
+   * @param mapLength The number of `buckets' to create. A value of 52 will give good performance
+   *     for most maps.
    */
   public PyKeywordMap(final int mapLength) {
     this.mapLength = mapLength;
@@ -26,6 +25,7 @@ public class PyKeywordMap {
 
   /**
    * Looks up a key.
+   *
    * @param text The text segment
    * @param offset The offset of the substring within the text segment
    * @param length The length of the substring
@@ -50,8 +50,8 @@ public class PyKeywordMap {
 
   /**
    * Adds a key-value mapping.
-   * @param keyword The key
-   * @Param id The value
+   *
+   * @param keyword The key @Param id The value
    */
   public void add(final String keyword, final byte id) {
     final int key = getStringMapKey(keyword);
@@ -83,5 +83,4 @@ public class PyKeywordMap {
     public byte id;
     public Keyword next;
   }
-
 }

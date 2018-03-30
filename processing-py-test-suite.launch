@@ -39,5 +39,6 @@
 <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="test.jycessing.JycessingTests"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="processing.py"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Djava.library.path=${resource_loc:/processing.py/native}"/>
 <stringAttribute key="yk-options" value="&#10;additional-options2=onexit\=snapshot&#10;"/>
 </launchConfiguration>

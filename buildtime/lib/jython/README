@@ -1,0 +1,10 @@
+export PROCESSING_PY=~/processing.py
+cd /tmp
+hg clone http://hg.python.org/jython
+cd jython
+hg update v2.7.1
+hg import --no-commit ~/processing.py/buildtime/lib/jython/jython-patch.diff
+ant jar-standalone
+cp dist/jython-standalone.jar $(PROCESSING_PY)/buildtime/lib/jython/jython.jar
+cd $(PROCESSING_PY)
+ant test

@@ -37,7 +37,7 @@ public class PythonTokenMarker extends TokenMarker {
         paren = true;
         break;
     }
-    keywords.add(keyword, (byte)id);
+    keywords.add(keyword, (byte) id);
   }
 
   @Override
@@ -49,7 +49,8 @@ public class PythonTokenMarker extends TokenMarker {
     final int length = line.count + offset;
     boolean backslash = false;
 
-    loop: for (int i = offset; i < length; i++) {
+    loop:
+    for (int i = offset; i < length; i++) {
       final int i1 = (i + 1);
 
       final char c = array[i];
@@ -232,7 +233,6 @@ public class PythonTokenMarker extends TokenMarker {
       pyKeywords.add("fullScreen", BUILTIN_FUNCTION);
       pyKeywords.add("settings", BUILTIN_FUNCTION);
       pyKeywords.add("SPAN", CONSTANT);
-
     }
     return pyKeywords;
   }
