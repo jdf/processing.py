@@ -1,7 +1,6 @@
 package jycessing;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -75,17 +74,15 @@ class LibraryImporter {
     this.interp = interp;
 
     // Define the add_library function in the sketch interpreter.
-    final PyStringMap builtins = (PyStringMap) interp.getSystemState().getBuiltins();
-    builtins.__setitem__(
-        "add_library",
-        new PyObject() {
-          @Override
-          public PyObject __call__(final PyObject[] args, final String[] kws) {
-            log("Adding library " + args[0].asString());
-            addLibrary(args[0].asString());
-            return Py.None;
-          }
-        });
+    final PyStringMap builtins = (PyStringMap)interp.getSystemState().getBuiltins();
+    builtins.__setitem__("add_library", new PyObject() {
+      @Override
+      public PyObject __call__(final PyObject[] args, final String[] kws) {
+        log("Adding library " + args[0].asString());
+        addLibrary(args[0].asString());
+        return Py.None;
+      }
+    });
   }
 
   /**
@@ -137,6 +134,14 @@ class LibraryImporter {
     }
     final File mainJar = new File(contentsDir, libName + ".jar");
 
+    recursivelyAddToClasspath(contentsDir);
+
+    if (mainJar.exists()) {
+      importPublicClassesFromJar(mainJar);
+    }
+  }
+
+  private void recursivelyAddToClasspath(final File contentsDir) {
     final List<File> resources = findResources(contentsDir);
     final PySystemState sys = Py.getSystemState();
     for (final File resource : resources) {
@@ -147,16 +152,12 @@ class LibraryImporter {
 
         log("Appending " + resource.getAbsolutePath() + " to sys.path.");
         sys.path.append(Py.newString(resource.getAbsolutePath()));
-
-        // Are we missing any extensions?
       } else if (name.matches("^.*\\.(so|dll|dylib|jnilib)$")) {
         // Add *containing directory* to native search path
         addDirectoryToNativeSearchPath(resource.getAbsoluteFile().getParentFile());
+      } else if (resource.isDirectory()) {
+        recursivelyAddToClasspath(resource);
       }
-    }
-
-    if (mainJar.exists()) {
-      importPublicClassesFromJar(mainJar);
     }
   }
 
@@ -176,7 +177,9 @@ class LibraryImporter {
     resources = findResourcesFromExportTxt(contentsDir);
     if (resources == null) {
       log("Falling back to directory structure.");
-      resources = findResourcesFromDirectoryStructure(contentsDir);
+      resources = Arrays.asList(contentsDir.listFiles((final File dir, final String s) -> {
+        return !s.startsWith(".");
+      }));
     }
     return resources;
   }
@@ -213,59 +216,14 @@ class LibraryImporter {
     }
     final List<File> resources = new ArrayList<>();
     for (final String resourceName : resourceNames) {
-      final File resource = new File(contentsDir, resourceName);
+      final File resource = new File(contentsDir, resourceName).getAbsoluteFile();
       if (resource.exists()) {
         resources.add(resource);
       } else {
-        log(
-            resourceName
-                + " is mentioned in "
-                + exportTxt.getAbsolutePath()
-                + "but doesn't actually exist. Moving on.");
+        log(resourceName + " is mentioned in " + exportTxt.getAbsolutePath()
+            + "but doesn't actually exist. Moving on.");
         continue;
       }
-    }
-    return resources;
-  }
-
-  private File findPlatformDir(final File contentsDir) {
-    final List<String> childNames = Arrays.asList(contentsDir.list());
-    final String variant =
-        (PLATFORM.equals("linux") && System.getProperty("os.arch").equals("arm"))
-            ? "-armv6hf"
-            : BITS;
-    for (final String dirName : new String[] {PLATFORM + variant, PLATFORM}) {
-      final File potentialPlatformDir = new File(contentsDir, dirName);
-      if (potentialPlatformDir.isDirectory()) {
-        return potentialPlatformDir;
-      }
-    }
-    return null;
-  }
-
-  private List<File> findResourcesFromDirectoryStructure(final File contentsDir) {
-    final List<File> resources = new ArrayList<File>();
-
-    // Find platform-specific stuff
-    final File platformDir = findPlatformDir(contentsDir);
-    if (platformDir != null) {
-      log("Found platform-specific directory " + platformDir.getAbsolutePath());
-      for (final File resource : platformDir.listFiles()) {
-        resources.add(resource);
-      }
-    }
-
-    // Find multi-platform stuff; always do this
-    final File[] commonResources =
-        contentsDir.listFiles(
-            new FileFilter() {
-              @Override
-              public boolean accept(final File file) {
-                return !file.isDirectory();
-              }
-            });
-    for (final File resource : commonResources) {
-      resources.add(resource);
     }
     return resources;
   }
@@ -306,7 +264,7 @@ class LibraryImporter {
   private void addJarToClassLoader(final File jar) {
     try {
       final URL url = jar.toURI().toURL();
-      final URLClassLoader ucl = (URLClassLoader) ClassLoader.getSystemClassLoader();
+      final URLClassLoader ucl = (URLClassLoader)ClassLoader.getSystemClassLoader();
       // Linear search for url. It's ok for this to be slow.
       for (final URL existing : ucl.getURLs()) {
         if (existing.equals(url)) {
@@ -317,12 +275,8 @@ class LibraryImporter {
       final Method addUrl = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
       addUrl.setAccessible(true);
       addUrl.invoke(ucl, url);
-    } catch (NoSuchMethodException
-        | SecurityException
-        | IllegalAccessException
-        | IllegalArgumentException
-        | InvocationTargetException
-        | MalformedURLException e) {
+    } catch (NoSuchMethodException | SecurityException | IllegalAccessException
+        | IllegalArgumentException | InvocationTargetException | MalformedURLException e) {
       throw new RuntimeException(e);
     }
   }
@@ -339,7 +293,7 @@ class LibraryImporter {
     try {
       final Field field = ClassLoader.class.getDeclaredField("usr_paths");
       field.setAccessible(true);
-      final String[] paths = (String[]) field.get(null);
+      final String[] paths = (String[])field.get(null);
       for (final String path : paths) {
         if (newPath.equals(path)) {
           return;
@@ -351,12 +305,8 @@ class LibraryImporter {
       log("Added " + newPath + " to java.library.path.");
     } catch (final Exception e) {
       System.err.println(
-          "While attempting to add "
-              + newPath
-              + " to the processing.py library search path: "
-              + e.getClass().getSimpleName()
-              + "--"
-              + e.getMessage());
+          "While attempting to add " + newPath + " to the processing.py library search path: "
+              + e.getClass().getSimpleName() + "--" + e.getMessage());
     }
   }
 
@@ -421,7 +371,6 @@ class LibraryImporter {
           log("Rejecting " + name);
           continue;
         }
-
         final String importStatement = String.format("from %s import %s", packageName, className);
         log(importStatement);
         interp.exec(importStatement);
