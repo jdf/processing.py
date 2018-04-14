@@ -68,82 +68,73 @@ public class SketchRunner implements SketchService {
     System.exit(0);
   }
 
+  private abstract class RemotePrinter implements Printer {
+    abstract protected void doPrint(String s) throws RemoteException;
+
+    public void print(final Object o) {
+      try {
+        doPrint(String.valueOf(o));
+      } catch (final RemoteException e) {
+        System.err.println(e);
+      }
+    }
+
+    @Override
+    public void flush() {
+      // no-op
+    }
+  }
+
   @Override
   public void startSketch(final PdeSketch sketch) {
-    runner =
-        new Thread(
-            () -> {
-              try {
-                try {
-                  final Printer stdout =
-                      new Printer() {
-                        @Override
-                        public void print(final Object o) {
-                          try {
-                            modeService.printStdOut(id, String.valueOf(o));
-                          } catch (final RemoteException e) {
-                            System.err.println(e);
-                          }
-                        }
-
-                        @Override
-                        public void flush() {
-                          // no-op
-                        }
-                      };
-                  final Printer stderr =
-                      new Printer() {
-                        @Override
-                        public void print(final Object o) {
-                          try {
-                            modeService.printStdErr(id, String.valueOf(o));
-                          } catch (final RemoteException e) {
-                            System.err.println(e);
-                          }
-                        }
-
-                        @Override
-                        public void flush() {
-                          // no-op
-                        }
-                      };
-                  final SketchPositionListener sketchPositionListener =
-                      leftTop -> {
-                        try {
-                          modeService.handleSketchMoved(id, leftTop);
-                        } catch (final RemoteException e) {
-                          System.err.println(e);
-                        }
-                      };
-                  Runner.runSketchBlocking(sketch, stdout, stderr, sketchPositionListener);
-                } catch (final PythonSketchError e1) {
-                  log("Sketch runner caught " + e1);
-                  if (e1.getMessage().startsWith("SystemExit")) {
-                    // Someone called sys.exit(). No-op.
-                  } else {
-                    modeService.handleSketchException(
-                        id, convertPythonSketchError(e1, sketch.codeFileNames));
-                  }
-                } catch (final Exception e2) {
-                  if (e2.getCause() != null && e2.getCause() instanceof PythonSketchError) {
-                    modeService.handleSketchException(
-                        id,
-                        convertPythonSketchError(
-                            (PythonSketchError) e2.getCause(), sketch.codeFileNames));
-                  } else {
-                    modeService.handleSketchException(id, e2);
-                  }
-                } finally {
-                  log("Handling sketch stoppage...");
-                  modeService.handleSketchStopped(id);
-                }
-              } catch (final RemoteException e3) {
-                log(e3.toString());
-              }
-              // Exiting; no need to interrupt and join it later.
-              runner = null;
-            },
-            "processing.py mode runner");
+    runner = new Thread(() -> {
+      try {
+        try {
+          final Printer stdout = new RemotePrinter() {
+            @Override
+            protected void doPrint(final String s) throws RemoteException {
+              modeService.printStdOut(id, s);
+            }
+          };
+          final Printer stderr = new RemotePrinter() {
+            @Override
+            protected void doPrint(final String s) throws RemoteException {
+              modeService.printStdErr(id, s);
+            }
+          };
+          final SketchPositionListener sketchPositionListener = leftTop -> {
+            try {
+              modeService.handleSketchMoved(id, leftTop);
+            } catch (final RemoteException e) {
+              System.err.println(e);
+            }
+          };
+          Runner.runSketchBlocking(sketch, stdout, stderr, sketchPositionListener);
+        } catch (final PythonSketchError e1) {
+          log("Sketch runner caught " + e1);
+          if (e1.getMessage().startsWith("SystemExit")) {
+            // Someone called sys.exit(). No-op.
+          } else {
+            modeService.handleSketchException(id,
+                convertPythonSketchError(e1, sketch.codeFileNames));
+          }
+        } catch (final Exception e2) {
+          if (e2.getCause() != null && e2.getCause() instanceof PythonSketchError) {
+            modeService.handleSketchException(id,
+                convertPythonSketchError((PythonSketchError)e2.getCause(), sketch.codeFileNames));
+          } else {
+            modeService.handleSketchException(id, e2);
+          }
+        } finally {
+          log("Handling sketch stoppage...");
+          modeService.handleSketchStopped(id);
+        }
+      } catch (final RemoteException e3) {
+        log(e3.toString());
+      }
+      // Exiting; no need to interrupt and join it later.
+      runner = null;
+    }, "processing.py mode runner");
     runner.start();
   }
 
@@ -212,24 +203,21 @@ public class SketchRunner implements SketchService {
   private static void launch(final String id, final ModeService modeService)
       throws RMIProblem, RemoteException {
     final SketchRunner sketchRunner = new SketchRunner(id, modeService);
-    final SketchService stub = (SketchService) RMIUtils.export(sketchRunner);
+    final SketchService stub = (SketchService)RMIUtils.export(sketchRunner);
     log("Calling mode's handleReady().");
     modeService.handleReady(id, stub);
-    Runtime.getRuntime()
-        .addShutdownHook(
-            new Thread(
-                () -> {
-                  log("Exiting; telling modeService.");
-                  try {
-                    modeService.handleSketchStopped(id);
-                  } catch (final RemoteException e) {
-                    // nothing we can do about it now.
-                  }
-                }));
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      log("Exiting; telling modeService.");
+      try {
+        modeService.handleSketchStopped(id);
+      } catch (final RemoteException e) {
+        // nothing we can do about it now.
+      }
+    }));
   }
 
-  private SketchException convertPythonSketchError(
-      final PythonSketchError e, final String[] fileNames) {
+  private SketchException convertPythonSketchError(final PythonSketchError e,
+      final String[] fileNames) {
     if (e.fileName == null) {
       return new SketchException(e.getMessage());
     }
