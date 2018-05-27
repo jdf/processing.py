@@ -20,8 +20,8 @@ def setup():
     fill(255)
     noLoop()
 
-    BODY_FONT = loadFont("TheSans-Plain-12.vlw")
-    textFont(BODY_FONT)
+    body_font = loadFont("TheSans-Plain-12.vlw")
+    textFont(body_font)
 
     lines = loadStrings("cars2.tsv")
     for l in lines:
