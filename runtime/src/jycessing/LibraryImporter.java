@@ -151,7 +151,7 @@ class LibraryImporter {
         addJarToClassLoader(resource.getAbsoluteFile());
 
         log("Appending " + resource.getAbsolutePath() + " to sys.path.");
-        sys.path.append(Py.newString(resource.getAbsolutePath()));
+        sys.path.append(Py.newStringUTF8(resource.getAbsolutePath()));
       } else if (name.matches("^.*\\.(so|dll|dylib|jnilib)$")) {
         // Add *containing directory* to native search path
         addDirectoryToNativeSearchPath(resource.getAbsoluteFile().getParentFile());

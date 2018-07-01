@@ -353,7 +353,7 @@ public class Runner {
       }
 
       for (final String lib : userLibs) {
-        sys.path.insert(0, Py.newString(lib));
+        sys.path.insert(0, Py.newStringUTF8(lib));
       }
 
       // Make fake "launcher" module available to sketches - will only work with standalone sketches
@@ -367,7 +367,7 @@ public class Runner {
        * bound methods (such as loadImage(), noSmooth(), noise(), etc.) in the builtins
        * namespace.
        */
-      interp.set("__cwd__", sketch.getHomeDirectory().getAbsolutePath());
+      interp.set("__cwd__", Py.newStringUTF8(sketch.getHomeDirectory().getAbsolutePath()));
       interp.set("__python_mode_build__", BUILD_NUMBER);
       interp.set("__stdout__", stdout);
       interp.set("__stderr__", stderr);
