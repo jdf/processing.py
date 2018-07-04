@@ -251,188 +251,43 @@ __builtin__.this = __papplet__
 # https://github.com/kazimuth/python-mode-processing for the
 # technique of exploiting Jython's bound methods, which is tidy
 # and simple.
-__builtin__.ambient = __papplet__.ambient
-__builtin__.ambientLight = __papplet__.ambientLight
-__builtin__.applyMatrix = __papplet__.applyMatrix
-__builtin__.arc = __papplet__.arc
-__builtin__.background = __papplet__.background
-__builtin__.beginCamera = __papplet__.beginCamera
-__builtin__.beginContour = __papplet__.beginContour
-__builtin__.beginPGL = __papplet__.beginPGL
-__builtin__.beginRaw = __papplet__.beginRaw
-__builtin__.beginRecord = __papplet__.beginRecord
-__builtin__.beginShape = __papplet__.beginShape
-__builtin__.bezier = __papplet__.bezier
-__builtin__.bezierDetail = __papplet__.bezierDetail
-__builtin__.bezierPoint = __papplet__.bezierPoint
-__builtin__.bezierTangent = __papplet__.bezierTangent
-__builtin__.bezierVertex = __papplet__.bezierVertex
-__builtin__.blend = __papplet__.blend
-__builtin__.blendMode = __papplet__.blendMode
-__builtin__.box = __papplet__.box
-__builtin__.camera = __papplet__.camera
-__builtin__.clear = __papplet__.clear
-__builtin__.clip = __papplet__.clip
-__builtin__.color = __papplet__.color
-__builtin__.colorMode = __papplet__.colorMode
-__builtin__.copy = __papplet__.copy
-__builtin__.createFont = __papplet__.createFont
-__builtin__.createGraphics = __papplet__.createGraphics
-__builtin__.createImage = __papplet__.createImage
-__builtin__.createInput = __papplet__.createInput
-__builtin__.createOutput = __papplet__.createOutput
-__builtin__.createReader = __papplet__.createReader
-__builtin__.createShape = __papplet__.createShape
-__builtin__.cursor = __papplet__.cursor
-__builtin__.curve = __papplet__.curve
-__builtin__.curveDetail = __papplet__.curveDetail
-__builtin__.curvePoint = __papplet__.curvePoint
-__builtin__.curveTangent = __papplet__.curveTangent
-__builtin__.curveTightness = __papplet__.curveTightness
-__builtin__.curveVertex = __papplet__.curveVertex
-__builtin__.delay = __papplet__.delay
-__builtin__.directionalLight = __papplet__.directionalLight
-__builtin__.displayDensity = __papplet__.displayDensity
-__builtin__.ellipse = __papplet__.ellipse
-__builtin__.ellipseMode = __papplet__.ellipseMode
-__builtin__.emissive = __papplet__.emissive
-__builtin__.endCamera = __papplet__.endCamera
-__builtin__.endContour = __papplet__.endContour
-__builtin__.endPGL = __papplet__.endPGL
-__builtin__.endRaw = __papplet__.endRaw
-__builtin__.endRecord = __papplet__.endRecord
-__builtin__.endShape = __papplet__.endShape
-__builtin__.exit = __papplet__.exit
-__builtin__.fill = __papplet__.fill
 
 # We handle filter() by hand to permit both P5's filter() and Python's filter().
 # __builtin__.filter = __papplet__.filter
-
-__builtin__.frameRate = __papplet__.frameRate
-__builtin__.frustum = __papplet__.frustum
-__builtin__.fullScreen = __papplet__.fullScreen
-__builtin__.hint = __papplet__.hint
-__builtin__.image = __papplet__.image
-__builtin__.imageMode = __papplet__.imageMode
-__builtin__.launch = __papplet__.launch
-__builtin__.lightFalloff = __papplet__.lightFalloff
-__builtin__.lightSpecular = __papplet__.lightSpecular
-__builtin__.lights = __papplet__.lights
-__builtin__.line = __papplet__.line
-__builtin__.link = __papplet__.link
-__builtin__.loadBytes = __papplet__.loadBytes
-__builtin__.loadFont = __papplet__.loadFont
-__builtin__.loadImage = __papplet__.loadImage
-__builtin__.loadJSONArray = __papplet__.loadJSONArray
-__builtin__.loadJSONObject = __papplet__.loadJSONObject
-__builtin__.loadPixels = __papplet__.loadPixels
-__builtin__.loadShader = __papplet__.loadShader
-__builtin__.loadShape = __papplet__.loadShape
-__builtin__.loadTable = __papplet__.loadTable
-__builtin__.loadXML = __papplet__.loadXML
-__builtin__.loop = __papplet__.loop
-__builtin__.millis = __papplet__.millis
-__builtin__.modelX = __papplet__.modelX
-__builtin__.modelY = __papplet__.modelY
-__builtin__.modelZ = __papplet__.modelZ
-__builtin__.noClip = __papplet__.noClip
-__builtin__.noCursor = __papplet__.noCursor
-__builtin__.noFill = __papplet__.noFill
-__builtin__.noLights = __papplet__.noLights
-__builtin__.noLoop = __papplet__.noLoop
-__builtin__.noSmooth = __papplet__.noSmooth
-__builtin__.noStroke = __papplet__.noStroke
-__builtin__.noTint = __papplet__.noTint
-__builtin__.noise = __papplet__.noise
-__builtin__.noiseDetail = __papplet__.noiseDetail
-__builtin__.noiseSeed = __papplet__.noiseSeed
-__builtin__.normal = __papplet__.normal
-__builtin__.ortho = __papplet__.ortho
-__builtin__.parseXML = __papplet__.parseXML
-__builtin__.perspective = __papplet__.perspective
-__builtin__.pixelDensity = __papplet__.pixelDensity
-__builtin__.point = __papplet__.point
-__builtin__.pointLight = __papplet__.pointLight
-__builtin__.popMatrix = __papplet__.popMatrix
-__builtin__.popStyle = __papplet__.popStyle
-__builtin__.printArray = __papplet__.printArray
-__builtin__.printCamera = __papplet__.printCamera
-__builtin__.printMatrix = __papplet__.printMatrix
-__builtin__.printProjection = __papplet__.printProjection
-__builtin__.quad = __papplet__.quad
-__builtin__.quadraticVertex = __papplet__.quadraticVertex
 
 # Processing's "random" function works as documented, but is blown
 # away if the user does a python 'import random'. This seems
 # reasonable to me.
 __builtin__.random = __papplet__.random
 
-__builtin__.randomGaussian = __papplet__.randomGaussian
-__builtin__.randomSeed = __papplet__.randomSeed
-__builtin__.rect = __papplet__.rect
-__builtin__.rectMode = __papplet__.rectMode
-__builtin__.redraw = __papplet__.redraw
-__builtin__.requestImage = __papplet__.requestImage
-__builtin__.resetMatrix = __papplet__.resetMatrix
-__builtin__.resetShader = __papplet__.resetShader
-__builtin__.rotate = __papplet__.rotate
-__builtin__.rotateX = __papplet__.rotateX
-__builtin__.rotateY = __papplet__.rotateY
-__builtin__.rotateZ = __papplet__.rotateZ
-__builtin__.save = __papplet__.save
-__builtin__.saveBytes = __papplet__.saveBytes
-__builtin__.saveFrame = __papplet__.saveFrame
-__builtin__.saveJSONArray = __papplet__.saveJSONArray
-__builtin__.saveJSONObject = __papplet__.saveJSONObject
-__builtin__.saveStream = __papplet__.saveStream
-__builtin__.saveStrings = __papplet__.saveStrings
-__builtin__.saveTable = __papplet__.saveTable
-__builtin__.saveXML = __papplet__.saveXML
-__builtin__.scale = __papplet__.scale
-__builtin__.screenX = __papplet__.screenX
-__builtin__.screenY = __papplet__.screenY
-__builtin__.screenZ = __papplet__.screenZ
-__builtin__.selectFolder = __papplet__.selectFolder
-__builtin__.selectInput = __papplet__.selectInput
-__builtin__.selectOutput = __papplet__.selectOutput
-__builtin__.shader = __papplet__.shader
-__builtin__.shape = __papplet__.shape
-__builtin__.shapeMode = __papplet__.shapeMode
-__builtin__.shearX = __papplet__.shearX
-__builtin__.shearY = __papplet__.shearY
-__builtin__.shininess = __papplet__.shininess
-__builtin__.size = __papplet__.size
-__builtin__.sketchPath = __papplet__.sketchPath
-__builtin__.smooth = __papplet__.smooth
-__builtin__.specular = __papplet__.specular
-__builtin__.sphere = __papplet__.sphere
-__builtin__.sphereDetail = __papplet__.sphereDetail
-__builtin__.spotLight = __papplet__.spotLight
-__builtin__.stroke = __papplet__.stroke
-__builtin__.strokeCap = __papplet__.strokeCap
-__builtin__.strokeJoin = __papplet__.strokeJoin
-__builtin__.strokeWeight = __papplet__.strokeWeight
-
 # Because of two 5-arg text() methods, we have to do this in Java.
 # __builtin__.text = __papplet__.text
 
-__builtin__.textAlign = __papplet__.textAlign
-__builtin__.textAscent = __papplet__.textAscent
-__builtin__.textDescent = __papplet__.textDescent
-__builtin__.textFont = __papplet__.textFont
-__builtin__.textLeading = __papplet__.textLeading
-__builtin__.textMode = __papplet__.textMode
-__builtin__.textSize = __papplet__.textSize
-__builtin__.textWidth = __papplet__.textWidth
-__builtin__.texture = __papplet__.texture
-__builtin__.textureMode = __papplet__.textureMode
-__builtin__.textureWrap = __papplet__.textureWrap
-__builtin__.thread = __papplet__.thread
-__builtin__.tint = __papplet__.tint
-__builtin__.translate = __papplet__.translate
-__builtin__.triangle = __papplet__.triangle
-__builtin__.updatePixels = __papplet__.updatePixels
-__builtin__.vertex = __papplet__.vertex
+for f in """
+ambient ambientLight applyMatrix arc beginCamera beginContour beginPGL
+beginRaw beginRecord beginShape bezier bezierDetail bezierPoint bezierTangent
+bezierVertex blendMode box camera clear clip color colorMode createFont
+createImage createInput createOutput createReader createShape curve curveDetail
+curvePoint curveTangent curveTightness curveVertex delay directionalLight
+displayDensity ellipse ellipseMode emissive endCamera endContour endPGL endRaw
+endRecord endShape exit fill frameRate frustum fullScreen hint imageMode launch
+lightFalloff lightSpecular lights line link loadBytes loadFont loadImage
+loadJSONArray loadJSONObject loadPixels loadShader loadShape loadTable loadXML
+loop millis modelX modelY modelZ noClip noCursor noFill noLights noLoop
+noSmooth noStroke noTint noise noiseDetail noiseSeed normal ortho parseXML
+perspective pixelDensity point pointLight popMatrix popStyle printArray printCamera
+printMatrix printProjection quad quadraticVertex randomGaussian randomSeed
+rect rectMode redraw requestImage resetMatrix resetShader rotate
+rotateX rotateY rotateZ save saveBytes saveFrame saveJSONArray saveJSONObject
+saveStream saveTable saveXML scale screenX screenY screenZ selectFolder
+selectInput selectOutput shader shape shapeMode shearX shearY shininess
+size sketchPath smooth specular sphere sphereDetail spotLight stroke strokeCap
+strokeJoin strokeWeight textAlign textAscent textDescent textFont textLeading
+textMode textSize textWidth textureMode textureWrap thread tint translate
+triangle updatePixels vertex
+""".split():
+    assert getattr(__papplet__, f)
+    setattr(__builtin__, f, getattr(__papplet__, f))
 
 '''
 In order to get colors to behave reasonably, they have to be cast to positive
@@ -460,73 +315,27 @@ __builtin__.brightness = __papplet__.brightness
 # And these are PApplet static methods. Some are commented out to indicate
 # that we prefer or require Jython's implementation.
 #__builtin__.abs = PApplet.abs
-__builtin__.acos = PApplet.acos
-__builtin__.append = PApplet.append
-__builtin__.arrayCopy = PApplet.arrayCopy
-__builtin__.asin = PApplet.asin
-__builtin__.atan = PApplet.atan
-__builtin__.atan2 = PApplet.atan2
-__builtin__.binary = PApplet.binary
-__builtin__.blendColor = PApplet.blendColor
-__builtin__.ceil = PApplet.ceil
-__builtin__.concat = PApplet.concat
-__builtin__.constrain = lambda x, a, b: max(min(x, b), a)
-__builtin__.cos = PApplet.cos
-__builtin__.createInput = PApplet.createInput
-__builtin__.createOutput = PApplet.createOutput
-__builtin__.createReader = PApplet.createReader
-__builtin__.day = PApplet.day
-__builtin__.debug = PApplet.debug
-__builtin__.degrees = PApplet.degrees
-__builtin__.dist = PApplet.dist
 # __builtin__.exec = PApplet.exec
-__builtin__.exp = PApplet.exp
-__builtin__.expand = PApplet.expand
-__builtin__.floor = PApplet.floor
-__builtin__.hex = PApplet.hex
-__builtin__.hour = PApplet.hour
-__builtin__.join = PApplet.join
-__builtin__.lerp = PApplet.lerp
-__builtin__.loadBytes = PApplet.loadBytes
-__builtin__.log = PApplet.log
-__builtin__.mag = PApplet.mag
 # We permit both Python and P5's map()s.
 # __builtin__.map = PApplet.map
-__builtin__.match = PApplet.match
-__builtin__.matchAll = PApplet.matchAll
 # __builtin__.max = PApplet.max
 # __builtin__.min = PApplet.min
-__builtin__.minute = PApplet.minute
-__builtin__.month = PApplet.month
-__builtin__.nf = PApplet.nf
-__builtin__.nfc = PApplet.nfc
-__builtin__.nfp = PApplet.nfp
-__builtin__.nfs = PApplet.nfs
-__builtin__.norm = PApplet.norm
-__builtin__.pow = PApplet.pow
 # __builtin__.print = PApplet.print
-#__builtin__.println = PApplet.println
-__builtin__.radians = PApplet.radians
-__builtin__.reverse = PApplet.reverse
+# __builtin__.println = PApplet.println
 # __builtin__.round = PApplet.round
-__builtin__.saveBytes = PApplet.saveBytes
-__builtin__.saveStream = PApplet.saveStream
-__builtin__.saveStrings = PApplet.saveStrings
-__builtin__.second = PApplet.second
-__builtin__.shorten = PApplet.shorten
-__builtin__.sin = PApplet.sin
-__builtin__.sort = PApplet.sort
-__builtin__.splice = PApplet.splice
-__builtin__.split = PApplet.split
-__builtin__.splitTokens = PApplet.splitTokens
-__builtin__.sq = PApplet.sq
-__builtin__.sqrt = PApplet.sqrt
-__builtin__.subset = PApplet.subset
-__builtin__.tan = PApplet.tan
-__builtin__.trim = PApplet.trim
-__builtin__.unbinary = PApplet.unbinary
-__builtin__.unhex = PApplet.unhex
-__builtin__.year = PApplet.year
+
+__builtin__.constrain = lambda x, a, b: max(min(x, b), a)
+
+for f in """
+acos append arrayCopy asin atan atan2 binary blendColor ceil
+concat cos createInput createOutput createReader day debug degrees dist
+exp expand floor hex hour join lerp  loadBytes log mag match matchAll
+minute month nf nfc nfp nfs norm pow radians reverse saveBytes saveStream
+saveStrings second shorten sin sort splice split splitTokens sq sqrt
+subset tan trim unbinary unhex year
+""".split():
+    assert getattr(PApplet, f)
+    setattr(__builtin__, f, getattr(PApplet, f))
 
 
 # Here are some names that resolve to static *and* instance methods.
@@ -636,6 +445,70 @@ del FakeStdOut, FakeStdErr
 def __println__(o):
     print o
 __builtin__.println = __println__
+
+
+class PGraphicsPythonModeWrapper(object):
+    class popper(object):
+        def __init__(self, enter_func, exit_func, *args):
+            self.exit_func = exit_func
+            self.as_result = enter_func(*args)
+        def __enter__(self):
+            return self.as_result
+        def __exit__(self, *args):
+            self.exit_func()
+            
+    def __init__(self, g):
+        self.__dict__['g'] = g
+    
+    def _get_wrapped_image_(self):
+        return self.__dict__['g']
+    
+    def beginDraw(self):
+        return PGraphicsPythonModeWrapper.popper(
+            self.g.beginDraw, self.g.endDraw)
+    
+    def pushMatrix(self):
+        return PGraphicsPythonModeWrapper.popper(
+            self.g.pushMatrix, self.g.popMatrix)
+
+    def beginShape(self, *args):
+        return PGraphicsPythonModeWrapper.popper(
+            self.g.beginShape, self.g.endShape, *args)
+
+    def beginRaw(self, *args):
+        return PGraphicsPythonModeWrapper.popper(
+            self.g.beginRaw, self.g.endRaw, *args)
+
+    def __getattr__(self, attr):
+        return getattr(self.g, attr)
+    
+    def __setattr__(self, attr, value):
+        return setattr(self.g, attr, value)  
+
+def FakeCreateGraphics(*args):
+    return PGraphicsPythonModeWrapper(__papplet__.createGraphics(*args))
+
+__builtin__.createGraphics = FakeCreateGraphics
+del FakeCreateGraphics
+
+# Functions that expect a PImage will choke on our wrapper that delegates to
+# an actual PImage. Here, we sniff out the first argument to such functions,
+# and swap in the wrapped object as necessary.
+def UnwrapImage(func):
+    def f(*args):
+        if len(args):
+            first, rest = args[0], args[1:]
+            if hasattr(first, '_get_wrapped_image_'):
+                func(first._get_wrapped_image_(), *rest)
+            else:
+                func(*args)
+        else:
+            func()
+    return f
+for f in ('image', 'background', 'mask', 'blend', 'copy', 'cursor', 'texture'):
+    assert getattr(__papplet__, f)
+    setattr(__builtin__, f, UnwrapImage(getattr(__papplet__, f)))
+del UnwrapImage
 
 
 # Implement
