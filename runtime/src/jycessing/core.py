@@ -5,45 +5,16 @@ import os.path
 
 from numbers import Number
 
+
 # Bring all of the core Processing classes by name into the builtin namespace.
-from processing.core import PApplet
-__builtin__.PApplet = PApplet
-
-from processing.core import PConstants
-__builtin__.PConstants = PConstants
-
-from processing.core import PFont
-__builtin__.PFont = PFont
-
-from processing.core import PGraphics
-__builtin__.PGraphics = PGraphics
-
-from processing.core import PImage
-__builtin__.PImage = PImage
-
-from processing.core import PMatrix
-__builtin__.PMatrix = PMatrix
-
-from processing.core import PMatrix2D
-__builtin__.PMatrix2D = PMatrix2D
-
-from processing.core import PMatrix3D
-__builtin__.PMatrix3D = PMatrix3D
-
-from processing.core import PShape
-__builtin__.PShape = PShape
-
-from processing.core import PShapeOBJ
-__builtin__.PShapeOBJ = PShapeOBJ
-
-from processing.core import PShapeSVG
-__builtin__.PShapeSVG = PShapeSVG
-
-from processing.core import PStyle
-__builtin__.PStyle = PStyle
-
-from processing.core import PSurface
-__builtin__.PSurface = PSurface 
+import importlib
+for klass in """
+    PApplet PConstants PFont PGraphics PImage PMatrix PMatrix2D PMatrix3D 
+    PShape PShapeOBJ PShapeSVG PStyle PSurface
+""".split(): 
+    module = importlib.import_module("processing.core.%s" % klass)
+    assert module
+    setattr(__builtin__, klass, module)
 
 # PVector requires special handling, because it exposes the same method names
 # as static methods and instance methods.
@@ -264,27 +235,28 @@ __builtin__.random = __papplet__.random
 # __builtin__.text = __papplet__.text
 
 for f in """
-ambient ambientLight applyMatrix arc beginCamera beginContour beginPGL
-beginRaw beginRecord beginShape bezier bezierDetail bezierPoint bezierTangent
-bezierVertex blendMode box camera clear clip color colorMode createFont
-createImage createInput createOutput createReader createShape curve curveDetail
-curvePoint curveTangent curveTightness curveVertex delay directionalLight
-displayDensity ellipse ellipseMode emissive endCamera endContour endPGL endRaw
-endRecord endShape exit fill frameRate frustum fullScreen hint imageMode launch
-lightFalloff lightSpecular lights line link loadBytes loadFont loadImage
-loadJSONArray loadJSONObject loadPixels loadShader loadShape loadTable loadXML
-loop millis modelX modelY modelZ noClip noCursor noFill noLights noLoop
-noSmooth noStroke noTint noise noiseDetail noiseSeed normal ortho parseXML
-perspective pixelDensity point pointLight popMatrix popStyle printArray printCamera
-printMatrix printProjection quad quadraticVertex randomGaussian randomSeed
-rect rectMode redraw requestImage resetMatrix resetShader rotate
-rotateX rotateY rotateZ save saveBytes saveFrame saveJSONArray saveJSONObject
-saveStream saveTable saveXML scale screenX screenY screenZ selectFolder
-selectInput selectOutput shader shape shapeMode shearX shearY shininess
-size sketchPath smooth specular sphere sphereDetail spotLight stroke strokeCap
-strokeJoin strokeWeight textAlign textAscent textDescent textFont textLeading
-textMode textSize textWidth textureMode textureWrap thread tint translate
-triangle updatePixels vertex
+    ambient ambientLight applyMatrix arc beginCamera beginContour beginPGL
+    beginRaw beginRecord beginShape bezier bezierDetail bezierPoint bezierTangent
+    bezierVertex blendMode box camera clear clip color colorMode createFont
+    createImage createInput createOutput createReader createShape curve curveDetail
+    curvePoint curveTangent curveTightness curveVertex delay directionalLight
+    displayDensity ellipse ellipseMode emissive endCamera endContour endPGL endRaw
+    endRecord endShape exit fill frameRate frustum fullScreen hint imageMode
+    launch lightFalloff lightSpecular lights line link loadBytes loadFont loadImage
+    loadJSONArray loadJSONObject loadPixels loadShader loadShape loadTable loadXML
+    loop millis modelX modelY modelZ noClip noCursor noFill noLights noLoop
+    noSmooth noStroke noTint noise noiseDetail noiseSeed normal ortho parseXML
+    perspective pixelDensity point pointLight popMatrix popStyle printArray
+    printCamera printMatrix printProjection quad quadraticVertex randomGaussian
+    randomSeed rect rectMode redraw requestImage resetMatrix resetShader rotate
+    rotateX rotateY rotateZ save saveBytes saveFrame saveJSONArray saveJSONObject
+    saveStream saveTable saveXML scale screenX screenY screenZ selectFolder
+    selectInput selectOutput shader shape shapeMode shearX shearY shininess
+    size sketchPath smooth specular sphere sphereDetail spotLight stroke strokeCap
+    strokeJoin strokeWeight textAlign textAscent textDescent textFont textLeading
+    textMode textSize textWidth textureMode textureWrap thread tint translate
+    triangle updatePixels vertex
+    image background mask blend copy cursor texture    
 """.split():
     assert getattr(__papplet__, f)
     setattr(__builtin__, f, getattr(__papplet__, f))
@@ -447,6 +419,7 @@ def __println__(o):
 __builtin__.println = __println__
 
 
+from org.python.core import Py
 class PGraphicsPythonModeWrapper(object):
     class popper(object):
         def __init__(self, enter_func, exit_func, *args):
@@ -462,6 +435,12 @@ class PGraphicsPythonModeWrapper(object):
     
     def _get_wrapped_image_(self):
         return self.__dict__['g']
+    
+    # Coerce this object into the wrapped PGraphics.
+    def __tojava__(self, klass):
+        if isinstance(self.g, klass):
+            return self.g
+        return Py.NoConversion
     
     def beginDraw(self):
         return PGraphicsPythonModeWrapper.popper(
@@ -487,29 +466,8 @@ class PGraphicsPythonModeWrapper(object):
 
 def FakeCreateGraphics(*args):
     return PGraphicsPythonModeWrapper(__papplet__.createGraphics(*args))
-
 __builtin__.createGraphics = FakeCreateGraphics
 del FakeCreateGraphics
-
-# Functions that expect a PImage will choke on our wrapper that delegates to
-# an actual PImage. Here, we sniff out the first argument to such functions,
-# and swap in the wrapped object as necessary.
-def UnwrapImage(func):
-    def f(*args):
-        if len(args):
-            first, rest = args[0], args[1:]
-            if hasattr(first, '_get_wrapped_image_'):
-                func(first._get_wrapped_image_(), *rest)
-            else:
-                func(*args)
-        else:
-            func()
-    return f
-for f in ('image', 'background', 'mask', 'blend', 'copy', 'cursor', 'texture'):
-    assert getattr(__papplet__, f)
-    setattr(__builtin__, f, UnwrapImage(getattr(__papplet__, f)))
-del UnwrapImage
-
 
 # Implement
 #
