@@ -25,7 +25,8 @@ public class PyInputHandler extends PdeInputHandler {
   private static final int TAB_SIZE = TAB.length();
 
   public PyInputHandler(final Editor editor) {
-    pyEditor = (PyEditor) editor;
+    super(editor);
+    pyEditor = (PyEditor)editor;
   }
 
   private static boolean isPrintableChar(final char c) {
@@ -53,11 +54,8 @@ public class PyInputHandler extends PdeInputHandler {
     final Sketch sketch = pyEditor.getSketch();
 
     // things that change the content of the text area
-    if (!event.isMetaDown()
-        && (code == KeyEvent.VK_BACK_SPACE
-            || code == KeyEvent.VK_TAB
-            || code == KeyEvent.VK_ENTER
-            || isPrintableChar(c))) {
+    if (!event.isMetaDown() && (code == KeyEvent.VK_BACK_SPACE || code == KeyEvent.VK_TAB
+        || code == KeyEvent.VK_ENTER || isPrintableChar(c))) {
       sketch.setModified(true);
     }
 
@@ -95,7 +93,8 @@ public class PyInputHandler extends PdeInputHandler {
         }
         final LineInfo currentLine = new LineInfo(thisLine);
         if (currentLine.caretInText) {
-          // The caret is in the text; let the text editor handle this backspace.
+          // The caret is in the text; let the text editor handle this
+          // backspace.
           break;
         }
         // The caret is not in the text; treat it as a request to unindent.
@@ -133,7 +132,8 @@ public class PyInputHandler extends PdeInputHandler {
     // The text content after whatever indent.
     public final String text;
 
-    // Whether or not the caret happens to be positioned in the text portion of the line.
+    // Whether or not the caret happens to be positioned in the text portion
+    // of the line.
     public final boolean caretInText;
 
     LineInfo(final int lineNumber) {
@@ -149,12 +149,14 @@ public class PyInputHandler extends PdeInputHandler {
       final int caretLinePos =
           textArea.getCaretPosition() - textArea.getLineStartOffset(lineNumber);
       caretInText = caretLinePos > space.length();
-      // Calculate the current indent measured in tab stops of TAB_SIZE spaces.
+      // Calculate the current indent measured in tab stops of TAB_SIZE
+      // spaces.
       int currentIndent = 0;
       int spaceCounter = 0;
       for (int i = 0; i < space.length(); i++) {
         spaceCounter++;
-        // A literal tab character advances to the next tab stop, as does the TAB_SIZEth space
+        // A literal tab character advances to the next tab stop, as
+        // does the TAB_SIZEth space
         // character in a row.
         if (spaceCounter % TAB_SIZE == 0 || space.charAt(i) == '\t') {
           currentIndent++;
@@ -171,16 +173,20 @@ public class PyInputHandler extends PdeInputHandler {
   }
 
   /**
-   * Maybe change the indent of the current selection. If sign is positive, then increase the
-   * indent; otherwise, decrease it.
+   * Maybe change the indent of the current selection. If sign is positive,
+   * then increase the indent; otherwise, decrease it.
    *
-   * <p>If the last non-comment, non-blank line ends with ":", then the maximum indent for the
-   * current line is one greater than the indent of that ":"-bearing line. Otherwise, the maximum
-   * indent is equal to the indent of the last non-comment line.
+   * <p>
+   * If the last non-comment, non-blank line ends with ":", then the maximum
+   * indent for the current line is one greater than the indent of that
+   * ":"-bearing line. Otherwise, the maximum indent is equal to the indent of
+   * the last non-comment line.
    *
-   * <p>The minimum indent is 0.
+   * <p>
+   * The minimum indent is 0.
    *
-   * @param sign The direction in which to modify the indent of the current line.
+   * @param sign The direction in which to modify the indent of the current
+   * line.
    */
   public void indent(final int sign) {
     final JEditTextArea textArea = getTextArea();
@@ -230,12 +236,11 @@ public class PyInputHandler extends PdeInputHandler {
         getAbsoluteCaretPositionRelativeToLineEnd(stopLine, stopLineEndRelativePos));
   }
 
-  private int getAbsoluteCaretPositionRelativeToLineEnd(
-      final int line, final int lineEndRelativePosition) {
+  private int getAbsoluteCaretPositionRelativeToLineEnd(final int line,
+      final int lineEndRelativePosition) {
     final JEditTextArea textArea = getTextArea();
 
-    return Math.max(
-        textArea.getLineStopOffset(line) - lineEndRelativePosition,
+    return Math.max(textArea.getLineStopOffset(line) - lineEndRelativePosition,
         textArea.getLineStartOffset(line));
   }
 
@@ -258,8 +263,7 @@ public class PyInputHandler extends PdeInputHandler {
 
   private static final Pattern INITIAL_WHITESPACE = Pattern.compile("^(\\s*)");
   /*
-   * This can be fooled by a line like
-   * print "He said: #LOLHASHTAG!"
+   * This can be fooled by a line like print "He said: #LOLHASHTAG!"
    */
   private static final Pattern TERMINAL_COLON = Pattern.compile(":\\s*(#.*)?$");
   private static final Pattern POP_CONTEXT = Pattern.compile("^\\s*(return|break|continue)\\b");
@@ -273,12 +277,14 @@ public class PyInputHandler extends PdeInputHandler {
   }
 
   /**
-   * Search for an unterminated paren or bracket. If found, return its index in the given text.
-   * Otherwise return -1.
+   * Search for an unterminated paren or bracket. If found, return its index
+   * in the given text. Otherwise return -1.
    *
-   * <p>Ignores syntax errors, treating (foo] as a valid construct.
+   * <p>
+   * Ignores syntax errors, treating (foo] as a valid construct.
    *
-   * <p>Assumes that the text contains no surrogate characters.
+   * <p>
+   * Assumes that the text contains no surrogate characters.
    *
    * @param cursor The current cursor position in the given text.
    * @param text The text to search for an unterminated paren or bracket.
@@ -387,7 +393,8 @@ public class PyInputHandler extends PdeInputHandler {
     if (TERMINAL_COLON.matcher(line).find()) {
       return "\n" + initialWhitespace + TAB;
     }
-    // TODO: popping context on return should return to the indent of the last def.
+    // TODO: popping context on return should return to the indent of the
+    // last def.
     if (POP_CONTEXT.matcher(line).find()) {
       final int currentIndentLength = initialWhitespace.length();
       final int spaceCount = Math.max(0, currentIndentLength - 4);
