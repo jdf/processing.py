@@ -11,7 +11,7 @@ class Wiggler(object):
         # We are using a list to keep a duplicate copy
         # of vertices original locations.
         self.original = []
-        for a in range(0, int(range(TWO_PI * 10)), 2):
+        for a in range(0, int(TWO_PI * 10), 2):
             ascaled = a * .1
             v = PVector.fromAngle(ascaled)
             v.mult(100)
