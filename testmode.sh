@@ -9,7 +9,7 @@ if [[ $(uname) == 'Darwin' ]]; then
 	RUNPROCESSING=$PROCESSING/build/macosx/work/Processing.app/Contents/MacOS/Processing
 else 
 	RUNPROCESSING="$PROCESSING/build/windows/work/processing.exe"
-	MODES=~/feinberg/Documents/Processing/modes;
+	MODES=/c/Users/Jonathan\ Feinberg/Documents/Processing/modes;
 fi
 
 cd "$PROCESSING/build" && \

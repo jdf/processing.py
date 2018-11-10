@@ -26,5 +26,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="processing.app.Base"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="processing-app"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Dusemode=&quot;jycessing.mode.PythonMode:${resource_loc:/processing.py/mode}&quot; -Djava.library.path=${resource_loc:/processing.py/native}"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Dusemode=&quot;jycessing.mode.PythonMode:${resource_loc:/processing.py/mode}&quot; -Djava.library.path=&quot;${resource_loc:/processing.py/native}&quot;"/>
 </launchConfiguration>

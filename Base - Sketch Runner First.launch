@@ -25,5 +25,5 @@
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="processing.app.Base"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="processing-app"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dusemode=jycessing.mode.PythonMode:${resource_loc:/processing.py/mode}"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dusemode=j&quot;ycessing.mode.PythonMode:${resource_loc:/processing.py/mode}&quot;"/>
 </launchConfiguration>
