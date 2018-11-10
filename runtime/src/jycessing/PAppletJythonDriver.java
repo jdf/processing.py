@@ -892,6 +892,17 @@ public class PAppletJythonDriver extends PApplet {
         // fallthrough
       }
     } finally {
+      try {
+      if (stopMeth != null) {
+        stopMeth.__call__();
+      }
+      if (disposeMeth != null) {
+        disposeMeth.__call__();
+      }
+      } catch (Throwable t) {
+        System.err.println("while disposing: " + t);
+      }
+
       Thread.setDefaultUncaughtExceptionHandler(null);
       if (PApplet.platform == PConstants.MACOSX && Arrays.asList(args).contains("fullScreen")) {
         // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm
@@ -1445,25 +1456,6 @@ public class PAppletJythonDriver extends PApplet {
   public void keyTyped(final KeyEvent e) {
     wrapKeyVariables();
     keyTypedFunc.invoke(e);
-  }
-
-  // Processing's rendering architecture calls dispose() from 1..N times where N is
-  // determined by a roll of a d6.
-  private volatile boolean disposeCalled = false;
-
-  @Override
-  public void dispose() {
-    if (disposeCalled) {
-      return;
-    }
-    disposeCalled = true;
-    super.dispose();
-    if (stopMeth != null) {
-      stopMeth.__call__();
-    }
-    if (disposeMeth != null) {
-      disposeMeth.__call__();
-    }
   }
 
   @Override
