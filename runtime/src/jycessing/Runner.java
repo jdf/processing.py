@@ -294,6 +294,9 @@ public class Runner {
     props.put("python.console.encoding", "UTF-8"); 
     props.put("python.import.site", "false");
 
+    // Permit python subclasses to access protect fields, as in Beads.
+    props.put("python.security.respectJavaAccessibility", "false");
+
     // Can be handy for class loading issues and the like.
     // props.setProperty("python.verbose", "debug");
 
