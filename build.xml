@@ -49,7 +49,7 @@
   <macrodef name="rm-rf">
     <attribute name="target"/>
     <sequential>
-      <exec executable="/bin/rm" failonerror="true">
+      <exec executable="rm" failonerror="true">
         <arg value="-rf"/>
         <arg value="${basedir}/@{target}"/>
       </exec>
@@ -60,7 +60,7 @@
     <attribute name="srcfile"/>
     <sequential>
         <echo message="Pushing @{srcfile} to py.processing.org..." />
-        <exec executable="/bin/sh" failonerror="true">
+        <exec executable="sh" failonerror="true">
             <arg value="-c"/>
             <arg value="rsync --progress -avz @{srcfile} jdf@py.processing.org:/var/www/py/3" />
         </exec>
@@ -131,12 +131,12 @@
   <target name="mode.upload" depends="mode.zip">
     <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>
     <push srcfile="work/PythonMode_${jycessing.build.number}.zip"/>
-    <exec executable="/bin/sh" failonerror="true">
+    <exec executable="sh" failonerror="true">
         <arg value="-c"/>
         <arg value="ssh jdf@py.processing.org 'cp /var/www/py/3/PythonMode_${jycessing.build.number}.zip /var/www/py/3/PythonMode.zip'" />
     </exec>    
     <push srcfile="work/modedist/PythonMode.txt"/>
-    <exec executable="/bin/sh" failonerror="true">
+    <exec executable="sh" failonerror="true">
         <arg value="-c"/>
         <arg value="ssh jdf@py.processing.org 'chmod a+rX /var/www/py/3/*'" />
     </exec>
@@ -365,7 +365,7 @@
           <equals arg1="${platform}" arg2="macosx"/>
           <then>
             <echo message="Moving mac JRE to sane location."/>
-            <exec executable="/bin/sh" dir="${jre.local.dir}" failonerror="true">
+            <exec executable="sh" dir="${jre.local.dir}" failonerror="true">
               <arg value="-c"/>
               <arg value="mv Contents/Home/* ."/>
             </exec>
