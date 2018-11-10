@@ -30,7 +30,7 @@ def draw():
         segment(segLength, 0, angle2)
 
 
-def segment(s, y, a):
+def segment(x, y, a):
     translate(x, y)
     rotate(a)
     line(0, 0, segLength, 0)
