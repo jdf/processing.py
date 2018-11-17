@@ -4,12 +4,15 @@ sudo: false
 addons:
   apt:
     packages:
-      - oracle-java8-installer
+      # - oracle-java8-installer
       - ant-optional
 
 language: java
 
-jdk: oraclejdk8
+jdk:
+  - oraclejdk8
+  - oraclejdk9
+  - oraclejdk11
 
 before_install:
   - git clone --depth=1 https://github.com/processing/processing
