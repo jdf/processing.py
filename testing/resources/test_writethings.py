@@ -6,16 +6,20 @@ content = "hello"
 # guaranteed to be deleted on close and/or garbage collection
 with tempfile.NamedTemporaryFile() as tmpfile:
 
-    with createOutput(tmpfile.name) as writer:
-        saveBytes(writer, content)
-    with createInput(tmpfile.name) as reader:
-        data = loadBytes(reader)
+    w = createOutput(tmpfile.name)
+    saveBytes(w, content)
+    w.close()
+    r = createInput(tmpfile.name)
+    data = loadBytes(r)
+    r.close()
     assert ''.join([chr(c) for c in data]) == content
 
-    with createOutput(File(tmpfile.name)) as writer:
-        saveBytes(writer, content)  
-    with createInput(tmpfile.name) as reader:
-        data = loadBytes(reader)
+    w = createOutput(tmpfile.name)
+    saveBytes(w, content)
+    w.close()
+    r = createInput(tmpfile.name)
+    data = loadBytes(r)
+    r.close()
     assert ''.join([chr(c) for c in data]) == content
 
 print 'OK'
