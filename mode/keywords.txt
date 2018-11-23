@@ -201,7 +201,8 @@ is	KEYWORD1
 not	KEYWORD1
 or	KEYWORD1
 print	KEYWORD1
-
+range	KEYWORD1
+xrange	KEYWORD1
 
 // Datatypes
 
@@ -255,8 +256,8 @@ boolean	FUNCTION1	booleanconvert_
 byte	FUNCTION1	byteconvert_
 cache	FUNCTION2
 char	FUNCTION1	charconvert_
-start	FUNCTION1
-stop	FUNCTION1
+//start	FUNCTION1
+//stop	FUNCTION1
 breakShape	FUNCTION1
 createPath	FUNCTION1
 float	FUNCTION1	floatconvert_
@@ -804,7 +805,7 @@ matchRows	FUNCTION2	Table_matchRows_
 removeColumn	FUNCTION2	Table_removeColumn_
 removeRow	FUNCTION2	Table_removeRow_
 removeTokens	FUNCTION2	Table_removeTokens_
-rows	FUNCTION2	Table_rows_
+//rows	FUNCTION2	Table_rows_
 setFloat	FUNCTION2	Table_setFloat_
 setInt	FUNCTION2	Table_setInt_
 setString	FUNCTION2	Table_setString_
