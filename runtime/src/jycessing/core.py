@@ -23,25 +23,21 @@ class PVector(__pvector__):
     def __instance_add__(self, *args):
         if len(args) == 1:
             v = args[0]
-            self.x += v.x
-            self.y += v.y
-            self.z += v.z
         else:
-            self.x += args[0]
-            self.y += args[1]
-            self.z += args[2]
+            v = args
+        self.x += v[0]
+        self.y += v[1]
+        self.z += v[2]
         return self
         
     def __instance_sub__(self, *args):
         if len(args) == 1:
             v = args[0]
-            self.x -= v.x
-            self.y -= v.y
-            self.z -= v.z
         else:
-            self.x -= args[0]
-            self.y -= args[1]
-            self.z -= args[2]
+            v = args
+        self.x -= v[0]
+        self.y -= v[1]
+        self.z -= v[2]
         return self
 
     def __instance_mult__(self, o):
@@ -59,8 +55,9 @@ class PVector(__pvector__):
     def __instance_dot__(self, *args):
         if len(args) == 1:
             v = args[0]
-            return self.x * v.x + self.y * v.y + self.z * v.z
-        return self.x * args[0] + self.y * args[1] + self.z * args[2]
+        else:
+            v = args
+        return self.x * v[0] + self.y * v[1] + self.z * v[2]
 
     def __instance_lerp__(self, *args):
         if len(args) == 4:
@@ -70,9 +67,9 @@ class PVector(__pvector__):
             t = args[3]
         elif len(args) == 2:
             v = args[0]
-            x = v.x
-            y = v.y
-            z = v.z
+            x = v[0]
+            y = v[1]
+            z = v[2]
             t = args[1]
         else:
             raise Exception('lerp takes either (x, y, z, t) or (v, t)')
@@ -96,6 +93,12 @@ class PVector(__pvector__):
     def copy(self):
         return PVector(self.x, self.y, self.z)
 
+    def __getitem__(self, k):
+        return getattr(self, ('x','y','z')[k])
+
+    def __setitem__(self, k, v):
+        setattr(self, ('x','y','z')[k], v)
+
     def __copy__(self):
         return PVector(self.x, self.y, self.z)
 
@@ -105,15 +108,15 @@ class PVector(__pvector__):
     @classmethod
     def add(cls, a, b, dest=None):
         if dest is None:
-            return PVector(a.x + b.x, a.y + b.y, a.z + b.z)
-        dest.set(a.x + b.x, a.y + b.y, a.z + b.z)
+            return PVector(a.x + b[0], a.y + b[1], a.z + b[2])
+        dest.set(a.x + b[0], a.y + b[1], a.z + b[2])
         return dest
     
     @classmethod
     def sub(cls, a, b, dest=None):
         if dest is None:
-            return PVector(a.x - b.x, a.y - b.y, a.z - b.z)
-        dest.set(a.x - b.x, a.y - b.y, a.z - b.z)
+            return PVector(a.x - b[0], a.y - b[1], a.z - b[2])
+        dest.set(a.x - b[0], a.y - b[1], a.z - b[2])
         return dest
 
     @classmethod
@@ -146,13 +149,23 @@ class PVector(__pvector__):
 
     @classmethod
     def cross(cls, a, b, dest=None):
-        x = a.y * b.z - b.y * a.z
-        y = a.z * b.x - b.z * a.x
-        z = a.x * b.y - b.x * a.y
+        x = a.y * b[2] - b[1] * a.z
+        y = a.z * b[0] - b[2] * a.x
+        z = a.x * b[1] - b[0] * a.y
         if dest is None:
             return PVector(x, y, z)
         dest.set(x, y, z)
         return dest
+
+    @classmethod
+    def random2D(cls, *args):
+        jpv = __pvector__.random2D(*args)
+        return PVector(jpv.x, jpv.y, jpv.z)
+
+    @classmethod
+    def random3D(cls, *args):
+        jpv = __pvector__.random3D(*args)
+        return PVector(jpv.x, jpv.y, jpv.z)
 
     def __add__(a, b):
         return PVector.add(a, b, None)
@@ -196,7 +209,7 @@ class PVector(__pvector__):
         return a
     
     def __eq__(a, b):
-        return a.x == b.x and a.y == b.y and a.z == b.z
+        return a.x == b[0] and a.y == b[1] and a.z == b[2]
     
     def __lt__(a, b):
         return a.magSq() < b.magSq()

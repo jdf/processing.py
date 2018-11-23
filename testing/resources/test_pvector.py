@@ -135,6 +135,23 @@ a = PVector(3, 5, 7)
 b = a * 10
 assert a.mult(10) == b
 
+# test that a vector can do arithmetic with a tuple
+assert PVector(1, 2, 3) == (1, 2, 3)
+assert (PVector(1, 2, 3) + (3, 3, 3)) == (4, 5, 6)
+assert (PVector(5, 5, 5) - (1, 2, 3)) == (4, 3, 2)
+
+# Regression test for https://github.com/jdf/processing.py/issues/317
+r = PVector.random2D() * 10
+assert -10 <= r.x <= 10
+assert -10 <= r.y <= 10
+assert r.z == 0
+
+PVector.random3D(r)
+r += (1, 1, 1)
+assert 0 <= r.x <= 2
+assert 0 <= r.y <= 2
+assert 0 <= r.z <= 2
+
 print 'OK'
 
 exit()
