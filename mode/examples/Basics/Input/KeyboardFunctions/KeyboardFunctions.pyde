@@ -55,10 +55,12 @@ def draw():
 
 def keyPressed():
     global newletter, x, y, letterHeight
-
+    if key != CODED:
+        key_code = ord(key)
+    else:
+        key_code = keyCode
     # If the key is between 'A'(65) to 'Z' and 'a' to 'z'(122)
-    key_code = ord(key)
-    if (key_code >= A_code and key_code <= Z_code) or (key_code >= a_code and key_code <= z_code):
+    if A_code <= key_code <= Z_code or a_code <= key_code <= z_code:
         if key_code <= Z_code:
             keyIndex = key_code - A_code
             letterHeight = maxHeight

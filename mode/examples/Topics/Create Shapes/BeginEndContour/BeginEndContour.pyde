@@ -14,17 +14,17 @@ def setup():
     s.fill(0)
     s.stroke(255)
     s.strokeWeight(2)
-    # Exterior part of shape
+    # Exterior part of shape, clockwise winding
     s.vertex(-100, -100)
     s.vertex(100, -100)
     s.vertex(100, 100)
     s.vertex(-100, 100)
-    # Interior part of shape
+    # Interior part of shape, counter-clockwise winding
     s.beginContour()
     s.vertex(-10, -10)
-    s.vertex(10, -10)
-    s.vertex(10, 10)
     s.vertex(-10, 10)
+    s.vertex(10, 10)
+    s.vertex(10, -10)
     s.endContour()
     # Finishing off shape
     s.endShape(CLOSE)
