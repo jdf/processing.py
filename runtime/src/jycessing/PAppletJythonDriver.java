@@ -537,7 +537,12 @@ public class PAppletJythonDriver extends PApplet {
     } else {
       pyG = Py.java2py(g);
     }
-    builtins.__setitem__("g", pyG);
+    // We want the builtin "g" object to behave just like PGraphics instances
+    // created with createGraphics(), so that its beginPGL can be used in a with
+    // statement, etc.
+    interp.set("__original_g__", pyG);
+    final PyObject wrappedG = interp.eval("PGraphicsPythonModeWrapper(__original_g__)");
+    builtins.__setitem__("g", wrappedG);
 
     return s;
   }

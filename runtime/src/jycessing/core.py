@@ -16,6 +16,11 @@ for klass in """
     assert module
     setattr(__builtin__, klass, module)
 
+
+module = importlib.import_module("processing.opengl.PGL")
+assert module
+setattr(__builtin__, "PGL", module)
+
 # PVector requires special handling, because it exposes the same method names
 # as static methods and instance methods.
 from processing.core import PVector as __pvector__
@@ -470,6 +475,10 @@ class PGraphicsPythonModeWrapper(object):
     def beginRaw(self, *args):
         return PGraphicsPythonModeWrapper.popper(
             self.g.beginRaw, self.g.endRaw, *args)
+
+    def beginPGL(self):
+        return PGraphicsPythonModeWrapper.popper(
+            self.g.beginPGL, self.g.endPGL)
 
     def __getattr__(self, attr):
         return getattr(self.g, attr)
