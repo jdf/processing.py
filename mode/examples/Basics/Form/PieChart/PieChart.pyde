@@ -2,7 +2,7 @@
 Pie Chart    
 
 Uses the arc() function to generate a pie chart from the data
-stored in an array. 
+stored in a tuple. 
 """
 angles = (30, 10, 45, 35, 60, 38, 75, 67)
 
