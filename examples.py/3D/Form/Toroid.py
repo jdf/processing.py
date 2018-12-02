@@ -1,22 +1,22 @@
 """
- * Interactive Toroid
- * PDE by Ira Greenberg, rewritten in Python by Jonathan Feinberg
- *
- * Illustrates the geometric relationship between Toroid, Sphere, and Helix
- * 3D primitives, as well as lathing principal.
- *
- * Instructions:
- * UP arrow key pts++
- * DOWN arrow key pts--
- * LEFT arrow key segments--
- * RIGHT arrow key segments++
- * 'a' key toroid radius--
- * 's' key toroid radius++
- * 'z' key initial polygon radius--
- * 'x' key initial polygon radius++
- * 'w' key toggle wireframe/solid shading
- * 'h' key toggle sphere/helix
- """
+ Interactive Toroid
+ PDE by Ira Greenberg, rewritten in Python by Jonathan Feinberg
+
+ Illustrates the geometric relationship between Toroid, Sphere, and Helix
+ 3D primitives, as well as lathing principal.
+ 
+ Instructions:
+ UP arrow key pts++
+ DOWN arrow key pts--
+ LEFT arrow key segments--
+ RIGHT arrow key segments++
+ 'a' key toroid radius--
+ 's' key toroid radius++
+ 'z' key initial polygon radius--
+ 'x' key initial polygon radius++
+ 'w' key toggle wireframe/solid shading
+ 'h' key toggle sphere/helix
+"""
 
 pts = 40
 radius = 60.0
