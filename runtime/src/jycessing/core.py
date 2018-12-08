@@ -480,6 +480,20 @@ class PGraphicsPythonModeWrapper(object):
         return PGraphicsPythonModeWrapper.popper(
             self.g.beginPGL, self.g.endPGL)
 
+    # The PGraphicsJava2D shadows its ellipse, rect, arc, and line functions
+    # with field declarations, so we must bypass them here.
+    def ellipse(self, *args):
+        PGraphics.ellipse(self, *args)
+        
+    def rect(self, *args):
+        PGraphics.rect(self, *args)
+
+    def line(self, *args):
+        PGraphics.line(self, *args)
+
+    def arc(self, *args):
+        PGraphics.arc(self, *args)
+
     def __getattr__(self, attr):
         return getattr(self.g, attr)
     

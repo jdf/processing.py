@@ -330,9 +330,15 @@ public class JycessingTests {
     expectOK("keyPressed_redefined");
   }
 
-  //https://github.com/jdf/processing.py/issues/281
+  // https://github.com/jdf/processing.py/issues/281
   @Test
   public void thread() throws Exception {
     expectOK("thread");
+  }
+
+  // https://github.com/jdf/processing.py/issues/326
+  @Test
+  public void pGraphicsJava2d() throws Exception {
+    expectOK("pgraphics_calls");
   }
 }
