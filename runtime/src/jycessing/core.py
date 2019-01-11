@@ -163,6 +163,11 @@ class PVector(__pvector__):
         return dest
 
     @classmethod
+    def fromAngle(cls, *args):
+        jpv = __pvector__.fromAngle(*args)
+        return PVector(jpv.x, jpv.y, jpv.z)
+
+    @classmethod
     def random2D(cls, *args):
         jpv = __pvector__.random2D(*args)
         return PVector(jpv.x, jpv.y, jpv.z)
