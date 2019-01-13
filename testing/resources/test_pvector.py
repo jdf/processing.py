@@ -152,6 +152,13 @@ assert 0 <= r.x <= 2
 assert 0 <= r.y <= 2
 assert 0 <= r.z <= 2
 
+# Regression test for https://github.com/jdf/processing.py/issues/334
+r = PVector.fromAngle(0) * 10
+assert r.x == 10
+assert r.y == 0
+assert r.z == 0
+
+
 print 'OK'
 
 exit()
