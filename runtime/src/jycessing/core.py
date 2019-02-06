@@ -543,6 +543,7 @@ makePopper('beginShape', 'endShape')
 makePopper('beginShape', 'endShape',
            close_args=[CLOSE], exposed_name='beginClosedShape')
 makePopper('beginCamera', 'endCamera')
+makePopper('push', 'pop')
 
 import os
 os.chdir(__cwd__)
