@@ -5,6 +5,9 @@ fill('#0000FF')
 rect(10, 10, 10, 10)
 assert get(15, 15) == 0xFF0000FF
 
+square(10, 30, 10)
+assert get(15, 35) == 0xFF0000FF
+
 fill(255)
 rect(20, 10, 10, 10)
 assert get(25, 15) == 0xFFFFFFFF
