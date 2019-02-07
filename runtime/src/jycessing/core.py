@@ -279,7 +279,8 @@ for f in """
     strokeJoin strokeWeight textAlign textAscent textDescent textFont textLeading
     textMode textSize textWidth textureMode textureWrap thread tint translate
     triangle updatePixels vertex
-    image background mask blend copy cursor texture    
+    image background mask blend copy cursor texture
+    circle square push pop
 """.split():
     assert getattr(__papplet__, f)
     setattr(__builtin__, f, getattr(__papplet__, f))
@@ -561,6 +562,7 @@ makePopper('beginShape', 'endShape')
 makePopper('beginShape', 'endShape',
            close_args=[CLOSE], exposed_name='beginClosedShape')
 makePopper('beginCamera', 'endCamera')
+makePopper('push', 'pop')
 
 import os
 os.chdir(__cwd__)

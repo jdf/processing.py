@@ -41,11 +41,14 @@ the original repo:
 
     $ git clone https://github.com/jdf/processing.py.git
 
-  
+
 You'll need source for processing and processing-video.
 
     $ git clone --depth=1 https://github.com/processing/processing.git
     $ git clone --depth=1 https://github.com/processing/processing-video.git
+
+If you are a Linux user, you'll also have to create a directory named `linux`
+inside your `processing.py` directory.
 
 Then, to sanity-check your environment and run all of Python Mode's
 integration tests, do the following:

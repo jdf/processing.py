@@ -5,6 +5,12 @@ fill('#0000FF')
 rect(10, 10, 10, 10)
 assert get(15, 15) == 0xFF0000FF
 
+square(10, 30, 10)
+assert get(15, 35) == 0xFF0000FF
+
+circle(100, 100, 10)
+assert get(99, 99) == 0xFF0000FF
+
 fill(255)
 rect(20, 10, 10, 10)
 assert get(25, 15) == 0xFFFFFFFF
@@ -35,6 +41,21 @@ for x in range(70, 80):
     for y in range(10, 20):
         set(x, y, '#EEEE00')
 assert get(75, 15) == 0xFFEEEE00
+
+background(100)
+fill('#0000FF')
+rect(0, 0, 10, 10)
+assert get(5, 5) == 0xFF0000FF
+
+with push():
+    translate(20, 0)
+    fill(255)
+    rect(0, 0, 10, 10)
+
+assert get(25, 5) == 0xFFFFFFFF
+
+rect(40, 0, 10, 10)
+assert get(45, 5) == 0xFF0000FF  # pop also restores previous style confs
 
 print 'OK'
 exit()
