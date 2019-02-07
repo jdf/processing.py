@@ -42,5 +42,20 @@ for x in range(70, 80):
         set(x, y, '#EEEE00')
 assert get(75, 15) == 0xFFEEEE00
 
+background(100)
+fill('#0000FF')
+rect(0, 0, 10, 10)
+assert get(5, 5) == 0xFF0000FF
+
+with push():
+    translate(20, 0)
+    fill(255)
+    rect(0, 0, 10, 10)
+
+assert get(25, 5) == 0xFFFFFFFF
+
+rect(40, 0, 10, 10)
+assert get(45, 5) == 0xFF0000FF  # pop also restores previous style confs
+
 print 'OK'
 exit()
