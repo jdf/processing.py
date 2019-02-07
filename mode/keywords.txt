@@ -407,6 +407,7 @@ dist	FUNCTION1	dist_
 draw	FUNCTION4	draw
 ellipse	FUNCTION1	ellipse_
 ellipseMode	FUNCTION1	ellipseMode_
+circle	FUNCTION1	circle_
 emissive	FUNCTION1	emissive_
 endCamera	FUNCTION1	endCamera_
 endContour	FUNCTION1	endContour_
@@ -636,6 +637,7 @@ point	FUNCTION1	point_
 pointLight	FUNCTION1	pointLight_
 popMatrix	FUNCTION1	popMatrix_
 popStyle	FUNCTION1	popStyle_
+pop	FUNCTION1	pop_
 pow	FUNCTION1	pow_
 print	FUNCTION1	print_
 printCamera	FUNCTION1	printCamera_
@@ -668,6 +670,7 @@ setVisible	FUNCTION2	PShape_setVisible_
 translate	FUNCTION2	PShape_translate_
 pushMatrix	FUNCTION1	pushMatrix_
 pushStyle	FUNCTION1	pushStyle_
+push	FUNCTION1	push_
 PVector	KEYWORD5	PVector
 add	FUNCTION2	PVector_add_
 angleBetween	FUNCTION2	PVector_angleBetween_
@@ -701,6 +704,7 @@ randomGaussian	FUNCTION1	randomGaussian_
 randomSeed	FUNCTION1	randomSeed_
 rect	FUNCTION1	rect_
 rectMode	FUNCTION1	rectMode_
+square	FUNCTION1	square_
 red	FUNCTION1	red_
 redraw	FUNCTION1	redraw_
 requestImage	FUNCTION1	requestImage_
