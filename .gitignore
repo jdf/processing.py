@@ -31,3 +31,4 @@ misc/windowsexecutablestub/Debug
 misc/windowsexecutablestub/Release
 *.sdf
 *.suo
+linux/
