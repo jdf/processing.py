@@ -205,9 +205,9 @@ public class SketchRunner implements SketchService {
   private static void launch(final String id, final ModeService modeService)
       throws RMIProblem, RemoteException {
     final SketchRunner sketchRunner = new SketchRunner(id, modeService);
-    final SketchService stub = (SketchService)RMIUtils.export(sketchRunner);
+    RMIUtils.export(sketchRunner);
     log("Calling mode's handleReady().");
-    modeService.handleReady(id, stub);
+    modeService.handleReady(id, sketchRunner);
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       log("Exiting; telling modeService.");
       try {

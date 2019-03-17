@@ -109,9 +109,9 @@ public class RMIUtils {
     }
   }
 
-  public static Remote export(final Remote remote) throws RMIProblem {
+  public static void export(final Remote remote) throws RMIProblem {
     try {
-      return UnicastRemoteObject.exportObject(remote, 0);
+      UnicastRemoteObject.exportObject(remote, 0);
     } catch (final RemoteException e) {
       throw new RMIProblem(e);
     }

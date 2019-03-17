@@ -63,9 +63,8 @@ public class SketchServiceManager implements ModeService {
     isStarted = true;
     try {
       if (PythonMode.SKETCH_RUNNER_FIRST) {
-        final ModeService stub = (ModeService) RMIUtils.export(this);
-        final ModeWaiter modeWaiter = RMIUtils.lookup(ModeWaiter.class);
-        modeWaiter.modeReady(stub);
+        RMIUtils.export(this);
+        RMIUtils.lookup(ModeWaiter.class).modeReady(this);
       } else {
         RMIUtils.bind(this, ModeService.class);
       }
