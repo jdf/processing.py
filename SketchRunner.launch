@@ -15,5 +15,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="SKETCHRUNNER"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="processing.py"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dverbose=true"/>
-<stringAttribute key="yk-options" value="&#10;additional-options2=onexit\=snapshot&#10;startup=0&#10;"/>
+<stringAttribute key="yk-options" value="&#10;additional-options2=onexit\=snapshot&#10;startup=12&#10;"/>
 </launchConfiguration>

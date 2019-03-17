@@ -160,8 +160,10 @@ public class SketchRunner implements SketchService {
     // If env var SKETCH_RUNNER_FIRST=true then SketchRunner will wait for a ping from the Mode
     // before registering itself as the sketch runner.
     if (PythonMode.SKETCH_RUNNER_FIRST) {
+      log("Waiting for mode with id " + id);
       waitForMode(id);
     } else {
+      log("Starting sketch runner immediately with id " + id);
       startSketchRunner(id);
     }
   }

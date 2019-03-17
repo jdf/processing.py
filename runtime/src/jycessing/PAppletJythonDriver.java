@@ -908,6 +908,8 @@ public class PAppletJythonDriver extends PApplet {
         System.err.println("while disposing: " + t);
       }
 
+      maybeShutdownSoundEngine();
+
       Thread.setDefaultUncaughtExceptionHandler(null);
       if (PApplet.platform == PConstants.MACOSX && Arrays.asList(args).contains("fullScreen")) {
         // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm
@@ -931,6 +933,26 @@ public class PAppletJythonDriver extends PApplet {
     }
     if (terminalException != null) {
       throw terminalException;
+    }
+  }
+
+  /**
+   * The sound library is designed to depend on exiting the VM when the sketch
+   * exits, or rather, it's not designed to work if startup up with one
+   * PApplet, but then attempted to be used with another. This hack nukes
+   * the Engine singleton so that it has to be re-instantiated on the next
+   * run.
+   */
+  private void maybeShutdownSoundEngine() {
+    try {
+      final Class<?> appClass = Class.forName("processing.sound.Engine");
+      final Field singleton = appClass.getDeclaredField("singleton");
+      singleton.setAccessible(true);
+      singleton.set(null, null);
+    } catch (final ClassNotFoundException cnfe) {
+      // ignored
+    } catch (final Exception e) {
+      e.printStackTrace();
     }
   }
 
