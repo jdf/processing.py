@@ -104,4 +104,5 @@ def draw():
     
   px2 = x2
   py2 = y2
+  # uncomment this to save snaps of the simulation
   #saveFrame('images/Anim############.png')
