@@ -19,21 +19,19 @@ public class RMIUtils {
 
   static final int RMI_PORT = 8220;
 
-  private static final RMIClientSocketFactory clientFactory =
-      new RMIClientSocketFactory() {
-        @Override
-        public Socket createSocket(final String host, final int port) throws IOException {
-          return new Socket(host, port);
-        }
-      };
+  private static final RMIClientSocketFactory clientFactory = new RMIClientSocketFactory() {
+    @Override
+    public Socket createSocket(final String host, final int port) throws IOException {
+      return new Socket(host, port);
+    }
+  };
 
-  private static final RMIServerSocketFactory serverFactory =
-      new RMIServerSocketFactory() {
-        @Override
-        public ServerSocket createServerSocket(final int port) throws IOException {
-          return new ServerSocket(port, 50, InetAddress.getLoopbackAddress());
-        }
-      };
+  private static final RMIServerSocketFactory serverFactory = new RMIServerSocketFactory() {
+    @Override
+    public ServerSocket createServerSocket(final int port) throws IOException {
+      return new ServerSocket(port, 50, InetAddress.getLoopbackAddress());
+    }
+  };
 
   static {
     System.setProperty("sun.rmi.transport.tcp.localHostNameTimeOut", "1000");
@@ -84,26 +82,17 @@ public class RMIUtils {
     final String registryKey = remoteInterface.getSimpleName();
     try {
       export(remote);
-      log(
-          "Attempting to bind instance of "
-              + remote.getClass().getName()
-              + " to registry as "
-              + registryKey);
+      log("Attempting to bind instance of " + remote.getClass().getName() + " to registry as "
+          + registryKey);
       registry().bind(registryKey, remote);
       log("Bound.");
-      Runtime.getRuntime()
-          .addShutdownHook(
-              new Thread(
-                  new Runnable() {
-                    @Override
-                    public void run() {
-                      try {
-                        log("Unbinding " + registryKey + " from registry.");
-                        registry().unbind(registryKey);
-                      } catch (final Exception e) {
-                      }
-                    }
-                  }));
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        try {
+          log("Unbinding " + registryKey + " from registry.");
+          registry().unbind(registryKey);
+        } catch (final Exception e) {
+        }
+      }));
     } catch (final Exception e) {
       throw new RMIProblem(e);
     }
@@ -121,7 +110,7 @@ public class RMIUtils {
   public static <T extends Remote> T lookup(final Class<T> klass) throws RMIProblem {
     try {
       log("Looking up ModeService in registry.");
-      return (T) registry().lookup(klass.getSimpleName());
+      return (T)registry().lookup(klass.getSimpleName());
     } catch (final Exception e) {
       throw new RMIProblem(e);
     }
