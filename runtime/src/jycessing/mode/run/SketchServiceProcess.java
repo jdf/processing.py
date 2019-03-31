@@ -33,13 +33,12 @@ public class SketchServiceProcess {
     }
   }
 
-  private static final FilenameFilter JARS =
-      new FilenameFilter() {
-        @Override
-        public boolean accept(final File dir, final String name) {
-          return name.endsWith(".jar");
-        }
-      };
+  private static final FilenameFilter JARS = new FilenameFilter() {
+    @Override
+    public boolean accept(final File dir, final String name) {
+      return name.endsWith(".jar");
+    }
+  };
 
   private final PythonMode mode;
   private final PyEditor editor;
@@ -60,8 +59,8 @@ public class SketchServiceProcess {
    * This constructor should only be used while instrumenting or debugging the {@link SketchRunner},
    * in which case it has already been started in the debugger or such like.
    */
-  SketchServiceProcess(
-      final PythonMode mode, final PyEditor editor, final SketchService runningService) {
+  SketchServiceProcess(final PythonMode mode, final PyEditor editor,
+      final SketchService runningService) {
     this.mode = mode;
     this.editor = editor;
     this.sketchService = runningService;
@@ -122,30 +121,23 @@ public class SketchServiceProcess {
     }
 
     // Attempt to address https://github.com/jdf/Processing.py-Bugs/issues/158
-    if (Platform.isWindows()) {
-      command.add("-Dpython.console.encoding=UTF-8");
-    }
+    command.add("-Dpython.console.encoding=UTF-8");
 
     if (PythonMode.VERBOSE) {
       command.add("-Dverbose=true");
     }
 
-    command.add(
-        "-Djava.library.path="
-            + System.getProperty("java.library.path")
-            + File.pathSeparator
-            + mode.getContentFile("mode").getAbsolutePath());
+    command.add("-Djava.library.path=" + System.getProperty("java.library.path")
+        + File.pathSeparator + mode.getContentFile("mode").getAbsolutePath());
 
     final List<String> cp = new ArrayList<>();
-    cp.addAll(
-        filter(
-            Arrays.asList(
-                System.getProperty("java.class.path").split(Pattern.quote(File.pathSeparator))),
-            not(
-                or(
-                    containsPattern(
-                        "(ant|ant-launcher|antlr|netbeans.*|osgi.*|jdi.*|ibm\\.icu.*|jna)\\.jar$"),
-                    containsPattern("/processing/app/(test|lib)/")))));
+    cp.addAll(filter(
+        Arrays
+            .asList(System.getProperty("java.class.path").split(Pattern.quote(File.pathSeparator))),
+        not(or(
+            containsPattern(
+                "(ant|ant-launcher|antlr|netbeans.*|osgi.*|jdi.*|ibm\\.icu.*|jna)\\.jar$"),
+            containsPattern("/processing/app/(test|lib)/")))));
     for (final File jar : new File(Platform.getContentFile("core"), "library").listFiles(JARS)) {
       cp.add(jar.getAbsolutePath());
     }
@@ -179,17 +171,16 @@ public class SketchServiceProcess {
 
   public void runSketch(final PdeSketch sketch) throws SketchException {
     // Create a pending request in case of various failure modes.
-    pendingSketchRequest =
-        new Runnable() {
-          @Override
-          public void run() {
-            try {
-              runSketch(sketch);
-            } catch (final SketchException e) {
-              editor.statusError(e);
-            }
-          }
-        };
+    pendingSketchRequest = new Runnable() {
+      @Override
+      public void run() {
+        try {
+          runSketch(sketch);
+        } catch (final SketchException e) {
+          editor.statusError(e);
+        }
+      }
+    };
     if (sketchService == null) {
       log("Sketch service not running. Leaving pending request to run sketch.");
       restartServerProcess();

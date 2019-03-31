@@ -290,9 +290,17 @@ public class Runner {
 
     // Suppress sys-package-manager output.
     props.setProperty("python.verbose", "error");
-    // Prevent "Failed to install '': java.nio.charset.UnsupportedCharsetException: cp0."
-    props.put("python.console.encoding", "UTF-8"); 
+
+    // Attempt to prevent "Failed to install '': java.nio.charset.UnsupportedCharsetException: cp0."
+    props.put("python.console.encoding", "utf-8");
+    props.put("python.io.encoding", "utf-8");
+    props.put("python.io.errors", "utf-8");
+
     props.put("python.import.site", "false");
+
+    props.put("python.cachedir.skip", "false");
+    props.put("python.cachedir",
+        new File(System.getProperty("java.io.tmpdir"), "PythonModeCache").getAbsolutePath());
 
     // Permit python subclasses to access protect fields, as in Beads.
     props.put("python.security.respectJavaAccessibility", "false");
