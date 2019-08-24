@@ -450,7 +450,11 @@
 
   <target name="make-one-distribution" depends="jar,platform-lib-cache">
     <echo message="Building distribution for ${platform}" />
+
+    <!-- Do not fetch JRE.
     <for-platform platform="${platform}" target="getjre"/>
+    -->
+
     <rm-rf target="${dist.dir}"/>
     <mkdir dir="${dist.dir}"/>
     <copy todir="${dist.dir}">
