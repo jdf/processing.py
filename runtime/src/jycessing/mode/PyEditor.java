@@ -173,7 +173,10 @@ public class PyEditor extends Editor {
 
   @Override
   public JMenu buildHelpMenu() {
-    final JMenu menu = new JMenu("Help");
+    // I add a zero-width space to the end of the word "Help" in order to
+    // prevent OS X from auto-disabling everything in the menu when running
+    // a sketch.
+    final JMenu menu = new JMenu("Help\u200B");
     menu.add(
         new JMenuItem(
             new AbstractAction("References") {
