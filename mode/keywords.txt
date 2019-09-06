@@ -193,7 +193,8 @@ assert	KEYWORD1
 class	KEYWORD1
 def	KEYWORD1
 del	KEYWORD1
-enumerate	KEYWORD1
+dict	FUNCTION1
+enumerate	FUNCTION1
 exec	KEYWORD1
 from	KEYWORD1
 global	KEYWORD1
@@ -204,9 +205,11 @@ not	KEYWORD1
 or	KEYWORD1
 print	KEYWORD1
 range	KEYWORD1
-reversed 	KEYWORD1
-sorted	KEYWORD1
+reversed	FUNCTION1
+sorted	FUNCTION1
+tuple	FUNCTION1
 xrange	KEYWORD1
+zip	FUNCTION1
 
 // Datatypes
 
