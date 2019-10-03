@@ -17,6 +17,7 @@ def setup():
 
 
 def draw():
+    global savePDF
     if savePDF:
         beginRecord(PDF, "lines%d.pdf" % (frameCount))
 
