@@ -1,12 +1,9 @@
 """
 Loading URLs. 
 
-Click on the left button to open a different URL in the same window (Only
-works online). Click on the right button to open a URL in a browser window.    
+Click on the button to open a URL in a browser    
 """
-overLeftButton = False
-overRightButton = False
-
+overButton = False
 
 def setup():
     size(640, 360)
@@ -15,17 +12,7 @@ def setup():
 def draw():
     background(204)
 
-    # Left button
-    if overLeftButton:
-        fill(255)
-    else:
-        noFill()
-
-    rect(20, 60, 75, 75)
-    rect(50, 90, 15, 15)
-
-    # Right button
-    if overRightButton:
+    if overButton:
         fill(255)
     else:
         noFill()
@@ -37,10 +24,8 @@ def draw():
 
 
 def mousePressed():
-    if overLeftButton:
+    if overButton:
         link("http://www.processing.org")
-    elif overRightButton:
-        link("http://www.processing.org", "_new")
 
 
 def mouseMoved():
@@ -52,7 +37,5 @@ def mouseDragged():
 
 
 def checkButtons():
-    global overLeftButton, overRightButton
-    overLeftButton = 20 < mouseX < 95 and 60 < mouseY < 135;
-    overRightButton = 105 < mouseX < 180 and 60 < mouseY < 135;
-
+    global overButton
+    overButton = 105 < mouseX < 180 and 60 < mouseY < 135;
