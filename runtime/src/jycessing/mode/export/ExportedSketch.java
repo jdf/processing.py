@@ -106,7 +106,7 @@ public class ExportedSketch implements RunnableSketch {
     final List<String> args = new ArrayList<>();
 
     if (displayType == DisplayType.PRESENTATION) {
-      args.add("fullScreen");
+      args.add("--present");
       args.add("BGCOLOR" + "=" + backgroundColor);
 
       if (stopColor != null) {
