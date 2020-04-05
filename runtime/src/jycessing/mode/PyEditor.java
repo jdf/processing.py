@@ -34,6 +34,7 @@ import processing.app.Library;
 import processing.app.Messages;
 import processing.app.Mode;
 import processing.app.Platform;
+import processing.app.Preferences;
 import processing.app.SketchCode;
 import processing.app.SketchException;
 import processing.app.syntax.JEditTextArea;
@@ -341,7 +342,8 @@ public class PyEditor extends Editor {
 
     try {
       sketchService.runSketch(
-          new PdeSketch(sketch, sketchPath, displayType, location, locationType));
+				new PdeSketch(sketch, sketchPath, displayType, location, locationType,
+						Preferences.get("run.present.bgcolor"), Preferences.get("run.present.stop.color")));
     } catch (final SketchException e) {
       statusError(e);
     }

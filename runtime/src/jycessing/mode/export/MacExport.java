@@ -241,9 +241,9 @@ public class MacExport extends PlatformExport {
     options.add("--exported");
 
     if (presentMode) {
-      options.add("fullScreen");
+      options.add(PApplet.ARGS_PRESENT);
 
-      options.add("BGCOLOR" + "=" + Preferences.get("run.present.bgcolor"));
+      options.add(PApplet.ARGS_WINDOW_COLOR + "=" + Preferences.get("run.present.bgcolor"));
     }
 
     if (stopButton) {

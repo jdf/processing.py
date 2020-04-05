@@ -237,8 +237,8 @@ public class WindowsExport extends PlatformExport {
     // Options to pass to Runner
     final List<String> runnerOptions = new ArrayList<>();
     if (presentMode) {
-      runnerOptions.add("fullScreen");
-      runnerOptions.add("BGCOLOR" + "=" + Preferences.get("run.present.bgcolor"));
+      runnerOptions.add(PApplet.ARGS_PRESENT);
+      runnerOptions.add(PApplet.ARGS_WINDOW_COLOR + "=" + Preferences.get("run.present.bgcolor"));
     }
     if (stopButton) {
       runnerOptions.add(PApplet.ARGS_STOP_COLOR + "=" + Preferences.get("run.present.stop.color"));

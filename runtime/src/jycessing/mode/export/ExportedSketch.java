@@ -55,7 +55,7 @@ public class ExportedSketch implements RunnableSketch {
     }
     this.code = code.toString();
 
-    if (Arrays.asList(args).contains("fullScreen")) {
+    if (Arrays.asList(args).contains(PApplet.ARGS_PRESENT)) {
       this.displayType = DisplayType.PRESENTATION;
     } else {
       this.displayType = DisplayType.WINDOWED;
@@ -64,7 +64,7 @@ public class ExportedSketch implements RunnableSketch {
     String backgroundColor = null;
     String stopColor = null;
     for (final String arg : args) {
-      if (arg.contains("BGCOLOR")) {
+      if (arg.contains(PApplet.ARGS_WINDOW_COLOR)) {
         backgroundColor = arg.substring(arg.indexOf("=") + 1);
       } else if (arg.contains(PApplet.ARGS_STOP_COLOR)) {
         stopColor = arg.substring(arg.indexOf("=") + 1);
@@ -106,8 +106,8 @@ public class ExportedSketch implements RunnableSketch {
     final List<String> args = new ArrayList<>();
 
     if (displayType == DisplayType.PRESENTATION) {
-      args.add("--present");
-      args.add("BGCOLOR" + "=" + backgroundColor);
+      args.add(PApplet.ARGS_PRESENT);
+      args.add(PApplet.ARGS_WINDOW_COLOR + "=" + backgroundColor);
 
       if (stopColor != null) {
         args.add(PApplet.ARGS_STOP_COLOR + "=" + stopColor);
