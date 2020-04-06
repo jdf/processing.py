@@ -342,8 +342,8 @@ public class PyEditor extends Editor {
 
     try {
       sketchService.runSketch(
-				new PdeSketch(sketch, sketchPath, displayType, location, locationType,
-						Preferences.get("run.present.bgcolor"), Preferences.get("run.present.stop.color")));
+          new PdeSketch(sketch, sketchPath, displayType, location, locationType,
+              Preferences.get("run.present.bgcolor"), Preferences.get("run.present.stop.color")));
     } catch (final SketchException e) {
       statusError(e);
     }

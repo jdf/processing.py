@@ -107,9 +107,9 @@ public class PdeSketch implements RunnableSketch, Serializable {
         }
         break;
       case PRESENTATION:
-			args.add(PApplet.ARGS_PRESENT);
-			args.add(String.join("=", PApplet.ARGS_WINDOW_COLOR, bgColor));
-			args.add(String.join("=", PApplet.ARGS_STOP_COLOR, stopColor));
+        args.add(PApplet.ARGS_PRESENT);
+        args.add(String.join("=", PApplet.ARGS_WINDOW_COLOR, bgColor));
+        args.add(String.join("=", PApplet.ARGS_STOP_COLOR, stopColor));
         break;
     }
 

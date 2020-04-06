@@ -321,7 +321,7 @@ public class Runner {
     props.setProperty("python.main.root", sketchDirPath);
 
     final String[] args = sketch.getPAppletArguments();
-	log("PythonInterpreter.initialize args: " + String.join(" ", args));
+    log("PythonInterpreter.initialize args: " + String.join(" ", args));
     PythonInterpreter.initialize(null, props, args);
 
     final PySystemState sys = Py.getSystemState();
