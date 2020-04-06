@@ -33,6 +33,8 @@ public class PdeSketch implements RunnableSketch, Serializable {
   private final Point location;
   private final LocationType locationType;
   private final DisplayType displayType;
+	private final String bgColor;
+	private final String stopColor;
 
   public final String[] codeFileNames; // unique to PdeSketch - leave as public field?
 
@@ -41,11 +43,13 @@ public class PdeSketch implements RunnableSketch, Serializable {
       final File sketchPath,
       final DisplayType displayType,
       final Point location,
-      final LocationType locationType) {
+			final LocationType locationType, final String bgColor, final String stopColor) {
 
     this.displayType = displayType;
     this.location = location;
     this.locationType = locationType;
+    this.bgColor = bgColor;
+    this.stopColor = stopColor;
 
     this.mainFile = sketchPath.getAbsoluteFile();
     this.mainCode = sketch.getMainProgram();
@@ -103,7 +107,9 @@ public class PdeSketch implements RunnableSketch, Serializable {
         }
         break;
       case PRESENTATION:
-        args.add("--present");
+        args.add(PApplet.ARGS_PRESENT);
+        args.add(String.join("=", PApplet.ARGS_WINDOW_COLOR, bgColor));
+        args.add(String.join("=", PApplet.ARGS_STOP_COLOR, stopColor));
         break;
     }
 
