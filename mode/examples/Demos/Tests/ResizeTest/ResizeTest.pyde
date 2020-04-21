@@ -1,6 +1,6 @@
 def setup():
     size(400, 400, P3D)
-    frame.setResizable(True)
+    this.surface.setResizable(True)
 
 
 def draw():
