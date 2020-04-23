@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 
 import jycessing.DisplayType;
 import jycessing.IOUtil;
+import jycessing.jni.OSX;
 import jycessing.mode.export.ExportDialog;
 import jycessing.mode.run.PdeSketch;
 import jycessing.mode.run.PdeSketch.LocationType;
@@ -45,6 +46,8 @@ import processing.app.ui.EditorException;
 import processing.app.ui.EditorState;
 import processing.app.ui.EditorToolbar;
 import processing.app.ui.Toolkit;
+import processing.core.PApplet;
+import processing.core.PConstants;
 
 @SuppressWarnings("serial")
 public class PyEditor extends Editor {
@@ -349,10 +352,17 @@ public class PyEditor extends Editor {
     }
   }
 
+  private void bringToFront() {
+    if (PApplet.platform == PConstants.MACOSX) {
+      OSX.bringToFront(pyMode);
+    }
+  }
+
   @Override
   public void deactivateRun() {
     restoreToolbar();
     cleanupTempSketch();
+    bringToFront();
   }
 
   public void handleRun() {

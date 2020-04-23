@@ -883,9 +883,9 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   public void runAndBlock(final String[] args) throws PythonSketchError {
+    PApplet.runSketch(args, this);
     bringToFront();
 
-    PApplet.runSketch(args, this);
     try {
       finishedLatch.await();
     } catch (final InterruptedException interrupted) {
