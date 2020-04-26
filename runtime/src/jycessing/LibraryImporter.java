@@ -29,6 +29,7 @@ import org.python.core.PySystemState;
 import org.python.google.common.base.Joiner;
 import org.python.util.InteractiveConsole;
 
+import processing.app.Platform;
 import processing.core.PApplet;
 
 /**
@@ -128,16 +129,60 @@ class LibraryImporter {
     if (libDir == null) {
       interp.exec("raise Exception('This sketch requires the \"" + libName + "\" library.')");
     }
+
     final File contentsDir = new File(libDir, "library");
     if (!contentsDir.exists()) {
       interp.exec("raise Exception('The library " + libName + " is malformed and won't import.')");
     }
     final File mainJar = new File(contentsDir, libName + ".jar");
 
-    recursivelyAddToClasspath(contentsDir);
+    log("mainJar: " + mainJar);
+    log("Adding dir: " + contentsDir);
+    if (Platform.isWindows()) {
+      final File nativeDir = new File(libDir, "library/windows" + Platform.getVariant());
+      recursivelyAddJarsToClasspath(contentsDir);
+      recursivelyLoadNativeLibraryies(nativeDir);
+    } else {
+      recursivelyAddToClasspath(contentsDir);
+    }
 
     if (mainJar.exists()) {
+      log("adding mainJar");
       importPublicClassesFromJar(mainJar);
+    }
+  }
+
+  private void recursivelyAddJarsToClasspath(final File contentsDir) {
+    final List<File> resources = findResources(contentsDir);
+    final PySystemState sys = Py.getSystemState();
+    for (final File resource : resources) {
+      final String name = resource.getName();
+      if (name.endsWith(".jar") || name.endsWith(".zip")) {
+        // Contains stuff we want
+        addJarToClassLoader(resource.getAbsoluteFile());
+
+        log("Appending " + resource.getAbsolutePath() + " to sys.path.");
+        sys.path.append(Py.newStringUTF8(resource.getAbsolutePath()));
+      } else if (resource.isDirectory()) {
+        recursivelyAddToClasspath(resource);
+      }
+    }
+  }
+
+  private void recursivelyLoadNativeLibraryies(final File contentsDir) {
+    final List<File> resources = findResources(contentsDir);
+    final PySystemState sys = Py.getSystemState();
+    for (final File resource : resources) {
+      final String name = resource.getName();
+      if (name.matches("^.*\\.(so|dll|dylib|jnilib)$")) {
+        // Add *containing directory* to native search path
+        log("addDirectoryToNativeSearchPath: " + resource.getAbsoluteFile().getParentFile().getAbsolutePath());
+        addDirectoryToNativeSearchPath(resource.getAbsoluteFile().getParentFile());
+        log("Loading library: " + resource.getAbsoluteFile().getName());
+        System.load(resource.getAbsolutePath());
+      } else if (resource.isDirectory()) {
+        recursivelyAddToClasspath(resource);
+      }
     }
   }
 
@@ -154,6 +199,7 @@ class LibraryImporter {
         sys.path.append(Py.newStringUTF8(resource.getAbsolutePath()));
       } else if (name.matches("^.*\\.(so|dll|dylib|jnilib)$")) {
         // Add *containing directory* to native search path
+        log("addDirectoryToNativeSearchPath: " + resource.getAbsoluteFile().getParentFile().getName());
         addDirectoryToNativeSearchPath(resource.getAbsoluteFile().getParentFile());
       } else if (resource.isDirectory()) {
         recursivelyAddToClasspath(resource);
