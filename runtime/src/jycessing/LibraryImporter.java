@@ -138,12 +138,14 @@ class LibraryImporter {
 
     log("mainJar: " + mainJar);
     log("Adding dir: " + contentsDir);
+    recursivelyAddJarsToClasspath(contentsDir);
     if (Platform.isWindows()) {
-      final File nativeDir = new File(libDir, "library/windows" + Platform.getVariant());
-      recursivelyAddJarsToClasspath(contentsDir);
-      recursivelyLoadNativeLibraryies(nativeDir);
-    } else {
-      recursivelyAddToClasspath(contentsDir);
+      File nativeDir;
+      nativeDir = new File(libDir, "library/windows" + Platform.getVariant());
+      if (!nativeDir.isDirectory()) {
+        nativeDir = contentsDir;
+      }
+      recursivelyLoadNativeLibraries(nativeDir);
     }
 
     if (mainJar.exists()) {
@@ -169,7 +171,7 @@ class LibraryImporter {
     }
   }
 
-  private void recursivelyLoadNativeLibraryies(final File contentsDir) {
+  private void recursivelyLoadNativeLibraries(final File contentsDir) {
     final List<File> resources = findResources(contentsDir);
     final PySystemState sys = Py.getSystemState();
     for (final File resource : resources) {
