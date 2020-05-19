@@ -29,7 +29,6 @@ import org.python.core.PySystemState;
 import org.python.google.common.base.Joiner;
 import org.python.util.InteractiveConsole;
 
-import processing.app.Platform;
 import processing.core.PApplet;
 
 /**
@@ -139,9 +138,10 @@ class LibraryImporter {
     log("mainJar: " + mainJar);
     log("Adding dir: " + contentsDir);
     recursivelyAddJarsToClasspath(contentsDir);
-    if (Platform.isWindows()) {
+    log("Platform: " + PLATFORM + " Bits: " + BITS);
+    if (PLATFORM.indexOf("windows") != -1) {
       File nativeDir;
-      nativeDir = new File(libDir, "library/windows" + Platform.getVariant());
+      nativeDir = new File(libDir, "library/windows" + BITS);
       if (!nativeDir.isDirectory()) {
         nativeDir = contentsDir;
       }
