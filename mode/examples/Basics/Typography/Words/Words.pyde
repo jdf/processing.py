@@ -1,10 +1,10 @@
 """
- * Words. 
- * 
- * The text() function is used for writing words to the screen.
- * The letters can be aligned left, center, or right with the 
- * textAlign() function. 
- """
+Words.
+
+The text() function is used for writing words to the screen.
+The letters can be aligned left, center, or right with the
+textAlign() function.
+"""
 
 
 def setup():
@@ -37,4 +37,3 @@ def drawType(x):
     text("san", x, 165)
     fill(255)
     text("shi", x, 210)
-

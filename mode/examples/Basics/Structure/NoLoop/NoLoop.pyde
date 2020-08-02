@@ -1,16 +1,16 @@
 """
- * No Loop. 
- * 
- * The noLoop() function causes draw() to only
- * execute once. Without calling noLoop(), the 
- * code inside draw() is run continually. 
- """
+No Loop.
+
+The noLoop() function causes draw() to only
+execute once. Without calling noLoop(), the
+code inside draw() is run continually. 
+"""
 
 y = 180
 
 def setup():
-    """ 
-    The statements in the setup() function 
+    """
+    The statements in the setup() function
     execute once when the program begins
     """
     size(640, 360)    # Size should be the first statement
@@ -31,4 +31,3 @@ def draw():
     if (y < 0):
         y = height
     line(0, y, width, y)
-

@@ -1,8 +1,8 @@
 """
- * List Objects.
- *
- * Demonstrates the syntax for creating a list of custom objects.
- """
+List Objects.
+
+Demonstrates the syntax for creating a list of custom objects.
+"""
 
 from module import MovingBall
 
@@ -24,4 +24,3 @@ def draw():
     for b in balls:
         b.update()
         b.draw()
-

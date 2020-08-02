@@ -1,11 +1,11 @@
 """
- * Pointillism
- * by Daniel Shiffman. 
- * 
- * Mouse horizontal location controls size of dots. 
- * Creates a simple pointillist effect using ellipses colored
- * according to pixels in an image. 
- """
+Pointillism
+by Daniel Shiffman.
+
+Mouse horizontal location controls size of dots.
+Creates a simple pointillist effect using ellipses colored
+according to pixels in an image.
+"""
 
 smallPoint = 4
 largePoint = 40
@@ -26,4 +26,3 @@ def draw():
     pix = img.get(x, y)
     fill(pix, 128)
     ellipse(x, y, pointillize, pointillize)
-

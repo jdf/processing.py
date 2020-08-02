@@ -1,12 +1,12 @@
 """
- * List 2D. 
- * 
- * Demonstrates the syntax for creating a two-dimensional (2D) list,
- * which, in Python, is simply a list of lists.
- * Values in a 2D list are accessed through two index values.    
- * 2D arrays are useful for storing images. In this example, each dot 
- * is colored in relation to its distance from the center of the image. 
- """
+List 2D.
+
+Demonstrates the syntax for creating a two-dimensional (2D) list,
+which, in Python, is simply a list of lists.
+Values in a 2D list are accessed through two index values.
+2D arrays are useful for storing images. In this example, each dot
+is colored in relation to its distance from the center of the image.
+"""
 
 # By convention, Python constants have UPPERCASE_NAMES.
 SPACER = 10
@@ -38,4 +38,3 @@ def draw():
         for y in range(0, height, SPACER):
             stroke(distances[x][y])
             point(x + SPACER / 2, y + SPACER / 2)
-

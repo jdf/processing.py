@@ -1,14 +1,14 @@
 """
- * List. 
- * 
- * A list is an ordered collection of data. Each piece of data in
- * a list is identified by an index number representing its position in 
- * the list. Lists are zero based, which means that the first 
- * element in the list is [0], the second element is [1], and so on. 
- * In this example, an array named "coswav" is created and
- * filled with the cosine values. This data is displayed three 
- * separate ways on the screen.    
- """
+List.
+
+A list is an ordered collection of data. Each piece of data in
+a list is identified by an index number representing its position in
+the list. Lists are zero based, which means that the first
+element in the list is [0], the second element is [1], and so on.
+In this example, an array named "coswav" is created and
+filled with the cosine values. This data is displayed three
+separate ways on the screen.
+"""
 
 # You can create a new, empty list with a pair of square brackets:
 coswave = []
@@ -40,4 +40,3 @@ def draw():
     for i in range(0, width, 2):
         stroke(255 - coswave[i] * 255)
         line(i, y1, i, y2)
-

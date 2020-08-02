@@ -1,10 +1,10 @@
 """
- * Transparency. 
- * 
- * Move the pointer left and right across the image to change
- * its position. This program overlays one image over another 
- * by modifying the alpha value of the image with the tint() function. 
- """
+Transparency.
+
+Move the pointer left and right across the image to change
+its position. This program overlays one image over another
+by modifying the alpha value of the image with the tint() function.
+"""
 
 offset = 0
 easing = 0.05
@@ -23,4 +23,3 @@ def draw():
     offset += dx * easing
     tint(255, 127)    # Display at half opacity
     image(img, offset, 0)
-

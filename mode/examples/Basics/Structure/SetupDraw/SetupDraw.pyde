@@ -1,9 +1,9 @@
 """
- * Setup and Draw.
- *
- * The code inside the draw() function runs continuously
- * from top to bottom until the program is stopped.
- """
+Setup and Draw.
+
+The code inside the draw() function runs continuously
+from top to bottom until the program is stopped.
+"""
 y = 100
 
 
@@ -31,4 +31,3 @@ def draw():
         y = height
 
     line(0, y, width, y)
-
