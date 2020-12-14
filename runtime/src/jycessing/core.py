@@ -277,7 +277,7 @@ for f in """
     selectInput selectOutput shader shape shapeMode shearX shearY shininess
     size sketchPath smooth specular sphere sphereDetail spotLight stroke strokeCap
     strokeJoin strokeWeight textAlign textAscent textDescent textFont textLeading
-    textMode textSize textWidth textureMode textureWrap thread tint translate
+    textMode textSize textWidth textureMode textureWrap thread tint torus translate
     triangle updatePixels vertex
     image background mask blend copy cursor texture
     circle square push pop
