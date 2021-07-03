@@ -1334,7 +1334,12 @@ public class PAppletJythonDriver extends PApplet {
     super.size(iwidth, iheight, irenderer, ipath);
     if (frameField != null) {
       // should surface be added instead? [fry 210616]
-      builtins.__setitem__("frame", Py.java2py(frame));
+      try {
+        Frame frameObj = (Frame) frameField.get(this);
+        builtins.__setitem__("frame", Py.java2py(frameObj));
+      } catch (IllegalAccessException ignored) {
+        // log this?
+      }
     }
     builtins.__setitem__("width", pyint(width));
     builtins.__setitem__("height", pyint(height));
@@ -1375,7 +1380,12 @@ public class PAppletJythonDriver extends PApplet {
   public void setup() {
     if (frameField != null) {
       // should surface be added instead? [fry 210616]
-      builtins.__setitem__("frame", Py.java2py(frame));
+      try {
+        Frame frameObj = (Frame) frameField.get(this);
+        builtins.__setitem__("frame", Py.java2py(frameObj));
+      } catch (IllegalAccessException ignored) {
+        // log this?
+      }
     }
     wrapProcessingVariables();
     if (mode == Mode.STATIC) {
