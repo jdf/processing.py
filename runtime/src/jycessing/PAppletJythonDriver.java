@@ -14,6 +14,7 @@
 package jycessing;
 
 import java.awt.Component;
+import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ComponentAdapter;
@@ -102,6 +103,8 @@ public class PAppletJythonDriver extends PApplet {
     // select box to fire twice, skipping confirmation the first time.
     useNativeSelect = false;
   }
+
+  private Field frameField;
 
   private PythonSketchError terminalException = null;
 
@@ -454,10 +457,30 @@ public class PAppletJythonDriver extends PApplet {
     builtins.__setitem__("keyCode", pyint(0));
   }
 
+  // method to find the frame field, rather than relying on an Exception
+  private Field getFrameField() {
+    for (Field field : getClass().getFields()) {
+      if (field.getName().equals("frame")) {
+        return field;
+      }
+    }
+    return null;
+  }
+
   @Override
   protected PSurface initSurface() {
     final PSurface s = super.initSurface();
-    this.frame = null; // eliminate a memory leak from 2.x compat hack
+
+    frameField = getFrameField();
+    if (frameField != null) {
+      try {
+        // eliminate a memory leak from 2.x compat hack
+        frameField.set(this, null);
+      } catch (Exception e) {
+        // safe enough to ignore; this was a workaround
+      }
+    }
+
     s.setTitle(pySketchPath.getFileName().toString().replaceAll("\\..*$", ""));
     if (s instanceof PSurfaceAWT) {
       final PSurfaceAWT surf = (PSurfaceAWT) s;
@@ -916,7 +939,15 @@ public class PAppletJythonDriver extends PApplet {
         // exits or we explicitly tell it to minimize.
         // (If it's disposed, it'll leave a gray blank window behind it.)
         Runner.log("Disabling fullscreen.");
-        macosxFullScreenToggle(frame);
+
+        if (frameField != null) {
+          try {
+            Frame frameObj = (Frame) frameField.get(this);
+            macosxFullScreenToggle(frameObj);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
       }
       if (surface instanceof PSurfaceFX) {
         // Sadly, JavaFX is an abomination, and there's no way to run an FX sketch more than once,
@@ -1301,7 +1332,15 @@ public class PAppletJythonDriver extends PApplet {
   public void size(
       final int iwidth, final int iheight, final String irenderer, final String ipath) {
     super.size(iwidth, iheight, irenderer, ipath);
-    builtins.__setitem__("frame", Py.java2py(frame));
+    if (frameField != null) {
+      // should surface be added instead? [fry 210616]
+      try {
+        Frame frameObj = (Frame) frameField.get(this);
+        builtins.__setitem__("frame", Py.java2py(frameObj));
+      } catch (IllegalAccessException ignored) {
+        // log this?
+      }
+    }
     builtins.__setitem__("width", pyint(width));
     builtins.__setitem__("height", pyint(height));
   }
@@ -1339,7 +1378,15 @@ public class PAppletJythonDriver extends PApplet {
 
   @Override
   public void setup() {
-    builtins.__setitem__("frame", Py.java2py(frame));
+    if (frameField != null) {
+      // should surface be added instead? [fry 210616]
+      try {
+        Frame frameObj = (Frame) frameField.get(this);
+        builtins.__setitem__("frame", Py.java2py(frameObj));
+      } catch (IllegalAccessException ignored) {
+        // log this?
+      }
+    }
     wrapProcessingVariables();
     if (mode == Mode.STATIC) {
       // A static sketch gets called once, from this spot.
