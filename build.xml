@@ -138,7 +138,7 @@
     <push srcfile="work/modedist/PythonMode.txt"/>
     <exec executable="sh" failonerror="true">
         <arg value="-c"/>
-        <arg value="ssh jdf@py.processing.org 'chmod a+rX /var/www/py/3/*'" />
+        <arg value="ssh jdf@py.processing.org 'chmod a+rX /var/www/py/4/*'" />
     </exec>
   	<echo message="Uploaded build ${jycessing.build.number}"></echo>
   </target>
