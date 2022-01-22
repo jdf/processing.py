@@ -8,7 +8,7 @@ public class OSX {
   private static volatile boolean didLoad = false;
 
   public static void bringToFront() {
-    if (!didLoad && (PApplet.platform == PConstants.MACOSX)) {
+    if (!didLoad && (PApplet.platform == PConstants.MACOS)) {
       try {
         System.loadLibrary("jniosx");
         didLoad = true;
@@ -22,14 +22,16 @@ public class OSX {
   }
 
   public static void bringToFront(PythonMode mode) {
-    if (!didLoad && (PApplet.platform == PConstants.MACOSX)) {
+    if (!didLoad && (PApplet.platform == PConstants.MACOS)) {
       String path = null;
       try {
         path = mode.getContentFile("mode").getAbsolutePath() + "/libjniosx.dylib";
         System.load(path);
         didLoad = true;
       } catch (final UnsatisfiedLinkError err) {
-        System.err.println("Hmm. Can't load native code to bring window to front using the absolute path: " + path + ".");
+        System.err.println(
+            "Hmm. Can't load native code to bring window to front using the absolute path: " + path
+                + ".");
       }
     }
     bringToFront();

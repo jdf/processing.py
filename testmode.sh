@@ -2,7 +2,7 @@
 export VERBOSE_PYTHON_MODE=true
 
 PROCESSINGPY=$(pwd)
-PROCESSING=../processing
+PROCESSING=../processing4
 
 MODES=~/Documents/Processing/modes;
 if [[ $(uname) == 'Darwin' ]]; then

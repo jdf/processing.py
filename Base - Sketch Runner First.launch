@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-<stringAttribute key="bad_container_name" value="/processing.p"/>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/processing-app/src/processing/app/Base.java"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="1"/>
-</listAttribute>
-<mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="SKETCH_RUNNER_FIRST" value="true"/>
-<mapEntry key="VERBOSE_PYTHON_MODE" value="true"/>
-</mapAttribute>
-<booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
-<listAttribute key="org.eclipse.jdt.launching.CLASSPATH">
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry containerPath=&quot;org.eclipse.jdt.launching.JRE_CONTAINER&quot; javaProject=&quot;processing-app&quot; path=&quot;1&quot; type=&quot;4&quot;/&gt;&#10;"/>
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry path=&quot;3&quot; projectName=&quot;processing-app&quot; type=&quot;1&quot;/&gt;&#10;"/>
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry internalArchive=&quot;/processing-app/lib/ant.jar&quot; path=&quot;3&quot; type=&quot;2&quot;/&gt;&#10;"/>
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry internalArchive=&quot;/processing-app/lib/ant-launcher.jar&quot; path=&quot;3&quot; type=&quot;2&quot;/&gt;&#10;"/>
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry path=&quot;3&quot; projectName=&quot;processing-core&quot; type=&quot;1&quot;/&gt;&#10;"/>
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry id=&quot;org.eclipse.jdt.launching.classpathentry.defaultClasspath&quot;&gt;&#10;&lt;memento exportedEntriesOnly=&quot;false&quot; project=&quot;processing-app&quot;/&gt;&#10;&lt;/runtimeClasspathEntry&gt;&#10;"/>
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry path=&quot;3&quot; projectName=&quot;processing.py&quot; type=&quot;1&quot;/&gt;&#10;"/>
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry internalArchive=&quot;/processing.py/buildtime/lib/java/guava-17.0.jar&quot; path=&quot;3&quot; type=&quot;2&quot;/&gt;&#10;"/>
-</listAttribute>
-<booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="processing.app.Base"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="processing-app"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dusemode=&quot;jycessing.mode.PythonMode:${resource_loc:/processing.py/mode}&quot; -Djava.library.path=&quot;${resource_loc:/processing.py/native}&quot;"/>
+    <stringAttribute key="bad_container_name" value="/processing.p"/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/processing4-app/src/processing/app/Base.java"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="1"/>
+    </listAttribute>
+    <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="SKETCH_RUNNER_FIRST" value="true"/>
+        <mapEntry key="VERBOSE_PYTHON_MODE" value="true"/>
+    </mapAttribute>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
+    <listAttribute key="org.eclipse.jdt.launching.CLASSPATH">
+        <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry containerPath=&quot;org.eclipse.jdt.launching.JRE_CONTAINER&quot; javaProject=&quot;processing4-app&quot; path=&quot;1&quot; type=&quot;4&quot;/&gt;&#10;"/>
+        <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry path=&quot;3&quot; projectName=&quot;processing4-app&quot; type=&quot;1&quot;/&gt;&#10;"/>
+        <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry internalArchive=&quot;/processing4-app/lib/ant.jar&quot; path=&quot;3&quot; type=&quot;2&quot;/&gt;&#10;"/>
+        <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry internalArchive=&quot;/processing4-app/lib/ant-launcher.jar&quot; path=&quot;3&quot; type=&quot;2&quot;/&gt;&#10;"/>
+        <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry path=&quot;3&quot; projectName=&quot;processing4-core&quot; type=&quot;1&quot;/&gt;&#10;"/>
+        <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry id=&quot;org.eclipse.jdt.launching.classpathentry.defaultClasspath&quot;&gt;&#10;&lt;memento exportedEntriesOnly=&quot;false&quot; project=&quot;processing4-app&quot;/&gt;&#10;&lt;/runtimeClasspathEntry&gt;&#10;"/>
+        <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry path=&quot;3&quot; projectName=&quot;processing.py&quot; type=&quot;1&quot;/&gt;&#10;"/>
+        <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry internalArchive=&quot;/processing.py/buildtime/lib/java/guava-17.0.jar&quot; path=&quot;3&quot; type=&quot;2&quot;/&gt;&#10;"/>
+    </listAttribute>
+    <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="processing.app.Base"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="processing4-app"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="processing4-app"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dusemode=&quot;jycessing.mode.PythonMode:${resource_loc:/processing.py/mode}&quot; -Djava.library.path=&quot;${resource_loc:/processing.py/native}&quot;"/>
 </launchConfiguration>

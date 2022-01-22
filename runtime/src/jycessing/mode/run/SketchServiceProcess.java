@@ -155,6 +155,39 @@ public class SketchServiceProcess {
     // enable assertions
     command.add("-ea");
 
+    // Give introspection permissions.
+    final String[] exports = {"java.base/sun.nio.ch", //
+        "java.base/java.nio", //
+        "java.base/java.lang", //
+        "java.base/java.lang.constant", //
+        "java.base/java.lang.reflect", //
+        "java.base/java.io", //
+        "jdk.unsupported/sun.misc", //
+        "java.base/java.nio.charset", //
+        "java.base/java.util", //
+        "java.base/java.net", //
+        "java.base/java.text", //
+        "java.base/java.util.concurrent", //
+        "java.sql/java.sql", //
+        "java.base/java.util.concurrent.locks", //
+        "java.base/sun.util.calendar", //
+        "java.base/java.nio.channels", //
+        "java.base/java.security", //
+        "java.base/java.util.concurrent.atomic", //
+        "java.base/java.security.cert", //
+        "java.base/javax.net.ssl", //
+        "java.naming/javax.naming.ldap", //
+        "java.base/java.security.spec", //
+        "java.base/javax.net.ssl", //
+        "java.base/javax.security.auth.x500", //
+        "java.security.jgss/org.ietf.jgss", //
+        "java.desktop/com.apple.eawt", //
+    };
+    for (final String s : exports) {
+      command.add(String.format("--add-exports=%s=ALL-UNNAMED", s));
+      command.add(String.format("--add-opens=%s=ALL-UNNAMED", s));
+    }
+
     // Run the SketchRunner main.
     command.add(SketchRunner.class.getName());
 

@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/processing.py/runtime/src/jycessing/mode/run/SketchRunner.java"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="1"/>
-</listAttribute>
-<mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="SKETCH_RUNNER_FIRST" value="true"/>
-<mapEntry key="VERBOSE_PYTHON_MODE" value="true"/>
-</mapAttribute>
-<booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="jycessing.mode.run.SketchRunner"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="SKETCHRUNNER"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="processing.py"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dverbose=true -Djava.library.path=&quot;${resource_loc:/processing.py/native}&quot;"/>
-<stringAttribute key="yk-options" value="&#10;additional-options2=onexit\=snapshot&#10;startup=12&#10;"/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/processing.py/runtime/src/jycessing/mode/run/SketchRunner.java"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="1"/>
+    </listAttribute>
+    <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="SKETCH_RUNNER_FIRST" value="true"/>
+        <mapEntry key="VERBOSE_PYTHON_MODE" value="true"/>
+    </mapAttribute>
+    <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+        <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+    </listAttribute>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="jycessing.mode.run.SketchRunner"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="processing.py"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="SKETCHRUNNER"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="processing.py"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dverbose=true  -ea -Djava.library.path=${resource_loc:/processing.py/native} --illegal-access=warn --add-exports=java.base/sun.nio.ch=ALL-UNNAMED  --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.constant=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED  --add-opens=java.base/java.util=ALL-UNNAMED  --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.sql/java.sql=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED --add-opens=java.base/sun.util.calendar=ALL-UNNAMED --add-opens=java.base/java.nio.channels=ALL-UNNAMED --add-opens=java.base/java.security=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.security.cert=ALL-UNNAMED --add-opens=java.base/javax.net.ssl=ALL-UNNAMED --add-opens=java.naming/javax.naming.ldap=ALL-UNNAMED  --add-opens=java.base/java.security.spec=ALL-UNNAMED --add-opens=java.base/javax.net.ssl=ALL-UNNAMED --add-opens=java.base/javax.security.auth.x500=ALL-UNNAMED  --add-opens=java.security.jgss/org.ietf.jgss=ALL-UNNAMED --add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"/>
+    <stringAttribute key="yk-options" value="&#10;additional-options2=onexit\=snapshot&#10;startup=12&#10;"/>
 </launchConfiguration>

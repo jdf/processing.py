@@ -934,7 +934,7 @@ public class PAppletJythonDriver extends PApplet {
       maybeShutdownSoundEngine();
 
       Thread.setDefaultUncaughtExceptionHandler(null);
-      if (PApplet.platform == PConstants.MACOSX && Arrays.asList(args).contains("fullScreen")) {
+      if (PApplet.platform == PConstants.MACOS && Arrays.asList(args).contains("fullScreen")) {
         // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm
         // exits or we explicitly tell it to minimize.
         // (If it's disposed, it'll leave a gray blank window behind it.)

@@ -44,8 +44,8 @@ the original repo:
 
 You'll need source for processing and processing-video.
 
-    $ git clone --depth=1 https://github.com/processing/processing.git
-    $ git clone --depth=1 https://github.com/processing/processing-video.git
+    $ git clone https://github.com/processing/processing4.git
+    $ git clone https://github.com/processing/processing-video.git
 
 If you are a Linux user, you'll also have to create a directory named `linux`
 inside your `processing.py` directory.

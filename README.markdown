@@ -2,10 +2,10 @@
 
 Write real [Processing](http://processing.org/) sketches in Python.
 
-* Based on [Processing 3.0](http://processing.org/), and compatible with most [3rd party libraries](http://www.processing.org/reference/libraries/).
+* Based on [Processing 4](http://processing.org/), and compatible with most [3rd party libraries](http://www.processing.org/reference/libraries/).
 * Source compatible with [Python 2.7.3](http://python.org).
 
-Tested on Mac OS 10.10 and Ubuntu 14.
+Tested on Mac OS 11.6.2 and Ubuntu 14.
 
 [![Build Status](https://travis-ci.org/jdf/processing.py.svg?branch=master)](https://travis-ci.org/jdf/processing.py)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjdf%2Fprocessing.py.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjdf%2Fprocessing.py?ref=badge_shield)
@@ -14,13 +14,11 @@ Tested on Mac OS 10.10 and Ubuntu 14.
 
 ### Processing Development Environment ###
 
-If you're looking to write Processing sketches in Python, your best bet is to use
-Python Mode. The project is still in its early days, and documentation is lacking,
-but there are many example sketches to get you started. In general, the Processing
-reference works just fine for Python mode.
+If you're looking to write Processing 4 sketches in Python, your best bet is to use
+Python Mode.
 
 First, [download Processing](http://processing.org/download). Then, install
-Python Mode:
+Python Mode 4:
 
 <img src="http://py.processing.org/add_mode.png"/>
 <img src="http://py.processing.org/install.png"/>
@@ -82,9 +80,9 @@ In case you need other primitive values, please [let us know](http://github.com/
 
 ### Why was this project created? ###
 
-I ([Jonathan](http://MrFeinberg.com/)) recently gave a talk about Processing to a group of rather bright 8th-graders,
+I ([Jonathan](http://MrFeinberg.com/)) once gave a talk about Processing to a group of rather bright 8th-graders,
 as part of a computer-programming summer camp they were attending at my office.
-Their curriculum up to that point had been in Python, which is an eminently
+Their curriculum up to that point had been in Python, which is a
 sensible choice, given the
 [pedagogical roots](http://en.wikipedia.org/wiki/ABC_%28programming_language%29)
 of the language.

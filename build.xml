@@ -28,7 +28,7 @@
       By default, we'll look in a directory next to this one.
       The same goes for processing-video (https://github.com/processing/processing-video).
   -->
-  <property name="processing" value="../processing"/>
+  <property name="processing" value="../processing4"/>
   <property name="processing-video" value="../processing-video"/>
 
   <!-- for <if> and <foreach> tags. -->
@@ -62,7 +62,7 @@
         <echo message="Pushing @{srcfile} to py.processing.org..." />
         <exec executable="sh" failonerror="true">
             <arg value="-c"/>
-            <arg value="rsync --progress -avz @{srcfile} jdf@py.processing.org:/var/www/py/3" />
+            <arg value="rsync --progress -avz @{srcfile} jdf@py.processing.org:/var/www/py/4" />
         </exec>
     </sequential>
   </macrodef>
@@ -72,7 +72,7 @@
         file="runtime/src/jycessing/build.properties"
         comment="Python mode build number">
       <entry key="build.date" type="date" value="now"/>
-      <entry key="build.number" type="int" default="0300" operation="+" pattern="0000"/>
+      <entry key="build.number" type="int" default="4000" operation="+" pattern="0000"/>
     </propertyfile>
     <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>  	
   	<echo message="Bumped to version ${jycessing.build.number}."></echo>
@@ -133,7 +133,7 @@
     <push srcfile="work/PythonMode_${jycessing.build.number}.zip"/>
     <exec executable="sh" failonerror="true">
         <arg value="-c"/>
-        <arg value="ssh jdf@py.processing.org 'cp /var/www/py/3/PythonMode_${jycessing.build.number}.zip /var/www/py/3/PythonMode.zip'" />
+        <arg value="ssh jdf@py.processing.org 'cp /var/www/py/4/PythonMode_${jycessing.build.number}.zip /var/www/py/4/PythonMode.zip'" />
     </exec>    
     <push srcfile="work/modedist/PythonMode.txt"/>
     <exec executable="sh" failonerror="true">

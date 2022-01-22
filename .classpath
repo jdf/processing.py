@@ -5,8 +5,12 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="buildtime/lib/jython/jython.jar" sourcepath="buildtime/lib/jython/jython-src.jar"/>
 	<classpathentry kind="lib" path="buildtime/lib/java/guava-17.0.jar" sourcepath="buildtime/lib/java/guava-17.0-sources.jar"/>
-	<classpathentry kind="lib" path="/processing-core/library/jogl-all.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="/Users/feinberg/processing4/processing4/core/library/jogl-all.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/processing4-app"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/processing4-core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/processing4-javafx"/>
