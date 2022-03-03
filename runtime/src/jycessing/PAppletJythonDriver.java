@@ -78,7 +78,6 @@ import processing.core.PImage;
 import processing.core.PSurface;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-import processing.javafx.PSurfaceFX;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PShader;
 import processing.opengl.PSurfaceJOGL;
@@ -105,6 +104,14 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   private Field frameField;
+
+  static private Class fxSurfaceClass;
+  static {
+    try {
+      // Get class object for use in dynamic instanceof calls for PSurfaceFX
+      fxSurfaceClass = Class.forName("processing.javafx.PSurfaceFX");
+    } catch (ClassNotFoundException ignored) {  }
+  }
 
   private PythonSketchError terminalException = null;
 
@@ -326,7 +333,7 @@ public class PAppletJythonDriver extends PApplet {
    * slightly less cryptic error message.
    *
    * @param file
-   * @param line
+   * @param lineNo
    * @param column
    * @return
    */
@@ -502,7 +509,7 @@ public class PAppletJythonDriver extends PApplet {
               finishedLatch.countDown();
             }
           });
-    } else if (s instanceof PSurfaceFX) {
+    } else if (fxSurfaceClass != null && fxSurfaceClass.isInstance(s)) {
       System.err.println("I don't know how to watch FX2D windows for close.");
     }
 
@@ -949,7 +956,7 @@ public class PAppletJythonDriver extends PApplet {
           }
         }
       }
-      if (surface instanceof PSurfaceFX) {
+      if (fxSurfaceClass != null && fxSurfaceClass.isInstance(surface)) {
         // Sadly, JavaFX is an abomination, and there's no way to run an FX sketch more than once,
         // so we must actually exit.
         Runner.log("JavaFX requires SketchRunner to terminate. Farewell!");
