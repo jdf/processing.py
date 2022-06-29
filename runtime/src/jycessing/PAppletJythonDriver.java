@@ -78,7 +78,6 @@ import processing.core.PImage;
 import processing.core.PSurface;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-import processing.javafx.PSurfaceFX;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PShader;
 import processing.opengl.PSurfaceJOGL;
@@ -502,8 +501,6 @@ public class PAppletJythonDriver extends PApplet {
               finishedLatch.countDown();
             }
           });
-    } else if (s instanceof PSurfaceFX) {
-      System.err.println("I don't know how to watch FX2D windows for close.");
     }
 
     final PyObject pyG;
@@ -948,12 +945,6 @@ public class PAppletJythonDriver extends PApplet {
             e.printStackTrace();
           }
         }
-      }
-      if (surface instanceof PSurfaceFX) {
-        // Sadly, JavaFX is an abomination, and there's no way to run an FX sketch more than once,
-        // so we must actually exit.
-        Runner.log("JavaFX requires SketchRunner to terminate. Farewell!");
-        System.exit(0);
       }
       final Object nativeWindow = surface.getNative();
       if (nativeWindow instanceof com.jogamp.newt.Window) {
