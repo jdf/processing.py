@@ -6,8 +6,8 @@ PROCESSING=../processing4
 
 MODES=~/Documents/Processing/modes;
 if [[ $(uname) == 'Darwin' ]]; then
-	RUNPROCESSING=$PROCESSING/build/macosx/work/Processing.app/Contents/MacOS/Processing
-else 
+	RUNPROCESSING=$PROCESSING/build/macos/work/Processing.app/Contents/MacOS/Processing
+else
 	RUNPROCESSING="$PROCESSING/build/linux/work/processing"
 	MODES=~/sketchbook/modes;
 fi
