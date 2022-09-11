@@ -16,6 +16,7 @@ Tested on Mac OS 10.10 and Ubuntu 14.
 
 <summary>Processing Development Environment</summary>
 <br/>
+    
 If you're looking to write Processing sketches in Python, your best bet is to use
 Python Mode. The project is still in its early days, and documentation is lacking,
 but there are many example sketches to get you started. In general, the Processing
@@ -52,13 +53,15 @@ If you are just getting started, it is a good idea to go through the [tutorials 
 
 <summary>What is Processing?</summary>
 <br/>
-
+    
+Processing is a graphics library utilized by artists, educators, students, and hobbyists to create sketches without the hassle of traditional graphics libraries. Processing provides a simplified API that allows for visual tasks that would take dozens of lines in other software to be completed in just a couple of lines. Processing is also a community with extensive support in developing, maintaining, as well as creating educational resources for this software. Please see https://processing.org/ for more information.
     
 </details><details>
 
 <summary>Should I use Processing?</summary>
 <br/>
-
+    
+Processing is the perfect enviornment for programmers of all experience levels. It is a great starting point for programmers with no graphics programming experience. The [documentation](https://processing.org/environment/#overview) is a great place to start and learn the basics. Processing is also a vehicle for learning how to code, since you can see the changes you make in your code visually. [Here](http://learningprocessing.com/videos/) is a great video tutorial for getting started. For users with graphics programming experience, Processing is very effective for fun projects and quick prototypes. For extremely complex, performance heavy, and commerical applications - Processing may not be the best choice.
     
 </details><details>
 
