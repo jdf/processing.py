@@ -86,7 +86,23 @@ We write the code that we want to continously execute in the function defined as
 
 <summary>Drawing Shapes</summary>
 <br/>
+    
+ ```python
+def setup():
+    # This code is only run once
+    size(800, 800)
 
+def draw():
+    # This code is run on a loop
+    background(255, 0, 0)
+    fill(0, 0, 0)
+    rectMode(CENTER)
+    rect(width / 2, height / 2, 10, 20)
+```
+
+ One of the most basic things we can do in Processing is draw shapes. There are a [wide variety of shapes](https://processing.org/reference/#shape) that we can draw, but for this example we will be drawing a rectangle. Processing uses a [Caretsian Coordinate System](https://en.wikipedia.org/wiki/Cartesian_coordinate_system) where the origin (0,0) is in the top left corner, and the maximal (x,y) is in the bottom right corner. The function `rect(x,y,w,h)` allows us to draw a rectangle. The first and second parameters, x and y, defines the coordinates where we want to draw the rectangle. Processing also provides a variety of defined constants; `width` and `height` are the width and height of the current window. By setting `rectMode(CENTER)` and passing `width / 2` and `height / 2` as the arguments for x and y we draw a rectangle in the center of the window.
+    
+The function `fill(r,g,b)` allows us to change the color of the rectangle we are drawing. Think of `fill` as changing the color of the paint brush you are using. Once you call `fill` every call after will use that color until `fill` is called again. This is why we call fill before drawing our rectangle. We pass the value `(0,0,0)` to 'fill` to set the color to black.
     
 </details><details>
     
