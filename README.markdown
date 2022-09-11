@@ -68,6 +68,20 @@ Processing is the perfect enviornment for programmers of all experience levels. 
 <summary>Structure of a Processing Project</summary>
 <br/>
     
+ ```python
+def setup():
+    # This code is only run once
+    size(800, 800)
+
+def draw():
+    # This code is run on a loop
+    background(255, 0, 0)
+```
+    
+A graphics library has three essential components: before the main loop; the code the consists of the main loop; and code that is executed after the main loop. In processing we write all of the code that will be executed before the main loop in a function that we define as `setup`. This function is only called once at the start of program execution. Typically we will define the size of the graphics window we want to generate using the called `size(w, h)`, where w is the width we desire (in pixels) and h is the height we desire (in pixels). If we want the window to take up the entire screen we can call `fullScreen()`.
+    
+We write the code that we want to continously execute in the function defined as `draw`. This code is run on a loop and is only terminated if we tell it to (or the program exits in an error). Typically we will define a background using a call to the `bacground()` function. This function accepts a wide variety of values from [RGB](https://en.wikipedia.org/wiki/RGB_color_model), [RGBA](https://en.wikipedia.org/wiki/RGBA_color_model), [HSB](https://en.wikipedia.org/wiki/HSL_and_HSV), and [HEX](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet). By placing `background` in draw the screen is 'refreshed' each execution, which mean what we drew to the screen last cycle is erased. We can also move `background` to setup if we wish to not have this behavior.
+    
 </details><details>
 
 <summary>Drawing Shapes</summary>
