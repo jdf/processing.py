@@ -42,6 +42,20 @@ def draw():
 
 If you are just getting started, it is a good idea to go through the [tutorials on our website](http://py.processing.org/tutorials/), and alternatively some [examples](mode/examples).
 
+## Processing Basics ##
+
+### What is Processing? ###
+
+### Should I use Processing? ###
+
+### Structure of a Processing Project ###
+
+### Drawing Shapes ###
+
+### User Input ###
+
+### Next Steps ###
+
 ## Using Processing Libraries ##
 
 Python Mode is implemented in Java, and is designed to be compatible with the existing ecosystem of [Processing libraries](http://processing.org/reference/libraries/).
