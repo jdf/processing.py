@@ -12,8 +12,10 @@ Tested on Mac OS 10.10 and Ubuntu 14.
 
 ## Quick Start ##
 
-### Processing Development Environment ###
+<details>
 
+<summary>Processing Development Environment</summary>
+<br/>
 If you're looking to write Processing sketches in Python, your best bet is to use
 Python Mode. The project is still in its early days, and documentation is lacking,
 but there are many example sketches to get you started. In general, the Processing
@@ -41,22 +43,54 @@ def draw():
 ```
 
 If you are just getting started, it is a good idea to go through the [tutorials on our website](http://py.processing.org/tutorials/), and alternatively some [examples](mode/examples).
+    
+</details>
 
 ## Processing Basics ##
 
-### What is Processing? ###
+<details>
 
-### Should I use Processing? ###
+<summary>What is Processing?</summary>
+<br/>
 
-### Structure of a Processing Project ###
+    
+</details><details>
 
-### Drawing Shapes ###
+<summary>Should I use Processing?</summary>
+<br/>
 
-### User Input ###
+    
+</details><details>
 
-### Next Steps ###
+<summary>Structure of a Processing Project</summary>
+<br/>
+    
+</details><details>
 
-## Using Processing Libraries ##
+<summary>Drawing Shapes</summary>
+<br/>
+
+    
+</details><details>
+    
+<summary>User Input</summary>
+<br/>
+
+    
+</details><details>
+
+<summary>Next Steps</summary>
+<br/>
+
+    
+</details>
+
+## Advanced Usage ##
+
+<details>
+    
+<summary>Using Processing Libraries</summary>
+<br/>
 
 Python Mode is implemented in Java, and is designed to be compatible with the existing ecosystem of [Processing libraries](http://processing.org/reference/libraries/).
 
@@ -64,10 +98,11 @@ Many libraries need a reference to "the current PApplet", and that's what
 `this` is for. Of course, there's no such thing as `this` in Python; it's just something that processing.py provides for you for compatibility with such libraries.
 
 If you find that some Processing library doesn't work as expected with processing.py, please let us know in the [bug tracker](http://github.com/jdf/processing.py/issues).
+    
+</details><details>
 
-## FAQ ##
-
-### How do I report bugs or request new features? ###
+<summary>How do I report bugs or request new features?</summary>
+<br/>
 
 Please report any issue in the [bug tracker](http://github.com/jdf/processing.py/issues).
 
@@ -80,7 +115,10 @@ import launcher
 launcher.create()
 ```
 
-### How can I use Ani, or any other library that modifies fields? ###
+</details><details>
+    
+<summary>How can I use Ani, or any other library that modifies fields?</summary>
+<br/>
 
 Some libraries such as [Ani](http://www.looksgood.de/libraries/Ani/) require you to specify a variable name for animation. Unfortunately they cannot access Python variables directly (and Java's built in classes are immutable).
 
@@ -94,7 +132,9 @@ Ani.to(x, 200, "value", 50);  # "value" is the name of the Float's internal fiel
 
 In case you need other primitive values, please [let us know](http://github.com/jdf/processing.py/issues)!
 
-### Why was this project created? ###
+</details>
+
+## Why was this project created? ##
 
 I ([Jonathan](http://MrFeinberg.com/)) recently gave a talk about Processing to a group of rather bright 8th-graders,
 as part of a computer-programming summer camp they were attending at my office.
