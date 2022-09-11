@@ -104,18 +104,6 @@ def draw():
     
 The function `fill(r,g,b)` allows us to change the color of the rectangle we are drawing. Think of `fill` as changing the color of the paint brush you are using. Once you call `fill` every call after will use that color until `fill` is called again. This is why we call fill before drawing our rectangle. We pass the value `(0,0,0)` to 'fill` to set the color to black.
     
-</details><details>
-    
-<summary>User Input</summary>
-<br/>
-
-    
-</details><details>
-
-<summary>Next Steps</summary>
-<br/>
-
-    
 </details>
 
 ## Advanced Usage ##
