@@ -12,8 +12,11 @@ Tested on Mac OS 10.10 and Ubuntu 14.
 
 ## Quick Start ##
 
-### Processing Development Environment ###
+<details>
 
+<summary>Processing Development Environment</summary>
+<br/>
+    
 If you're looking to write Processing sketches in Python, your best bet is to use
 Python Mode. The project is still in its early days, and documentation is lacking,
 but there are many example sketches to get you started. In general, the Processing
@@ -41,8 +44,74 @@ def draw():
 ```
 
 If you are just getting started, it is a good idea to go through the [tutorials on our website](http://py.processing.org/tutorials/), and alternatively some [examples](mode/examples).
+    
+</details>
 
-## Using Processing Libraries ##
+## Processing Basics ##
+
+<details>
+
+<summary>What is Processing?</summary>
+<br/>
+    
+Processing is a graphics library utilized by artists, educators, students, and hobbyists to create sketches without the hassle of traditional graphics libraries. Processing provides a simplified API that allows for visual tasks that would take dozens of lines in other software to be completed in just a couple of lines. Processing is also a community with extensive support in developing, maintaining, as well as creating educational resources for this software. Please see https://processing.org/ for more information.
+    
+</details><details>
+
+<summary>Should I use Processing?</summary>
+<br/>
+    
+Processing is the perfect enviornment for programmers of all experience levels. It is a great starting point for programmers with no graphics programming experience. The [documentation](https://processing.org/environment/#overview) is a great place to start and learn the basics. Processing is also a vehicle for learning how to code, since you can see the changes you make in your code visually. [Here](http://learningprocessing.com/videos/) is a great video tutorial for getting started. For users with graphics programming experience, Processing is very effective for fun projects and quick prototypes. For extremely complex, performance heavy, and commerical applications - Processing may not be the best choice.
+    
+</details><details>
+
+<summary>Structure of a Processing Project</summary>
+<br/>
+    
+ ```python
+def setup():
+    # This code is only run once
+    size(800, 800)
+
+def draw():
+    # This code is run on a loop
+    background(255, 0, 0)
+```
+    
+A graphics library has three essential components: before the main loop; the code the consists of the main loop; and code that is executed after the main loop. In processing we write all of the code that will be executed before the main loop in a function that we define as `setup`. This function is only called once at the start of program execution. Typically we will define the size of the graphics window we want to generate using the called `size(w, h)`, where w is the width we desire (in pixels) and h is the height we desire (in pixels). If we want the window to take up the entire screen we can call `fullScreen()`.
+    
+We write the code that we want to continously execute in the function defined as `draw`. This code is run on a loop and is only terminated if we tell it to (or the program exits in an error). Typically we will define a background using a call to the `bacground()` function. This function accepts a wide variety of values from [RGB](https://en.wikipedia.org/wiki/RGB_color_model), [RGBA](https://en.wikipedia.org/wiki/RGBA_color_model), [HSB](https://en.wikipedia.org/wiki/HSL_and_HSV), and [HEX](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet). By placing `background` in draw the screen is 'refreshed' each execution, which mean what we drew to the screen last cycle is erased. We can also move `background` to setup if we wish to not have this behavior.
+    
+</details><details>
+
+<summary>Drawing Shapes</summary>
+<br/>
+    
+ ```python
+def setup():
+    # This code is only run once
+    size(800, 800)
+
+def draw():
+    # This code is run on a loop
+    background(255, 0, 0)
+    fill(0, 0, 0)
+    rectMode(CENTER)
+    rect(width / 2, height / 2, 10, 20)
+```
+
+ One of the most basic things we can do in Processing is draw shapes. There are a [wide variety of shapes](https://processing.org/reference/#shape) that we can draw, but for this example we will be drawing a rectangle. Processing uses a [Caretsian Coordinate System](https://en.wikipedia.org/wiki/Cartesian_coordinate_system) where the origin (0,0) is in the top left corner, and the maximal (x,y) is in the bottom right corner. The function `rect(x,y,w,h)` allows us to draw a rectangle. The first and second parameters, x and y, defines the coordinates where we want to draw the rectangle. Processing also provides a variety of defined constants; `width` and `height` are the width and height of the current window. By setting `rectMode(CENTER)` and passing `width / 2` and `height / 2` as the arguments for x and y we draw a rectangle in the center of the window.
+    
+The function `fill(r,g,b)` allows us to change the color of the rectangle we are drawing. Think of `fill` as changing the color of the paint brush you are using. Once you call `fill` every call after will use that color until `fill` is called again. This is why we call fill before drawing our rectangle. We pass the value `(0,0,0)` to 'fill` to set the color to black.
+    
+</details>
+
+## Advanced Usage ##
+
+<details>
+    
+<summary>Using Processing Libraries</summary>
+<br/>
 
 Python Mode is implemented in Java, and is designed to be compatible with the existing ecosystem of [Processing libraries](http://processing.org/reference/libraries/).
 
@@ -50,10 +119,11 @@ Many libraries need a reference to "the current PApplet", and that's what
 `this` is for. Of course, there's no such thing as `this` in Python; it's just something that processing.py provides for you for compatibility with such libraries.
 
 If you find that some Processing library doesn't work as expected with processing.py, please let us know in the [bug tracker](http://github.com/jdf/processing.py/issues).
+    
+</details><details>
 
-## FAQ ##
-
-### How do I report bugs or request new features? ###
+<summary>How do I report bugs or request new features?</summary>
+<br/>
 
 Please report any issue in the [bug tracker](http://github.com/jdf/processing.py/issues).
 
@@ -66,7 +136,10 @@ import launcher
 launcher.create()
 ```
 
-### How can I use Ani, or any other library that modifies fields? ###
+</details><details>
+    
+<summary>How can I use Ani, or any other library that modifies fields?</summary>
+<br/>
 
 Some libraries such as [Ani](http://www.looksgood.de/libraries/Ani/) require you to specify a variable name for animation. Unfortunately they cannot access Python variables directly (and Java's built in classes are immutable).
 
@@ -80,7 +153,9 @@ Ani.to(x, 200, "value", 50);  # "value" is the name of the Float's internal fiel
 
 In case you need other primitive values, please [let us know](http://github.com/jdf/processing.py/issues)!
 
-### Why was this project created? ###
+</details>
+
+## Why was this project created? ##
 
 I ([Jonathan](http://MrFeinberg.com/)) recently gave a talk about Processing to a group of rather bright 8th-graders,
 as part of a computer-programming summer camp they were attending at my office.
