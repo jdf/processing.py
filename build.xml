@@ -22,22 +22,26 @@
 <project name="processing.py" default="mode.zip">
   <description>Write Processing sketches in Python</description>
 
-  <!--
-      You can specify the location of the Processing source code by passing
-      it to ant via -Dprocessing=/path/to/processing
-      By default, we'll look in a directory next to this one.
-      The same goes for processing-video (https://github.com/processing/processing-video).
-  -->
-  <property name="processing" value="../processing4"/>
-  <property name="processing-video" value="../processing-video"/>
+  <property file="local.properties" />
+
+  <condition property="props.present">
+    <available file="local.properties" />
+  </condition>
+
+  <fail unless="processing.dir"
+        message="To make the build work, create a file named local.properties, with lines that read:
+${line.separator}processing.dir=/path/to/processing-git
+${line.separator}processing-video.dir=/path/to/processing-git
+${line.separator}with the paths to where you have the code for Processing 4
+${line.separator}and the processing-video library cloned from git." />
 
   <!-- for <if> and <foreach> tags. -->
   <taskdef
       resource="net/sf/antcontrib/antcontrib.properties"
       classpath="buildtime/lib/java/ant-contrib.jar"/>
 
-  <property name="pdejar" value="${processing}/app/pde.jar"/>
-  <property name="corejar" value="${processing}/core/library/core.jar"/>
+  <property name="pdejar" value="${processing.dir}/app/pde.jar"/>
+  <property name="corejar" value="${processing.dir}/core/library/core.jar"/>
   <property name="jython" value="buildtime/lib/jython/jython.jar"/>
   <property name="jython.license" value="buildtime/lib/jython/LICENSE.txt"/>
   <property name="guava" value="buildtime/lib/java/guava-17.0.jar"/>
@@ -74,7 +78,7 @@
       <entry key="build.date" type="date" value="now"/>
       <entry key="build.number" type="int" default="4000" operation="+" pattern="0000"/>
     </propertyfile>
-    <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>  	
+    <property file="runtime/src/jycessing/build.properties" prefix="jycessing"/>
   	<echo message="Bumped to version ${jycessing.build.number}."></echo>
   </target>
 
@@ -134,7 +138,7 @@
     <exec executable="sh" failonerror="true">
         <arg value="-c"/>
         <arg value="ssh jdf@py.processing.org 'cp /var/www/py/4/PythonMode_${jycessing.build.number}.zip /var/www/py/4/PythonMode.zip'" />
-    </exec>    
+    </exec>
     <push srcfile="work/modedist/PythonMode.txt"/>
     <exec executable="sh" failonerror="true">
         <arg value="-c"/>
@@ -149,8 +153,8 @@
       <zipgroupfileset file="${guava}"/>
       <zipgroupfileset file="${jython}"/>
       <zipgroupfileset file="${corejar}"/>
-      <zipgroupfileset file="${processing}/core/library/gluegen-rt.jar"/>
-      <zipgroupfileset file="${processing}/core/library/jogl-all.jar"/>
+      <zipgroupfileset file="${processing.dir}/core/library/gluegen-rt.jar"/>
+      <zipgroupfileset file="${processing.dir}/core/library/jogl-all.jar"/>
       <manifest>
         <attribute name="Main-Class" value="jycessing.Runner"/>
       </manifest>
@@ -164,9 +168,9 @@
   <target name="jar.natives">
     <jar destfile="work/processing-py-natives-${natives.platform}.jar">
       <zipgroupfileset
-        file="${processing}/core/library/gluegen-rt-natives-${natives.platform}.jar"/>
+        file="${processing.dir}/core/library/gluegen-rt-natives-${natives.platform}.jar"/>
       <zipgroupfileset
-        file="${processing}/core/library/jogl-all-natives-${natives.platform}.jar"/>
+        file="${processing.dir}/core/library/jogl-all-natives-${natives.platform}.jar"/>
     </jar>
   </target>
 
@@ -177,7 +181,7 @@
       <classpath>
         <pathelement location="${jython}"/>
         <pathelement location="${corejar}"/>
-        <pathelement location="${processing}/core/library/jogl-all.jar"/>
+        <pathelement location="${processing.dir}/core/library/jogl-all.jar"/>
         <pathelement location="${pdejar}"/>
         <pathelement location="${guava}"/>
       </classpath>
@@ -193,39 +197,39 @@
   <target name="check-pde-needs-build">
     <uptodate property="pde-is-uptodate"
               targetfile="${pdejar}">
-      <srcfiles dir="${processing}/app/src/processing/app"/>
+      <srcfiles dir="${processing.dir}/app/src/processing/app"/>
     </uptodate>
   </target>
   <target name="build-pde"
     depends="check-pde-needs-build"
     unless="pde-is-uptodate">
     <echo message="Building pde." />
-    <ant dir="${processing}/build" target="build"/>
+    <ant dir="${processing.dir}/build" target="build"/>
   </target>
 
   <target name="check-processing-needs-build">
     <uptodate property="processing-is-uptodate"
               targetfile="${corejar}">
-      <srcfiles dir="${processing}/core/src/processing/core"/>
+      <srcfiles dir="${processing.dir}/core/src/processing/core"/>
     </uptodate>
   </target>
   <target name="build-processing"
     depends="check-processing-needs-build"
     unless="processing-is-uptodate">
     <echo message="Building processing." />
-    <ant dir="${processing}/build" target="build" inheritAll="false"/>
+    <ant dir="${processing.dir}/build" target="build" inheritAll="false"/>
   </target>
   <target name="check-video-needs-build">
     <uptodate property="video-is-uptodate"
-              targetfile="${processing-video}/library/video.jar">
-      <srcfiles dir="${processing-video}/src/processing/video"/>
+              targetfile="${processing-video.dir}/library/video.jar">
+      <srcfiles dir="${processing-video.dir}/src/processing/video"/>
     </uptodate>
   </target>
   <target name="build-video"
     depends="check-video-needs-build"
     unless="video-is-uptodate">
     <echo message="Building processing-video." />
-    <ant dir="${processing-video}" target="build">
+    <ant dir="${processing-video.dir}" target="build">
 	<property name="core.classpath.location" value="../processing/core/library/"/>
     </ant>
   </target>
@@ -234,7 +238,7 @@
     <rm-rf target="bin"/>
     <rm-rf target="dist"/>
     <rm-rf target=".cache"/>
-    <rm-rf target="work"/> 
+    <rm-rf target="work"/>
     <delete>
       <fileset dir="buildtime/py" includes="*.class"/>
     </delete>
@@ -244,7 +248,7 @@
   </target>
 
   <target name="clean" depends="clean-self">
-    <ant dir="${processing}/build" target="clean"/>
+    <ant dir="${processing.dir}/build" target="clean"/>
   </target>
 
   <!--
@@ -313,12 +317,12 @@
   </macrodef>
 
   <target name="jni-OSX" depends="build">
-    <javah destdir="runtime/src/jycessing/jni" 
-    	force="yes" 
-    	class="jycessing.jni.OSX" 
+    <javah destdir="runtime/src/jycessing/jni"
+    	force="yes"
+    	class="jycessing.jni.OSX"
     	classpath="./bin"/>
   </target>
-	
+
   <macrodef name="for-all-platforms">
     <attribute name="target"/>
     <sequential>
@@ -411,7 +415,7 @@
           libraries that still have legacy OSX DLLs. Right now, that's
           only video.
         -->
-        <fileset dir="${processing}/java/libraries/@{library}/library"
+        <fileset dir="${processing.dir}/java/libraries/@{library}/library"
                  includes="*.txt,*.jar,${platform}/**,${platform}64/**"/>
       </copy>
     </sequential>
@@ -420,9 +424,9 @@
   <target name="check-for-platform-lib-cache">
     <condition property="platform-lib-cache-exists">
       <and>
-        <uptodate srcfile="${processing}/core/library/gluegen-rt.jar"
+        <uptodate srcfile="${processing.dir}/core/library/gluegen-rt.jar"
                   targetfile=".cache/libs/${platform}/opengl/gluegen-rt.jar"/>
-        <uptodate srcfile="${processing-video}/library/video.jar"
+        <uptodate srcfile="${processing-video.dir}/library/video.jar"
                   targetfile=".cache/libs/${platform}/video/video.jar"/>
       </and>
     </condition>
@@ -435,10 +439,10 @@
     <mkdir dir="${cache}"/>
     <mkdir dir="${cache}/opengl"/>
     <copy todir="${cache}/opengl">
-      <fileset dir="${processing}/core/library" includes="*.jar" excludes="core.jar"/>
+      <fileset dir="${processing.dir}/core/library" includes="*.jar" excludes="core.jar"/>
     </copy>
     <copy todir="${cache}/video">
-      <fileset dir="${processing-video}/library"
+      <fileset dir="${processing-video.dir}/library"
                includes="*.txt,*.jar,${platform}/**,${platform}64/**"/>
     </copy>
     <copy-processing-library dir="${cache}" library="dxf"/>
@@ -537,12 +541,12 @@
   	<junit fork="true" haltonfailure="true">
 		<test name="test.jycessing.JycessingTests">
 	          <formatter type="plain" usefile="false"/>
-  		</test> 
+  		</test>
 	    <classpath>
 			<pathelement location="testing/bin"/>
 			<pathelement location="${corejar}"/>
-			<pathelement location="${processing}/core/library/gluegen-rt.jar"/>
-			<pathelement location="${processing}/core/library/jogl-all.jar"/>
+			<pathelement location="${processing.dir}/core/library/gluegen-rt.jar"/>
+			<pathelement location="${processing.dir}/core/library/jogl-all.jar"/>
 			<pathelement location="work/PythonMode.jar"/>
 			<pathelement location="${guava}"/>
 			<pathelement location="${jython}"/>

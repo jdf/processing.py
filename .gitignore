@@ -32,3 +32,6 @@ misc/windowsexecutablestub/Release
 *.sdf
 *.suo
 linux/
+
+local.properties
+
