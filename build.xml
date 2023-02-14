@@ -226,11 +226,11 @@ ${line.separator}and the processing-video library cloned from git." />
     </uptodate>
   </target>
   <target name="build-video"
-    depends="check-video-needs-build"
-    unless="video-is-uptodate">
+          depends="check-video-needs-build"
+          unless="video-is-uptodate">
     <echo message="Building processing-video." />
     <ant dir="${processing-video.dir}" target="build">
-    <property name="core.classpath.location" value="../processing/core/library/"/>
+      <property name="core.classpath.location" value="${processing.dir}/core/library/" />
     </ant>
   </target>
 
