@@ -67,7 +67,7 @@ Configuring Eclipse
 -------------------
 
 If you want to modify the code, and you're an Eclipse user, you can "Import
-existing project into workspace" a few of times, once for processing.py
+existing project into workspace" a few times, once for processing.py
 itself (which lives in the processing.py top level directory), and once
 each for processing.core, processing-java, processing-app, and
 processing-video, which you'll find in the directories where you've

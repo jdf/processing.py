@@ -18,7 +18,6 @@ import processing.app.Preferences;
 import processing.app.Sketch;
 import processing.app.Util;
 import processing.core.PApplet;
-import processing.core.PConstants;
 
 /**
  * Performs an export to Linux (32/64). The linux export folder layout is as follows:
@@ -41,26 +40,18 @@ public class LinuxExport extends PlatformExport {
     }
   }
 
-  public LinuxExport(
-      final Arch arch, final Sketch sketch, final PyEditor editor, final Set<Library> libraries) {
-    this.id = PConstants.LINUX;
-    this.arch = arch;
-    this.name = PConstants.platformNames[id] + arch.bits;
+  public LinuxExport(final String variant, final Sketch sketch, final PyEditor editor, final Set<Library> libraries, boolean embedJava) {
+    this.variant = variant;
     this.sketch = sketch;
     this.editor = editor;
     this.libraries = libraries;
+    this.embedJava = embedJava;
   }
 
   @Override
   public void export() throws IOException {
-    // Work out user preferences and other possibilities we care about
-    final boolean embedJava =
-        (id == PApplet.platform)
-            && Preferences.getBoolean("export.application.embed_java")
-            && arch == Exporter.processingArch;
-
     // Work out the folders we'll be (maybe) using
-    final File destFolder = new File(sketch.getFolder(), "application." + name);
+    final File destFolder = new File(sketch.getFolder(), variant);
     final File javaFolder = new File(destFolder, "java");
 
     copyBasicStructure(destFolder);

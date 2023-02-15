@@ -68,7 +68,6 @@ import com.google.common.io.Files;
 import com.jogamp.newt.opengl.GLWindow;
 
 import jycessing.IOUtil.ResourceReader;
-import jycessing.jni.OSX;
 import jycessing.mode.run.WrappedPrintStream;
 import jycessing.mode.run.WrappedPrintStream.PushedOut;
 import processing.awt.PSurfaceAWT;
@@ -76,6 +75,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
 import processing.core.PSurface;
+import processing.core.ThinkDifferent;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 import processing.opengl.PGraphicsOpenGL;
@@ -104,6 +104,14 @@ public class PAppletJythonDriver extends PApplet {
   }
 
   private Field frameField;
+
+  static private Class fxSurfaceClass;
+  static {
+    try {
+      // Get class object for use in dynamic instanceof calls for PSurfaceFX
+      fxSurfaceClass = Class.forName("processing.javafx.PSurfaceFX");
+    } catch (ClassNotFoundException ignored) {  }
+  }
 
   private PythonSketchError terminalException = null;
 
@@ -325,7 +333,7 @@ public class PAppletJythonDriver extends PApplet {
    * slightly less cryptic error message.
    *
    * @param file
-   * @param line
+   * @param lineNo
    * @param column
    * @return
    */
@@ -501,6 +509,8 @@ public class PAppletJythonDriver extends PApplet {
               finishedLatch.countDown();
             }
           });
+    } else if (fxSurfaceClass != null && fxSurfaceClass.isInstance(s)) {
+      System.err.println("I don't know how to watch FX2D windows for close.");
     }
 
     final PyObject pyG;
@@ -898,7 +908,7 @@ public class PAppletJythonDriver extends PApplet {
 
   private void bringToFront() {
     if (PApplet.platform == PConstants.MACOSX) {
-      OSX.bringToFront();
+      ThinkDifferent.activateIgnoringOtherApps();
     }
   }
 
@@ -945,6 +955,12 @@ public class PAppletJythonDriver extends PApplet {
             e.printStackTrace();
           }
         }
+      }
+      if (fxSurfaceClass != null && fxSurfaceClass.isInstance(surface)) {
+        // Sadly, JavaFX is an abomination, and there's no way to run an FX sketch more than once,
+        // so we must actually exit.
+        Runner.log("JavaFX requires SketchRunner to terminate. Farewell!");
+        System.exit(0);
       }
       final Object nativeWindow = surface.getNative();
       if (nativeWindow instanceof com.jogamp.newt.Window) {

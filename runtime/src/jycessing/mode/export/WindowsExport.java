@@ -47,24 +47,17 @@ public class WindowsExport extends PlatformExport {
     }
   }
 
-  public WindowsExport(
-      final Arch arch, final Sketch sketch, final PyEditor editor, final Set<Library> libraries) {
-    this.id = PConstants.WINDOWS;
-    this.arch = arch;
-    this.name = PConstants.platformNames[id] + arch.bits;
+  public WindowsExport(final String variant, final Sketch sketch, final PyEditor editor, final Set<Library> libraries, boolean embedJava) {
+    this.variant = variant;
     this.sketch = sketch;
     this.editor = editor;
     this.libraries = libraries;
+    this.embedJava = embedJava;
   }
 
   @Override
   public void export() throws IOException {
-    final boolean embedJava =
-        (id == PApplet.platform)
-            && Preferences.getBoolean("export.application.embed_java")
-            && arch == Exporter.processingArch;
-
-    final File destFolder = new File(sketch.getFolder(), "application." + name);
+    final File destFolder = new File(sketch.getFolder(), variant);
     final File javaFolder = new File(destFolder, "java");
 
     copyBasicStructure(destFolder);
@@ -109,7 +102,7 @@ public class WindowsExport extends PlatformExport {
     config.addChild("errTitle").setContent("Sketchy Behavior");
     config.addChild("icon").setContent(iconFile.getAbsolutePath());
     config.addChild("chdir").setContent(".");
-    config.addChild(buildJREOptions(embedJava, setMemory, arch));
+    config.addChild(buildJREOptions(embedJava, setMemory));
     config.addChild(buildRunnerOptions(presentMode, stopButton));
     config.addChild(buildClassPathOptions(jycessingFolder));
     log("Configuration done: " + config.format(0));
@@ -188,7 +181,7 @@ public class WindowsExport extends PlatformExport {
     }
   }
 
-  private XML buildJREOptions(final boolean embedJava, final boolean setMemory, final Arch arch) {
+  private XML buildJREOptions(final boolean embedJava, final boolean setMemory) {
     log("Building JRE options.");
     final XML jre = new XML("jre");
     if (embedJava) {
@@ -200,14 +193,7 @@ public class WindowsExport extends PlatformExport {
     // We always add the minVersion tag, which means that the sketch will always try to look for
     // Java on the system - by default when java isn't embedded, as a fallback when it is
     jre.addChild("minVersion").setContent("1.7.0_40");
-
-    switch (arch) {
-      case AMD64:
-        jre.addChild("runtimeBits").setContent("64");
-        break;
-      case X86:
-        jre.addChild("runtimeBits").setContent("32");
-    }
+    jre.addChild("runtimeBits").setContent("64");
 
     if (setMemory) {
       jre.addChild("initialHeapSize").setContent(Preferences.get("run.options.memory.initial"));

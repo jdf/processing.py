@@ -2,13 +2,13 @@ package jycessing.mode;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -21,8 +21,7 @@ import javax.swing.JOptionPane;
 
 import jycessing.DisplayType;
 import jycessing.IOUtil;
-import jycessing.jni.OSX;
-import jycessing.mode.export.ExportDialog;
+import jycessing.mode.export.Exporter;
 import jycessing.mode.run.PdeSketch;
 import jycessing.mode.run.PdeSketch.LocationType;
 import jycessing.mode.run.SketchService;
@@ -45,11 +44,12 @@ import processing.app.ui.Editor;
 import processing.app.ui.EditorException;
 import processing.app.ui.EditorState;
 import processing.app.ui.EditorToolbar;
+import processing.app.ui.ExportPrompt;
 import processing.app.ui.Toolkit;
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.ThinkDifferent;
 
-@SuppressWarnings("serial")
 public class PyEditor extends Editor {
 
   @SuppressWarnings("unused")
@@ -108,7 +108,7 @@ public class PyEditor extends Editor {
 
   @Override
   protected JEditTextArea createTextArea() {
-    return new PdeTextArea(new PdeTextAreaDefaults(mode), new PyInputHandler(this), this);
+    return new PdeTextArea(new PdeTextAreaDefaults(), new PyInputHandler(this), this);
   }
 
   public String getId() {
@@ -116,14 +116,11 @@ public class PyEditor extends Editor {
   }
 
   private MouseWheelListener createHorizontalScrollListener() {
-    return new MouseWheelListener() {
-      @Override
-      public void mouseWheelMoved(final MouseWheelEvent e) {
-        if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL && e.isShiftDown()) {
-          final int current = textarea.getHorizontalScrollPosition();
-          final int delta = e.getUnitsToScroll() * 6;
-          textarea.setHorizontalScrollPosition(current + delta);
-        }
+    return e -> {
+      if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL && e.isShiftDown()) {
+        final int current = textarea.getHorizontalScrollPosition();
+        final int delta = e.getUnitsToScroll() * 6;
+        textarea.setHorizontalScrollPosition(current + delta);
       }
     };
   }
@@ -153,7 +150,7 @@ public class PyEditor extends Editor {
           log("Deleted " + tempSketch);
           assert (!tempSketch.toFile().exists());
         } catch (final IOException e) {
-          System.err.println(e);
+          e.printStackTrace();
         }
       }
       tempSketch = null;
@@ -166,12 +163,7 @@ public class PyEditor extends Editor {
     final String appTitle = Language.text("Export Application");
     final JMenuItem exportApplication = Toolkit.newJMenuItem(appTitle, 'E');
     exportApplication.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(final ActionEvent e) {
-            handleExportApplication();
-          }
-        });
+      e -> handleExportApplication());
     return buildFileMenu(new JMenuItem[] {exportApplication});
   }
 
@@ -227,31 +219,13 @@ public class PyEditor extends Editor {
   @Override
   public JMenu buildSketchMenu() {
     final JMenuItem runItem = Toolkit.newJMenuItem(Language.text("toolbar.run"), 'R');
-    runItem.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(final ActionEvent e) {
-            handleRun();
-          }
-        });
+    runItem.addActionListener(e -> handleRun());
 
     final JMenuItem presentItem = Toolkit.newJMenuItemShift(Language.text("toolbar.present"), 'R');
-    presentItem.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(final ActionEvent e) {
-            handlePresent();
-          }
-        });
+    presentItem.addActionListener(e -> handlePresent());
 
     final JMenuItem stopItem = new JMenuItem(Language.text("toolbar.stop"));
-    stopItem.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(final ActionEvent e) {
-            handleStop();
-          }
-        });
+    stopItem.addActionListener(e -> handleStop());
 
     return buildSketchMenu(new JMenuItem[] {runItem, presentItem, stopItem});
   }
@@ -288,7 +262,8 @@ public class PyEditor extends Editor {
       }
     }
 
-    new ExportDialog(this, sketch).go();
+    //new ExportDialog(this, sketch).go();
+    new ExportPrompt(this, () -> new Exporter(PyEditor.this).export());
   }
 
   public File getModeContentFile(final String filename) {
@@ -304,12 +279,11 @@ public class PyEditor extends Editor {
    *
    * @return a new directory containing a saved version of the current (presumably modified) sketch
    *     code.
-   * @throws IOException
    */
   private Path createTempSketch() throws IOException {
     final Path tmp = Files.createTempDirectory(sketch.getName());
     for (final SketchCode code : sketch.getCode()) {
-      Files.write(tmp.resolve(code.getFileName()), code.getProgram().getBytes("utf-8"));
+      Files.write(tmp.resolve(code.getFileName()), code.getProgram().getBytes(StandardCharsets.UTF_8));
     }
     return tmp;
   }
@@ -353,8 +327,8 @@ public class PyEditor extends Editor {
   }
 
   private void bringToFront() {
-    if (PApplet.platform == PConstants.MACOSX) {
-      OSX.bringToFront(pyMode);
+    if (PApplet.platform == PConstants.MACOS) {
+      ThinkDifferent.activateIgnoringOtherApps();
     }
   }
 
