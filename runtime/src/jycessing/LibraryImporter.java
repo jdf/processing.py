@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -174,16 +175,32 @@ class LibraryImporter {
   private void recursivelyLoadNativeLibraries(final File contentsDir) {
     final List<File> resources = findResources(contentsDir);
     final PySystemState sys = Py.getSystemState();
-    for (final File resource : resources) {
+    LinkedList<File> stack = new LinkedList<File>(resources);
+    log("Dependency stack length: " + stack.size());
+    // Terrible, horrible, no good, very bad, hack to load dependencies
+    // There are n! permutations here, which is unrealistic.
+    // 4096 seems like a realistic number to give up on
+    int timeToDie = 4096;
+    while (!stack.isEmpty() && timeToDie > 0) {
+      File resource = stack.poll();
       final String name = resource.getName();
+      log("Resource name: " + name);
       if (name.matches("^.*\\.(so|dll|dylib|jnilib)$")) {
         // Add *containing directory* to native search path
         log("addDirectoryToNativeSearchPath: " + resource.getAbsoluteFile().getParentFile().getAbsolutePath());
         addDirectoryToNativeSearchPath(resource.getAbsoluteFile().getParentFile());
         log("Loading library: " + resource.getAbsoluteFile().getName());
-        System.load(resource.getAbsolutePath());
+        try {
+          System.load(resource.getAbsolutePath());
+        } catch (UnsatisfiedLinkError e) {
+          stack.add(resource);
+        }
       } else if (resource.isDirectory()) {
         recursivelyAddToClasspath(resource);
+      }
+      timeToDie--;
+      if (timeToDie == 0) {
+        throw new UnsatisfiedLinkError("Unable to satisfy dependencies for " + name + " after 4096 tries.");
       }
     }
   }
