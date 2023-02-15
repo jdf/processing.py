@@ -1,9 +1,9 @@
 """
- * Move Eye. 
- * by Simon Greenwold.
- * 
- * The camera lifts up (controlled by mouseY) while looking at the same point.
- """
+Move Eye.
+by Simon Greenwold.
+
+The camera lifts up (controlled by mouseY) while looking at the same point.
+"""
 
 
 def setup():
@@ -26,4 +26,3 @@ def draw():
     line(-100, 0, 0, 100, 0, 0)
     line(0, -100, 0, 0, 100, 0)
     line(0, 0, -100, 0, 0, 100)
-

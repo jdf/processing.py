@@ -1,10 +1,10 @@
 """
- * Background Image. 
- * 
- * This example presents the fastest way to load a background image
- * into Processing. To load an image as the background, it must be
- * the same width and height as the program.
- """
+Background Image.
+
+This example presents the fastest way to load a background image
+into Processing. To load an image as the background, it must be
+the same width and height as the program.
+"""
 
 y = 0
 
@@ -26,4 +26,3 @@ def draw():
     y += 1
     if y > height:
         y = 0
-

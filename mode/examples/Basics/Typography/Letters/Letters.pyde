@@ -1,9 +1,9 @@
 """
- * Letters. 
- * 
- * Draws letters to the screen. This requires loading a font, 
- * setting the font, and then drawing the letters.
- """
+Letters.
+
+Draws letters to the screen. This requires loading a font,
+setting the font, and then drawing the letters.
+"""
 
 
 def setup():
@@ -35,4 +35,3 @@ def draw():
             text(letter, x, y)
             # Increment the counter
             counter += 1
-

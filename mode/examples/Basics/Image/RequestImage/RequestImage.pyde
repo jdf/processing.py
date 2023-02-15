@@ -1,15 +1,16 @@
 """
- * Request Image
- * by Ira Greenberg ( From Processing for Flash Developers). 
- * 
- * Shows how to use the requestImage() function with preloader animation. 
- * The requestImage() function loads images on a separate thread so that 
- * the sketch does not freeze while they load. It's very useful when you are
- * loading large images. 
- * 
- * These images are small for a quick download, but try it with your own huge 
- * images to get the full effect. 
- """
+Request Image
+by Ira Greenberg ( From Processing for Flash Developers).
+
+Shows how to use the requestImage() function with preloader animation.
+The requestImage() function loads images on a separate thread so that
+the sketch does not freeze while they load. It's very useful when you are
+loading large images.
+
+These images are small for a quick download, but try it with your own huge
+images to get the full effect.
+"""
+
 imgCount = 12
 
 imgs = []
@@ -57,7 +58,7 @@ theta = 0
 
 def runLoaderAni():
     global loaderX, loaderY, theta
-    
+
     # Only run when images are loading
     if not all(loadStates):
         ellipse(loaderX, loaderY, 10, 10)
@@ -67,4 +68,3 @@ def runLoaderAni():
         # Reposition ellipse if it goes off the screen
         if loaderX > width + 5:
             loaderX = -5
-
