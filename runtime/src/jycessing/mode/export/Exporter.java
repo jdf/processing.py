@@ -1,5 +1,6 @@
 package jycessing.mode.export;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import processing.app.Library;
 import processing.app.Platform;
 import processing.app.Preferences;
 import processing.app.Sketch;
+import processing.app.ui.ExportPrompt;
 
 /**
  * Class that handles doing the actual exporting. All this currently does is figure out libraries
@@ -23,23 +25,8 @@ public class Exporter {
     }
   }
 
-  // Architecture of the currently running Processing JRE.
-  // Used to determine what platform we can embed java in.
-  public static final Arch processingArch;
-
-  static {
-    if (Platform.getNativeBits() == Arch.X86.bits) {
-      processingArch = Arch.X86;
-    } else {
-      processingArch = Arch.AMD64;
-    }
-  }
-
   private final Sketch sketch;
-  private final PyEditor editor; // I don't really want to pass this around but there's some
-  // functionality
-
-  // I need
+  private final PyEditor editor;
 
   public Exporter(final PyEditor editor, final Sketch sketch) {
     this.sketch = sketch;
@@ -50,43 +37,26 @@ public class Exporter {
     // Work out the libraries the sketch exports - we only need to do this once.
     final Set<Library> libraries = new ImportExtractor(sketch).getLibraries();
 
-    // Now, do this for each platform:
-    if (Preferences.getBoolean("export.application.platform.linux")) {
+    final String hostVariant = Platform.getVariant();
+    for (String variant : Preferences.get(ExportPrompt.EXPORT_VARIANTS).split(",")) {
+      // Can only embed Java on the native platform
+      boolean embed = variant.equals(hostVariant) &&
+        Preferences.getBoolean("export.application.embed_java");
+
       try {
-        new LinuxExport(Arch.X86, sketch, editor, libraries).export();
+        if (variant.startsWith("windows-")) {
+          new WindowsExport(variant, sketch, editor, libraries, embed).export();
+        } else if (variant.startsWith("macos-")) {
+          new MacExport(variant, sketch, editor, libraries, embed).export();
+        } else if (variant.startsWith("linux-")) {
+          new LinuxExport(variant, sketch, editor, libraries, embed).export();
+        }
       } catch (final IOException e) {
         e.printStackTrace();
-        editor.statusError("Export to linux32 failed!");
-      }
-      try {
-        new LinuxExport(Arch.AMD64, sketch, editor, libraries).export();
-      } catch (final IOException e) {
-        e.printStackTrace();
-        editor.statusError("Export to linux64 failed!");
-      }
-    }
-    if (Preferences.getBoolean("export.application.platform.windows")) {
-      try {
-        new WindowsExport(Arch.X86, sketch, editor, libraries).export();
-      } catch (final IOException e) {
-        e.printStackTrace();
-        editor.statusError("Export to windows32 failed!");
-      }
-      try {
-        new WindowsExport(Arch.AMD64, sketch, editor, libraries).export();
-      } catch (final IOException e) {
-        e.printStackTrace();
-        editor.statusError("Export to windows64 failed!");
+        editor.statusError("Export to " + variant + " failed");
       }
     }
-    if (Preferences.getBoolean("export.application.platform.macosx")) {
-      try {
-        new MacExport(sketch, editor, libraries).export();
-      } catch (final IOException e) {
-        e.printStackTrace();
-        editor.statusError("Export to macosx failed!");
-      }
-    }
+
     log("Opening result folder.");
     Platform.openFolder(sketch.getFolder());
   }

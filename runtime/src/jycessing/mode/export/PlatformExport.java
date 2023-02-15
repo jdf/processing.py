@@ -17,10 +17,11 @@ public abstract class PlatformExport {
   //protected int id;
   //protected Arch arch;
   protected String variant;  // replaces id and arch in Processing 4
-  protected String name;
+//  protected String name;
   protected PyEditor editor;
   protected Sketch sketch;
   protected Set<Library> libraries;
+  protected boolean embedJava;
 
   /** Instance so that subclasses can override it. */
   protected abstract void log(final String msg);

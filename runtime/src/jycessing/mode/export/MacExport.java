@@ -23,7 +23,6 @@ import processing.app.Preferences;
 import processing.app.Sketch;
 import processing.app.Util;
 import processing.core.PApplet;
-import processing.core.PConstants;
 
 /**
  * A Mac export.
@@ -50,23 +49,18 @@ public class MacExport extends PlatformExport {
     }
   }
 
-  public MacExport(final Sketch sketch, final PyEditor editor, final Set<Library> libraries) {
-    this.id = PConstants.MACOSX;
-    this.name = PConstants.platformNames[id];
+  public MacExport(final String variant, final Sketch sketch, final PyEditor editor, final Set<Library> libraries, final boolean embedJava) {
+    this.variant = variant;
     this.sketch = sketch;
     this.editor = editor;
     this.libraries = libraries;
-    this.arch = Arch.AMD64;
+    this.embedJava = embedJava;
   }
 
   @Override
   public void export() throws IOException {
-    // Work out user preferences and other possibilities we care about
-    final boolean embedJava =
-        (id == PApplet.platform) && Preferences.getBoolean("export.application.embed_java");
-
     // Work out the folders we'll be (maybe) using
-    final File destFolder = new File(sketch.getFolder(), "application." + name);
+    final File destFolder = new File(sketch.getFolder(), variant);
     final File appRootFolder = new File(destFolder, sketch.getName() + ".app");
     final File contentsFolder = new File(appRootFolder, "Contents");
     final File binFolder = new File(contentsFolder, "MacOS");

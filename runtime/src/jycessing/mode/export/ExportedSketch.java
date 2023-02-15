@@ -2,7 +2,7 @@ package jycessing.mode.export;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +46,7 @@ public class ExportedSketch implements RunnableSketch {
     }
 
     final List<String> codeLines =
-        Files.readAllLines(sketchPath.toPath(), Charset.forName("UTF-8"));
+      Files.readAllLines(sketchPath.toPath(), StandardCharsets.UTF_8);
 
     final StringBuilder code = new StringBuilder();
     for (final String line : codeLines) {
