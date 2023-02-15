@@ -68,7 +68,6 @@ import com.google.common.io.Files;
 import com.jogamp.newt.opengl.GLWindow;
 
 import jycessing.IOUtil.ResourceReader;
-import jycessing.jni.OSX;
 import jycessing.mode.run.WrappedPrintStream;
 import jycessing.mode.run.WrappedPrintStream.PushedOut;
 import processing.awt.PSurfaceAWT;
@@ -76,6 +75,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
 import processing.core.PSurface;
+import processing.core.ThinkDifferent;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 import processing.opengl.PGraphicsOpenGL;
@@ -908,7 +908,7 @@ public class PAppletJythonDriver extends PApplet {
 
   private void bringToFront() {
     if (PApplet.platform == PConstants.MACOSX) {
-      OSX.bringToFront();
+      ThinkDifferent.activateIgnoringOtherApps();
     }
   }
 

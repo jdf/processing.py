@@ -21,7 +21,6 @@ import javax.swing.JOptionPane;
 
 import jycessing.DisplayType;
 import jycessing.IOUtil;
-import jycessing.jni.OSX;
 import jycessing.mode.export.Exporter;
 import jycessing.mode.run.PdeSketch;
 import jycessing.mode.run.PdeSketch.LocationType;
@@ -49,6 +48,7 @@ import processing.app.ui.ExportPrompt;
 import processing.app.ui.Toolkit;
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.ThinkDifferent;
 
 public class PyEditor extends Editor {
 
@@ -328,7 +328,7 @@ public class PyEditor extends Editor {
 
   private void bringToFront() {
     if (PApplet.platform == PConstants.MACOS) {
-      OSX.bringToFront(pyMode);
+      ThinkDifferent.activateIgnoringOtherApps();
     }
   }
 
