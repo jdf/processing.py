@@ -7,7 +7,7 @@
      Processing Development Environment and for the standalone processing.py
      distribution.
 
-     This has been tested on Mac OSX and linux. It is not expected to work at
+     This has been tested on macOS and Linux. It is not expected to work at
      all on Windows.
 
      -jdf
@@ -16,7 +16,7 @@
       ant test                                 - to run unit tests.
       ant mode.zip                             - to create a Python Mode zip file.
       ant make-all-distributions               - to create a processing.py release.
-      ant -Dplatform=macosx make-distribution  - to create the OSX processing.py release.
+      ant -Dplatform=macos make-distribution   - to create the macOS processing.py release.
 
      ====================================================================== -->
 <project name="processing.py" default="mode.zip">
@@ -160,7 +160,7 @@ ${line.separator}and the processing-video library cloned from git." />
       </manifest>
     </jar>
     <foreach
-      list="macosx-universal,linux-i586,linux-amd64,windows-i586,windows-amd64"
+      list="macos-universal,linux-i586,linux-amd64,windows-i586,windows-amd64"
       param="natives.platform"
       target="jar.natives"/>
   </target>
@@ -295,7 +295,7 @@ ${line.separator}and the processing-video library cloned from git." />
       </if>
       <local name="gl.platform"/>
       <switch value="@{platform}">
-        <case value="macosx"><property name="gl.platform" value="macosx-universal"/></case>
+        <case value="macos"><property name="gl.platform" value="macos-universal"/></case>
         <case value="linux32"><property name="gl.platform" value="linux-i586"/></case>
         <case value="linux64"><property name="gl.platform" value="linux-amd64"/></case>
         <case value="windows32"><property name="gl.platform" value="windows-i586"/></case>
@@ -316,17 +316,10 @@ ${line.separator}and the processing-video library cloned from git." />
     </sequential>
   </macrodef>
 
-  <target name="jni-OSX" depends="build">
-    <javah destdir="runtime/src/jycessing/jni"
-           force="yes"
-           class="jycessing.jni.OSX"
-           classpath="./bin" />
-  </target>
-
   <macrodef name="for-all-platforms">
     <attribute name="target" />
     <sequential>
-      <for-platform platform="macosx" target="@{target}"/>
+      <for-platform platform="macos" target="@{target}"/>
       <for-platform platform="linux32" target="@{target}"/>
       <for-platform platform="linux64" target="@{target}"/>
       <for-platform platform="windows32" target="@{target}"/>
@@ -366,7 +359,7 @@ ${line.separator}and the processing-video library cloned from git." />
           <arg line="zxf ${platform}.tgz -C ${platform} --strip-components 1 "/>
         </exec>
         <if>
-          <equals arg1="${platform}" arg2="macosx"/>
+          <equals arg1="${platform}" arg2="macos"/>
           <then>
             <echo message="Moving mac JRE to sane location."/>
             <exec executable="sh" dir="${jre.local.dir}" failonerror="true">
@@ -490,7 +483,7 @@ ${line.separator}and the processing-video library cloned from git." />
   </target>
 
   <!--
-    $ ant –Dplatform=macosx make-distribution
+    $ ant –Dplatform=macos make-distribution
   -->
   <target name="make-distribution">
     <for-platform platform="${platform}" target="make-one-distribution"/>
@@ -506,7 +499,7 @@ ${line.separator}and the processing-video library cloned from git." />
   </target>
 
   <!--
-    $ ant –Dplatform=macosx upload-distribution
+    $ ant –Dplatform=macos upload-distribution
   -->
   <target name="upload-distribution" depends="jar">
     <for-platform platform="${platform}" target="upload"/>
