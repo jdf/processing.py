@@ -1,6 +1,5 @@
 package jycessing.mode.export;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -28,9 +27,9 @@ public class Exporter {
   private final Sketch sketch;
   private final PyEditor editor;
 
-  public Exporter(final PyEditor editor, final Sketch sketch) {
-    this.sketch = sketch;
+  public Exporter(final PyEditor editor) {
     this.editor = editor;
+    this.sketch = editor.getSketch();
   }
 
   public void export() {
