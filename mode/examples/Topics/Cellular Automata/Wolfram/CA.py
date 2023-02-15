@@ -30,7 +30,7 @@ class CA:
         nextgen = [0] * len(self.cells)
         # For every spot, determine new state by examing current state,
         # and neighbor states
-        # Ignore edges that only have one neighor
+        # Ignore edges that only have one neighbor
         for i in range(1, len(self.cells) - 1):
             left = self.cells[i - 1]     # Left neighbor state
             me = self.cells[i]           # Current state
