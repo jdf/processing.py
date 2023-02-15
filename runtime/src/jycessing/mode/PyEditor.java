@@ -22,7 +22,6 @@ import javax.swing.JOptionPane;
 import jycessing.DisplayType;
 import jycessing.IOUtil;
 import jycessing.jni.OSX;
-import jycessing.mode.export.ExportDialog;
 import jycessing.mode.run.PdeSketch;
 import jycessing.mode.run.PdeSketch.LocationType;
 import jycessing.mode.run.SketchService;
@@ -45,6 +44,7 @@ import processing.app.ui.Editor;
 import processing.app.ui.EditorException;
 import processing.app.ui.EditorState;
 import processing.app.ui.EditorToolbar;
+import processing.app.ui.ExportPrompt;
 import processing.app.ui.Toolkit;
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -288,7 +288,13 @@ public class PyEditor extends Editor {
       }
     }
 
-    new ExportDialog(this, sketch).go();
+    //new ExportDialog(this, sketch).go();
+    new ExportPrompt(this, new Runnable() {
+      @Override
+      public void run() {
+        // callback after export complete
+      }
+    });
   }
 
   public File getModeContentFile(final String filename) {
