@@ -199,7 +199,7 @@ Much of the work in achieving compatibility with Processing 3.x was
 was done by Luca Damasco
 (Google Summer of Code student), under the supervision of Golan Levin,
 with additional support from the Frank-Ratchye STUDIO for Creative Inquiry at Carnegie
-Mellon University. Without Luca, the porject may well have died.
+Mellon University. Without Luca, the project might well have died.
 
 Also, [YourKit, LLC](http://www.yourkit.com) was so kind to sponsor a license for their excellent [YourKit Java Profiler](http://www.yourkit.com/java/profiler/index.jsp). Thank you very much! They've asked me to place this message here in return for their sponsorship:
 
