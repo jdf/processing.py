@@ -1,6 +1,5 @@
 package jycessing.mode.run;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -19,19 +18,10 @@ public class RMIUtils {
 
   static final int RMI_PORT = 8220;
 
-  private static final RMIClientSocketFactory clientFactory = new RMIClientSocketFactory() {
-    @Override
-    public Socket createSocket(final String host, final int port) throws IOException {
-      return new Socket(host, port);
-    }
-  };
+  private static final RMIClientSocketFactory clientFactory = Socket::new;
 
-  private static final RMIServerSocketFactory serverFactory = new RMIServerSocketFactory() {
-    @Override
-    public ServerSocket createServerSocket(final int port) throws IOException {
-      return new ServerSocket(port, 50, InetAddress.getLoopbackAddress());
-    }
-  };
+  private static final RMIServerSocketFactory serverFactory =
+    port -> new ServerSocket(port, 50, InetAddress.getLoopbackAddress());
 
   static {
     System.setProperty("sun.rmi.transport.tcp.localHostNameTimeOut", "1000");
@@ -90,7 +80,7 @@ public class RMIUtils {
         try {
           log("Unbinding " + registryKey + " from registry.");
           registry().unbind(registryKey);
-        } catch (final Exception e) {
+        } catch (final Exception ignored) {
         }
       }));
     } catch (final Exception e) {
