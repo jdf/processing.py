@@ -20,10 +20,8 @@ import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -51,7 +49,6 @@ import org.python.core.PyFloat;
 import org.python.core.PyFunction;
 import org.python.core.PyIndentationError;
 import org.python.core.PyInteger;
-import org.python.core.PyJavaType;
 import org.python.core.PyObject;
 import org.python.core.PyObjectDerived;
 import org.python.core.PySet;
@@ -63,13 +60,12 @@ import org.python.core.PyType;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import com.jogamp.newt.opengl.GLWindow;
 
 import jycessing.IOUtil.ResourceReader;
 import jycessing.mode.run.WrappedPrintStream;
 import jycessing.mode.run.WrappedPrintStream.PushedOut;
+
 import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -82,7 +78,6 @@ import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PShader;
 import processing.opengl.PSurfaceJOGL;
 
-@SuppressWarnings("serial")
 public class PAppletJythonDriver extends PApplet {
 
   public static final String C_LIKE_LOGICAL_AND_ERROR_MESSAGE =
@@ -105,7 +100,7 @@ public class PAppletJythonDriver extends PApplet {
 
   private Field frameField;
 
-  static private Class fxSurfaceClass;
+  static private Class<?> fxSurfaceClass;
   static {
     try {
       // Get class object for use in dynamic instanceof calls for PSurfaceFX
@@ -265,16 +260,13 @@ public class PAppletJythonDriver extends PApplet {
     if (t instanceof PythonSketchError) {
       return (PythonSketchError) t;
     }
-    if (t instanceof PySyntaxError) {
-      final PySyntaxError e = (PySyntaxError) t;
+    if (t instanceof final PySyntaxError e) {
       return extractSketchErrorFromPyExceptionValue((PyTuple) e.value);
     }
-    if (t instanceof PyIndentationError) {
-      final PyIndentationError e = (PyIndentationError) t;
+    if (t instanceof final PyIndentationError e) {
       return extractSketchErrorFromPyExceptionValue((PyTuple) e.value);
     }
-    if (t instanceof PyException) {
-      final PyException e = (PyException) t;
+    if (t instanceof final PyException e) {
       final Pattern tbParse =
           Pattern.compile("^\\s*File \"([^\"]+)\", line (\\d+)", Pattern.MULTILINE);
       final Matcher m = tbParse.matcher(e.toString());
@@ -312,8 +304,8 @@ public class PAppletJythonDriver extends PApplet {
     final PyTuple context = (PyTuple) tup.get(1);
     final File file = new File((String) context.get(0));
     final String fileName = file.getName();
-    final int lineNumber = ((Integer) context.get(1)).intValue() - 1;
-    final int column = ((Integer) context.get(2)).intValue();
+    final int lineNumber = (Integer) context.get(1) - 1;
+    final int column = (Integer) context.get(2);
     if (pyMessage.startsWith("no viable alternative")) {
       return noViableAlternative(file, lineNumber, column, pyMessage);
     }
@@ -331,11 +323,6 @@ public class PAppletJythonDriver extends PApplet {
    *
    * <p>This function takes a stab at finding such a thing, and reporting it. Otherwise, it throws a
    * slightly less cryptic error message.
-   *
-   * @param file
-   * @param lineNo
-   * @param column
-   * @return
    */
   private static PythonSketchError noViableAlternative(
       final File file, final int lineNo, final int column, final String message) {
@@ -352,29 +339,24 @@ public class PAppletJythonDriver extends PApplet {
             file.getName(),
             lineNo,
             column);
-    try {
-      int lineIndex = 0;
-      for (final String line : Files.readLines(file, Charsets.UTF_8)) {
-        final Matcher m = NAKED_COLOR.matcher(line);
-        if (m.find()) {
-          final String color = m.group(1);
-          return new PythonSketchError(
-              "Did you try to name a color here? "
-                  + "Colors in Python mode are either strings, like '#"
-                  + color
-                  + "', or "
-                  + "large hex integers, like 0xFF"
-                  + color.toUpperCase()
-                  + ".",
-              file.getName(),
-              lineIndex,
-              m.start(1));
-        }
-        lineIndex++;
+    int lineIndex = 0;
+    for (final String line : PApplet.loadStrings(file)) {
+      final Matcher m = NAKED_COLOR.matcher(line);
+      if (m.find()) {
+        final String color = m.group(1);
+        return new PythonSketchError(
+            "Did you try to name a color here? "
+                + "Colors in Python mode are either strings, like '#"
+                + color
+                + "', or "
+                + "large hex integers, like 0xFF"
+                + color.toUpperCase()
+                + ".",
+            file.getName(),
+            lineIndex,
+            m.start(1));
       }
-    } catch (final IOException e) {
-      System.err.println("While trying to read " + file + ": " + e.getMessage());
-      return defaultException;
+      lineIndex++;
     }
     return defaultException;
   }
@@ -430,24 +412,15 @@ public class PAppletJythonDriver extends PApplet {
       detectedSmooth = interp.get("__smooth__").asInt() != 0;
       detectedNoSmooth = interp.get("__noSmooth__").asInt() != 0;
       final String r = interp.get("__renderer__").asString();
-      if (r.equals("JAVA2D")) {
-        detectedRenderer = JAVA2D;
-      } else if (r.equals("P2D")) {
-        detectedRenderer = P2D;
-      } else if (r.equals("P3D")) {
-        detectedRenderer = P3D;
-      } else if (r.equals("OPENGL")) {
-        detectedRenderer = P3D;
-      } else if (r.equals("FX2D")) {
-        detectedRenderer = FX2D;
-      } else if (r.equals("PDF")) {
-        detectedRenderer = PDF;
-      } else if (r.equals("SVG")) {
-        detectedRenderer = SVG;
-      } else if (r.equals("DXF")) {
-        detectedRenderer = DXF;
-      } else {
-        detectedRenderer = r;
+      switch (r) {
+        case "JAVA2D" -> detectedRenderer = JAVA2D;
+        case "P2D" -> detectedRenderer = P2D;
+        case "P3D", "OPENGL" -> detectedRenderer = P3D;
+        case "FX2D" -> detectedRenderer = FX2D;
+        case "PDF" -> detectedRenderer = PDF;
+        case "SVG" -> detectedRenderer = SVG;
+        case "DXF" -> detectedRenderer = DXF;
+        default -> detectedRenderer = r;
       }
       processedStaticSketch = interp.get("__cleaned_sketch__");
     }
@@ -489,8 +462,7 @@ public class PAppletJythonDriver extends PApplet {
     }
 
     s.setTitle(pySketchPath.getFileName().toString().replaceAll("\\..*$", ""));
-    if (s instanceof PSurfaceAWT) {
-      final PSurfaceAWT surf = (PSurfaceAWT) s;
+    if (s instanceof final PSurfaceAWT surf) {
       final Component c = (Component) surf.getNative();
       c.addComponentListener(
           new ComponentAdapter() {
@@ -514,7 +486,7 @@ public class PAppletJythonDriver extends PApplet {
     }
 
     final PyObject pyG;
-    if (g instanceof PGraphicsOpenGL) {
+    if (g instanceof final PGraphicsOpenGL glGraphics) {
       /*
        * The name "camera" in PGraphicsOpenGL can refer to either a PMatrix3D field
        * or a couple of functions of that name. Unfortunately, Python only has one namespace,
@@ -535,7 +507,6 @@ public class PAppletJythonDriver extends PApplet {
        *    # read back what we did
        *    print g.cameraMatrix.m02
        */
-      final PGraphicsOpenGL glGraphics = (PGraphicsOpenGL) g;
       final PyObject cameraMatrix = Py.java2py(glGraphics.camera);
       final PyObject cameraInvMatrix = Py.java2py(glGraphics.cameraInv);
       final PyObject modelviewMatrix = Py.java2py(glGraphics.modelview);
@@ -599,16 +570,12 @@ public class PAppletJythonDriver extends PApplet {
    *
    * @param obj either a {@link PyString} or a {@link PyFunction} to run in a thread.
    */
+  @SuppressWarnings("unused")
   public void thread(final Object obj) {
     if (obj instanceof String) {
       super.thread((String) obj);
     } else if (obj instanceof PyFunction) {
-      new Thread() {
-        @Override
-        public void run() {
-          ((PyFunction) obj).__call__();
-        }
-      }.start();
+      new Thread(() -> ((PyFunction) obj).__call__()).start();
     }
   }
 
@@ -634,63 +601,63 @@ public class PAppletJythonDriver extends PApplet {
     setupMeth = interp.get("setup");
 
     mousePressedFunc =
-        new EventFunction<MouseEvent>("mousePressed") {
-          @Override
-          protected void callSuper(final MouseEvent event) {
-            PAppletJythonDriver.super.mousePressed(event);
-          }
-        };
+      new EventFunction<>("mousePressed") {
+        @Override
+        protected void callSuper(final MouseEvent event) {
+          PAppletJythonDriver.super.mousePressed(event);
+        }
+      };
     mouseClickedFunc =
-        new EventFunction<MouseEvent>("mouseClicked") {
-          @Override
-          protected void callSuper(final MouseEvent event) {
-            PAppletJythonDriver.super.mouseClicked(event);
-          }
-        };
+      new EventFunction<>("mouseClicked") {
+        @Override
+        protected void callSuper(final MouseEvent event) {
+          PAppletJythonDriver.super.mouseClicked(event);
+        }
+      };
     mouseMovedFunc =
-        new EventFunction<MouseEvent>("mouseMoved") {
-          @Override
-          protected void callSuper(final MouseEvent event) {
-            PAppletJythonDriver.super.mouseMoved(event);
-          }
-        };
+      new EventFunction<>("mouseMoved") {
+        @Override
+        protected void callSuper(final MouseEvent event) {
+          PAppletJythonDriver.super.mouseMoved(event);
+        }
+      };
     mouseReleasedFunc =
-        new EventFunction<MouseEvent>("mouseReleased") {
-          @Override
-          protected void callSuper(final MouseEvent event) {
-            PAppletJythonDriver.super.mouseReleased(event);
-          }
-        };
+      new EventFunction<>("mouseReleased") {
+        @Override
+        protected void callSuper(final MouseEvent event) {
+          PAppletJythonDriver.super.mouseReleased(event);
+        }
+      };
     mouseDraggedFunc =
-        new EventFunction<MouseEvent>("mouseDragged") {
-          @Override
-          protected void callSuper(final MouseEvent event) {
-            PAppletJythonDriver.super.mouseDragged(event);
-          }
-        };
+      new EventFunction<>("mouseDragged") {
+        @Override
+        protected void callSuper(final MouseEvent event) {
+          PAppletJythonDriver.super.mouseDragged(event);
+        }
+      };
 
     // keyPressed is renamed to __keyPressed__ by the preprocessor.
     keyPressedFunc =
-        new EventFunction<KeyEvent>("__keyPressed__") {
-          @Override
-          protected void callSuper(final KeyEvent event) {
-            PAppletJythonDriver.super.keyPressed(event);
-          }
-        };
+      new EventFunction<>("__keyPressed__") {
+        @Override
+        protected void callSuper(final KeyEvent event) {
+          PAppletJythonDriver.super.keyPressed(event);
+        }
+      };
     keyReleasedFunc =
-        new EventFunction<KeyEvent>("keyReleased") {
-          @Override
-          protected void callSuper(final KeyEvent event) {
-            PAppletJythonDriver.super.keyReleased(event);
-          }
-        };
+      new EventFunction<>("keyReleased") {
+        @Override
+        protected void callSuper(final KeyEvent event) {
+          PAppletJythonDriver.super.keyReleased(event);
+        }
+      };
     keyTypedFunc =
-        new EventFunction<KeyEvent>("keyTyped") {
-          @Override
-          protected void callSuper(final KeyEvent event) {
-            PAppletJythonDriver.super.keyTyped(event);
-          }
-        };
+      new EventFunction<>("keyTyped") {
+        @Override
+        protected void callSuper(final KeyEvent event) {
+          PAppletJythonDriver.super.keyTyped(event);
+        }
+      };
 
     settingsMeth = interp.get("settings");
     stopMeth = interp.get("stop");
@@ -737,62 +704,44 @@ public class PAppletJythonDriver extends PApplet {
     PyObject meth;
     if ((meth = interp.get("noteOn")) != null) {
       switch (argCount(meth)) {
-        default:
-          throw new RuntimeException(
-              "only noteOn(channel, pitch, velocity) or "
-                  + "noteOn(channel, pitch, velocity, timestamp, bus_name) "
-                  + "are supported by Python Mode");
-        case 3:
-          noteOn3Meth = meth;
-          break;
-        case 5:
-          noteOn5Meth = meth;
+        default -> throw new RuntimeException(
+          "only noteOn(channel, pitch, velocity) or "
+            + "noteOn(channel, pitch, velocity, timestamp, bus_name) "
+            + "are supported by Python Mode");
+        case 3 -> noteOn3Meth = meth;
+        case 5 -> noteOn5Meth = meth;
       }
     }
     if ((meth = interp.get("noteOff")) != null) {
       switch (argCount(meth)) {
-        case 1:
-          throw new RuntimeException(
-              "only noteOff(channel, pitch, velocity) or "
-                  + "noteOff(channel, pitch, velocity, timestamp, bus_name) "
-                  + "are supported by Python Mode");
-        case 3:
-          noteOff3Meth = meth;
-          break;
-        case 5:
-          noteOff5Meth = meth;
+        case 1 -> throw new RuntimeException(
+          "only noteOff(channel, pitch, velocity) or "
+            + "noteOff(channel, pitch, velocity, timestamp, bus_name) "
+            + "are supported by Python Mode");
+        case 3 -> noteOff3Meth = meth;
+        case 5 -> noteOff5Meth = meth;
       }
     }
     if ((meth = interp.get("controllerChange")) != null) {
       switch (argCount(meth)) {
-        case 1:
-          throw new RuntimeException(
-              "only controllerChange(channel, pitch, velocity) or "
-                  + "controllerChange(channel, pitch, velocity, timestamp, bus_name) "
-                  + "are supported by Python Mode");
-        case 3:
-          controllerChange3Meth = meth;
-          break;
-        case 5:
-          controllerChange5Meth = meth;
+        case 1 -> throw new RuntimeException(
+          "only controllerChange(channel, pitch, velocity) or "
+            + "controllerChange(channel, pitch, velocity, timestamp, bus_name) "
+            + "are supported by Python Mode");
+        case 3 -> controllerChange3Meth = meth;
+        case 5 -> controllerChange5Meth = meth;
       }
     }
     if ((meth = interp.get("rawMidi")) != null) {
       switch (argCount(meth)) {
-        case 1:
-          rawMidi1Meth = meth;
-          break;
-        case 3:
-          rawMidi3Meth = meth;
+        case 1 -> rawMidi1Meth = meth;
+        case 3 -> rawMidi3Meth = meth;
       }
     }
     if ((meth = interp.get("midiMessage")) != null) {
       switch (argCount(meth)) {
-        case 1:
-          midiMessage1Meth = meth;
-          break;
-        case 3:
-          midiMessage3Meth = meth;
+        case 1 -> midiMessage1Meth = meth;
+        case 3 -> midiMessage3Meth = meth;
       }
     }
 
@@ -890,24 +839,20 @@ public class PAppletJythonDriver extends PApplet {
   public void start() {
     // I want to quit on runtime exceptions.
     // Processing just sits there by default.
-    Thread.setDefaultUncaughtExceptionHandler(
-        new UncaughtExceptionHandler() {
-          @Override
-          public void uncaughtException(final Thread t, final Throwable e) {
-            terminalException = toSketchException(e);
-            try {
-              handleMethods("dispose");
-            } catch (final Exception noop) {
-              // give up
-            }
-            finishedLatch.countDown();
-          }
-        });
+    Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+      terminalException = toSketchException(e);
+      try {
+        handleMethods("dispose");
+      } catch (final Exception noop) {
+        // give up
+      }
+      finishedLatch.countDown();
+    });
     super.start();
   }
 
   private void bringToFront() {
-    if (PApplet.platform == PConstants.MACOSX) {
+    if (PApplet.platform == PConstants.MACOS) {
       ThinkDifferent.activateIgnoringOtherApps();
     }
   }
@@ -1024,7 +969,7 @@ public class PAppletJythonDriver extends PApplet {
         new PyType(PyType.TYPE) {
           {
             builtin = true;
-            init(PySet.class, new HashSet<PyJavaType>());
+            init(PySet.class, new HashSet<>());
             invalidateMethodCache();
           }
 
@@ -1142,14 +1087,17 @@ public class PAppletJythonDriver extends PApplet {
    * invoke the fill(float) method, unless we provide a long int
    * version to catch it.
    */
+  @SuppressWarnings("unused")
   public void fill(final long argb) {
     fill((int) (argb & 0xFFFFFFFF));
   }
 
+  @SuppressWarnings("unused")
   public void stroke(final long argb) {
     stroke((int) (argb & 0xFFFFFFFF));
   }
 
+  @SuppressWarnings("unused")
   public void background(final long argb) {
     background((int) (argb & 0xFFFFFFFF));
   }
@@ -1158,14 +1106,17 @@ public class PAppletJythonDriver extends PApplet {
    * Python can't parse web colors, so we let the user do '#RRGGBB'
    * as a string.
    */
+  @SuppressWarnings("unused")
   public void fill(final String argbSpec) {
     fill(parseColorSpec(argbSpec));
   }
 
+  @SuppressWarnings("unused")
   public void stroke(final String argbSpec) {
     stroke(parseColorSpec(argbSpec));
   }
 
+  @SuppressWarnings("unused")
   public void background(final String argbSpec) {
     background(parseColorSpec(argbSpec));
   }

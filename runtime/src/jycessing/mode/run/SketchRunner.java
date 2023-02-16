@@ -1,5 +1,6 @@
 package jycessing.mode.run;
 
+import java.awt.Desktop;
 import java.rmi.RemoteException;
 
 import jycessing.Printer;
@@ -8,6 +9,7 @@ import jycessing.Runner;
 import jycessing.SketchPositionListener;
 import jycessing.mode.PythonMode;
 import jycessing.mode.run.RMIUtils.RMIProblem;
+import processing.app.Platform;
 import processing.app.SketchException;
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -28,9 +30,16 @@ public class SketchRunner implements SketchService {
   public SketchRunner(final String id, final ModeService modeService) {
     this.id = id;
     this.modeService = modeService;
-    if (PApplet.platform == PConstants.MACOSX) {
+    if (Platform.isMacOS()) {
+      //OSXAdapter.setQuitHandler(this, this.getClass().getMethod("preventUserQuit"));
       try {
-        OSXAdapter.setQuitHandler(this, this.getClass().getMethod("preventUserQuit"));
+        Desktop.getDesktop().setQuitHandler((event, quitResponse) -> {
+          if (preventUserQuit()) {
+            quitResponse.performQuit();
+          } else {
+            quitResponse.cancelQuit();
+          }
+        });
       } catch (final Throwable e) {
         System.err.println(e.getMessage());
       }
