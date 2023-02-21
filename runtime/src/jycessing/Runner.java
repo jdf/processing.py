@@ -53,7 +53,7 @@ public class Runner {
 
   static {
     final int archBits = Integer.parseInt(System.getProperty("sun.arch.data.model"));
-    if (PApplet.platform == PConstants.MACOSX) {
+    if (PApplet.platform == PConstants.MACOS) {
       ARCH = "macosx" + archBits;
     } else if (PApplet.platform == PConstants.WINDOWS) {
       ARCH = "macosx" + archBits;
@@ -89,7 +89,7 @@ public class Runner {
       return;
     }
     for (final Object o : objs) {
-      System.err.print(String.valueOf(o));
+      System.err.print(o);
     }
     System.err.println();
   }
