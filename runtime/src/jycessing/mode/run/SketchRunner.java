@@ -3,16 +3,15 @@ package jycessing.mode.run;
 import java.awt.Desktop;
 import java.rmi.RemoteException;
 
+import processing.app.Platform;
+import processing.app.SketchException;
+
 import jycessing.Printer;
 import jycessing.PythonSketchError;
 import jycessing.Runner;
 import jycessing.SketchPositionListener;
 import jycessing.mode.PythonMode;
 import jycessing.mode.run.RMIUtils.RMIProblem;
-import processing.app.Platform;
-import processing.app.SketchException;
-import processing.core.PApplet;
-import processing.core.PConstants;
 
 public class SketchRunner implements SketchService {
 
@@ -44,7 +43,7 @@ public class SketchRunner implements SketchService {
         System.err.println(e.getMessage());
       }
     }
-    new Thread(() -> Runner.warmup(), "SketchRunner Warmup Thread").start();
+    new Thread(Runner::warmup, "SketchRunner Warmup Thread").start();
   }
 
   /**
@@ -66,7 +65,7 @@ public class SketchRunner implements SketchService {
       return true;
     }
     log("Cancelling quit, but stopping sketch.");
-    new Thread(() -> stopSketch()).start();
+    new Thread(this::stopSketch).start();
     return false;
   }
 
@@ -77,7 +76,7 @@ public class SketchRunner implements SketchService {
     System.exit(0);
   }
 
-  private abstract class RemotePrinter implements Printer {
+  private abstract static class RemotePrinter implements Printer {
     abstract protected void doPrint(String s) throws RemoteException;
 
     public void print(final Object o) {

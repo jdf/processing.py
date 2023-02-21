@@ -15,19 +15,17 @@ package jycessing;
 
 import java.awt.Component;
 import java.awt.Frame;
+import java.awt.GraphicsDevice;
 import java.awt.Point;
-import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -340,23 +338,28 @@ public class PAppletJythonDriver extends PApplet {
             lineNo,
             column);
     int lineIndex = 0;
-    for (final String line : PApplet.loadStrings(file)) {
-      final Matcher m = NAKED_COLOR.matcher(line);
-      if (m.find()) {
-        final String color = m.group(1);
-        return new PythonSketchError(
+    String[] lines = PApplet.loadStrings(file);
+    if (lines != null) {
+      for (final String line : lines) {
+        final Matcher m = NAKED_COLOR.matcher(line);
+        if (m.find()) {
+          final String color = m.group(1);
+          return new PythonSketchError(
             "Did you try to name a color here? "
-                + "Colors in Python mode are either strings, like '#"
-                + color
-                + "', or "
-                + "large hex integers, like 0xFF"
-                + color.toUpperCase()
-                + ".",
+              + "Colors in Python mode are either strings, like '#"
+              + color
+              + "', or "
+              + "large hex integers, like 0xFF"
+              + color.toUpperCase()
+              + ".",
             file.getName(),
             lineIndex,
             m.start(1));
+        }
+        lineIndex++;
       }
-      lineIndex++;
+    } else {
+      System.err.println("Could not read " + file);
     }
     return defaultException;
   }
@@ -411,6 +414,7 @@ public class PAppletJythonDriver extends PApplet {
       detectedPixelDensity = interp.get("__pixelDensity__").asInt();
       detectedSmooth = interp.get("__smooth__").asInt() != 0;
       detectedNoSmooth = interp.get("__noSmooth__").asInt() != 0;
+      detectedFullScreen = interp.get("__fullScreen__").asInt() != 0;  // TODO does not work [fry 230221]
       final String r = interp.get("__renderer__").asString();
       switch (r) {
         case "JAVA2D" -> detectedRenderer = JAVA2D;
@@ -471,8 +475,7 @@ public class PAppletJythonDriver extends PApplet {
               finishedLatch.countDown();
             }
           });
-    } else if (s instanceof PSurfaceJOGL) {
-      final PSurfaceJOGL surf = (PSurfaceJOGL) s;
+    } else if (s instanceof final PSurfaceJOGL surf) {
       final GLWindow win = (GLWindow) surf.getNative();
       win.addWindowListener(
           new com.jogamp.newt.event.WindowAdapter() {
@@ -851,15 +854,22 @@ public class PAppletJythonDriver extends PApplet {
     super.start();
   }
 
-  private void bringToFront() {
-    if (PApplet.platform == PConstants.MACOS) {
-      ThinkDifferent.activateIgnoringOtherApps();
-    }
-  }
 
   public void runAndBlock(final String[] args) throws PythonSketchError {
     PApplet.runSketch(args, this);
-    bringToFront();
+
+    // bring the sketch to the front
+    if (PApplet.platform == PConstants.MACOS) {
+      ThinkDifferent.activateIgnoringOtherApps();
+    }
+
+    if (detectedFullScreen) {
+      if (surface instanceof PSurfaceAWT) {
+        Frame frame = ((PSurfaceAWT.SmoothCanvas) surface.getNative()).getFrame();
+        GraphicsDevice displayDevice = frame.getGraphicsConfiguration().getDevice();
+        displayDevice.setFullScreenWindow(frame);
+      }
+    }
 
     try {
       finishedLatch.await();
@@ -886,6 +896,8 @@ public class PAppletJythonDriver extends PApplet {
       maybeShutdownSoundEngine();
 
       Thread.setDefaultUncaughtExceptionHandler(null);
+
+      /*
       if (PApplet.platform == PConstants.MACOS && Arrays.asList(args).contains("fullScreen")) {
         // Frame should be OS-X fullscreen, and it won't stop being that unless the jvm
         // exits or we explicitly tell it to minimize.
@@ -901,6 +913,7 @@ public class PAppletJythonDriver extends PApplet {
           }
         }
       }
+      */
       if (fxSurfaceClass != null && fxSurfaceClass.isInstance(surface)) {
         // Sadly, JavaFX is an abomination, and there's no way to run an FX sketch more than once,
         // so we must actually exit.
@@ -932,24 +945,6 @@ public class PAppletJythonDriver extends PApplet {
       final Field singleton = appClass.getDeclaredField("singleton");
       singleton.setAccessible(true);
       singleton.set(null, null);
-    } catch (final ClassNotFoundException cnfe) {
-      // ignored
-    } catch (final Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  /**
-   * Use reflection to call <code>
-   * com.apple.eawt.Application.getApplication().requestToggleFullScreen(window);</code>
-   */
-  private static void macosxFullScreenToggle(final Window window) {
-    try {
-      final Class<?> appClass = Class.forName("com.apple.eawt.Application");
-      final Method getAppMethod = appClass.getMethod("getApplication");
-      final Object app = getAppMethod.invoke(null);
-      final Method requestMethod = appClass.getMethod("requestToggleFullScreen", Window.class);
-      requestMethod.invoke(app, window);
     } catch (final ClassNotFoundException cnfe) {
       // ignored
     } catch (final Exception e) {
