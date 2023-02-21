@@ -337,7 +337,7 @@ public class Runner {
 
       interp.exec("import sys\n");
 
-      // Add all of the sketch's requested sys.path entries, and add all jar
+      // Add all the sketch's requested sys.path entries, and add all jar
       // files found there, recursively.
       final Set<String> userLibs = new TreeSet<>();
       for (final File entry : sketch.getPathEntries()) {
@@ -351,7 +351,7 @@ public class Runner {
         new LibraryImporter(libDirs, interp);
 
         if (sketch.getLibraryPolicy() == LibraryPolicy.PROMISCUOUS) {
-          log("Promiscusouly adding all libraries in " + libDirs);
+          log("Promiscuously adding all libraries in " + libDirs);
           // Recursively search the "libraries" directory for jar files and
           // directories containing dynamic libraries.
           final Set<String> libs = new HashSet<>();
