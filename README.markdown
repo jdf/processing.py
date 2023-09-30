@@ -1,3 +1,9 @@
+# THIS PROJECT IS NOT MAINTAINED #
+
+It is not compatible with the latest major version of Processing, 4.0.
+
+There is no longer anyone fixing bugs or developing new features.
+
 # Python Mode for Processing #
 
 Write real [Processing](http://processing.org/) sketches in Python.
