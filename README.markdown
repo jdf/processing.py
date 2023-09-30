@@ -4,6 +4,9 @@ It is not compatible with the latest major version of Processing, 4.0.
 
 There is no longer anyone fixing bugs or developing new features.
 
+If you are interested in taking ownership of this repository, please contact 
+<a href="mailto:eecoli@gmail.com">Jonathan Feinberg</a>.
+
 # Python Mode for Processing #
 
 Write real [Processing](http://processing.org/) sketches in Python.
